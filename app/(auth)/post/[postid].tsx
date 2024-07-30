@@ -10,7 +10,7 @@ import { RefreshControl, ScrollView } from "react-native"
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
   const { data, isFetching, refetch } = usePostDetail(postid as string)
-  const { context, post, user } = useMemo(
+  const { context, post } = useMemo(
     () => {
       const context = getDashboardContext(data ? [data] : [])
       const post = data?.posts[0]
@@ -19,25 +19,26 @@ export default function PostDetail() {
     },
     [data]
   )
-
-  console.log(post?.ancestors[0].content)
+  const screenOptions = (
+    <Stack.Screen options={{ title: 'Woot Detail' }} />
+  )
 
   if (isFetching) {
     return (
       <>
         <Loading />
-        <Stack.Screen options={{ title: 'Post' }} />
+        {screenOptions}
       </>
     )
   }
 
   if (!post) {
-    return <Stack.Screen options={{ title: 'Post' }} />
+    return screenOptions
   }
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{ title: `${user?.url} post` }} />
+      {screenOptions}
       <ScrollView
         refreshControl={
           <RefreshControl

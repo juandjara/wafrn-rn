@@ -2,9 +2,9 @@ import { PostThread } from "@/lib/api/posts.types"
 import { useMemo } from "react"
 import { Text, View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
-import { isEmptyRewoot } from "@/lib/api/posts"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
+import { isEmptyRewoot } from "@/lib/api/content"
 
 const ANCESTOR_LIMIT = 3
 

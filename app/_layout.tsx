@@ -6,6 +6,7 @@ import "../styles.css"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { Slot } from "expo-router";
+import { MenuProvider } from "react-native-popup-menu";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,9 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <Slot />
+              <MenuProvider>
+                <Slot />
+              </MenuProvider>
             </ThemeProvider>
           </AuthProvider>
         </QueryClientProvider>

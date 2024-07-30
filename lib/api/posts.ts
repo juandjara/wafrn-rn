@@ -2,11 +2,10 @@ import { useQuery } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
-import { DashboardData, Post } from "./posts.types"
-import { DashboardContextData } from "../contexts/DashboardContext"
+import { DashboardData } from "./posts.types"
 import { addSizesToMedias } from "./media"
 
-const LAYOUT_MARGIN = 20
+const LAYOUT_MARGIN = 16
 export const AVATAR_SIZE = 40
 export const POST_MARGIN = AVATAR_SIZE + LAYOUT_MARGIN
 
@@ -28,14 +27,4 @@ export function usePostDetail(id: string) {
     queryFn: () => getPostDetail(token!, id),
     enabled: !!token && !!id
   })
-}
-
-export function isEmptyRewoot(post: Post, context: DashboardContextData) {
-  if (!!post.content) {
-    return false
-  }
-
-  const hasMedias = context.medias.some((m) => m.posts.some(({ id }) => id === post.id))
-  const hasTags = context.tags.some((t) => t.postId === post.id)
-  return !hasMedias && !hasTags
 }

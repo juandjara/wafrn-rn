@@ -3,21 +3,25 @@ import { FlatList, Pressable, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
 import { PostThread } from "@/lib/api/posts.types"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import Thread from "../posts/Thread"
 import Loading from "../Loading"
+import { useScrollToTop } from "@react-navigation/native"
 
 export default function Dashboard({ mode = DashboardMode.FEED }: { mode: DashboardMode }) {
+  const listRef = useRef<FlatList>(null)
   const {
     data,
     isFetching,
     fetchNextPage,
     hasNextPage,
   } = useDashboard(mode)
-  const qc = useQueryClient()
 
+  useScrollToTop(listRef)
+
+  const qc = useQueryClient()
   const refresh = async () => {
     await qc.resetQueries({
       queryKey: ['dashboard', mode]
@@ -36,18 +40,17 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
 
   return (
     <DashboardContextProvider data={context}>
-      <View className="flex-1 relative items-center justify-center">
-        <FlatList
-          refreshing={isFetching}
-          onRefresh={refresh}
-          data={deduped}
-          contentContainerClassName="gap-4"
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ThreadWrapper thread={item} />}
-          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
-          ListFooterComponent={isFetching ? <Loading /> : null}
-        />
-      </View>
+      <FlatList
+        ref={listRef}
+        refreshing={isFetching}
+        onRefresh={refresh}
+        data={deduped}
+        contentContainerClassName="gap-3"
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <ThreadWrapper thread={item} />}
+        onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
+        ListFooterComponent={isFetching ? <Loading /> : null}
+      />
       <View className="absolute bottom-3 right-3">
         <Link href='/editor' className="p-3 rounded-full bg-white">
           <MaterialIcons name="edit-square" size={24} />
