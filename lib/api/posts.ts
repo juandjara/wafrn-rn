@@ -6,7 +6,7 @@ import { DashboardData } from "./posts.types"
 import { addSizesToMedias } from "./media"
 
 const LAYOUT_MARGIN = 16
-export const AVATAR_SIZE = 40
+export const AVATAR_SIZE = 42
 export const POST_MARGIN = AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(token: string, id: string) {

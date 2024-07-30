@@ -87,3 +87,32 @@ export function dedupePosts(pages: DashboardData[]) {
     return sortB - sortA
   })
 }
+
+export async function getUserFeed({
+  startTime,
+  userId,
+  token
+}: {
+  startTime: number
+  userId: string
+  token: string
+}) {
+  const json = await getJSON(`${API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  const data = json as DashboardData
+  data.medias = await addSizesToMedias(data.medias)
+  return data
+}
+
+export function useUserFeed(userId: string) {
+  const { token } = useAuth()
+  return useInfiniteQuery({
+    queryKey: ['userFeed', userId],
+    queryFn: ({ pageParam }) => getUserFeed({ userId, startTime: pageParam, token: token! }),
+    initialPageParam: Date.now(),
+    getNextPageParam: (lastPage) => getLastDate(lastPage.posts)
+  })
+}

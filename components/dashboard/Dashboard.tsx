@@ -1,14 +1,13 @@
 import { DashboardMode, dedupePosts, getDashboardContext, useDashboard } from "@/lib/api/dashboard"
-import { FlatList, Pressable, View } from "react-native"
+import { FlatList, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
-import { PostThread } from "@/lib/api/posts.types"
 import { useMemo, useRef } from "react"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
-import Thread from "../posts/Thread"
 import Loading from "../Loading"
 import { useScrollToTop } from "@react-navigation/native"
+import ThreadLink from "../posts/ThreadLink"
 
 export default function Dashboard({ mode = DashboardMode.FEED }: { mode: DashboardMode }) {
   const listRef = useRef<FlatList>(null)
@@ -47,7 +46,7 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
         data={deduped}
         contentContainerClassName="gap-3"
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ThreadWrapper thread={item} />}
+        renderItem={({ item }) => <ThreadLink thread={item} />}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
       />
@@ -58,19 +57,4 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
       </View>
     </DashboardContextProvider>
   );
-}
-
-function ThreadWrapper({ thread }: { thread: PostThread }) {
-  return (
-    <Link href={`/post/${thread.id}`} asChild>
-      <Pressable
-        android_ripple={{
-          foreground: true,
-          color: 'rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        <Thread thread={thread} collapseAncestors />
-      </Pressable>
-    </Link>
-  )
 }

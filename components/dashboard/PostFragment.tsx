@@ -1,12 +1,12 @@
 import { Post } from "@/lib/api/posts.types"
-import { Image, Text, useWindowDimensions, View } from "react-native"
+import { Image, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { formatAvatarUrl, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
-import { router } from "expo-router"
+import { Link, router } from "expo-router"
 import RenderHTML, { defaultHTMLElementModels, HTMLContentModel } from "react-native-render-html"
 import colors from "tailwindcss/colors"
 import { handleDomElement, isEmptyRewoot, processPostContent } from "@/lib/api/content"
@@ -86,21 +86,25 @@ export default function PostFragment({ post }: { post: Post }) {
   }
 
   return (
-    <View className="flex-row w-full gap-2.5 mb-2">
-      <Image
-        className="rounded-br-md border border-gray-500 flex-shrink-0"
-        source={{
-          width: AVATAR_SIZE,
-          height: AVATAR_SIZE,
-          uri: formatAvatarUrl(user)
-        }}
-      />
+    <View className="flex-row w-full gap-2.5 mb-2 items-start">
+      <Pressable onPress={() => router.navigate(`/user/${user?.url}`)}>
+        <Image
+          className="rounded-br-md border border-gray-500 flex-shrink-0"
+          source={{
+            width: AVATAR_SIZE,
+            height: AVATAR_SIZE,
+            uri: formatAvatarUrl(user)
+          }}
+        />
+      </Pressable>
       <View className="mb-1" style={{ width: contentWidth }}>
         <View className="my-1">
           <View className="flex-row">
             <HtmlRenderer html={userName} renderTextRoot />
           </View>
-          <Text className="text-sm text-cyan-400 mb-2">{formatUserUrl(user)}</Text>
+          <Link href={`/user/${user?.url}`} asChild>
+            <Text className="text-sm text-cyan-400 mb-2">{formatUserUrl(user)}</Text>
+          </Link>
           <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
         </View>
         <RenderHTML

@@ -29,7 +29,7 @@ const MODE_ICONS = {
 
 export default function Index() {
   const { setToken } = useAuth()
-  const { data } = useUser()
+  const { data: user } = useUser()
   const [mode, setMode] = useState(DashboardMode.FEED)
 
   function logout() {
@@ -95,13 +95,13 @@ export default function Index() {
             )
           },
           headerRight: () => {
-            if (!data) return undefined
+            if (!user) return undefined
             return (
               <Menu>
                 <MenuTrigger style={{ marginRight: 8 }} customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
                   <Image
                     className="rounded-full"
-                    source={{ uri: formatAvatarUrl(data) }}
+                    source={{ uri: formatAvatarUrl(user) }}
                     style={{ width: 40, height: 40 }}
                   />
                 </MenuTrigger>
@@ -114,7 +114,7 @@ export default function Index() {
                 }}>
                   <MenuOption
                     text='My profile'
-                    onSelect={() => router.push('/profile')}
+                    onSelect={() => router.push(`/user/${user.url}`)}
                     style={{
                       padding: 12,
                       borderBottomWidth: 1,
