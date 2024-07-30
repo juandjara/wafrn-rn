@@ -2,10 +2,21 @@ import { PostThread } from "@/lib/api/posts.types"
 import { useMemo } from "react"
 import { Text, View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
+import { isEmptyRewoot } from "@/lib/api/posts"
+import { useDashboardContext } from "@/lib/contexts/DashboardContext"
+import clsx from "clsx"
 
 const ANCESTOR_LIMIT = 3
 
-export default function Thread({ thread, collapseAncestors = false }: { thread: PostThread; collapseAncestors?: boolean }) {
+export default function Thread({
+  thread,
+  collapseAncestors = false
+}: {
+  thread: PostThread;
+  collapseAncestors?: boolean
+}) {
+  const context = useDashboardContext()
+  const isRewoot = useMemo(() => isEmptyRewoot(thread, context), [thread, context])
   const ancestors = useMemo(() => {
     const sorted = thread.ancestors.sort((a, b) => {
       const sortA = new Date(a.createdAt).getTime()
@@ -21,11 +32,24 @@ export default function Thread({ thread, collapseAncestors = false }: { thread: 
       sorted[sorted.length - 1]
     ].filter(Boolean)
   }, [thread.ancestors, collapseAncestors])
-
+  
   const hasMore = thread.ancestors.length >= ANCESTOR_LIMIT
+
+  const mainFragment = (
+    <View className={clsx(
+      'bg-indigo-950 border-slate-600',
+      {
+        'border-b': isRewoot,
+        'border-t': !isRewoot && ancestors.length > 0
+      },
+    )}>
+      <PostFragment post={thread} />
+    </View>
+  )
 
   return (
     <>
+      {isRewoot ? mainFragment : null}
       {collapseAncestors && hasMore ? (
         <>
           <View className="bg-indigo-900/50">
@@ -36,23 +60,24 @@ export default function Thread({ thread, collapseAncestors = false }: { thread: 
               ...{thread.ancestors.length - 2} more posts
             </Text>
           </View>
-          <View className="border-b border-gray-500 bg-indigo-900/50">
+          <View className="bg-indigo-900/50">
             <PostFragment post={ancestors[ancestors.length - 1]} />
           </View>
         </>
       ) : (
-        ancestors.map((ancestor) => (
+        ancestors.map((ancestor, index) => (
           <View
             key={ancestor.id}
-            className="border-b border-gray-500 bg-indigo-900/50"
+            className={clsx(
+              'border-slate-600 bg-indigo-900/50',
+              { 'border-t': index > 0 }
+            )}
           >
             <PostFragment post={ancestor} />
           </View>
         ))
       )}
-      <View className="bg-indigo-950">
-        <PostFragment post={thread} />
-      </View>
+      {isRewoot ? null : mainFragment}
     </>
   )
 }

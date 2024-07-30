@@ -4,6 +4,11 @@ import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
 import { DashboardData, Post } from "./posts.types"
 import { DashboardContextData } from "../contexts/DashboardContext"
+import { addSizesToMedias } from "./media"
+
+const LAYOUT_MARGIN = 20
+export const AVATAR_SIZE = 40
+export const POST_MARGIN = AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(token: string, id: string) {
   const json = await getJSON(`${API_URL}/v2/post/${id}`, {
@@ -11,7 +16,9 @@ export async function getPostDetail(token: string, id: string) {
       'Authorization': `Bearer ${token}`
     }
   })
-  return json as DashboardData
+  const data = json as DashboardData
+  data.medias = await addSizesToMedias(data.medias)
+  return data
 }
 
 export function usePostDetail(id: string) {

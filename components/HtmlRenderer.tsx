@@ -82,19 +82,25 @@ type ElementNode = DomNode & {
     [name: string]: string;
   };
 }
-
+/**
+This renderer is only used for simple inline html rendering
+for things such as usernames and rewoot ribbons.
+It does not support the complex html rendering needed for post contents.
+For that, use the RenderHTML component from the react-native-render-html package
+*/
 const HtmlRenderer = React.memo(_HtmlRenderer)
 export default HtmlRenderer
 
-function _HtmlRenderer({ html }: { html: string }) {
+function _HtmlRenderer({ html, renderTextRoot }: { html: string; renderTextRoot?: boolean }) {
   if (!html) {
     return <Text className='text-gray-500'>rewoot?</Text>
   }
   const document = parseDocument(html)
-  return (
-    <View>
-      {document.children.map((n, i) => renderNode(n, i))}
-    </View>
+  const children = document.children.map((n, i) => renderNode(n, i))
+  return renderTextRoot ? (
+    <>{children}</>
+  ) : (
+    <View>{children}</View>
   )
 }
 
@@ -104,6 +110,8 @@ function renderNode(node: DomNode, index: number) {
       return renderTextNode(node as DataNode, index)
     case ElementType.Tag:
       return renderElement(node as ElementNode, index)
+    default:
+      return null
   }
 }
 function renderTextNode(node: DataNode, index: number) {
@@ -111,9 +119,10 @@ function renderTextNode(node: DataNode, index: number) {
 }
 function renderElement(node: ElementNode, index: number) {
   if (node.name === LINK_TAG) {
+    const children = node.children.map((c, i) => renderNode(c, i))
     return (
       <Link href={node.attribs.href} key={index} style={TAG_STYLES.a}>
-        {node.children.map((c, i) => renderNode(c, i))}
+        {children}
       </Link>
     )
   }
@@ -121,10 +130,9 @@ function renderElement(node: ElementNode, index: number) {
     const { src, width, height } = node.attribs
     return (
       <Image
+        style={{ width: Number(width), height: Number(height), resizeMode: 'contain' }}
         key={index}
         src={src}
-        width={width ? Number(width) : undefined}
-        height={height ? Number(height) : undefined}
       />
     )
   }
@@ -135,12 +143,23 @@ function renderElement(node: ElementNode, index: number) {
       </View>
     )
   }
+  if (node.name === 'blockquote') {
+    return (
+      <View key={index} className='border-l border-gray-300 py-1 ml-8 my-2 pl-4'>
+        {node.children.map((c, i) => renderNode(c, i))}
+      </View>
+    )
+  }
   if (node.name === 'br') {
-    return null
+    return (
+      <View key={index} className='flex-grow'>
+        {/* <Text className='bg-white'>BR</Text> */}
+      </View>
+    )
   }
   return (
-    <Text key={index}>
+    <View className='flex-row flex-wrap flex-1' key={index}>
       {node.children.map((c, i) => renderNode(c, i))}
-    </Text>
+    </View>
   )
 }

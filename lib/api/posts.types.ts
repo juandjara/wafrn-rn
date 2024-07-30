@@ -27,11 +27,11 @@ export type PostThread = Post & {
 }
 
 export type PostUser = {
-  url: string
+  url: string // @handle
   avatar: string
-  id: string
+  id: string // uuid
   name: string
-  remoteId: string | null
+  remoteId: string | null // full url
 }
 
 export type PostEmojiContext = {
@@ -59,6 +59,7 @@ export type PostMedia = {
   description: string
   NSFW: boolean
   posts: { id: string }[]
+  aspectRatio?: number
 }
 
 export type PostMention = {

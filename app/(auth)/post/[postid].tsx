@@ -20,14 +20,19 @@ export default function PostDetail() {
     [data]
   )
 
+  console.log(post?.ancestors[0].content)
+
   if (isFetching) {
     return (
-      <Loading />
+      <>
+        <Loading />
+        <Stack.Screen options={{ title: 'Post' }} />
+      </>
     )
   }
 
   if (!post) {
-    return null
+    return <Stack.Screen options={{ title: 'Post' }} />
   }
 
   return (

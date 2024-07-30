@@ -8,6 +8,9 @@ export function isErrorResponse<T extends { success: boolean }>(res: ErrorRespon
 }
 
 export async function getJSON(...params: Parameters<typeof fetch>) {
+  params[1] = params[1] || {}
+  params[1].headers = new Headers(params[1].headers || {})
+  params[1].headers.set('Accept', 'application/json')
   const res = await fetch(...params)
   if (!res.ok) {
     throw new Error(`Network response not ok: ${res.status} ${res.statusText} \n${await res.text()}`)

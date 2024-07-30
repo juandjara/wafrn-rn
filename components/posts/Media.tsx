@@ -1,96 +1,98 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
 import { useEffect, useState } from "react";
-import { Image, Text, useWindowDimensions, View } from "react-native";
-import { POST_MARGIN } from "../dashboard/PostFragment";
-import { LightBox } from "@alantoa/lightbox";
-import { gestureHandlerRootHOC } from "react-native-gesture-handler";
-
-const AUDIO_EXTENSIONS = [
-  'aac',
-  'm4a',
-  'mp3',
-  'oga',
-  'ogg',
-  'opus',
-  'wav',
-  'weba'
-]
-const VIDEO_EXTENSIONS = [
-  'mp4',
-  'webm'
-]
-
-function isVideo(url: string) {
-  return VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
-}
-function isAudio(url: string) {
-  return AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
-}
-function isPDF(url: string) {
-  return url.endsWith('pdf')
-}
-
-function isImage(url: string) {
-  return !isVideo(url) && !isAudio(url) && !isPDF(url)
-}
+import { Image as RNImage, Modal, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { Image } from 'expo-image'
+import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
+import { POST_MARGIN } from "@/lib/api/posts";
+import { ThemedView } from "../ThemedView";
+import { MaterialIcons } from "@expo/vector-icons";
+import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 
 export default function Media({ media }: { media: PostMedia }) {
-  const [mediaDimensions, setMediaDimensions] = useState({ width: 0, height: 0 })
   const url = formatCachedUrl(formatMediaUrl(media.url))
+  const [aspectRatio, setAspectRatio] = useState(media.aspectRatio || 1)
   const { width } = useWindowDimensions()
-  
-  useEffect(() => {
-    let isMounted = true
-    if (isImage(url)) {
-      Image.getSize(url, (width, height) => {
-        if (!isMounted) return
-        setMediaDimensions({ width, height })
-      })
-    }
 
-    return () => {
-      isMounted = false
-    }
-  }, [url])
+  // useEffect(() => {
+  //   let isMounted = true
+  //   if (isImage(url) && !media.aspectRatio) {
+  //     RNImage.getSize(url, (width, height) => {
+  //       if (!isMounted) return
+  //       setAspectRatio(height / width)
+  //     })
+  //   }
+
+  //   return () => {
+  //     isMounted = false
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [url])
 
   const postWidth = width - POST_MARGIN - 8
-  const aspectRatio = mediaDimensions.height / mediaDimensions.width
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <View className="flex-1 m-2 ml-0 border border-gray-300 rounded-lg">
-      {/* {isVideo(url) && (
-        <video
-          className="rounded-md"
-          controls
-          src={url}
-        />
+    <View className="overflow-hidden m-2 ml-0 border border-gray-300 rounded-lg">
+      {modalOpen && (
+        <Modal
+          visible={modalOpen}
+          animationType="slide"
+          onRequestClose={() => setModalOpen(false)}
+        >
+          <ThemedView className="flex-1 relative">
+            <Pressable onPress={() => setModalOpen(false)} className="p-3">
+              <MaterialIcons name="close" size={24} color='white' />
+            </Pressable>
+            <ReactNativeZoomableView
+              minZoom={1}
+              maxZoom={30}
+              contentWidth={postWidth}
+              contentHeight={postWidth * aspectRatio}
+            >
+              <Image
+                source={{ uri: url }}
+                style={{ resizeMode: 'contain', width: width, height: width * aspectRatio }}
+              />
+            </ReactNativeZoomableView>
+          </ThemedView>
+        </Modal>
+      )}
+      {isVideo(url) && (
+        <Text className="text-white p-2 italic">Video not yet supported :c</Text>
+        // <video
+        //   className="rounded-md"
+        //   controls
+        //   src={url}
+        // />
       )}
       {isAudio(url) && (
-        <audio
-          className="rounded-md"
-          controls
-          src={url}
-        />
+        <Text className="text-white p-2 italic">Audio not yet supported :c</Text>
+        // <audio
+        //   className="rounded-md"
+        //   controls
+        //   src={url}
+        // />
       )}
       {isPDF(url) && (
-        <iframe
-          className="rounded-md"
-          src={url}
-        />
-      )} */}
-      {isImage(url) && !!aspectRatio && (
-        <View className="">
+        <Text className="text-white p-2 italic">PDF not yet supported :c</Text>
+        // <iframe
+        //   className="rounded-md"
+        //   src={url}
+        // />
+      )}
+      {isImage(url) && (
+        <Pressable onPress={() => setModalOpen(true)}>
           <Image
-            src={url}
+            source={{ uri: url }}
             className="rounded-t-md max-w-full"
+            contentFit="contain"
             style={{
               width: postWidth,
               height: postWidth * aspectRatio,
-              resizeMode: 'contain'
             }}
           />
-        </View>
+        </Pressable>
       )}
       <Text className="text-white text-xs p-2 bg-blue-950 rounded-lg">
         {media.description || 'No alt text'}
