@@ -1,6 +1,6 @@
 import { Post } from "@/lib/api/posts.types"
 import { Image, Pressable, Text, useWindowDimensions, View } from "react-native"
-import { formatAvatarUrl, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
+import { formatAvatarUrl, formatDate, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
@@ -9,7 +9,7 @@ import Media from "../posts/Media"
 import { Link, router } from "expo-router"
 import RenderHTML, { defaultHTMLElementModels, HTMLContentModel } from "react-native-render-html"
 import colors from "tailwindcss/colors"
-import { handleDomElement, isEmptyRewoot, processPostContent } from "@/lib/api/content"
+import { getUserNameHTML, handleDomElement, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
 
 const HTML_STYLES = {
@@ -55,18 +55,8 @@ export default function PostFragment({ post }: { post: Post }) {
   )
 
   const userName = useMemo(() => {
-    if (!user) return ''
-    const ids = context.emojiRelations.userEmojiRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) ?? []
-    const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
-    let text = user.name
-    for (const emoji of emojis) {
-      text = text.replaceAll(
-        emoji.name,
-        `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`
-      )
-    }
-    return text
-  }, [user, context.emojiRelations])
+    return getUserNameHTML(user!, context)
+  }, [user, context])
 
   const postContent = useMemo(
     () => processPostContent(post, context),
@@ -123,6 +113,8 @@ export default function PostFragment({ post }: { post: Post }) {
               onPress(event, url) {
                 if (url.startsWith('wafrn://')) {
                   router.navigate(url.replace('wafrn://', ''))
+                } else {
+                  router.navigate(url)
                 }
               }
             }

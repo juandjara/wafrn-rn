@@ -1,21 +1,24 @@
 import Loading from "@/components/Loading"
 import ThreadLink from "@/components/posts/ThreadLink"
 import { ThemedView } from "@/components/ThemedView"
+import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
+import { useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
-import { FlatList } from "react-native"
+import { Dimensions, FlatList, RefreshControl, ScrollView, View } from "react-native"
 
-export default function UserDetail() {
+export default function UserFeed() {
   const { userid } = useLocalSearchParams()
   const {
-    data,
-    isFetching,
+    data: feed,
+    isFetching: feedFetching,
     fetchNextPage,
     hasNextPage,
   } = useUserFeed(userid as string)
+  const { data: user, isFetching: userFetching } = useUser(userid as string)
 
   const qc = useQueryClient()
   const refresh = async () => {
@@ -25,12 +28,12 @@ export default function UserDetail() {
   }
 
   const context = useMemo(
-    () => getDashboardContext(data?.pages || []),
-    [data?.pages]
+    () => getDashboardContext(feed?.pages || []),
+    [feed?.pages]
   )
-  const deduped = useMemo(() => dedupePosts(data?.pages || []), [data?.pages])
+  const deduped = useMemo(() => dedupePosts(feed?.pages || []), [feed?.pages])
 
-  if (!data) {
+  if (!feed && !user) {
     return <Loading />
   }
 
@@ -39,14 +42,15 @@ export default function UserDetail() {
       <DashboardContextProvider data={context}>
         <Stack.Screen options={{ title: 'User Detail' }} />
         <FlatList
-          refreshing={isFetching}
-          onRefresh={refresh}
           data={deduped}
+          refreshing={feedFetching || userFetching}
+          onRefresh={refresh}
+          ListHeaderComponent={user && <UserDetail user={user} />}
           contentContainerClassName="gap-3"
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ThreadLink thread={item} />}
-          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
-          ListFooterComponent={isFetching ? <Loading /> : null}
+          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+          ListFooterComponent={feedFetching ? <Loading /> : null}
         />
       </DashboardContextProvider>
     </ThemedView>

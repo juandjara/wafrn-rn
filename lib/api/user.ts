@@ -53,11 +53,20 @@ export async function getUser(token: string, handle?: string) {
   return json as User
 }
 
-export function useUser() {
+export function useCurrentUser() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['currentUser', token],
     queryFn: () => getUser(token!),
+    enabled: !!token
+  })
+}
+
+export function useUser(userId: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => getUser(token!, userId),
     enabled: !!token
   })
 }

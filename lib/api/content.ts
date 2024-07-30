@@ -1,6 +1,6 @@
 import { Element } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
-import { Post } from "./posts.types"
+import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
@@ -88,6 +88,20 @@ export function processPostContent(post: Post, context: DashboardContextData) {
     for (const tag of uniqueTags) {
       text += ` <a class="hashtag" data-tag="${tag}" href="/tag/${tag}">#${tag}</a>`
     }
+  }
+  return text
+}
+
+export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
+  if (!user) return ''
+  const ids = context.emojiRelations.userEmojiRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) ?? []
+  const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  let text = user.name
+  for (const emoji of emojis) {
+    text = text.replaceAll(
+      emoji.name,
+      `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`
+    )
   }
   return text
 }

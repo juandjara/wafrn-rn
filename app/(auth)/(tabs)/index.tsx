@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { router, Stack } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { ThemedView } from '@/components/ThemedView'
-import { useUser } from "@/lib/api/user";
+import { useCurrentUser } from "@/lib/api/user";
 import { formatAvatarUrl } from "@/lib/formatters";
 import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardMode } from "@/lib/api/dashboard";
@@ -29,7 +29,7 @@ const MODE_ICONS = {
 
 export default function Index() {
   const { setToken } = useAuth()
-  const { data: user } = useUser()
+  const { data: user } = useCurrentUser()
   const [mode, setMode] = useState(DashboardMode.FEED)
 
   function logout() {

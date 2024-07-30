@@ -11,24 +11,8 @@ import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 
 export default function Media({ media }: { media: PostMedia }) {
   const url = formatCachedUrl(formatMediaUrl(media.url))
-  const [aspectRatio, setAspectRatio] = useState(media.aspectRatio || 1)
+  const aspectRatio = media.aspectRatio || 1 
   const { width } = useWindowDimensions()
-
-  // useEffect(() => {
-  //   let isMounted = true
-  //   if (isImage(url) && !media.aspectRatio) {
-  //     RNImage.getSize(url, (width, height) => {
-  //       if (!isMounted) return
-  //       setAspectRatio(height / width)
-  //     })
-  //   }
-
-  //   return () => {
-  //     isMounted = false
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [url])
-
   const postWidth = width - POST_MARGIN - 8
   const [modalOpen, setModalOpen] = useState(false)
 
