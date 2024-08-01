@@ -33,7 +33,11 @@ export function isImage(url: string) {
 export async function getRemoteAspectRatio(url: string) {
   return new Promise<number>((resolve, reject) => {
     Image.getSize(url, (width, height) => {
-      resolve(height / width)
+      if (width && height) {
+        resolve(height / width)
+      } else {
+        resolve(1)
+      }
     }, reject)
   })
 }
