@@ -1,7 +1,8 @@
-import { Element } from "react-native-render-html"
+import { defaultHTMLElementModels, Element, HTMLContentModel } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
+import colors from "tailwindcss/colors"
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content) {
@@ -104,4 +105,38 @@ export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
     )
   }
   return text
+}
+
+export const inlineImageConfig = {
+  img: defaultHTMLElementModels.img.extend({
+    contentModel: HTMLContentModel.mixed
+  })
+}
+
+export const HTML_STYLES = {
+  a: {
+    color: colors.cyan[400],
+  },
+  blockquote: {
+    paddingLeft: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.gray[400],
+  },
+  ul: {
+    paddingLeft: 16,
+  },
+  ol: {
+    paddingLeft: 16,
+  },
+  li: {
+    paddingLeft: 8,
+    paddingBottom: 4,
+  },
+  p: {
+    marginBottom: 4,
+  },
+  text: {
+    color: 'white',
+    lineHeight: 20
+  }
 }

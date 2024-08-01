@@ -1,5 +1,5 @@
 import { Post } from "@/lib/api/posts.types"
-import { Image, Pressable, Text, useWindowDimensions, View } from "react-native"
+import { Image, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { formatAvatarUrl, formatDate, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo } from "react"
@@ -7,46 +7,18 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, router } from "expo-router"
-import RenderHTML, { defaultHTMLElementModels, HTMLContentModel } from "react-native-render-html"
-import colors from "tailwindcss/colors"
-import { getUserNameHTML, handleDomElement, isEmptyRewoot, processPostContent } from "@/lib/api/content"
+import RenderHTML from "react-native-render-html"
+import { getUserNameHTML, handleDomElement, HTML_STYLES, inlineImageConfig, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
+import { Ionicons } from "@expo/vector-icons"
+import clsx from "clsx"
+import colors from "tailwindcss/colors"
 
-const HTML_STYLES = {
-  a: {
-    color: colors.cyan[400],
-  },
-  blockquote: {
-    paddingLeft: 8,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.gray[400],
-  },
-  ul: {
-    paddingLeft: 16,
-  },
-  ol: {
-    paddingLeft: 16,
-  },
-  li: {
-    paddingLeft: 8,
-    paddingBottom: 4,
-  },
-  p: {
-    marginBottom: 4,
-  },
-  text: {
-    color: 'white',
-    lineHeight: 20
-  }
-}
-
-const inlineImageConfig = {
-  img: defaultHTMLElementModels.img.extend({
-    contentModel: HTMLContentModel.mixed
-  })
-}
-
-export default function PostFragment({ post }: { post: Post }) {
+export default function PostFragment({ post, CWOpen, setCWOpen }: {
+  post: Post
+  CWOpen: boolean
+  setCWOpen: (value: boolean) => void
+}) {
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
   const user = useMemo(
@@ -68,6 +40,7 @@ export default function PostFragment({ post }: { post: Post }) {
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN
+  const hideContent = !!post.content_warning && !CWOpen
 
   if (isEmptyRewoot(post, context)) {
     return (
@@ -89,7 +62,7 @@ export default function PostFragment({ post }: { post: Post }) {
       </Pressable>
       <View className="mb-1" style={{ width: contentWidth }}>
         <View className="my-1">
-          <View className="flex-row">
+          <View className="flex-row my-1">
             <HtmlRenderer html={userName} renderTextRoot />
           </View>
           <Link href={`/user/${user?.url}`} asChild>
@@ -97,29 +70,47 @@ export default function PostFragment({ post }: { post: Post }) {
           </Link>
           <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
         </View>
-        <RenderHTML
-          tagsStyles={HTML_STYLES}
-          baseStyle={HTML_STYLES.text}
-          contentWidth={contentWidth}
-          source={{ html: postContent }}
-          // all images are set to inline, html renderer doesn't support dynamic block / inline images
-          // and most images inside post content are emojis, so we can just make them all inline
-          // and any block images should be rendered as media anyway
-          customHTMLElementModels={inlineImageConfig}
-          domVisitors={{ onElement: (el) => handleDomElement(el, context) }}
-          defaultTextProps={{ selectable: true }}
-          renderersProps={{
-            a: {
-              onPress(event, url) {
-                if (url.startsWith('wafrn://')) {
-                  router.navigate(url.replace('wafrn://', ''))
-                } else {
-                  router.navigate(url)
+        {post.content_warning && (
+          <View className="flex-row items-center gap-2 my-3 p-2 border border-yellow-500 rounded-full">
+            <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
+            <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
+            <TouchableOpacity onPress={() => setCWOpen(!CWOpen)}>
+              <Text className="text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full">
+                {CWOpen ? 'Hide' : 'Show'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <View className={clsx({
+          'rounded-xl bg-yellow-200/10': hideContent,
+        })}>
+          <RenderHTML
+            tagsStyles={HTML_STYLES}
+            baseStyle={{
+              ...HTML_STYLES.text,
+              opacity: hideContent ? 0 : 1,
+            }}
+            contentWidth={contentWidth}
+            source={{ html: postContent }}
+            // all images are set to inline, html renderer doesn't support dynamic block / inline images
+            // and most images inside post content are emojis, so we can just make them all inline
+            // and any block images should be rendered as media anyway
+            customHTMLElementModels={inlineImageConfig}
+            domVisitors={{ onElement: (el) => handleDomElement(el, context) }}
+            defaultTextProps={{ selectable: !hideContent }}
+            renderersProps={{
+              a: {
+                onPress(event, url) {
+                  if (url.startsWith('wafrn://')) {
+                    router.navigate(url.replace('wafrn://', ''))
+                  } else {
+                    router.navigate(url)
+                  }
                 }
               }
-            }
-          }}
-        />
+            }}
+          />
+        </View>
         <View>
           {medias.map((media, index) => (
             <Media key={`${media.id}-${index}`} media={media} />

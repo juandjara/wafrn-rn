@@ -1,5 +1,5 @@
 import { PostThread } from "@/lib/api/posts.types"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
@@ -15,6 +15,7 @@ export default function Thread({
   thread: PostThread;
   collapseAncestors?: boolean
 }) {
+  const [CWOpen, setCWOpen] = useState(false)
   const context = useDashboardContext()
   const isRewoot = useMemo(() => isEmptyRewoot(thread, context), [thread, context])
   const ancestors = useMemo(() => {
@@ -43,7 +44,11 @@ export default function Thread({
         'border-t': !isRewoot && ancestors.length > 0
       },
     )}>
-      <PostFragment post={thread} />
+      <PostFragment
+        post={thread}
+        CWOpen={CWOpen}
+        setCWOpen={setCWOpen}
+      />
     </View>
   )
 
@@ -53,7 +58,11 @@ export default function Thread({
       {collapseAncestors && hasMore ? (
         <>
           <View className="bg-indigo-900/50">
-            <PostFragment post={ancestors[0]} />
+            <PostFragment
+              CWOpen={CWOpen}
+              setCWOpen={setCWOpen}
+              post={ancestors[0]}
+            />
           </View>
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
             <Text className="text-sm text-white p-2">
@@ -61,7 +70,11 @@ export default function Thread({
             </Text>
           </View>
           <View className="bg-indigo-900/50">
-            <PostFragment post={ancestors[ancestors.length - 1]} />
+            <PostFragment
+              CWOpen={CWOpen}
+              setCWOpen={setCWOpen}
+              post={ancestors[ancestors.length - 1]}
+            />
           </View>
         </>
       ) : (
@@ -73,7 +86,11 @@ export default function Thread({
               { 'border-t': index > 0 }
             )}
           >
-            <PostFragment post={ancestor} />
+            <PostFragment
+              CWOpen={CWOpen}
+              setCWOpen={setCWOpen}
+              post={ancestor}
+            />
           </View>
         ))
       )}
