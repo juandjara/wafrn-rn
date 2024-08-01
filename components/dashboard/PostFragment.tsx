@@ -36,7 +36,9 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
   )
 
   const medias = useMemo(() => {
-    return context.medias.filter((m) => m.posts.some(({ id }) => id === post.id))
+    return context.medias
+      .filter((m) => m.posts.some(({ id }) => id === post.id))
+      .sort((a, b) => a.order - b.order)
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN
