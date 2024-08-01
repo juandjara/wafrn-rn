@@ -5,7 +5,7 @@ import { POST_MARGIN } from "@/lib/api/posts";
 import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 
-export const MEDIA_MARGIN = POST_MARGIN - 8
+export const MEDIA_MARGIN = POST_MARGIN + 9
 
 export default function Media({ media }: { media: PostMedia }) {
   const src = formatCachedUrl(formatMediaUrl(media.url))
