@@ -62,11 +62,13 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
       </Pressable>
       <View className="mb-1" style={{ width: contentWidth }}>
         <View className="my-1">
-          <View className="flex-row my-1">
-            <HtmlRenderer html={userName} renderTextRoot />
-          </View>
           <Link href={`/user/${user?.url}`} asChild>
-            <Text className="text-sm text-cyan-400 mb-2">{formatUserUrl(user)}</Text>
+            <Pressable>
+              <View className="flex-row my-1">
+                <HtmlRenderer html={userName} renderTextRoot />
+              </View>
+              <Text className="text-sm text-cyan-400 mb-2">{formatUserUrl(user)}</Text>
+            </Pressable>
           </Link>
           <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
         </View>
