@@ -4,6 +4,8 @@ import { Text, useWindowDimensions, View } from "react-native";
 import { POST_MARGIN } from "@/lib/api/posts";
 import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 export const MEDIA_MARGIN = POST_MARGIN + 9
 
@@ -15,30 +17,6 @@ export default function Media({ media }: { media: PostMedia }) {
 
   return (
     <View className="overflow-hidden m-2 ml-0 border border-gray-300 rounded-lg">
-      {/* {modalOpen && (
-        <Modal
-          visible={modalOpen}
-          animationType="slide"
-          onRequestClose={() => setModalOpen(false)}
-        >
-          <ThemedView className="flex-1 relative">
-            <Pressable onPress={() => setModalOpen(false)} className="p-3">
-              <MaterialIcons name="close" size={24} color='white' />
-            </Pressable>
-            <ReactNativeZoomableView
-              minZoom={1}
-              maxZoom={30}
-              contentWidth={width}
-              contentHeight={width * aspectRatio}
-            >
-              <Image
-                source={{ uri: url }}
-                style={{ resizeMode: 'contain', width: width, height: width * aspectRatio }}
-              />
-            </ReactNativeZoomableView>
-          </ThemedView>
-        </Modal>
-      )} */}
       {isVideo(src) && (
         <Text className="text-white p-2 italic">Video not yet supported :c</Text>
         // <video
@@ -56,11 +34,10 @@ export default function Media({ media }: { media: PostMedia }) {
         // />
       )}
       {isPDF(src) && (
-        <Text className="text-white p-2 italic">PDF not yet supported :c</Text>
-        // <iframe
-        //   className="rounded-md"
-        //   src={url}
-        // />
+        <View className="flex-row gap-2">
+          <MaterialCommunityIcons name="file-pdf-box" size={24} color="white" />
+          <Link href={src}>{src}</Link>
+        </View>
       )}
       {isImage(src) && (
         <ZoomableImage
