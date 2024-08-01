@@ -13,6 +13,7 @@ import RewootRibbon from "../posts/RewootRibbon"
 import { Ionicons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
+import { buttonCN } from "@/lib/styles"
 
 export default function PostFragment({ post, CWOpen, setCWOpen }: {
   post: Post
@@ -79,7 +80,7 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
             <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
             <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
             <TouchableOpacity onPress={() => setCWOpen(!CWOpen)}>
-              <Text className="text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full">
+              <Text className={buttonCN}>
                 {CWOpen ? 'Hide' : 'Show'}
               </Text>
             </TouchableOpacity>

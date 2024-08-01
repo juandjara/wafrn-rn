@@ -1,0 +1,1 @@
+export const buttonCN = 'text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full'

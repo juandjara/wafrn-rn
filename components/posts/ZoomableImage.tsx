@@ -1,4 +1,4 @@
-import { Image, ImageStyle, Text, TouchableOpacity, View } from "react-native"
+import { Image, ImageBackground, ImageStyle, Text, TouchableOpacity } from "react-native"
 import { useState } from "react"
 import { Modal, Pressable, useWindowDimensions } from "react-native"
 import { ThemedView } from "../ThemedView"
@@ -55,18 +55,20 @@ export default function ZoomableImage({
         </Modal>
       )}
       {isNSFW && !showNSFW ? (
-        <View
+        <ImageBackground
+          source={{ uri: src }}
           style={[style, { width, height: width * aspectRatio }]}
           className="items-center justify-center"
+          blurRadius={120}
         >
           <Feather name="eye-off" size={48} color="white" />
-          <Text className="text-white text-lg my-2">
-            This image is marked as NSFW
+          <Text className="text-white text-lg mx-3 mt-2 mb-4 text-center">
+            This image is marked as sensitive content
           </Text>
           <TouchableOpacity onPress={() => setShowNSFW(true)}>
-            <Text className="text-blue-500">Show image</Text>
+            <Text className='text-indigo-600 py-2 px-3 bg-indigo-200/75 rounded-full'>Show image</Text>
           </TouchableOpacity>
-        </View>
+        </ImageBackground>
       ) : (
         <Pressable onPress={() => !hidden && setModalOpen(true)}>
           <Image
