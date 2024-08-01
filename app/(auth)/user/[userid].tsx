@@ -8,7 +8,7 @@ import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
-import { Dimensions, FlatList, RefreshControl, ScrollView, View } from "react-native"
+import { FlatList } from "react-native"
 
 export default function UserFeed() {
   const { userid } = useLocalSearchParams()
