@@ -45,6 +45,7 @@ export default function Media({ hidden, media }: { hidden: boolean; media: PostM
       )}
       {isImage(src) && (
         <ZoomableImage
+          isNSFW={media.NSFW}
           src={src}
           hidden={hidden}
           width={postWidth}
