@@ -1,5 +1,5 @@
 import { User } from "@/lib/api/user";
-import { Button, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
@@ -7,6 +7,7 @@ import { getUserNameHTML, HTML_STYLES, inlineImageConfig } from "@/lib/api/conte
 import HtmlRenderer from "../HtmlRenderer";
 import RenderHTML from "react-native-render-html";
 import { router } from "expo-router";
+import ZoomableImage from "../posts/ZoomableImage";
 
 export default function UserDetail({ user }: { user: User }) {
   const { width } = useWindowDimensions()
@@ -33,14 +34,12 @@ export default function UserDetail({ user }: { user: User }) {
 
   return (
     <View>
-      <View className="flex-row justify-center items-center my-4">
-        <Image
-          className="rounded-md"
-          source={{
-            uri: url,
-            width: 150,
-            height: 150,
-          }}
+      <View className="flex-row justify-center items-center my-4 rounded-md">
+        <ZoomableImage
+          src={url}
+          width={150}
+          aspectRatio={1}
+          className="rounded-lg border border-gray-500"
         />
       </View>
       <View className="items-center justify-center">
@@ -53,12 +52,12 @@ export default function UserDetail({ user }: { user: User }) {
         </Pressable>
         <View className="flex-row gap-6 mt-6">
           <View className="items-center">
-            <Text className="text-white text-2xl">{user.followers || user.followerCount}</Text>
-            <Text className="text-white text-sm">followers</Text>
-          </View>
-          <View className="items-center">
             <Text className="text-white text-2xl">{user.followed || user.followingCount}</Text>
             <Text className="text-white text-sm">following</Text>
+          </View>
+          <View className="items-center">
+            <Text className="text-white text-2xl">{user.followers || user.followerCount}</Text>
+            <Text className="text-white text-sm">followers</Text>
           </View>
         </View>
         <View style={{ maxWidth: width - 48, paddingVertical: 8 }}>
