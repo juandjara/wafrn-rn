@@ -9,14 +9,17 @@ import { Link } from "expo-router";
 
 export const MEDIA_MARGIN = POST_MARGIN + 9
 
-export default function Media({ media }: { media: PostMedia }) {
+export default function Media({ hidden, media }: { hidden: boolean; media: PostMedia }) {
   const src = formatCachedUrl(formatMediaUrl(media.url))
   const aspectRatio = media.aspectRatio || 1 
   const { width } = useWindowDimensions()
   const postWidth = width - MEDIA_MARGIN
 
   return (
-    <View className="overflow-hidden m-2 ml-0 border border-gray-300 rounded-lg">
+    <View
+      className="overflow-hidden m-2 ml-0 border border-gray-300 rounded-lg"
+      style={{ opacity: hidden ? 0 : 1 }}
+    >
       {isVideo(src) && (
         <Text className="text-white p-2 italic">Video not yet supported :c</Text>
         // <video
@@ -33,6 +36,7 @@ export default function Media({ media }: { media: PostMedia }) {
         //   src={url}
         // />
       )}
+      {/* Why PDF? I don't know but original wafrn angular frontend handled it  */}
       {isPDF(src) && (
         <View className="flex-row gap-2">
           <MaterialCommunityIcons name="file-pdf-box" size={24} color="white" />
@@ -42,6 +46,7 @@ export default function Media({ media }: { media: PostMedia }) {
       {isImage(src) && (
         <ZoomableImage
           src={src}
+          hidden={hidden}
           width={postWidth}
           aspectRatio={aspectRatio}
           contentFit="contain"

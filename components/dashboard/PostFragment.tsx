@@ -112,11 +112,11 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
               }
             }}
           />
-        </View>
-        <View>
-          {medias.map((media, index) => (
-            <Media key={`${media.id}-${index}`} media={media} />
-          ))}
+          <View>
+            {medias.map((media, index) => (
+              <Media hidden={hideContent} key={`${media.id}-${index}`} media={media} />
+            ))}
+          </View>
         </View>
       </View>
     </View>

@@ -8,6 +8,7 @@ import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-vi
 export default function ZoomableImage({
   src,
   style,
+  hidden = false,
   contentFit,
   width,
   aspectRatio,
@@ -15,6 +16,7 @@ export default function ZoomableImage({
 }: {
   src: string
   style?: ImageStyle
+  hidden?: boolean
   contentFit?: ImageStyle["resizeMode"]
   width: number
   aspectRatio: number
@@ -49,7 +51,7 @@ export default function ZoomableImage({
           </ThemedView>
         </Modal>
       )}
-      <Pressable onPress={() => setModalOpen(true)}>
+      <Pressable onPress={() => !hidden && setModalOpen(true)}>
         <Image
           src={src}
           style={[style, {
