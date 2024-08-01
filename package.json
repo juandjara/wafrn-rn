@@ -42,7 +42,7 @@
     "react-native": "0.74.3",
     "react-native-controlled-mentions": "^3.0.0-alpha.4",
     "react-native-gesture-handler": "~2.16.1",
-    "react-native-more-controlled-mentions": "file:../react-native-controlled-mentions/react-native-more-controlled-mentions-3.0.0-alpha.5.tgz",
+    "react-native-more-controlled-mentions": "3.0.1",
     "react-native-popup-menu": "^0.16.1",
     "react-native-reanimated": "~3.10.1",
     "react-native-render-html": "^6.3.4",
