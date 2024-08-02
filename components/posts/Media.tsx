@@ -6,6 +6,7 @@ import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { ResizeMode, Video } from "expo-av";
 
 export const MEDIA_MARGIN = POST_MARGIN + 9
 
@@ -21,12 +22,13 @@ export default function Media({ hidden, media }: { hidden: boolean; media: PostM
       style={{ opacity: hidden ? 0 : 1 }}
     >
       {isVideo(src) && (
-        <Text className="text-white p-2 italic">Video not yet supported :c</Text>
-        // <video
-        //   className="rounded-md"
-        //   controls
-        //   src={url}
-        // />
+        <Video
+          source={{ uri: src }}
+          resizeMode={ResizeMode.CONTAIN}
+          style={{ width: postWidth, height: postWidth * aspectRatio }}
+          isLooping
+          usePoster
+        />
       )}
       {isAudio(src) && (
         <Text className="text-white p-2 italic">Audio not yet supported :c</Text>
