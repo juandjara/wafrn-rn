@@ -8,9 +8,15 @@ import HtmlRenderer from "../HtmlRenderer";
 import RenderHTML from "react-native-render-html";
 import { router } from "expo-router";
 import ZoomableImage from "../posts/ZoomableImage";
+import { useSettings } from "@/lib/api/settings";
+import clsx from "clsx";
 
 export default function UserDetail({ user }: { user: User }) {
   const { width } = useWindowDimensions()
+  const { data: settings } = useSettings()
+  const isFollowing = settings?.followedUsers.includes(user?.id!)
+  const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+
   const url = formatCachedUrl(formatMediaUrl(user.avatar))
   const userName = useMemo(() => {
     return getUserNameHTML(user!, {
@@ -48,7 +54,14 @@ export default function UserDetail({ user }: { user: User }) {
         </View>
         <ThemedText className="text-xs">{formatUserUrl(user)}</ThemedText>
         <Pressable>
-          <Text className="text-indigo-500 py-2 mt-6 px-5 text-lg bg-indigo-500/20 rounded-full">Follow</Text>
+          <Text className={clsx(
+            'py-2 mt-6 px-5 text-lg rounded-full',
+            isFollowing && 'text-red-500 bg-red-500/20',
+            isAwaitingApproval && 'text-gray-400 bg-gray-500/50',
+            !isFollowing && !isAwaitingApproval && 'text-indigo-500 bg-indigo-500/20'
+          )}>
+            {isFollowing ? 'Unfollow' : isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
+          </Text>
         </Pressable>
         <View className="flex-row gap-6 mt-6">
           <View className="items-center">
