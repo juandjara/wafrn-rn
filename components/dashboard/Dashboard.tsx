@@ -7,7 +7,7 @@ import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import Loading from "../Loading"
 import { useScrollToTop } from "@react-navigation/native"
-import ThreadLink from "../posts/ThreadLink"
+import Thread from "../posts/Thread"
 
 export default function Dashboard({ mode = DashboardMode.FEED }: { mode: DashboardMode }) {
   const listRef = useRef<FlatList>(null)
@@ -46,7 +46,7 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
         data={deduped}
         contentContainerClassName="gap-3"
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ThreadLink thread={item} />}
+        renderItem={({ item }) => <Thread thread={item} />}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
       />

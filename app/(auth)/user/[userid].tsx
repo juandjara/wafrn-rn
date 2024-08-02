@@ -1,5 +1,5 @@
 import Loading from "@/components/Loading"
-import ThreadLink from "@/components/posts/ThreadLink"
+import Thread from "@/components/posts/Thread"
 import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
@@ -48,7 +48,7 @@ export default function UserFeed() {
           ListHeaderComponent={user && <UserDetail user={user} />}
           contentContainerClassName="gap-3"
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ThreadLink thread={item} />}
+          renderItem={({ item }) => <Thread thread={item} />}
           onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
           ListFooterComponent={feedFetching ? <Loading /> : null}
         />
