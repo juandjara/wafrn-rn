@@ -34,7 +34,12 @@ export default function UserFeed() {
   const deduped = useMemo(() => dedupePosts(feed?.pages || []), [feed?.pages])
 
   if (!feed && !user) {
-    return <Loading />
+    return (
+      <>
+        <Loading />
+        <Stack.Screen options={{ title: 'User Detail' }} />
+      </>
+    )
   }
 
   return (
