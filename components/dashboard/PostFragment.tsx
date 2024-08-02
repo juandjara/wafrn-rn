@@ -89,7 +89,10 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
                   <HtmlRenderer html={userName} renderTextRoot />
                   {(isAwaitingApproval || !isFollowing) && (
                     <TouchableOpacity className="ml-2">
-                      <Text className='text-indigo-500 px-2 text-sm bg-indigo-500/20 rounded-full'>
+                      <Text className={clsx(
+                        'rounded-full px-2 text-sm',
+                        isAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
+                      )}>
                         {isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
                       </Text>
                     </TouchableOpacity>
