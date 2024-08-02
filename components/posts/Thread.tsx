@@ -62,6 +62,7 @@ export default function Thread({
               CWOpen={CWOpen}
               setCWOpen={setCWOpen}
               post={ancestors[0]}
+              hasThreadLine
             />
           </View>
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
@@ -74,6 +75,7 @@ export default function Thread({
               CWOpen={CWOpen}
               setCWOpen={setCWOpen}
               post={ancestors[ancestors.length - 1]}
+              hasThreadLine
             />
           </View>
         </>
@@ -90,6 +92,7 @@ export default function Thread({
               CWOpen={CWOpen}
               setCWOpen={setCWOpen}
               post={ancestor}
+              hasThreadLine={!isRewoot}
             />
           </View>
         ))
