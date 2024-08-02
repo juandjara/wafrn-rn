@@ -10,10 +10,11 @@ import { Link, router } from "expo-router"
 import RenderHTML from "react-native-render-html"
 import { getUserNameHTML, handleDomElement, HTML_STYLES, inlineImageConfig, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
-import { Ionicons } from "@expo/vector-icons"
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { buttonCN } from "@/lib/styles"
+import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 
 export default function PostFragment({ post, CWOpen, setCWOpen }: {
   post: Post
@@ -70,10 +71,19 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
               <View className="flex-row my-1">
                 <HtmlRenderer html={userName} renderTextRoot />
               </View>
-              <Text className="text-sm text-cyan-400 mb-2">{formatUserUrl(user)}</Text>
             </Pressable>
           </Link>
-          <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
+          <View className="flex-row gap-2 items-center mb-2">
+            <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
+            {/* <Pressable>
+              <Text className='text-indigo-500 px-2 text-sm bg-indigo-500/20 rounded-full'>Follow</Text>
+            </Pressable> */}
+          </View>
+          <View className="flex-row gap-1 items-center">
+            <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
+            <MaterialCommunityIcons className="ml-1" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
+            <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
+          </View>
         </View>
         {post.content_warning && (
           <View className="flex-row items-center gap-2 my-3 p-2 border border-yellow-500 rounded-full">
