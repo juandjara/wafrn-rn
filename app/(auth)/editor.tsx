@@ -6,9 +6,9 @@ import { generateValueFromMentionStateAndChangedText, isTriggerConfig, Suggestio
 import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import { DarkTheme } from "@react-navigation/native"
-import { PrivacyLevel } from "@/lib/api/posts.types"
 import { Colors } from "@/constants/Colors"
 import clsx from "clsx"
+import { PRIVACY_ICONS, PRIVACY_LABELS, PrivacyLevel } from "@/lib/api/privacy"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -177,21 +177,6 @@ export default function EditorView() {
   )
 }
 
-const PRIVACY_LABELS = {
-  [PrivacyLevel.PUBLIC]: 'Public',
-  [PrivacyLevel.FOLLOWERS_ONLY]: 'Followers only',
-  [PrivacyLevel.INSTANCE_ONLY]: 'Instance only',
-  [PrivacyLevel.UNLISTED]: 'Unlisted',
-  [PrivacyLevel.DIRECT_MESSAGE]: 'Direct message',
-} as const
-const privacyIcons = {
-  [PrivacyLevel.PUBLIC]: 'earth',
-  [PrivacyLevel.FOLLOWERS_ONLY]: 'account-multiple',
-  [PrivacyLevel.INSTANCE_ONLY]: 'server',
-  [PrivacyLevel.UNLISTED]: 'lock',
-  [PrivacyLevel.DIRECT_MESSAGE]: 'email',
-} as const
-
 function EditorHeader({ onPublish }: { onPublish: () => void }) {
   const [privacy, setPrivacy] = useState(PrivacyLevel.PUBLIC)
   const [modalOpen, setModalOpen] = useState(false)
@@ -213,7 +198,7 @@ function EditorHeader({ onPublish }: { onPublish: () => void }) {
         onPress={openSelectPrivacy} 
         className="flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-500 active:bg-gray-500/50"
       >
-        <MaterialCommunityIcons name={privacyIcons[privacy]} color='white' size={24} />
+        <MaterialCommunityIcons name={PRIVACY_ICONS[privacy]} color='white' size={24} />
         <MaterialCommunityIcons name='chevron-down' color={Colors.dark.icon} size={20} />
       </Pressable>
       <Modal
@@ -238,7 +223,7 @@ function EditorHeader({ onPublish }: { onPublish: () => void }) {
               }}
             >
               <MaterialCommunityIcons 
-                name={privacyIcons[Number(p) as PrivacyLevel]}
+                name={PRIVACY_ICONS[Number(p) as PrivacyLevel]}
                 color='black'
                 size={24}
               />

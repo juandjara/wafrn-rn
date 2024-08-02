@@ -1,13 +1,7 @@
 import { EmojiBase, PostEmojiRelation, UserEmojiRelation } from "./emojis"
+import { PrivacyLevel } from "./privacy"
 import { Timestamps } from "./types"
 
-export enum PrivacyLevel {
-  PUBLIC = 0,
-  FOLLOWERS_ONLY = 1,
-  INSTANCE_ONLY = 2,
-  UNLISTED = 3,
-  DIRECT_MESSAGE = 10,
-}
 export type Post = {
   id: string
   content_warning: string
