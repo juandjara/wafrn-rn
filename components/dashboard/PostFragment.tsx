@@ -15,6 +15,7 @@ import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { buttonCN } from "@/lib/styles"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
+import { useSettings } from "@/lib/api/settings"
 
 export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }: {
   post: Post
@@ -23,6 +24,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
   setCWOpen: (value: boolean) => void
 }) {
   const { width } = useWindowDimensions()
+  const { data: settings } = useSettings()
   const context = useDashboardContext()
   const user = useMemo(
     () => context.users.find((u) => u.id === post.userId),
@@ -47,6 +49,9 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
   const contentWidth = width - POST_MARGIN
   const hideContent = !!post.content_warning && !CWOpen
 
+  const isFollowing = settings?.followedUsers.includes(user?.id!)
+  const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+
   if (isEmptyRewoot(post, context)) {
     return (
       <RewootRibbon user={user} userNameHTML={userName} />
@@ -61,7 +66,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
         }}
         className="flex-row w-full gap-2.5 mb-2 items-stretch"
       >
-        <View className="relative">
+        <View id='avatar-column' className="relative">
           <Pressable onPress={() => router.navigate(`/user/${user?.url}`)}>
             <Image
               className="rounded-br-md border border-gray-500 flex-shrink-0"
@@ -76,27 +81,34 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
             <View className="flex-1 ml-6 mt-2 w-[2px] bg-gray-500/50" />
           )}
         </View>
-        <View className="mb-1" style={{ width: contentWidth }}>
-          <View className="my-1">
+        <View id='content-column' className="mb-1" style={{ width: contentWidth }}>
+          <View id='user-name-link' className="my-1">
             <Link href={`/user/${user?.url}`} asChild>
               <Pressable>
                 <View className="flex-row my-1">
                   <HtmlRenderer html={userName} renderTextRoot />
-                  <Pressable className="ml-2">
-                    <Text className='text-indigo-500 px-2 text-sm bg-indigo-500/20 rounded-full'>Follow</Text>
-                  </Pressable>
+                  {(isAwaitingApproval || !isFollowing) && (
+                    <TouchableOpacity className="ml-2">
+                      <Text className='text-indigo-500 px-2 text-sm bg-indigo-500/20 rounded-full'>
+                        {isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
               </Pressable>
             </Link>
           </View>
-          <View className="flex-row gap-1 my-1 items-center">
+          <View id='date-line' className="flex-row gap-1 my-1 items-center">
             <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
             <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
             <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
           </View>
           {post.content_warning && (
-            <View className="flex-row items-center gap-2 my-3 p-2 border border-yellow-500 rounded-full">
+            <View
+              id='content-warning-message'
+              className="flex-row items-center gap-2 my-3 p-2 border border-yellow-500 rounded-full"
+            >
               <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
               <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
               <TouchableOpacity onPress={() => setCWOpen(!CWOpen)}>
@@ -106,9 +118,12 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
               </TouchableOpacity>
             </View>
           )}
-          <View className={clsx({
-            'rounded-xl bg-yellow-200/10': hideContent,
-          })}>
+          <View
+            id='content-warning-content'
+            className={clsx({
+              'rounded-xl bg-yellow-200/10': hideContent,
+            })}
+          >
             <RenderHTML
               tagsStyles={HTML_STYLES}
               baseStyle={{
@@ -135,13 +150,12 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
                 }
               }}
             />
-            <View>
+            <View id='media-list'>
               {medias.map((media, index) => (
                 <Media hidden={hideContent} key={`${media.id}-${index}`} media={media} />
               ))}
             </View>
           </View>
-          
         </View>
       </Pressable>
     </Link>
