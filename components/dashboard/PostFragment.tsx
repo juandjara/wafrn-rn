@@ -75,13 +75,13 @@ export default function PostFragment({ post, CWOpen, setCWOpen }: {
           </Link>
           <View className="flex-row gap-2 items-center mb-2">
             <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
-            {/* <Pressable>
+            <Pressable>
               <Text className='text-indigo-500 px-2 text-sm bg-indigo-500/20 rounded-full'>Follow</Text>
-            </Pressable> */}
+            </Pressable>
           </View>
           <View className="flex-row gap-1 items-center">
             <Text className="text-xs text-white">{formatDate(post.updatedAt)}</Text>
-            <MaterialCommunityIcons className="ml-1" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
+            <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
             <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
           </View>
         </View>
