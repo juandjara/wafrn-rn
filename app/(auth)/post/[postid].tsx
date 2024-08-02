@@ -47,7 +47,7 @@ export default function PostDetail() {
           />
         }
       >
-        <Thread thread={post} />
+        <Thread thread={post} collapseAncestors={false} />
       </ScrollView>
     </DashboardContextProvider>
   )

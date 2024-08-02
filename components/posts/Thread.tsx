@@ -10,7 +10,7 @@ const ANCESTOR_LIMIT = 3
 
 export default function Thread({
   thread,
-  collapseAncestors = false
+  collapseAncestors = true
 }: {
   thread: PostThread;
   collapseAncestors?: boolean
