@@ -1,6 +1,6 @@
-import { Post } from "@/lib/api/posts.types"
+import { Post, PostUser } from "@/lib/api/posts.types"
 import { Image, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
-import { formatAvatarUrl, formatDate, formatUserUrl } from "@/lib/formatters"
+import { formatAvatarUrl, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
@@ -16,6 +16,7 @@ import colors from "tailwindcss/colors"
 import { buttonCN } from "@/lib/styles"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
+import { EmojiBase } from "@/lib/api/emojis"
 
 export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }: {
   post: Post
@@ -44,6 +45,48 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
     return context.medias
       .filter((m) => m.posts.some(({ id }) => id === post.id))
       .sort((a, b) => a.order - b.order)
+  }, [post, context])
+
+  const likes = useMemo(() => {
+    return context.likes
+      .filter((l) => l.postId === post.id)
+      .map((l) => ({
+        user: context.users.find((u) => u.id === l.userId),
+        emoji: '❤️'
+      }))
+  }, [post, context])
+
+  type EmojiGroup = {
+    emoji: string | EmojiBase
+    users: PostUser[]
+    id: string
+  }
+
+  const reactions = useMemo(() => {
+    const emojis = Object.fromEntries(
+      context.emojiRelations.emojis.map((e) => [e.id, e])
+    )
+    const reactions = context.emojiRelations.postEmojiReactions
+      .filter((r) => r.postId === post.id)
+      .map((e) => ({
+        id: `${e.emojiId}-${e.userId}`,
+        user: context.users.find((u) => u.id === e.userId),
+        emoji: e.emojiId ? emojis[e.emojiId] : e.content
+      }))
+      .filter((r) => r.user)
+    const grouped = new Map<string,EmojiGroup >()
+    for (const r of reactions) {
+      const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.id
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          id: r.id,
+          users: [],
+          emoji: r.emoji,
+        })
+      }
+      grouped.get(key)!.users.push(r.user!)
+    }
+    return [...grouped.values()]
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN
@@ -83,7 +126,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
             <View className="flex-1 ml-6 mt-2 w-[2px] bg-gray-500/50" />
           )}
         </View>
-        <View id='content-column' className="mb-1" style={{ width: contentWidth }}>
+        <View id='content-column' style={{ width: contentWidth }}>
           <View id='user-name-link' className="my-1">
             <Link href={`/user/${user?.url}`} asChild>
               <Pressable>
@@ -161,6 +204,43 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
                 <Media hidden={hideContent} key={`${media.id}-${index}`} media={media} />
               ))}
             </View>
+          </View>
+          {post.notes > 0 && (
+            <View id='notes' className="mt-3 pt-1 border-t border-gray-500">
+              <Text className="text-gray-200 text-sm">
+                {post.notes} Notes
+              </Text>
+            </View>
+          )}
+          <View id='reactions' className="mt-2 flex-row flex-wrap items-center gap-2">
+            {likes.length > 0 && (
+              <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                ❤️ {likes.length}
+              </Text>
+            )}
+            {reactions.map((r) => {
+              if (typeof r.emoji === 'string') {
+                return (
+                  <Text key={r.id} className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                    {r.emoji} {r.users.length}
+                  </Text>
+                )
+              } else {
+                return (
+                  <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+                    <Image
+                      key={r.id}
+                      className="rounded-md"
+                      source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                      style={{ width: 20, height: 20 }}
+                    />
+                    <Text className="text-gray-200">
+                      {r.users.length}
+                    </Text>
+                  </View>
+                )
+              }
+            })}
           </View>
         </View>
       </Pressable>

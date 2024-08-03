@@ -14,6 +14,7 @@ export type Post = {
   userId: string
   hierarchyLevel: number
   parentId: string | null
+  notes: number
 }
 export type PostThread = Post & {
   ancestors: Post[]
