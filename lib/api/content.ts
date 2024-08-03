@@ -137,6 +137,7 @@ export const HTML_STYLES = {
   },
   text: {
     color: 'white',
-    lineHeight: 20
+    fontSize: 16,
+    lineHeight: 24,
   }
 }
