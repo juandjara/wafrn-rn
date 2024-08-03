@@ -2,8 +2,9 @@ import { useQuery } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
-import { DashboardData } from "./posts.types"
+import { DashboardData, PostUser } from "./posts.types"
 import { addSizesToMedias } from "./media"
+import { Timestamps } from "./types"
 
 const LAYOUT_MARGIN = 16
 export const AVATAR_SIZE = 42
@@ -25,6 +26,40 @@ export function usePostDetail(id: string) {
   return useQuery({
     queryKey: ['postDetail', id],
     queryFn: () => getPostDetail(token!, id),
+    enabled: !!token && !!id
+  })
+}
+
+export type PostDescendants = {
+  posts: (Timestamps & {
+    userId: string
+    id: string
+    type: 'rewoot' | 'reply'
+  })[]
+  users: Omit<PostUser, 'remoteId'>[]
+}
+
+export async function getPostDescendants(token: string, id: string) {
+  console.log('getPostDescendants', id, token)
+  const json = await getJSON(`${API_URL}/v2/descendents/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  json.posts = json.posts.map(({ len, ...post }: any) => {
+    return {
+      ...post,
+      type: len === 0 ? 'rewoot' : 'reply'
+    }
+  })
+  return json as PostDescendants
+}
+
+export function usePostDescendants(id: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['postDescendants', id],
+    queryFn: () => getPostDescendants(token!, id),
     enabled: !!token && !!id
   })
 }

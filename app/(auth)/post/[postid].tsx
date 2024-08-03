@@ -1,14 +1,29 @@
 import Loading from "@/components/Loading"
+import ReplyRibbon from "@/components/posts/ReplyRibbon"
+import RewootRibbon from "@/components/posts/RewootRibbon"
 import Thread from "@/components/posts/Thread"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { usePostDetail } from "@/lib/api/posts"
+import { usePostDescendants, usePostDetail } from "@/lib/api/posts"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
-import { RefreshControl, ScrollView } from "react-native"
+import { RefreshControl, ScrollView, View } from "react-native"
 
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
+  const { data: descendants, isFetching: descendantLoading } = usePostDescendants(postid as string)
+  const notes = useMemo(() => {
+    const users = Object.fromEntries(
+      descendants?.users?.map((u) => [u.id, u]) || []
+    )
+    const posts = descendants?.posts || []
+    return posts.map((post) => ({
+      id: post.id,
+      type: post.type,
+      user: users[post.userId]
+    }))
+  }, [descendants])
+
   const { data, isFetching, refetch } = usePostDetail(postid as string)
   const { context, post } = useMemo(
     () => {
@@ -42,12 +57,40 @@ export default function PostDetail() {
       <ScrollView
         refreshControl={
           <RefreshControl
-            refreshing={isFetching}
+            refreshing={isFetching || descendantLoading}
             onRefresh={refetch}
           />
         }
       >
-        <Thread thread={post} collapseAncestors={false} />
+        <Thread
+          thread={post}
+          collapseAncestors={false}
+        />
+        {notes.map((note) => {
+          if (note.type === 'rewoot') {
+            return (
+              <View className="border-t border-gray-500">
+                <RewootRibbon
+                  key={note.id}
+                  user={{ ...note.user, remoteId: null }}
+                  userNameHTML={note.user?.name}
+                />
+              </View>
+            )
+          }
+          if (note.type === 'reply') {
+            return (
+              <View className="border-t border-gray-500">
+                <ReplyRibbon
+                  key={note.id}
+                  user={{ ...note.user, remoteId: null }}
+                  postId={note.id}
+                />
+              </View>
+            )
+          }
+          return null
+        })}
       </ScrollView>
     </DashboardContextProvider>
   )
