@@ -79,7 +79,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
       const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.id
       if (!grouped.has(key)) {
         grouped.set(key, {
-          id: r.id,
+          id: key,
           users: [],
           emoji: r.emoji,
         })
@@ -109,7 +109,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
         android_ripple={{
           color: 'rgba(255, 255, 255, 0.1)',
         }}
-        className="flex-row w-full gap-2.5 mb-2 items-stretch"
+        className="flex-row w-full gap-2.5 items-stretch"
       >
         <View id='avatar-column' className="relative">
           <Pressable onPress={() => router.navigate(`/user/${user?.url}`)}>
@@ -123,7 +123,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
             />
           </Pressable>
           {hasThreadLine && (
-            <View className="flex-1 ml-6 mt-2 w-[2px] bg-gray-500/50" />
+            <View className="flex-1 ml-6 my-1 w-[2px] bg-gray-500/50" />
           )}
         </View>
         <View id='content-column' style={{ width: contentWidth }}>
@@ -169,7 +169,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
           )}
           <View
             id='content-warning-content'
-            className={clsx({
+            className={clsx('my-2', {
               'rounded-xl bg-yellow-200/10': hideContent,
             })}
           >
@@ -212,7 +212,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
               </Text>
             </View>
           )}
-          <View id='reactions' className="mt-2 flex-row flex-wrap items-center gap-2">
+          <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
             {likes.length > 0 && (
               <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
                 ❤️ {likes.length}

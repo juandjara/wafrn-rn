@@ -18,7 +18,7 @@ export default function PostDetail() {
     )
     const posts = descendants?.posts || []
     return posts.map((post) => ({
-      id: post.id,
+      id: post.type === 'rewoot' ? post.userId : post.id,
       type: post.type,
       user: users[post.userId]
     }))
