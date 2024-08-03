@@ -51,6 +51,8 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
 
   const isFollowing = settings?.followedUsers.includes(user?.id!)
   const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+  // edition is considered if the post was updated more than 1 minute after it was created
+  const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
 
   if (isEmptyRewoot(post, context)) {
     return (
@@ -103,6 +105,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
             </Link>
           </View>
           <View id='date-line' className="flex-row gap-1 my-1 items-center">
+            {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
             <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
             <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
             <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
