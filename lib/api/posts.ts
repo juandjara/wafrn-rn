@@ -40,7 +40,6 @@ export type PostDescendants = {
 }
 
 export async function getPostDescendants(token: string, id: string) {
-  console.log('getPostDescendants', id, token)
   const json = await getJSON(`${API_URL}/v2/descendents/${id}`, {
     headers: {
       'Authorization': `Bearer ${token}`
