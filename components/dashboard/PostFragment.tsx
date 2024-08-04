@@ -160,7 +160,7 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
             >
               <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
               <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
-              <TouchableOpacity onPress={() => setCWOpen(!CWOpen)}>
+              <TouchableOpacity className="flex-shrink-0" onPress={() => setCWOpen(!CWOpen)}>
                 <Text className={buttonCN}>
                   {CWOpen ? 'Hide' : 'Show'}
                 </Text>
