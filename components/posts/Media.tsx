@@ -1,7 +1,6 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
-import { Text, useWindowDimensions, View } from "react-native";
-import { POST_MARGIN } from "@/lib/api/posts";
+import { Text, View } from "react-native";
 import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -9,13 +8,16 @@ import { Link } from "expo-router";
 import { ResizeMode, Video } from "expo-av";
 import MediaCloak from "./MediaCloak";
 
-export const MEDIA_MARGIN = POST_MARGIN + 9
+export const MEDIA_MARGIN = 9
 
-export default function Media({ hidden, media }: { hidden: boolean; media: PostMedia }) {
+export default function Media({ hidden, media, contentWidth }: {
+  hidden: boolean
+  media: PostMedia
+  contentWidth: number
+}) {
   const src = formatCachedUrl(formatMediaUrl(media.url))
   const aspectRatio = media.aspectRatio || 1 
-  const { width } = useWindowDimensions()
-  const postWidth = width - MEDIA_MARGIN
+  const mediaWidth = contentWidth - MEDIA_MARGIN
 
   return (
     <View
@@ -25,7 +27,7 @@ export default function Media({ hidden, media }: { hidden: boolean; media: PostM
       <MediaCloak
         backgroundImage={{
           src,
-          width: postWidth,
+          width: mediaWidth,
           aspectRatio
         }}
         isNSFW={media.NSFW}
@@ -34,7 +36,7 @@ export default function Media({ hidden, media }: { hidden: boolean; media: PostM
           <Video
             source={{ uri: src }}
             resizeMode={ResizeMode.CONTAIN}
-            style={{ width: postWidth, height: postWidth * aspectRatio }}
+            style={{ width: mediaWidth, height: mediaWidth * aspectRatio }}
             isLooping
             usePoster
           />
@@ -58,7 +60,7 @@ export default function Media({ hidden, media }: { hidden: boolean; media: PostM
           <ZoomableImage
             src={src}
             hidden={hidden}
-            width={postWidth}
+            width={mediaWidth}
             aspectRatio={aspectRatio}
             contentFit="contain"
             className="rounded-t-md max-w-full"

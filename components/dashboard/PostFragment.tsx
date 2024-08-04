@@ -18,8 +18,11 @@ import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
 import { EmojiBase } from "@/lib/api/emojis"
 
-export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }: {
+const QUOTE_MARGIN = AVATAR_SIZE + 12
+
+export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, setCWOpen }: {
   post: Post
+  isQuote?: boolean
   hasThreadLine?: boolean
   CWOpen: boolean
   setCWOpen: (value: boolean) => void
@@ -56,6 +59,11 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
       }))
   }, [post, context])
 
+  const quotedPost = useMemo(() => {
+    const id = context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
+    return context.quotedPosts.find((p) => p.id === id)
+  }, [post, context])
+
   type EmojiGroup = {
     emoji: string | EmojiBase
     users: PostUser[]
@@ -89,13 +97,14 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
     return [...grouped.values()]
   }, [post, context])
 
-  const contentWidth = width - POST_MARGIN
+  const contentWidth = width - POST_MARGIN - (isQuote ? QUOTE_MARGIN : 0)
   const hideContent = !!post.content_warning && !CWOpen
 
   const isFollowing = settings?.followedUsers.includes(user?.id!)
   const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
+  const hasReactions = likes.length > 0 || reactions.length > 0
 
   if (isEmptyRewoot(post, context)) {
     return (
@@ -199,49 +208,65 @@ export default function PostFragment({ post, hasThreadLine, CWOpen, setCWOpen }:
                 }
               }}
             />
-            <View id='media-list'>
+            <View id='media-list' className="mt-2">
               {medias.map((media, index) => (
-                <Media hidden={hideContent} key={`${media.id}-${index}`} media={media} />
+                <Media
+                  key={`${media.id}-${index}`}
+                  hidden={hideContent}
+                  media={media}
+                  contentWidth={contentWidth}
+                />
               ))}
             </View>
+            {quotedPost && (
+              <View id='quoted-post' className="mt-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                <PostFragment
+                  isQuote
+                  post={quotedPost}
+                  CWOpen={CWOpen}
+                  setCWOpen={setCWOpen}
+                />
+              </View>
+            )}
           </View>
+          {hasReactions && (
+            <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
+              {likes.length > 0 && (
+                <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                  ❤️ {likes.length}
+                </Text>
+              )}
+              {reactions.map((r) => {
+                if (typeof r.emoji === 'string') {
+                  return (
+                    <Text key={r.id} className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                      {r.emoji} {r.users.length}
+                    </Text>
+                  )
+                } else {
+                  return (
+                    <View key={r.id} className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+                      <Image
+                        className="rounded-md"
+                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
+                      />
+                      <Text className="text-gray-200">
+                        {r.users.length}
+                      </Text>
+                    </View>
+                  )
+                }
+              })}
+            </View>
+          )}
           {post.notes > 0 && (
-            <View id='notes' className="mt-3 pt-1 border-t border-gray-500">
+            <View id='notes' className="my-2 pt-1 border-t border-gray-500">
               <Text className="text-gray-200 text-sm">
                 {post.notes} Notes
               </Text>
             </View>
           )}
-          <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-            {likes.length > 0 && (
-              <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                ❤️ {likes.length}
-              </Text>
-            )}
-            {reactions.map((r) => {
-              if (typeof r.emoji === 'string') {
-                return (
-                  <Text key={r.id} className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                    {r.emoji} {r.users.length}
-                  </Text>
-                )
-              } else {
-                return (
-                  <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
-                    <Image
-                      key={r.id}
-                      className="rounded-md"
-                      source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                      style={{ width: 20, height: 20 }}
-                    />
-                    <Text className="text-gray-200">
-                      {r.users.length}
-                    </Text>
-                  </View>
-                )
-              }
-            })}
-          </View>
         </View>
       </Pressable>
     </Link>
