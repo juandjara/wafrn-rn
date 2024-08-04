@@ -83,9 +83,6 @@ export function processPostContent(post: Post, context: DashboardContextData) {
 
   // if this post is a local wafrn post, add tags at the bottom
   if (!post.remotePostId) {
-    if (tags.length) {
-      text += '<br />'
-    }
     for (const tag of uniqueTags) {
       text += ` <a class="hashtag" data-tag="${tag}" href="/tag/${tag}">#${tag}</a>`
     }
