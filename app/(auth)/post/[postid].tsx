@@ -17,11 +17,12 @@ export default function PostDetail() {
       descendants?.users?.map((u) => [u.id, u]) || []
     )
     const posts = descendants?.posts || []
-    return posts.map((post) => ({
+    const notes = posts.map((post) => ({
       id: post.type === 'rewoot' ? post.userId : post.id,
       type: post.type,
-      user: users[post.userId]
+      user: { ...users[post.userId], remoteId: null },
     }))
+    return notes
   }, [descendants])
 
   const { data, isFetching, refetch } = usePostDetail(postid as string)
@@ -69,28 +70,20 @@ export default function PostDetail() {
         {notes.map((note) => {
           if (note.type === 'rewoot') {
             return (
-              <View className="border-t border-gray-500">
-                <RewootRibbon
-                  key={note.id}
-                  user={{ ...note.user, remoteId: null }}
-                  userNameHTML={note.user?.name}
-                />
+              <View key={note.id} className="border-t border-gray-500">
+                <RewootRibbon user={note.user} userNameHTML={note.user?.name} />
               </View>
             )
           }
           if (note.type === 'reply') {
             return (
-              <View className="border-t border-gray-500">
-                <ReplyRibbon
-                  key={note.id}
-                  user={{ ...note.user, remoteId: null }}
-                  postId={note.id}
-                />
+              <View key={note.id} className="border-t border-gray-500">
+                <ReplyRibbon user={note.user} postId={note.id} />
               </View>
             )
           }
           return null
-        })}
+        }).filter(Boolean)}
       </ScrollView>
     </DashboardContextProvider>
   )
