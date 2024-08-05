@@ -40,7 +40,7 @@ export function useDashboard(mode: DashboardMode) {
   })
 }
 
-function getLastDate(posts: PostThread[]) {
+export function getLastDate(posts: PostThread[]) {
   const lastPost = posts[posts.length - 1]
   return lastPost
     ? new Date(lastPost.createdAt).getTime()

@@ -41,12 +41,12 @@ async function getStorageItemAsync(key: string) {
   return null
 }
 
-export default function useAsyncStorage<T = unknown>(key: string) {
+export default function useAsyncStorage<T = unknown>(key: string, defaultValue: T) {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getAsyncStorage', key],
     queryFn: async () => {
       const value = await getStorageItemAsync(key);
-      return value ? JSON.parse(value) as T : null;
+      return value ? JSON.parse(value) as T : defaultValue;
     },
   })
   const mutation = useMutation<void, Error, T | null>({
