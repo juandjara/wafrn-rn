@@ -45,7 +45,7 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
         onRefresh={refresh}
         data={deduped}
         onEndReachedThreshold={0.5}
-        contentContainerClassName="gap-3"
+        contentContainerClassName="gap-4"
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Thread thread={item} />}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
