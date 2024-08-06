@@ -17,8 +17,9 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
-    console.error(JSON.stringify(json))
-    throw new Error(json.errorMessage)
+    const msg = `Error response for URL ${params[0]}: ${JSON.stringify(json)}`
+    console.error(msg)
+    throw new Error(msg)
   }
   return json
 }
