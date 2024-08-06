@@ -8,7 +8,7 @@ import { Timestamps } from "./types"
 
 const LAYOUT_MARGIN = 16
 export const AVATAR_SIZE = 42
-export const POST_MARGIN = AVATAR_SIZE + LAYOUT_MARGIN
+export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(token: string, id: string) {
   const json = await getJSON(`${API_URL}/v2/post/${id}`, {

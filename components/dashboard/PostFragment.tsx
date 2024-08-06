@@ -18,7 +18,7 @@ import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
 import { EmojiBase } from "@/lib/api/emojis"
 
-const QUOTE_MARGIN = AVATAR_SIZE + 12
+// const QUOTE_MARGIN = AVATAR_SIZE + 12
 
 export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, setCWOpen }: {
   post: Post
@@ -97,7 +97,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
     return [...grouped.values()]
   }, [post, context])
 
-  const contentWidth = width - POST_MARGIN - (isQuote ? QUOTE_MARGIN : 0)
+  const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
   const hideContent = !!post.content_warning && !CWOpen
 
   const isFollowing = settings?.followedUsers.includes(user?.id!)
@@ -115,57 +115,50 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Pressable
+        className="px-3"
         android_ripple={{
           color: 'rgba(255, 255, 255, 0.1)',
         }}
-        className="flex-row w-full gap-2.5 items-stretch"
       >
-        <View id='avatar-column' className="relative">
-          <Pressable onPress={() => router.navigate(`/user/${user?.url}`)}>
+        <Link href={`/user/${user?.url}`} asChild>
+          <Pressable id='post-header' className="flex-row w-full gap-3 items-stretch">
             <Image
-              className="rounded-br-md border border-gray-500 flex-shrink-0"
+              className="flex-shrink-0 my-3 rounded-md border border-gray-500"
               source={{
                 width: AVATAR_SIZE,
                 height: AVATAR_SIZE,
                 uri: formatAvatarUrl(user)
               }}
             />
+            <View id='user-name-link' className="flex-grow">
+              <View className="flex-row mt-3">
+                <HtmlRenderer html={userName} renderTextRoot />
+                {(isAwaitingApproval || !isFollowing) && (
+                  <TouchableOpacity className="ml-2">
+                    <Text className={clsx(
+                      'rounded-full px-2 text-sm',
+                      isAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
+                    )}>
+                      {isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
+            </View>
           </Pressable>
-          {hasThreadLine && (
-            <View className="flex-1 ml-6 my-1 w-[2px] bg-gray-500/50" />
-          )}
+        </Link>
+        <View id='date-line' className="flex-row gap-1 items-center">
+          {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
+          <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
+          <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
+          <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
-        <View id='content-column' style={{ width: contentWidth }}>
-          <View id='user-name-link' className="my-1">
-            <Link href={`/user/${user?.url}`} asChild>
-              <Pressable>
-                <View className="flex-row my-1">
-                  <HtmlRenderer html={userName} renderTextRoot />
-                  {(isAwaitingApproval || !isFollowing) && (
-                    <TouchableOpacity className="ml-2">
-                      <Text className={clsx(
-                        'rounded-full px-2 text-sm',
-                        isAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
-                      )}>
-                        {isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
-              </Pressable>
-            </Link>
-          </View>
-          <View id='date-line' className="flex-row gap-1 my-1 items-center">
-            {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
-            <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
-            <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
-            <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
-          </View>
+        <View id='content'>
           {post.content_warning && (
             <View
               id='content-warning-message'
-              className="flex-row items-center gap-2 my-3 p-2 border border-yellow-500 rounded-full"
+              className="flex-row items-center gap-2 my-3 p-2 border border-yellow-300 rounded-full"
             >
               <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
               <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
@@ -178,7 +171,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
           )}
           <View
             id='content-warning-content'
-            className={clsx('my-2', {
+            className={clsx('mb-2', {
               'rounded-xl bg-yellow-200/10': hideContent,
             })}
           >
@@ -230,7 +223,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
             )}
           </View>
           {hasReactions && (
-            <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
+            <View id='reactions' className="mb-3 flex-row flex-wrap items-center gap-2">
               {likes.length > 0 && (
                 <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
                   ❤️ {likes.length}
@@ -261,7 +254,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
             </View>
           )}
           {post.notes > 0 && (
-            <View id='notes' className="my-2 pt-1 border-t border-gray-500">
+            <View id='notes' className="mt-1 mb-3 pt-1 border-t border-gray-500">
               <Text className="text-gray-200 text-sm">
                 {post.notes} Notes
               </Text>

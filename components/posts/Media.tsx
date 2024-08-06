@@ -8,7 +8,7 @@ import { Link } from "expo-router";
 import { ResizeMode, Video } from "expo-av";
 import MediaCloak from "./MediaCloak";
 
-export const MEDIA_MARGIN = 9
+export const MEDIA_MARGIN = 0
 
 export default function Media({ hidden, media, contentWidth }: {
   hidden: boolean
@@ -21,7 +21,7 @@ export default function Media({ hidden, media, contentWidth }: {
 
   return (
     <View
-      className="overflow-hidden m-2 ml-0 border border-gray-300 rounded-lg"
+      className="overflow-hidden mb-2 border border-gray-300 rounded-lg"
       style={{ opacity: hidden ? 0 : 1 }}
     >
       <MediaCloak
