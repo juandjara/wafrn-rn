@@ -3,6 +3,42 @@ import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import colors from "tailwindcss/colors"
+import { EmojiBase } from "./emojis"
+
+export const inlineImageConfig = {
+  img: defaultHTMLElementModels.img.extend({
+    contentModel: HTMLContentModel.mixed
+  })
+}
+
+export const HTML_STYLES = {
+  a: {
+    color: colors.cyan[400],
+  },
+  blockquote: {
+    paddingLeft: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.gray[400],
+  },
+  ul: {
+    paddingLeft: 16,
+  },
+  ol: {
+    paddingLeft: 16,
+  },
+  li: {
+    paddingLeft: 8,
+    paddingBottom: 4,
+  },
+  p: {
+    marginBottom: 4,
+  },
+  text: {
+    color: 'white',
+    fontSize: 16,
+    lineHeight: 24,
+  }
+}
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content) {
@@ -132,37 +168,35 @@ export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
   return text
 }
 
-export const inlineImageConfig = {
-  img: defaultHTMLElementModels.img.extend({
-    contentModel: HTMLContentModel.mixed
-  })
+export type EmojiGroup = {
+  emoji: string | EmojiBase
+  users: PostUser[]
+  id: string
 }
 
-export const HTML_STYLES = {
-  a: {
-    color: colors.cyan[400],
-  },
-  blockquote: {
-    paddingLeft: 8,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.gray[400],
-  },
-  ul: {
-    paddingLeft: 16,
-  },
-  ol: {
-    paddingLeft: 16,
-  },
-  li: {
-    paddingLeft: 8,
-    paddingBottom: 4,
-  },
-  p: {
-    marginBottom: 4,
-  },
-  text: {
-    color: 'white',
-    fontSize: 16,
-    lineHeight: 24,
+export function getReactions(post: Post, context: DashboardContextData) {
+  const emojis = Object.fromEntries(
+    context.emojiRelations.emojis.map((e) => [e.id, e])
+  )
+  const reactions = context.emojiRelations.postEmojiReactions
+    .filter((r) => r.postId === post.id)
+    .map((e) => ({
+      id: `${e.emojiId}-${e.userId}`,
+      user: context.users.find((u) => u.id === e.userId),
+      emoji: e.emojiId ? emojis[e.emojiId] : e.content
+    }))
+    .filter((r) => r.user)
+  const grouped = new Map<string,EmojiGroup >()
+  for (const r of reactions) {
+    const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.id
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        id: key,
+        users: [],
+        emoji: r.emoji,
+      })
+    }
+    grouped.get(key)!.users.push(r.user!)
   }
+  return [...grouped.values()]
 }
