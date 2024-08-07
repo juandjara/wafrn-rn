@@ -3,15 +3,7 @@ import useAsyncStorage from "@/lib/useLocalStorage"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { Stack } from "expo-router"
 import { useState } from "react"
-import { LayoutAnimation, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, UIManager, View } from "react-native"
-
-// magic automatic transitions
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+import { LayoutAnimation, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 
 export default function Search() {
   const [showTips, setShowTips] = useState(false)

@@ -1,6 +1,6 @@
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useColorScheme } from "react-native";
+import { Platform, UIManager, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../styles.css"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
@@ -16,6 +16,14 @@ const queryClient = new QueryClient({
     }
   }
 });
+
+// magic automatic transitions
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme()
