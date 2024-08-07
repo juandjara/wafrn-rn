@@ -1,4 +1,4 @@
-import { defaultHTMLElementModels, Element, HTMLContentModel } from "react-native-render-html"
+import { defaultHTMLElementModels, Element, HTMLContentModel, Text } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
@@ -34,12 +34,40 @@ export function replaceMentionLink(el: Element, context: DashboardContextData) {
   if (userId) {
     const user = context.users.find((u) => u.id === userId)
     if (user) {
-      el.attribs['href'] = `/user/${user.url}`
+      el.attribs['href'] = `wafrn:///user/${user.url}`
     }
   } else {
     const link = el.attribs['href']
-    if (link) {
-      el.attribs['href'] = `wafrn:///user/remote?link=${encodeURIComponent(link)}`
+    if (el.children.length === 1) {
+      const child = el.children[0]
+      if (child.type === 'text') {
+        let handle = (child as Text).data
+        if (handle.lastIndexOf('@') === 0) {
+          const host = new URL(link).host
+          handle = `${handle}@${host}`
+        }
+        const user = context.users.find((u) => u.url === handle)
+        if (user) {
+          el.attribs['href'] = `wafrn:///user/${user.url}`
+        }
+      }
+    }
+    if (el.children.length === 2) {
+      const [part1, part2] = el.children
+      const firstPartIsAt = part1 && part1.type === 'text' && (part1 as Text).data === '@'
+      const secondPartIsSpan = part2 && (part2 as Element).tagName === 'span'
+      if (firstPartIsAt && secondPartIsSpan) {
+        const spanText = (part2 as Element).children[0] as Text
+        if (spanText.type === 'text') {
+          const username = spanText.data
+          const host = new URL(link).host
+          const handle = `@${username}@${host}`
+          const user = context.users.find((u) => u.url === handle)
+          if (user) {
+            el.attribs['href'] = `wafrn:///user/${user.url}`
+          }
+        }
+      }
     }
   }
 }
