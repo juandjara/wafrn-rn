@@ -1,14 +1,14 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
 import { Text, View } from "react-native";
-import { isAudio, isImage, isPDF, isVideo } from "@/lib/api/media";
+import { isAudio, isImage, isNotAV, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { ResizeMode, Video } from "expo-av";
 import MediaCloak from "./MediaCloak";
 
-export const MEDIA_MARGIN = 0
+export const MEDIA_MARGIN = -2
 
 export default function Media({ hidden, media, contentWidth }: {
   hidden: boolean
@@ -49,13 +49,6 @@ export default function Media({ hidden, media, contentWidth }: {
           //   src={url}
           // />
         )}
-        {/* Why PDF? I don't know but original wafrn angular frontend handled it  */}
-        {isPDF(src) && (
-          <View className="flex-row gap-2">
-            <MaterialCommunityIcons name="file-pdf-box" size={24} color="white" />
-            <Link href={src}>{src}</Link>
-          </View>
-        )}
         {isImage(src) && (
           <ZoomableImage
             src={src}
@@ -65,6 +58,20 @@ export default function Media({ hidden, media, contentWidth }: {
             contentFit="contain"
             className="rounded-t-md max-w-full"
           />
+        )}
+        {isNotAV(src) && (
+          <View className="flex-row gap-2">
+            <MaterialCommunityIcons
+              name="link-variant"
+              className="flex-shrink-0 m-2"
+              color="white"
+              size={32}
+            />
+            <Link
+              href={media.url}
+              className="text-cyan-400 my-2 flex-grow flex-shrink"
+            >{media.url}</Link>
+          </View>
         )}
       </MediaCloak>
       <Text className="text-white text-xs p-2 bg-blue-950 rounded-lg">

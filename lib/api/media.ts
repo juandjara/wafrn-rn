@@ -16,6 +16,16 @@ const VIDEO_EXTENSIONS = [
   'mp4',
   'webm'
 ]
+const IMG_EXTENSIONS = [
+  'bmp',
+  'gif',
+  'ico',
+  'jpeg',
+  'jpg',
+  'png',
+  'svg',
+  'webp'
+]
 
 export function isVideo(url: string) {
   return VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
@@ -23,11 +33,11 @@ export function isVideo(url: string) {
 export function isAudio(url: string) {
   return AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
-export function isPDF(url: string) {
-  return url.endsWith('pdf')
+export function isNotAV(url: string) {
+  return !isVideo(url) && !isAudio(url) && !isImage(url)
 }
 export function isImage(url: string) {
-  return !isVideo(url) && !isAudio(url) && !isPDF(url)
+  return IMG_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
 
 export async function getRemoteAspectRatio(url: string) {
@@ -38,7 +48,10 @@ export async function getRemoteAspectRatio(url: string) {
       } else {
         resolve(1)
       }
-    }, reject)
+    }, (error) => {
+      console.error(`Error getting aspect ratio for image ${url}`, error)
+      resolve(1)
+    })
   })
 }
 

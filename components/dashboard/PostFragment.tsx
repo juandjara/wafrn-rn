@@ -1,35 +1,38 @@
-import { Post, PostUser } from "@/lib/api/posts.types"
-import { Image, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { Post } from "@/lib/api/posts.types"
+import { Image, LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { formatAvatarUrl, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, router } from "expo-router"
 import RenderHTML from "react-native-render-html"
-import { getUserNameHTML, handleDomElement, HTML_STYLES, inlineImageConfig, isEmptyRewoot, processPostContent } from "@/lib/api/content"
+import { getReactions, getUserNameHTML, handleDomElement, HTML_STYLES, inlineImageConfig, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
-import { buttonCN } from "@/lib/styles"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
-import { EmojiBase } from "@/lib/api/emojis"
+import { LinearGradient } from "expo-linear-gradient"
 
-// const QUOTE_MARGIN = AVATAR_SIZE + 12
+const HEIGHT_LIMIT = 300
 
 export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, setCWOpen }: {
   post: Post
   isQuote?: boolean
   hasThreadLine?: boolean
   CWOpen: boolean
-  setCWOpen: (value: boolean) => void
+  setCWOpen: ReturnType<typeof useState<boolean>>[1]
 }) {
+  const [showMore, setShowMore] = useState(true)
+  const [showMoreToggle, setShowMoreToggle] = useState(false)
+
   const { width } = useWindowDimensions()
   const { data: settings } = useSettings()
   const context = useDashboardContext()
+
   const user = useMemo(
     () => context.users.find((u) => u.id === post.userId),
     [context.users, post.userId]
@@ -64,37 +67,8 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
     return context.quotedPosts.find((p) => p.id === id)
   }, [post, context])
 
-  type EmojiGroup = {
-    emoji: string | EmojiBase
-    users: PostUser[]
-    id: string
-  }
-
   const reactions = useMemo(() => {
-    const emojis = Object.fromEntries(
-      context.emojiRelations.emojis.map((e) => [e.id, e])
-    )
-    const reactions = context.emojiRelations.postEmojiReactions
-      .filter((r) => r.postId === post.id)
-      .map((e) => ({
-        id: `${e.emojiId}-${e.userId}`,
-        user: context.users.find((u) => u.id === e.userId),
-        emoji: e.emojiId ? emojis[e.emojiId] : e.content
-      }))
-      .filter((r) => r.user)
-    const grouped = new Map<string,EmojiGroup >()
-    for (const r of reactions) {
-      const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.id
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          id: key,
-          users: [],
-          emoji: r.emoji,
-        })
-      }
-      grouped.get(key)!.users.push(r.user!)
-    }
-    return [...grouped.values()]
+    return getReactions(post, context)
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
@@ -105,6 +79,11 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
+
+  function toggleCW() {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setCWOpen((o) => !o)
+  }
 
   if (isEmptyRewoot(post, context)) {
     return (
@@ -158,72 +137,138 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
           {post.content_warning && (
             <View
               id='content-warning-message'
-              className="flex-row items-center gap-2 my-3 p-2 border border-yellow-300 rounded-full"
+              className='flex-row items-start gap-3 my-4 p-2 border border-yellow-300 rounded-xl'
             >
-              <Ionicons className="ml-2" name="warning" size={20} color={colors.yellow[500]} />
-              <Text className="text-yellow-100 text-lg flex-shrink flex-grow">{post.content_warning}</Text>
-              <TouchableOpacity className="flex-shrink-0" onPress={() => setCWOpen(!CWOpen)}>
-                <Text className={buttonCN}>
-                  {CWOpen ? 'Hide' : 'Show'}
-                </Text>
-              </TouchableOpacity>
+              <View className="ml-1 gap-1">
+                <Ionicons
+                  name="warning"
+                  size={24}
+                  color={colors.yellow[500]}
+                />
+                {medias.length > 0 && (
+                  <MaterialCommunityIcons
+                    name='image'
+                    color='white'
+                    size={24}
+                  />
+                )}
+                {quotedPost && (
+                  <MaterialIcons
+                    name='format-quote'
+                    size={24}
+                    color={colors.gray[200]}
+                  />
+                )}
+              </View>
+              <View className="flex-shrink flex-grow gap-2">
+                <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
+                <TouchableOpacity className="mr-auto px-2 py-1 bg-indigo-500/20 rounded-full" onPress={toggleCW}>
+                  <Text className='text-indigo-500 text-sm'>
+                    {CWOpen ? 'Hide' : 'Show'} content
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
-          <View
-            id='content-warning-content'
-            className={clsx('mb-2', {
-              'rounded-xl bg-yellow-200/10': hideContent,
-            })}
-          >
-            <RenderHTML
-              tagsStyles={HTML_STYLES}
-              baseStyle={{
-                ...HTML_STYLES.text,
-                opacity: hideContent ? 0 : 1,
-              }}
-              contentWidth={contentWidth}
-              source={{ html: postContent }}
-              // all images are set to inline, html renderer doesn't support dynamic block / inline images
-              // and most images inside post content are emojis, so we can just make them all inline
-              // and any block images should be rendered as media anyway
-              customHTMLElementModels={inlineImageConfig}
-              domVisitors={{ onElement: (el) => handleDomElement(el, context) }}
-              defaultTextProps={{ selectable: !hideContent }}
-              renderersProps={{
-                a: {
-                  onPress(event, url) {
-                    if (url.startsWith('wafrn://')) {
-                      router.navigate(url.replace('wafrn://', ''))
-                    } else {
-                      router.navigate(url)
+          {hideContent ? null : (
+            <>              
+              <View id='show-more-container' className="relative pb-2">
+                <View
+                  id='show-more-content'
+                  style={{
+                    overflow: 'hidden',
+                    maxHeight: showMore ? undefined : HEIGHT_LIMIT,
+                    paddingBottom: showMoreToggle && showMore ? 28 : 0,
+                  }}
+                  onLayout={(ev) => {
+                    const height = ev.nativeEvent.layout.height
+                    if (height > HEIGHT_LIMIT && !showMoreToggle) {
+                      setShowMoreToggle(true)
+                      setShowMore(false)
                     }
-                  }
-                }
-              }}
-            />
-            <View id='media-list' className="mt-2">
-              {medias.map((media, index) => (
-                <Media
-                  key={`${media.id}-${index}`}
-                  hidden={hideContent}
-                  media={media}
-                  contentWidth={contentWidth}
-                />
-              ))}
-            </View>
-            {quotedPost && (
-              <View id='quoted-post' className="mt-2 border border-gray-500 rounded-xl bg-gray-500/10">
-                <PostFragment
-                  isQuote
-                  post={quotedPost}
-                  CWOpen={CWOpen}
-                  setCWOpen={setCWOpen}
-                />
+                  }}
+                >
+                  <RenderHTML
+                    tagsStyles={HTML_STYLES}
+                    baseStyle={{
+                      ...HTML_STYLES.text,
+                      opacity: hideContent ? 0 : 1,
+                    }}
+                    contentWidth={contentWidth}
+                    source={{ html: postContent }}
+                    // all images are set to inline, html renderer doesn't support dynamic block / inline images
+                    // and most images inside post content are emojis, so we can just make them all inline
+                    // and any block images should be rendered as media anyway
+                    customHTMLElementModels={inlineImageConfig}
+                    domVisitors={{ onElement: (el) => handleDomElement(el, context) }}
+                    defaultTextProps={{ selectable: !hideContent }}
+                    renderersProps={{
+                      a: {
+                        onPress(event, url) {
+                          if (url.startsWith('wafrn://')) {
+                            router.navigate(url.replace('wafrn://', ''))
+                          } else {
+                            router.navigate(url)
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </View>
+                {showMoreToggle && (
+                  <LinearGradient
+                    id='show-more-toggle'
+                    colors={[
+                      'transparent',
+                      colors.indigo[900],
+                    ]}
+                    className={clsx(
+                      'flex-row justify-center absolute pt-4 pb-2 px-2 bottom-0 -left-3 -right-3',
+                      { 'opacity-0': hideContent }
+                    )}
+                  >
+                    <Pressable
+                      className="bg-indigo-950 px-3 py-1 rounded-full"
+                      onPress={() => {
+                        if (!hideContent) {
+                          setShowMore(e => !e)
+                        }
+                      }}
+                    >
+                      <Text className='text-indigo-500'>
+                        {showMore ? 'Show less' : 'Show more'}
+                      </Text>
+                    </Pressable>
+                  </LinearGradient>
+                )}
               </View>
-            )}
-          </View>
+              <View 
+                id='media-list'
+                className={clsx({ 'pt-4 pb-2': medias.length > 0 })}
+              >
+                {medias.map((media, index) => (
+                  <Media
+                    key={`${media.id}-${index}`}
+                    hidden={hideContent}
+                    media={media}
+                    contentWidth={contentWidth}
+                  />
+                ))}
+              </View>
+              {quotedPost && (
+                <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                  <PostFragment
+                    isQuote
+                    post={quotedPost}
+                    CWOpen={CWOpen}
+                    setCWOpen={setCWOpen}
+                  />
+                </View>
+              )}
+            </>
+          )}
           {hasReactions && (
-            <View id='reactions' className="mb-3 flex-row flex-wrap items-center gap-2">
+            <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
               {likes.length > 0 && (
                 <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
                   ❤️ {likes.length}

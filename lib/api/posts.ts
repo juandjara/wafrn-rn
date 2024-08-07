@@ -6,7 +6,7 @@ import { DashboardData, PostUser } from "./posts.types"
 import { addSizesToMedias } from "./media"
 import { Timestamps } from "./types"
 
-const LAYOUT_MARGIN = 16
+const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
