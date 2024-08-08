@@ -50,6 +50,10 @@ export async function getPostDescendants(token: string, id: string) {
       ...post,
       type: len === 0 ? 'rewoot' : 'reply'
     }
+  }).sort((a: any, b: any) => {
+    const aTime = new Date(a.createdAt).getTime()
+    const bTime = new Date(b.createdAt).getTime()
+    return aTime - bTime
   })
   return json as PostDescendants
 }
@@ -59,6 +63,32 @@ export function usePostDescendants(id: string) {
   return useQuery({
     queryKey: ['postDescendants', id],
     queryFn: () => getPostDescendants(token!, id),
+    enabled: !!token && !!id
+  })
+}
+
+export async function getPostReplies(token: string, id: string) {
+  const json = await getJSON(`${API_URL}/forum/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  const data = json as DashboardData
+  data.medias = await addSizesToMedias(json.medias)
+  data.posts.sort((a, b) => {
+    const aTime = new Date(a.createdAt).getTime()
+    const bTime = new Date(b.createdAt).getTime()
+    return aTime - bTime
+  })
+  return data
+}
+
+// forum endpoint: includes complete replies and rewoots
+export function usePostReplies(id: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['postReples', id],
+    queryFn: () => getPostReplies(token!, id),
     enabled: !!token && !!id
   })
 }

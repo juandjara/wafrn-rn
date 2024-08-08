@@ -1,5 +1,6 @@
 import Loading from "@/components/Loading"
-import Notes from "@/components/posts/Notes"
+// import Notes from "@/components/posts/Notes"
+import Replies from "@/components/posts/Replies"
 import Thread from "@/components/posts/Thread"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { usePostDetail } from "@/lib/api/posts"
@@ -52,7 +53,7 @@ export default function PostDetail() {
           thread={post}
           collapseAncestors={false}
         />
-        <Notes postId={postid as string} />
+        <Replies postId={postid as string} />
       </ScrollView>
     </DashboardContextProvider>
   )
