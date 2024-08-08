@@ -299,7 +299,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
             </View>
           )}
           {post.notes > 0 && (
-            <View id='notes' className="mt-1 mb-3 pt-1 border-t border-gray-500">
+            <View id='notes' className="mb-3 pt-1 border-t border-gray-500">
               <Text className="text-gray-200 text-sm">
                 {post.notes} Notes
               </Text>
