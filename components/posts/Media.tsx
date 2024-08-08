@@ -25,12 +25,12 @@ export default function Media({ hidden, media, contentWidth }: {
       style={{ opacity: hidden ? 0 : 1 }}
     >
       <MediaCloak
+        isNSFW={media.NSFW}
         backgroundImage={{
           src,
           width: mediaWidth,
           aspectRatio
         }}
-        isNSFW={media.NSFW}
       >
         {isVideo(src) && (
           <Video

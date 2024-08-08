@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import { ImageBackground, ImageStyle, Pressable, Text, View, ViewStyle } from "react-native"
+import { isImage, isSVG } from "@/lib/api/media"
 
 const CLOAK_MIN_HEIGHT = 100
 
@@ -24,6 +25,7 @@ export default function MediaCloak({
   const [hidden, setHidden] = useState(isNSFW)
   const width = backgroundImage?.width || 0
   const height = width * (backgroundImage?.aspectRatio || 1)
+  const shouldUseImgBg = backgroundImage && isImage(backgroundImage.src) && !isSVG(backgroundImage.src)
 
   const cloak = (
     <Pressable
@@ -40,7 +42,7 @@ export default function MediaCloak({
     </Pressable>
   )
 
-  const cloakWrapper = backgroundImage ? (
+  const cloakWrapper = shouldUseImgBg ? (
     <ImageBackground
       source={{ uri: backgroundImage.src }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}

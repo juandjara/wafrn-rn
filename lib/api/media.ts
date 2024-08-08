@@ -24,7 +24,8 @@ const IMG_EXTENSIONS = [
   'jpg',
   'png',
   'svg',
-  'webp'
+  'webp',
+  'avif',
 ]
 
 export function isVideo(url: string) {
@@ -36,6 +37,9 @@ export function isAudio(url: string) {
 export function isNotAV(url: string) {
   return !isVideo(url) && !isAudio(url) && !isImage(url)
 }
+export function isSVG(url: string) {
+  return url.endsWith('svg')
+} 
 export function isImage(url: string) {
   return IMG_EXTENSIONS.some((ext) => url.endsWith(ext))
 }

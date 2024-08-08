@@ -4,6 +4,8 @@ import { Modal, Pressable, useWindowDimensions } from "react-native"
 import { ThemedView } from "../ThemedView"
 import { MaterialIcons } from "@expo/vector-icons"
 import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view"
+import { isSVG } from "@/lib/api/media"
+import { SvgUri } from "react-native-svg"
 
 export default function ZoomableImage({
   src,
@@ -43,24 +45,42 @@ export default function ZoomableImage({
               contentWidth={deviceWidth}
               contentHeight={deviceWidth * aspectRatio}
             >
-              <Image
-                src={src}
-                style={{ resizeMode: contentFit, width: deviceWidth, height: deviceWidth * aspectRatio }}
-              />
+              {isSVG(src) ? (
+                <SvgUri
+                  width={deviceWidth}
+                  height={deviceWidth * aspectRatio}
+                  uri={src}
+                />
+              ) : (
+                <Image
+                  src={src}
+                  style={{ resizeMode: contentFit, width: deviceWidth, height: deviceWidth * aspectRatio }}
+                />
+              )}
             </ReactNativeZoomableView>
           </ThemedView>
         </Modal>
       )}
       <Pressable onPress={() => !hidden && setModalOpen(true)}>
-        <Image
-          src={src}
-          style={[style, {
-            width,
-            height: width * aspectRatio,
-            resizeMode: contentFit
-          }]}
-          className={className}
-        />
+        {isSVG(src) ? (
+          <SvgUri
+            width={width}
+            height={width * aspectRatio}
+            uri={src}
+            style={style}
+            className={className}
+          />
+        ) : (
+          <Image
+            src={src}
+            style={[style, {
+              width,
+              height: width * aspectRatio,
+              resizeMode: contentFit
+            }]}
+            className={className}
+          />
+        )}
       </Pressable>
     </>
   )
