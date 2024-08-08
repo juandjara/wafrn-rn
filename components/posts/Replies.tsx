@@ -16,11 +16,11 @@ export default function Replies({ postId }: { postId: string }) {
     const context = getDashboardContext(data ? [data] : [])
     const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
     const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
-    const numRewoots = (data?.posts || []).filter((p) => isEmptyRewoot(p, context)).length
-    const numReplies = (data?.posts || []).length - numRewoots
+    const numRewoots = (data?.posts || []).filter((p) => isEmptyRewoot(p, context) && p.parentId === postId).length
+    const numReplies = (data?.posts || []).filter((p) => !isEmptyRewoot(p, context)).length 
 
     return { context, userMap, userNames, numReplies, numRewoots }
-  }, [data])
+  }, [data, postId])
   const [cws, setCws] = useState<boolean[]>([])
 
   if (isFetching || !data) {
