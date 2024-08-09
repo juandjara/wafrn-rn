@@ -43,3 +43,7 @@ export function useAuth() {
   return value
 }
 
+export function useParsedToken() {
+  const { token } = useAuth()
+  return useMemo(() => parseToken(token), [token])
+}

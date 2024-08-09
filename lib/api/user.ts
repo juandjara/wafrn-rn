@@ -5,6 +5,7 @@ import { parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
+import { PostUser } from "./posts.types";
 
 export type User = {
   avatar: string
@@ -68,5 +69,49 @@ export function useUser(userId: string) {
     queryKey: ['user', userId],
     queryFn: () => getUser(token!, userId),
     enabled: !!token
+  })
+}
+
+type Follow = Omit<PostUser, 'remoteId'> & {
+  follows: Timestamps & {
+    accepted: boolean
+    followerId: string
+    followedId: string
+    remoteFollowId: string | null
+  }
+}
+
+export async function getFollowers(token: string, handle: string) {
+  const json = await getJSON(`${API_URL}/user/${handle}/follows?followers=false`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  return json as Follow[]
+}
+export async function getFollowed(token: string, handle: string) {
+  const json = await getJSON(`${API_URL}/user/${handle}/follows?followers=true`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  return json as Follow[]
+}
+
+export function useFollowers(handle?: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['followers', handle],
+    queryFn: () => getFollowers(token!, handle!),
+    enabled: !!token && !!handle
+  })
+}
+
+export function useFollowed(handle?: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['followed', handle],
+    queryFn: () => getFollowed(token!, handle!),
+    enabled: !!token && !!handle
   })
 }

@@ -1,10 +1,13 @@
-import { PostThread } from "@/lib/api/posts.types"
+import { Post, PostThread } from "@/lib/api/posts.types"
 import { useMemo, useState } from "react"
 import { Text, View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
 import { isEmptyRewoot } from "@/lib/api/content"
+import { useFollowers } from "@/lib/api/user"
+import { PrivacyLevel } from "@/lib/api/privacy"
+import { useParsedToken } from "@/lib/contexts/AuthContext"
 
 const ANCESTOR_LIMIT = 3
 
@@ -15,6 +18,8 @@ export default function Thread({
   thread: PostThread;
   collapseAncestors?: boolean
 }) {
+  const me = useParsedToken()
+  const { data: followers } = useFollowers(me?.url)
   const [CWOpen, setCWOpen] = useState(false)
   const context = useDashboardContext()
   const isRewoot = useMemo(() => isEmptyRewoot(thread, context), [thread, context])
@@ -34,6 +39,20 @@ export default function Thread({
     ].filter(Boolean)
   }, [thread.ancestors, collapseAncestors])
   
+  function shouldHide(post: Post) {
+    if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {
+      const isFollowingMe = followers?.some(f => f.url === me?.url)
+      if (!isFollowingMe) {
+        return true
+      }
+    }
+    return false
+  }
+
+  if (shouldHide(thread) || ancestors.some(shouldHide)) {
+    return null
+  }
+
   const hasMore = thread.ancestors.length >= ANCESTOR_LIMIT
 
   const mainFragment = (
