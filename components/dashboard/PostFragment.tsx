@@ -178,7 +178,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                   style={{
                     overflow: 'hidden',
                     maxHeight: showMore ? undefined : HEIGHT_LIMIT,
-                    paddingBottom: showMoreToggle && showMore ? 28 : 0,
+                    paddingBottom: showMoreToggle && showMore ? 28 : 4,
                   }}
                   onLayout={(ev) => {
                     const height = ev.nativeEvent.layout.height
