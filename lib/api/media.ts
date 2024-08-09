@@ -1,6 +1,7 @@
 import { Image } from "react-native"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { PostMedia } from "./posts.types"
+import { CACHE_HOST } from "../config"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -41,7 +42,15 @@ export function isSVG(url: string) {
   return url.endsWith('svg')
 } 
 export function isImage(url: string) {
-  return IMG_EXTENSIONS.some((ext) => url.endsWith(ext))
+  const fullUrl = new URL(url)
+  const isCDN = fullUrl.host === CACHE_HOST
+  let lastPart = fullUrl.pathname.split('/').pop()
+  if (isCDN) {
+    lastPart = decodeURIComponent(fullUrl.searchParams.get('media') || '')?.split('/').pop()
+  }
+
+  const hasExtension = lastPart?.includes('.')
+  return !hasExtension || IMG_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
 
 export async function getRemoteAspectRatio(url: string) {
