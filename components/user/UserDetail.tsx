@@ -9,9 +9,11 @@ import RenderHTML from "react-native-render-html";
 import { router } from "expo-router";
 import ZoomableImage from "../posts/ZoomableImage";
 import { useSettings } from "@/lib/api/settings";
-import clsx from "clsx";
+import { useParsedToken } from "@/lib/contexts/AuthContext";
 
 export default function UserDetail({ user }: { user: User }) {
+  const me = useParsedToken()
+  const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
   const { data: settings } = useSettings()
   const isFollowing = settings?.followedUsers.includes(user?.id!)
@@ -39,7 +41,7 @@ export default function UserDetail({ user }: { user: User }) {
   }, [user])
 
   return (
-    <View>
+    <View className="mb-2">
       <View className="flex-row justify-center items-center my-4 rounded-md">
         <ZoomableImage
           src={url}
@@ -53,16 +55,37 @@ export default function UserDetail({ user }: { user: User }) {
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
         <ThemedText className="text-xs">{formatUserUrl(user)}</ThemedText>
-        <Pressable>
-          <Text className={clsx(
-            'py-2 mt-6 px-5 text-lg rounded-full',
-            isFollowing && 'text-red-500 bg-red-500/20',
-            isAwaitingApproval && 'text-gray-400 bg-gray-500/50',
-            !isFollowing && !isAwaitingApproval && 'text-indigo-500 bg-indigo-500/20'
-          )}>
-            {isFollowing ? 'Unfollow' : isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
-          </Text>
-        </Pressable>
+        {isMe ? (
+          <Pressable>
+            <Text className="text-indigo-400 bg-indigo-950 py-2 mt-6 px-5 text-lg rounded-full">
+              Edit profile
+            </Text>
+          </Pressable>
+        ) : (
+          <>
+            {isFollowing && (
+              <Pressable>
+                <Text className="text-red-500 bg-red-500/20 py-2 mt-6 px-5 text-lg rounded-full">
+                  Unfollow
+                </Text>
+              </Pressable>
+            )}
+            {isAwaitingApproval && (
+              <Pressable>
+                <Text className="text-gray-400 bg-gray-500/50 py-2 mt-6 px-5 text-lg rounded-full">
+                  Awaiting approval
+                </Text>
+              </Pressable>
+            )}
+            {!isFollowing && !isAwaitingApproval && (
+              <Pressable>
+                <Text className="text-indigo-500 bg-indigo-500/20 py-2 mt-6 px-5 text-lg rounded-full">
+                  Follow
+                </Text>
+              </Pressable>
+            )}
+          </>
+        )}
         <View className="flex-row gap-6 mt-6">
           <View className="items-center">
             <Text className="text-white text-2xl">{user.followed || user.followingCount}</Text>
