@@ -47,6 +47,11 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
     [context, post]
   )
 
+  const tags = useMemo(() => {
+    const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+    return tags
+  }, [post, context])
+
   const medias = useMemo(() => {
     return context.medias
       .filter((m) => m.posts.some(({ id }) => id === post.id))
@@ -242,19 +247,34 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                   </LinearGradient>
                 )}
               </View>
-              <View 
-                id='media-list'
-                className={clsx({ 'pt-4 pb-2': medias.length > 0 })}
-              >
-                {medias.map((media, index) => (
-                  <Media
-                    key={`${media.id}-${index}`}
-                    hidden={hideContent}
-                    media={media}
-                    contentWidth={contentWidth}
-                  />
-                ))}
-              </View>
+              {medias.length > 0 && (
+                <View 
+                  id='media-list'
+                  className='pt-4 pb-2'
+                >
+                  {medias.map((media, index) => (
+                    <Media
+                      key={`${media.id}-${index}`}
+                      hidden={hideContent}
+                      media={media}
+                      contentWidth={contentWidth}
+                    />
+                  ))}
+                </View>
+              )}
+              {tags.length > 0 && (
+                <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
+                  {tags.map((tag, index) => (
+                    <Link
+                      key={index}
+                      href={`/tag/${tag}`}
+                      className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
+                    >
+                      #{tag}
+                    </Link>
+                  ))}
+                </View>
+              )}
               {quotedPost && (
                 <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
                   <PostFragment
@@ -298,7 +318,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
               })}
             </View>
           )}
-          {post.notes > 0 && (
+          {post.notes !== undefined && (
             <View id='notes' className="mb-3 pt-1 border-t border-gray-500">
               <Text className="text-gray-200 text-sm">
                 {post.notes} Notes

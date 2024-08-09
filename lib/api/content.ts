@@ -56,6 +56,8 @@ export function handleDomElement(el: Element, context: DashboardContextData) {
     if (className?.includes('mention')) {
       replaceMentionLink(el, context)
     }
+    // TODO: consider whether to replace hashtag link or not
+    // since we already display a line with hastags at the bottom of the post
     if (className?.includes('hashtag')) {
       replaceHashtagLink(el, context)
     }
@@ -116,12 +118,29 @@ export function replaceHashtagLink(el: Element, context: DashboardContextData) {
   if (tagName) {
     el.attribs['href'] = `wafrn:///tag/${tagName}`
   } else {
-    const link = el.attribs['href']
-    if (link) {
-      const path = new URL(link).pathname.toLowerCase()
-      const tag = context.tags.find((t) => path.endsWith(`/${t.tagName.toLowerCase()}`))
-      if (tag) {
-        el.attribs['href'] = `wafrn:///tag/${tag.tagName}`
+    if (el.children.length === 1) {
+      const child = el.children[0]
+      if (child.type === 'text') {
+        const text = (child as Text).data.replace('#', '')
+        const tag = context.tags.find((t) => t.tagName === text)
+        if (tag) {
+          el.attribs['href'] = `wafrn:///tag/${tag.tagName}`
+        }
+      }
+    }
+    if (el.children.length === 2) {
+      const [part1, part2] = el.children
+      const firstPartIsHash = part1 && part1.type === 'text' && (part1 as Text).data === '#'
+      const secondPartIsSpan = part2 && (part2 as Element).tagName === 'span'
+      if (firstPartIsHash && secondPartIsSpan) {
+        const spanText = (part2 as Element).children[0] as Text
+        if (spanText.type === 'text') {
+          const text = spanText.data
+          const tag = context.tags.find((t) => t.tagName === text)
+          if (tag) {
+            el.attribs['href'] = `wafrn:///tag/${tag.tagName}`
+          }
+        }
       }
     }
   }
@@ -142,15 +161,6 @@ export function processPostContent(post: Post, context: DashboardContextData) {
     )
   }
 
-  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
-  const uniqueTags = new Set(tags)
-
-  // if this post is a local wafrn post, add tags at the bottom
-  if (!post.remotePostId) {
-    for (const tag of uniqueTags) {
-      text += ` <a class="hashtag" data-tag="${tag}" href="/tag/${tag}">#${tag}</a>`
-    }
-  }
   return text
 }
 
