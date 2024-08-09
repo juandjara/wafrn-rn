@@ -17,7 +17,7 @@ export function formatSmallAvatar(user?: PostUser) {
     return ''
   }
   const url = formatCachedUrl(formatMediaUrl(user.avatar))
-  return `${url}&avatar=true`
+  return url
 }
 
 export function formatDate(date: string) {
