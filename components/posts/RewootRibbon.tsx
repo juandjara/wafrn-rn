@@ -1,5 +1,5 @@
 import { PostUser } from "@/lib/api/posts.types"
-import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
+import { formatSmallAvatar } from "@/lib/formatters"
 import { EvilIcons } from "@expo/vector-icons"
 import { Link } from "expo-router"
 import { Image, Pressable, Text, View } from "react-native"
@@ -7,7 +7,6 @@ import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 
 export default function RewootRibbon({ user, userNameHTML, className }: { user?: PostUser; userNameHTML: string; className?: string }) {
-  const avatar = formatCachedUrl(formatMediaUrl(user?.avatar || ''))
   return (
     <Link href={`/user/${user?.url}`} asChild>
       <Pressable>
@@ -18,7 +17,7 @@ export default function RewootRibbon({ user, userNameHTML, className }: { user?:
             source={{
               width: 24,
               height: 24,
-              uri: avatar
+              uri: formatSmallAvatar(user),
             }}
           />
           <View className="flex-row mx-1">

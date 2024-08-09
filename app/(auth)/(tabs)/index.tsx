@@ -3,7 +3,7 @@ import { router, Stack } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { ThemedView } from '@/components/ThemedView'
 import { useCurrentUser } from "@/lib/api/user";
-import { formatAvatarUrl } from "@/lib/formatters";
+import { formatSmallAvatar } from "@/lib/formatters";
 import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardMode } from "@/lib/api/dashboard";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
@@ -101,7 +101,7 @@ export default function Index() {
                 <MenuTrigger style={{ marginRight: 8 }} customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
                   <Image
                     className="rounded-full"
-                    source={{ uri: formatAvatarUrl(user) }}
+                    source={{ uri: formatSmallAvatar(user) }}
                     style={{ width: 40, height: 40 }}
                   />
                 </MenuTrigger>

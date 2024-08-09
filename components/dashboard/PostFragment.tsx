@@ -1,6 +1,6 @@
 import { Post } from "@/lib/api/posts.types"
 import { Image, LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
-import { formatAvatarUrl, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
+import { formatSmallAvatar, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
@@ -24,7 +24,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   isQuote?: boolean
   hasThreadLine?: boolean
   CWOpen: boolean
-  setCWOpen: ReturnType<typeof useState<boolean>>[1]
+  setCWOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [showMore, setShowMore] = useState(true)
   const [showMoreToggle, setShowMoreToggle] = useState(false)
@@ -74,8 +74,8 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
   const hideContent = !!post.content_warning && !CWOpen
 
-  const isFollowing = settings?.followedUsers.includes(user?.id!)
-  const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+  const amIFollowing = settings?.followedUsers.includes(user?.id!)
+  const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
@@ -106,19 +106,19 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
               source={{
                 width: AVATAR_SIZE,
                 height: AVATAR_SIZE,
-                uri: formatAvatarUrl(user)
+                uri: formatSmallAvatar(user)
               }}
             />
             <View id='user-name-link' className="flex-grow">
               <View className="flex-row mt-3">
                 <HtmlRenderer html={userName} renderTextRoot />
-                {(isAwaitingApproval || !isFollowing) && (
+                {(amIAwaitingApproval || !amIFollowing) && (
                   <TouchableOpacity className="ml-2">
                     <Text className={clsx(
                       'rounded-full px-2 text-sm',
-                      isAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
+                      amIAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
                     )}>
-                      {isAwaitingApproval ? 'Awaiting approval' : 'Follow'}
+                      {amIAwaitingApproval ? 'Awaiting approval' : 'Follow'}
                     </Text>
                   </TouchableOpacity>
                 )}

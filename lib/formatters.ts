@@ -12,13 +12,12 @@ export function formatMediaUrl(url: string) {
   return `${MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
-export function formatAvatarUrl(user?: PostUser) {
+export function formatSmallAvatar(user?: PostUser) {
   if (!user?.avatar) {
     return ''
   }
-  return user.url.startsWith("@")
-    ? formatCachedUrl(user.avatar)
-    : formatCachedUrl(formatMediaUrl(user.avatar))
+  const url = formatCachedUrl(formatMediaUrl(user.avatar))
+  return `${url}&avatar=true`
 }
 
 export function formatDate(date: string) {
