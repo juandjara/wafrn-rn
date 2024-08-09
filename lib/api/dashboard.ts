@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { API_URL } from "../config";
 import { getJSON } from "../http";
-import { DashboardData, PostThread } from "./posts.types";
+import { DashboardData, PostTag, PostThread } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
 import { addSizesToMedias } from "./media";
 
@@ -64,8 +64,20 @@ export function getDashboardContext(data: DashboardData[]) {
     polls: data.flatMap((page) => page.polls),
     quotedPosts: data.flatMap((page) => page.quotedPosts),
     quotes: data.flatMap((page) => page.quotes),
-    tags: data.flatMap((page) => page.tags),
+    tags: dedupeTags(data.map((page) => page.tags)),
   }
+}
+
+function dedupeTags(tagGroups: PostTag[][]) {
+  const seen = new Set<string>()
+  return tagGroups.filter((tagList) => {
+    const key = tagList.map((tag) => `${tag.tagName}-${tag.postId}`).join(',')
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  }).flat()
 }
 
 function dedupeById<T extends { id: string }>(items: T[]) {
