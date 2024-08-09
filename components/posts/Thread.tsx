@@ -72,7 +72,7 @@ export default function Thread({
   )
 
   return (
-    <>
+    <View className="mb-4">
       {isRewoot ? mainFragment : null}
       {collapseAncestors && hasMore ? (
         <>
@@ -117,6 +117,6 @@ export default function Thread({
         ))
       )}
       {isRewoot ? null : mainFragment}
-    </>
+    </View>
   )
 }

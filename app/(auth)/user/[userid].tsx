@@ -51,7 +51,6 @@ export default function UserFeed() {
           refreshing={feedFetching || userFetching}
           onRefresh={refresh}
           ListHeaderComponent={user && <UserDetail user={user} />}
-          contentContainerClassName="gap-4"
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <Thread thread={item} />}
           onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
