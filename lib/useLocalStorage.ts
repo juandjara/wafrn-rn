@@ -41,7 +41,7 @@ async function getStorageItemAsync(key: string) {
   return null
 }
 
-export default function useAsyncStorage<T = unknown>(key: string, defaultValue: T) {
+export default function useAsyncStorage<T = unknown>(key: string, defaultValue?: T) {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getAsyncStorage', key],
     queryFn: async () => {
