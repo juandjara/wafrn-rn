@@ -1,6 +1,6 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { isAudio, isImage, isNotAV, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -33,13 +33,18 @@ export default function Media({ hidden, media, contentWidth }: {
         }}
       >
         {isVideo(src) && (
-          <Video
-            source={{ uri: src }}
-            resizeMode={ResizeMode.CONTAIN}
-            style={{ width: mediaWidth, height: mediaWidth * aspectRatio }}
-            isLooping
-            usePoster
-          />
+          <>
+            <Pressable>
+              <Video
+                source={{ uri: src }}
+                resizeMode={ResizeMode.CONTAIN}
+                style={{ width: mediaWidth, height: mediaWidth * (9/16) }}
+                isLooping
+                usePoster
+                useNativeControls
+              />
+            </Pressable>
+          </>
         )}
         {isAudio(src) && (
           <Text className="text-white p-2 italic">Audio not yet supported :c</Text>
@@ -75,7 +80,7 @@ export default function Media({ hidden, media, contentWidth }: {
         )}
       </MediaCloak>
       <Text className="text-white text-xs p-2 bg-blue-950 rounded-lg">
-        {media.description || 'No alt text'}
+        {media.description || 'no alt text'}
       </Text>
     </View>
   )
