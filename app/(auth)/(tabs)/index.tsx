@@ -1,6 +1,6 @@
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { router, Stack } from "expo-router";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { ThemedView } from '@/components/ThemedView'
 import { useCurrentUser } from "@/lib/api/user";
 import { formatSmallAvatar } from "@/lib/formatters";
@@ -10,6 +10,10 @@ import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-m
 import { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
+import { cssInterop } from 'nativewind'
+import { Image } from 'expo-image'
+
+cssInterop(Image, { className: "style" })
 
 const MODES = [
   DashboardMode.FEED,
@@ -48,11 +52,8 @@ export default function Index() {
                   <View className="flex-row items-center">
                     <Image
                       className="ml-1 mr-3"
-                      source={{
-                        uri: 'https://app.wafrn.net/assets/logo_w.png',
-                        width: 32,
-                        height: 32,
-                      }}
+                      style={{ width: 32, height: 32 }}
+                      source={{ uri: 'https://app.wafrn.net/assets/logo_w.png' }}
                     />
                     <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
                       <MaterialCommunityIcons name={MODE_ICONS[mode]} size={20} color='white' />

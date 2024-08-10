@@ -1,4 +1,4 @@
-import { Image, ImageStyle } from "react-native"
+import { Image, ImageStyle } from 'expo-image'
 import { useState } from "react"
 import { Modal, Pressable, useWindowDimensions } from "react-native"
 import { ThemedView } from "../ThemedView"
@@ -53,7 +53,7 @@ export default function ZoomableImage({
                 />
               ) : (
                 <Image
-                  src={src}
+                  source={src}
                   style={{ resizeMode: contentFit, width: deviceWidth, height: deviceWidth * aspectRatio }}
                 />
               )}
@@ -72,7 +72,7 @@ export default function ZoomableImage({
           />
         ) : (
           <Image
-            src={src}
+            source={src}
             style={[style, {
               width,
               height: width * aspectRatio,

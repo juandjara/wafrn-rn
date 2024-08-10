@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
-import { ImageBackground, ImageStyle, Pressable, Text, View, ViewStyle } from "react-native"
+import { ImageStyle, Pressable, Text, View, ViewStyle } from "react-native"
+import { ImageBackground } from 'expo-image'
 import { isImage, isSVG } from "@/lib/api/media"
 
 const CLOAK_MIN_HEIGHT = 100

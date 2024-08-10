@@ -1,5 +1,6 @@
 import { Post, PostUser } from "@/lib/api/posts.types"
-import { Image, LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { Image } from 'expo-image'
 import { formatSmallAvatar, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
 import { useMemo, useState } from "react"
@@ -108,12 +109,12 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
         <Link href={`/user/${user?.url}`} asChild>
           <Pressable id='post-header' className="flex-row w-full gap-3 items-stretch">
             <Image
-              className="flex-shrink-0 my-3 rounded-md border border-gray-500"
-              source={{
+              style={{
                 width: AVATAR_SIZE,
                 height: AVATAR_SIZE,
-                uri: formatSmallAvatar(user)
               }}
+              source={{ uri: formatSmallAvatar(user) }}
+              className="flex-shrink-0 my-3 rounded-md border border-gray-500"
             />
             <View id='user-name-link' className="flex-grow">
               <View className="flex-row mt-3">

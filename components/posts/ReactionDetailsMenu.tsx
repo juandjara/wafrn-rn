@@ -2,7 +2,8 @@ import { PostUser } from "@/lib/api/posts.types"
 import { formatSmallAvatar } from "@/lib/formatters"
 import { Link } from "expo-router"
 import { useRef } from "react"
-import { Image, Pressable, ScrollView, Text, View } from "react-native"
+import { Pressable, ScrollView, Text, View } from "react-native"
+import { Image } from 'expo-image'
 import { Menu, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu"
 import colors from "tailwindcss/colors"
 

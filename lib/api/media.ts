@@ -1,7 +1,8 @@
-import { Image } from "react-native"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { PostMedia } from "./posts.types"
 import { CACHE_HOST } from "../config"
+import probe from 'probe-image-size' 
+import { Buffer } from 'buffer'
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -54,18 +55,19 @@ export function isImage(url: string) {
 }
 
 export async function getRemoteAspectRatio(url: string) {
-  return new Promise<number>((resolve, reject) => {
-    Image.getSize(url, (width, height) => {
-      if (width && height) {
-        resolve(height / width)
-      } else {
-        resolve(1)
-      }
-    }, (error) => {
-      console.error(`Error getting aspect ratio for image ${url}`, error)
-      resolve(1)
-    })
-  })
+  try {
+    const res = await fetch(url)
+    const abuf = await res.arrayBuffer()
+    const meta = await probe.sync(Buffer.from(abuf))
+    if (!meta) {
+      console.error(`Error getting aspect ratio for image ${url}: probe.sync returned null`)
+      return 1
+    }
+    return meta.height / meta.width
+  } catch (error) {
+    console.error(`Error getting aspect ratio for image ${url}`, error)
+    return 1
+  }
 }
 
 export async function addSizesToMedias(medias: PostMedia[]) {

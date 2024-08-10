@@ -2,7 +2,8 @@ import { PostUser } from "@/lib/api/posts.types"
 import { formatSmallAvatar } from "@/lib/formatters"
 import { EvilIcons } from "@expo/vector-icons"
 import { Link } from "expo-router"
-import { Image, Pressable, Text, View } from "react-native"
+import { Pressable, Text, View } from "react-native"
+import { Image } from 'expo-image'
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 
@@ -14,11 +15,8 @@ export default function RewootRibbon({ user, userNameHTML, className }: { user?:
           <EvilIcons name="retweet" size={20} color="white" className="mb-1" />
           <Image
             className="rounded-md border border-gray-500"
-            source={{
-              width: 24,
-              height: 24,
-              uri: formatSmallAvatar(user),
-            }}
+            style={{ width: 24, height: 24 }}
+            source={{ uri: formatSmallAvatar(user) }}
           />
           <View className="flex-row mx-1">
             <HtmlRenderer html={userNameHTML} renderTextRoot />

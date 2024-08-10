@@ -1,7 +1,8 @@
 import { Link } from 'expo-router'
 import { parseDocument, ElementType } from 'htmlparser2'
 import React from 'react'
-import { Image, Text, TextStyle, View, ViewStyle } from 'react-native'
+import { Text, TextStyle, View, ViewStyle } from 'react-native'
+import { Image } from 'expo-image'
 
 // const IGNORED_TAGS = [
 //   'head',
@@ -132,7 +133,7 @@ function renderElement(node: ElementNode, index: number) {
       <Image
         style={{ width: Number(width), height: Number(height), resizeMode: 'contain' }}
         key={index}
-        src={src}
+        source={src}
       />
     )
   }
