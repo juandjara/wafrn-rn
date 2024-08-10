@@ -1,9 +1,10 @@
-import { defaultHTMLElementModels, Element, HTMLContentModel, Text } from "react-native-render-html"
+import { defaultHTMLElementModels, Element, HTMLContentModel, Node, Text } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import colors from "tailwindcss/colors"
 import { EmojiBase } from "./emojis"
+import { parseDocument } from 'htmlparser2'
 
 export const inlineImageConfig = {
   img: defaultHTMLElementModels.img.extend({
@@ -50,8 +51,33 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   return !hasMedias && !hasTags
 }
 
+function getYoutubeHTML(videoId: string, url: string) {
+  const thumbnail = `https://img.youtube.com/vi/${videoId}/0.jpg`
+  return `
+    <div style="border: 1px solid ${colors.gray[400]}; border-radius: 4px;">
+      <img src="${thumbnail}" />
+      <p style="margin: 0; font-size: 12px; line-height: 16px; padding: 8px;">${url}</p>
+    </div>
+  `
+}
+
 export function handleDomElement(el: Element, context: DashboardContextData) {
   if (el.tagName === 'a') {
+    const url = new URL(el.attribs['href'])
+    if (url.host === 'www.youtube.com') {
+      const videoId = url.searchParams.get('v')
+      const html = getYoutubeHTML(videoId!, url.href)
+      const dom = parseDocument(html)
+      el.children = dom.children as Node[]
+      el.childNodes = dom.childNodes as Node[]
+    }
+    if (url.host === 'youtu.be') {
+      const videoId = url.pathname.replace('/', '')
+      const html = getYoutubeHTML(videoId!, url.href)
+      const dom = parseDocument(html)
+      el.children = dom.children as Node[]
+      el.childNodes = dom.childNodes as Node[]
+    }
     const className = el.attribs['class']
     if (className?.includes('mention')) {
       replaceMentionLink(el, context)
