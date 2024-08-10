@@ -56,9 +56,15 @@ export function getDashboardContext(data: DashboardData[]) {
       emojis: data.flatMap((page) => page.emojiRelations.emojis),
       userEmojiRelation: data.flatMap((page) => page.emojiRelations.userEmojiRelation),
       postEmojiRelation: data.flatMap((page) => page.emojiRelations.postEmojiRelation),
-      postEmojiReactions: data.flatMap((page) => page.emojiRelations.postEmojiReactions),
+      postEmojiReactions: dedupeBy(
+        data.flatMap((page) => page.emojiRelations.postEmojiReactions),
+        (reaction) => `${reaction.postId}-${reaction.userId}`
+      ),
     },
-    likes: data.flatMap((page) => page.likes),
+    likes: dedupeBy(
+      data.flatMap((page) => page.likes),
+      (like) => `${like.postId}-${like.userId}`
+    ),
     medias: dedupeById(data.flatMap((page) => page.medias)),
     mentions: data.flatMap((page) => page.mentions),
     polls: data.flatMap((page) => page.polls),
@@ -68,6 +74,7 @@ export function getDashboardContext(data: DashboardData[]) {
   }
 }
 
+// TODO: this is not working
 function dedupeTags(tagGroups: PostTag[][]) {
   const seen = new Set<string>()
   return tagGroups.filter((tagList) => {
@@ -78,6 +85,18 @@ function dedupeTags(tagGroups: PostTag[][]) {
     seen.add(key)
     return true
   }).flat()
+}
+
+function dedupeBy<T>(data: T[], keyFn: (o: T) => string) {
+  const seen = new Set<string>()
+  return data.filter((item) => {
+    const key = keyFn(item)
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  })
 }
 
 function dedupeById<T extends { id: string }>(items: T[]) {
