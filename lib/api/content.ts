@@ -198,7 +198,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
     .filter((r) => r.user)
   const grouped = new Map<string,EmojiGroup >()
   for (const r of reactions) {
-    const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.id
+    const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
     if (!grouped.has(key)) {
       grouped.set(key, {
         id: key,
