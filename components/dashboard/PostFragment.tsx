@@ -6,9 +6,8 @@ import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
-import { Link, router } from "expo-router"
-import RenderHTML from "react-native-render-html"
-import { getReactions, getUserNameHTML, handleDomElement, HTML_STYLES, inlineImageConfig, isEmptyRewoot, processPostContent } from "@/lib/api/content"
+import { Link } from "expo-router"
+import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
@@ -17,6 +16,7 @@ import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
 import { LinearGradient } from "expo-linear-gradient"
 import ReactionDetailsMenu from "../posts/ReactionDetailsMenu"
+import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 
 const HEIGHT_LIMIT = 300
 
@@ -194,31 +194,10 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                     }
                   }}
                 >
-                  <RenderHTML
-                    tagsStyles={HTML_STYLES}
-                    baseStyle={{
-                      ...HTML_STYLES.text,
-                      opacity: hideContent ? 0 : 1,
-                    }}
+                  <PostHtmlRenderer
+                    html={postContent}
                     contentWidth={contentWidth}
-                    source={{ html: postContent }}
-                    // all images are set to inline, html renderer doesn't support dynamic block / inline images
-                    // and most images inside post content are emojis, so we can just make them all inline
-                    // and any block images should be rendered as media anyway
-                    customHTMLElementModels={inlineImageConfig}
-                    domVisitors={{ onElement: (el) => handleDomElement(el, context) }}
-                    defaultTextProps={{ selectable: !hideContent }}
-                    renderersProps={{
-                      a: {
-                        onPress(event, url) {
-                          if (url.startsWith('wafrn://')) {
-                            router.navigate(url.replace('wafrn://', ''))
-                          } else {
-                            router.navigate(url)
-                          }
-                        }
-                      }
-                    }}
+                    hidden={hideContent}
                   />
                 </View>
                 {showMoreToggle && (
