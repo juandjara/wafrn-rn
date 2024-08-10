@@ -1,8 +1,8 @@
-import { Post } from "@/lib/api/posts.types"
+import { Post, PostUser } from "@/lib/api/posts.types"
 import { Image, LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { formatSmallAvatar, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import HtmlRenderer from "../HtmlRenderer"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -16,6 +16,7 @@ import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
 import { LinearGradient } from "expo-linear-gradient"
+import { Menu, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu"
 
 const HEIGHT_LIMIT = 300
 
@@ -290,29 +291,50 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
           {hasReactions && (
             <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
               {likes.length > 0 && (
-                <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                  ❤️ {likes.length}
-                </Text>
+                <ReactionMenu
+                  users={likes.map((l) => l.user).filter(l => l) as PostUser[]}
+                  reaction='liked'
+                >
+                  <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                    ❤️ {likes.length}
+                  </Text>
+                </ReactionMenu>
               )}
               {reactions.map((r) => {
                 if (typeof r.emoji === 'string') {
                   return (
-                    <Text key={r.id} className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                      {r.emoji} {r.users.length}
-                    </Text>
+                    <ReactionMenu
+                      key={r.id}
+                      users={r.users}
+                      reaction={r.emoji}
+                    >
+                      <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                        {r.emoji} {r.users.length}
+                      </Text>
+                    </ReactionMenu>
                   )
                 } else {
                   return (
-                    <View key={r.id} className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
-                      <Image
-                        className="rounded-md"
-                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
-                      />
-                      <Text className="text-gray-200">
-                        {r.users.length}
-                      </Text>
-                    </View>
+                    <ReactionMenu
+                      key={r.id}
+                      users={r.users}
+                      reaction={(
+                        <Image
+                          source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                          style={{ resizeMode: 'contain', width: 20, height: 20 }}
+                        />
+                      )}
+                    >
+                      <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+                        <Image
+                          source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                          style={{ resizeMode: 'contain', width: 20, height: 20 }}
+                        />
+                        <Text className="text-gray-200">
+                          {r.users.length}
+                        </Text>
+                      </View>
+                    </ReactionMenu>
                   )
                 }
               })}
@@ -328,5 +350,61 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
         </View>
       </Pressable>
     </Link>
+  )
+}
+
+function ReactionMenu({ children, users, reaction }: {
+  children: React.ReactNode
+  users: PostUser[]
+  reaction: React.ReactNode
+}) {
+  const menuRef = useRef<Menu>(null)
+  return (
+    <Menu
+      ref={menuRef}
+      renderer={renderers.Popover}
+      rendererProps={{
+        placement: 'bottom',
+        anchorStyle: {
+          backgroundColor: colors.gray[900],
+        }
+      }}      
+    >
+      <MenuTrigger>{children}</MenuTrigger>
+      <MenuOptions customStyles={{
+        optionsContainer: {
+          backgroundColor: colors.gray[900],
+        },
+      }}>
+        <View className="p-2 pb-0">
+          <Text className="text-gray-200 text-sm">
+            {reaction} by
+          </Text>
+        </View>
+        <View className="bg-gray-900 rounded-lg p-2">
+          {users.map((user) => (
+            <Link
+              asChild
+              key={user.id}
+              href={`/user/${user.url}`}
+              onPress={() => {
+                menuRef.current?.close()
+              }}
+            >
+              <Pressable className="my-1 flex-row items-center gap-2">
+                <Image
+                  className="rounded-lg"
+                  source={{ uri: formatSmallAvatar(user) }}
+                  style={{ width: 24, height: 24 }}
+                />
+                <Text className="text-gray-200 flex-grow flex-shrink-0">
+                  {user.url}
+                </Text>
+              </Pressable>
+            </Link>
+          ))}
+        </View>
+      </MenuOptions>
+    </Menu>
   )
 }
