@@ -297,6 +297,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                     <ReactionDetailsMenu
                       key={r.id}
                       users={r.users}
+                      reactionName={r.emoji.name}
                       reaction={(
                         <Image
                           source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}

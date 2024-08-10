@@ -6,10 +6,11 @@ import { Image, Pressable, ScrollView, Text, View } from "react-native"
 import { Menu, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu"
 import colors from "tailwindcss/colors"
 
-export default function ReactionDetailsMenu({ children, users, reaction }: {
+export default function ReactionDetailsMenu({ children, users, reaction, reactionName }: {
   children: React.ReactNode
   users: PostUser[]
   reaction: React.ReactNode
+  reactionName?: string
 }) {
   const menuRef = useRef<Menu>(null)
   return (
@@ -33,9 +34,14 @@ export default function ReactionDetailsMenu({ children, users, reaction }: {
           <Text className="text-gray-200 text-sm">
             {reaction} by
           </Text>
+          {reactionName && (
+            <Text className="text-gray-300 text-xs">
+              {reactionName}
+            </Text>
+          )}
         </View>
         <ScrollView
-          style={{ maxHeight: 300 }}
+          style={{ maxHeight: 200 }}
           className="bg-gray-900 rounded-lg m-2"
         >
           {users.map((user) => (
