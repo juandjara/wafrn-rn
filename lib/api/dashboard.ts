@@ -1,9 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { API_URL } from "../config";
 import { getJSON } from "../http";
-import { DashboardData, PostTag, PostThread } from "./posts.types";
+import { DashboardData, PostThread } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
 import { addSizesToMedias } from "./media";
+import { DashboardContextData } from "../contexts/DashboardContext";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -50,53 +51,100 @@ export function getLastDate(posts: PostThread[]) {
 // TODO: assume everything here could be duplicated data
 // dedupe by id when UI for each part is implemented
 export function getDashboardContext(data: DashboardData[]) {
-  return {
-    users: data.flatMap((page) => page.users),
+  const seen = new Set<string>()
+  const context = {
+    users: [],
     emojiRelations: {
-      emojis: data.flatMap((page) => page.emojiRelations.emojis),
-      userEmojiRelation: data.flatMap((page) => page.emojiRelations.userEmojiRelation),
-      postEmojiRelation: data.flatMap((page) => page.emojiRelations.postEmojiRelation),
-      postEmojiReactions: dedupeBy(
-        data.flatMap((page) => page.emojiRelations.postEmojiReactions),
-        (reaction) => `${reaction.postId}-${reaction.userId}`
-      ),
+      emojis: [],
+      userEmojiRelation: [],
+      postEmojiRelation: [],
+      postEmojiReactions: [],
     },
-    likes: dedupeBy(
-      data.flatMap((page) => page.likes),
-      (like) => `${like.postId}-${like.userId}`
-    ),
-    medias: dedupeById(data.flatMap((page) => page.medias)),
-    mentions: data.flatMap((page) => page.mentions),
-    polls: data.flatMap((page) => page.polls),
-    quotedPosts: data.flatMap((page) => page.quotedPosts),
-    quotes: data.flatMap((page) => page.quotes),
-    tags: dedupeTags(data.map((page) => page.tags)),
+    likes: [],
+    medias: [],
+    mentions: [],
+    polls: [],
+    quotedPosts: [],
+    quotes: [],
+    tags: [],
+  } as DashboardContextData
+
+  for (const page of data) {
+    for (const user of page.users) {
+      if (!seen.has(user.id)) {
+        seen.add(user.id)
+        context.users.push(user)
+      }
+    }
+    // duplication is fine here
+    for (const emoji of page.emojiRelations.emojis) {
+      context.emojiRelations.emojis.push(emoji)
+    }
+    // duplication is fine here
+    for (const userEmojiRelation of page.emojiRelations.userEmojiRelation) {
+      context.emojiRelations.userEmojiRelation.push(userEmojiRelation)
+    }
+    // duplication is fine here
+    for (const postEmojiRelation of page.emojiRelations.postEmojiRelation) {
+      context.emojiRelations.postEmojiRelation.push(postEmojiRelation)
+    }
+    for (const postEmojiReaction of page.emojiRelations.postEmojiReactions) {
+      const key = `postEmojiReactions-${postEmojiReaction.postId}-${postEmojiReaction.userId}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        context.emojiRelations.postEmojiReactions.push(postEmojiReaction)
+      }
+    }
+    for (const like of page.likes) {
+      const key = `likes-${like.postId}-${like.userId}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        context.likes.push(like)
+      }
+    }
+    for (const media of page.medias) {
+      if (!seen.has(media.id)) {
+        seen.add(media.id)
+        context.medias.push(media)
+      }
+    }
+    for (const mention of page.mentions) {
+      context.mentions.push(mention)
+    }
+    // TODO: dedupe polls when UI is implemented
+    for (const poll of page.polls) {
+      context.polls.push(poll)
+    }
+    // duplication is fine here
+    for (const quotedPost of page.quotedPosts) {
+      context.quotedPosts.push(quotedPost)
+    }
+    // duplication is fine here
+    for (const quote of page.quotes) {
+      context.quotes.push(quote)
+    }
+    const groupedTags = groupBy(page.tags, (tag) => tag.postId)
+    for (const tagGroup of groupedTags) {
+      const key = `tags-${tagGroup.key}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        context.tags.push(...tagGroup.items)
+      }
+    }
   }
+  return context
 }
 
-// TODO: this is not working
-function dedupeTags(tagGroups: PostTag[][]) {
-  const seen = new Set<string>()
-  return tagGroups.filter((tagList) => {
-    const key = tagList.map((tag) => `${tag.tagName}-${tag.postId}`).join(',')
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  }).flat()
-}
-
-function dedupeBy<T>(data: T[], keyFn: (o: T) => string) {
-  const seen = new Set<string>()
-  return data.filter((item) => {
+function groupBy<T>(data: T[], keyFn: (o: T) => string) {
+  const groups = new Map<string, { key: string; items: T[] }>()
+  for (const item of data) {
     const key = keyFn(item)
-    if (seen.has(key)) {
-      return false
+    if (!groups.has(key)) {
+      groups.set(key, { key, items: [] })
     }
-    seen.add(key)
-    return true
-  })
+    groups.get(key)!.items.push(item)
+  }
+  return Array.from(groups.values())
 }
 
 function dedupeById<T extends { id: string }>(items: T[]) {
