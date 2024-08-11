@@ -4,9 +4,20 @@ import { useAuth } from "../contexts/AuthContext";
 import { getJSON } from "../http";
 import { DashboardData, PostUser } from "./posts.types";
 import { getLastDate } from "./dashboard";
+import { EmojiBase, UserEmojiRelation } from "./emojis";
 
-type SearchData = {
-  users: PostUser[]
+type SearchResponse = {
+  emojis: EmojiBase[]
+  userEmojiRelation: UserEmojiRelation[]
+  foundUsers: PostUser[]
+  posts: DashboardData
+}
+export type SearchData = {
+  users: {
+    emojis: EmojiBase[]
+    userEmojiRelation: UserEmojiRelation[]
+    foundUsers: PostUser[]
+  }
   posts: DashboardData
 }
 
@@ -24,10 +35,18 @@ export async function search({
       Authorization: `Bearer ${token}`
     }
   })
-  return json as SearchData
+  const data = json as SearchResponse
+  return {
+    users: {
+      emojis: data.emojis,
+      userEmojiRelation: data.userEmojiRelation,
+      foundUsers: data.foundUsers
+    },
+    posts: data.posts
+  } as SearchData
 }
 
-export function useSeach(term: string) {
+export function useSearch(term: string) {
   const { token } = useAuth()
   return useInfiniteQuery({
     queryKey: ['search', term],
