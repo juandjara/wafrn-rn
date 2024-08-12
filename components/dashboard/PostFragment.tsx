@@ -1,11 +1,10 @@
 import { Post, PostUser } from "@/lib/api/posts.types"
 import { LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
-import { formatSmallAvatar, formatCachedUrl, formatDate, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
-import HtmlRenderer from "../HtmlRenderer"
+import { formatCachedUrl, formatDate, formatMediaUrl } from "@/lib/formatters"
 import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
-import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
+import { POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link } from "expo-router"
 import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
@@ -14,10 +13,10 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-ic
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
-import { useSettings } from "@/lib/api/settings"
 import { LinearGradient } from "expo-linear-gradient"
 import ReactionDetailsMenu from "../posts/ReactionDetailsMenu"
 import PostHtmlRenderer from "../posts/PostHtmlRenderer"
+import UserRibbon from "../user/UserRibbon"
 
 const HEIGHT_LIMIT = 300
 
@@ -32,7 +31,6 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   const [showMoreToggle, setShowMoreToggle] = useState(false)
 
   const { width } = useWindowDimensions()
-  const { data: settings } = useSettings()
   const context = useDashboardContext()
 
   const user = useMemo(
@@ -81,8 +79,6 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
   const hideContent = !!post.content_warning && !CWOpen
 
-  const amIFollowing = settings?.followedUsers.includes(user?.id!)
-  const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
@@ -106,34 +102,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
           color: 'rgba(255, 255, 255, 0.1)',
         }}
       >
-        <Link href={`/user/${user?.url}`} asChild>
-          <Pressable id='post-header' className="flex-row w-full gap-3 items-stretch">
-            <Image
-              style={{
-                width: AVATAR_SIZE,
-                height: AVATAR_SIZE,
-              }}
-              source={{ uri: formatSmallAvatar(user) }}
-              className="flex-shrink-0 my-3 rounded-md border border-gray-500"
-            />
-            <View id='user-name-link' className="flex-grow">
-              <View className="flex-row mt-3">
-                <HtmlRenderer html={userName} renderTextRoot />
-                {(amIAwaitingApproval || !amIFollowing) && (
-                  <TouchableOpacity className="ml-2">
-                    <Text className={clsx(
-                      'rounded-full px-2 text-sm',
-                      amIAwaitingApproval ? 'text-gray-400 bg-gray-500/50' : 'text-indigo-500 bg-indigo-500/20',
-                    )}>
-                      {amIAwaitingApproval ? 'Awaiting approval' : 'Follow'}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
-            </View>
-          </Pressable>
-        </Link>
+        {user && <UserRibbon user={user} userName={userName} />}
         <View id='date-line' className="flex-row gap-1 items-center">
           {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
           <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
