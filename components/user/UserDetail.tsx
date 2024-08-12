@@ -1,23 +1,24 @@
-import { User } from "@/lib/api/user";
+import { useFollowers, User } from "@/lib/api/user";
 import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
-import { getUserNameHTML, HTML_STYLES, inlineImageConfig } from "@/lib/api/content";
+import { getUserNameHTML } from "@/lib/api/content";
 import HtmlRenderer from "../HtmlRenderer";
-import RenderHTML from "react-native-render-html";
-import { router } from "expo-router";
 import ZoomableImage from "../posts/ZoomableImage";
 import { useSettings } from "@/lib/api/settings";
 import { useParsedToken } from "@/lib/contexts/AuthContext";
+import PostHtmlRenderer from "../posts/PostHtmlRenderer";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
   const { data: settings } = useSettings()
-  const isFollowing = settings?.followedUsers.includes(user?.id!)
-  const isAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+  const { data: followers } = useFollowers(me?.url)
+  const amIFollowing = settings?.followedUsers.includes(user?.id!)
+  const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+  const isFollowingMe = followers?.some((f) => f.id === user.id)
 
   const url = formatCachedUrl(formatMediaUrl(user.avatar))
   const userName = useMemo(() => {
@@ -63,21 +64,21 @@ export default function UserDetail({ user }: { user: User }) {
           </Pressable>
         ) : (
           <>
-            {isFollowing && (
+            {amIFollowing && (
               <Pressable>
                 <Text className="text-red-500 bg-red-500/20 py-2 mt-6 px-5 text-lg rounded-full">
                   Unfollow
                 </Text>
               </Pressable>
             )}
-            {isAwaitingApproval && (
+            {amIAwaitingApproval && (
               <Pressable>
                 <Text className="text-gray-400 bg-gray-500/50 py-2 mt-6 px-5 text-lg rounded-full">
                   Awaiting approval
                 </Text>
               </Pressable>
             )}
-            {!isFollowing && !isAwaitingApproval && (
+            {!amIFollowing && !amIAwaitingApproval && (
               <Pressable>
                 <Text className="text-indigo-500 bg-indigo-500/20 py-2 mt-6 px-5 text-lg rounded-full">
                   Follow
@@ -85,6 +86,11 @@ export default function UserDetail({ user }: { user: User }) {
               </Pressable>
             )}
           </>
+        )}
+        {isFollowingMe && (
+          <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+            Follows you
+          </Text>
         )}
         <View className="flex-row gap-6 mt-6">
           <View className="items-center">
@@ -97,28 +103,9 @@ export default function UserDetail({ user }: { user: User }) {
           </View>
         </View>
         <View style={{ maxWidth: width - 48, paddingVertical: 8 }}>
-          <RenderHTML
-            dangerouslyDisableWhitespaceCollapsing
-            tagsStyles={HTML_STYLES}
-            baseStyle={HTML_STYLES.text}
+          <PostHtmlRenderer
+            html={description}
             contentWidth={width - 48}
-            source={{ html: description }}
-            // all images are set to inline, html renderer doesn't support dynamic block / inline images
-            // and most images inside post content are emojis, so we can just make them all inline
-            // and any block images should be rendered as media anyway
-            customHTMLElementModels={inlineImageConfig}
-            defaultTextProps={{ selectable: true }}
-            renderersProps={{
-              a: {
-                onPress(event, url) {
-                  if (url.startsWith('wafrn://')) {
-                    router.navigate(url.replace('wafrn://', ''))
-                  } else {
-                    router.navigate(url)
-                  }
-                }
-              }
-            }}
           />
         </View>
       </View>
