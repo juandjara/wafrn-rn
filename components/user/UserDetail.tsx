@@ -9,16 +9,31 @@ import ZoomableImage from "../posts/ZoomableImage";
 import { useSettings } from "@/lib/api/settings";
 import { useParsedToken } from "@/lib/contexts/AuthContext";
 import PostHtmlRenderer from "../posts/PostHtmlRenderer";
+import { Image } from "expo-image";
+import { Link } from "expo-router";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
   const { data: settings } = useSettings()
-  const { data: followers } = useFollowers(me?.url)
-  const amIFollowing = settings?.followedUsers.includes(user?.id!)
-  const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
-  const isFollowingMe = followers?.some((f) => f.id === user.id)
+  const { data: myFollowers } = useFollowers(me?.url)
+  const { data: followers } = useFollowers(user.url)
+  const {
+    amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows
+  } = useMemo(() => {
+    const amIFollowing = settings?.followedUsers.includes(user?.id!)
+    const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+    const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
+    const commonFollows = followers?.filter((f) => f.id !== me?.userId && settings?.followedUsers.includes(f.id)) || []
+    return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
+  }, [
+    user,
+    me?.userId,
+    settings,
+    myFollowers,
+    followers
+  ])
 
   const url = formatCachedUrl(formatMediaUrl(user.avatar))
   const userName = useMemo(() => {
@@ -85,6 +100,30 @@ export default function UserDetail({ user }: { user: User }) {
                 </Text>
               </Pressable>
             )}
+          </>
+        )}
+        {commonFollows.length > 0 && (
+          <>
+            <Text className="text-white text-sm mt-6">
+              Followed by people you follow
+            </Text>
+            <View className="flex-row items-center gap-1 mt-2">
+              {commonFollows.slice(0, 3).map((f) => (
+                <Link key={f.id} href={`/user/${f.url}`}>
+                  <Image
+                    key={f.id}
+                    source={formatCachedUrl(formatMediaUrl(f.avatar))}
+                    style={{ width: 32, height: 32 }}
+                    className="rounded-full"
+                  />
+                </Link>
+              ))}
+              {commonFollows.length > 3 && (
+                <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg text-sm">
+                  +{commonFollows.length - 3}
+                </Text>
+              )}
+            </View>
           </>
         )}
         {isFollowingMe && (
