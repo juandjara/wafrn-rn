@@ -147,7 +147,7 @@ function groupBy<T>(data: T[], keyFn: (o: T) => string) {
   return Array.from(groups.values())
 }
 
-function dedupeById<T extends { id: string }>(items: T[]) {
+export function dedupeById<T extends { id: string }>(items: T[]) {
   const ids = new Set<string>()
   return items.filter((item) => {
     if (ids.has(item.id)) {

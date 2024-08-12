@@ -1,16 +1,19 @@
 import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
-import { dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
-import { useSearch } from "@/lib/api/search"
+import UserRibbon from "@/components/user/UserRibbon"
+import { dedupeById, dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
+import { search } from "@/lib/api/search"
+import { useAuth } from "@/lib/contexts/AuthContext"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
+import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
 import { buttonCN } from "@/lib/styles"
-import useDebounce from "@/lib/useDebounce"
 import useAsyncStorage from "@/lib/useLocalStorage"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useQueryClient } from "@tanstack/react-query"
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 import { Stack } from "expo-router"
 import { useMemo, useState } from "react"
-import { FlatList, LayoutAnimation, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { FlatList, LayoutAnimation, Pressable, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { TabView } from "react-native-tab-view"
 import colors from "tailwindcss/colors"
 
 export default function Search() {
@@ -132,7 +135,15 @@ enum SearchView {
   Posts = 'posts',
 }
 
+const TABS = [
+  { key: SearchView.Posts, title: 'Posts' },
+  { key: SearchView.Users, title: 'Users' },
+]
+
 function SearchResults({ query }: { query: string }) {
+  // save the time when the component is mounted
+  const time = useMemo(() => Date.now(), [])
+
   const [view, setView] = useState(() => {
     if (query.startsWith('@')) {
       return SearchView.Users
@@ -140,11 +151,28 @@ function SearchResults({ query }: { query: string }) {
       return SearchView.Posts
     }
   })
-  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
+
+  const { width } = useWindowDimensions()
+  const { token } = useAuth()
+  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
+    queryKey: ['search', query, time],
+    queryFn: ({ pageParam }) => search({ page: pageParam, term: query, time, token: token! }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (view === SearchView.Users && lastPage.users.foundUsers.length === 0) {
+        return undefined
+      }
+      if (view  === SearchView.Posts && lastPage.posts.posts.length === 0) {
+        return undefined
+      }
+      return lastPageParam + 1
+    },
+  })
+
   const qc = useQueryClient()
   const refresh = async () => {
     await qc.resetQueries({
-      queryKey: ['search', query]
+      queryKey: ['search', query, time]
     })
   }
 
@@ -161,23 +189,89 @@ function SearchResults({ query }: { query: string }) {
     [data?.pages]
   )
 
+  const users = useMemo(() => {
+    const emojis = data?.pages.flatMap((page) => page.users.emojis) || []
+    const emojiUserRelation = data?.pages.flatMap((page) => page.users.userEmojiRelation) || []
+    const users = dedupeById(data?.pages.flatMap((page) => page.users.foundUsers) || [])
+    return users.map((user) => {
+      const ids = emojiUserRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) || []
+      const userEmojis = emojis.filter((e) => ids.includes(e.id)) || []
+      let userName = user.name
+      if (userName) {
+        for (const emoji of userEmojis) {
+          userName = userName.replaceAll(
+            emoji.name,
+            `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`
+          )
+        }
+      }
+      return {
+        user,
+        userName,
+      }
+    })
+  }, [data?.pages])
+
   if (!data) {
     return <Loading />
   }
 
   return (
     <DashboardContextProvider data={context}>
-      <SearchViewSelect view={view} setView={setView} />
-      <FlatList
-        refreshing={isFetching}
-        onRefresh={refresh}
-        data={deduped}
-        onEndReachedThreshold={0.5}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Thread thread={item} />}
-        onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
-        ListFooterComponent={isFetching ? <Loading /> : null}
-      />
+      <View className="h-full">
+        <TabView
+          renderTabBar={(props) => (
+            <SearchViewSelect view={view} setView={setView} />
+          )}
+          navigationState={{
+            index: view === SearchView.Posts ? 0 : 1,
+            routes: TABS
+          }}
+          onIndexChange={(index) => {
+            setView(index === 1 ? SearchView.Users : SearchView.Posts)
+          }}
+          initialLayout={{ width }}
+          renderScene={({ route }) => {
+            if (route.key === SearchView.Posts) {
+              return (
+                <FlatList
+                  refreshing={isFetching}
+                  onRefresh={refresh}
+                  data={deduped}
+                  onEndReachedThreshold={0.5}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => <Thread thread={item} />}
+                  onEndReached={() => (
+                    view === SearchView.Posts && hasNextPage && !isFetching && fetchNextPage()
+                  )}
+                  ListFooterComponent={isFetching ? <Loading /> : null}
+                />
+              )
+            }
+            if (route.key === SearchView.Users) {
+              return (
+                <FlatList
+                  refreshing={isFetching}
+                  onRefresh={refresh}
+                  data={users}
+                  onEndReachedThreshold={0.5}
+                  keyExtractor={(item) => item.user.id}
+                  renderItem={({ item }) => (
+                    <View className="px-2 pb-1 bg-indigo-950 border-b border-gray-500">
+                      <UserRibbon user={item.user} userName={item.userName} />
+                    </View>
+                  )}
+                  onEndReached={() => (
+                    view === SearchView.Users && hasNextPage && !isFetching && fetchNextPage()
+                  )}
+                  ListFooterComponent={isFetching ? <Loading /> : null}
+                />
+              )
+            }
+            return null
+          }}
+        />
+      </View>
     </DashboardContextProvider>
   )
 }
