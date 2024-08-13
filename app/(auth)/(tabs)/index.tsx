@@ -31,10 +31,12 @@ const MODE_ICONS = {
   [DashboardMode.FEDERATED]: 'earth',
 } as const
 
+type PublicDashboardMode = Exclude<DashboardMode, DashboardMode.PRIVATE>
+
 export default function Index() {
   const { setToken } = useAuth()
   const { data: user } = useCurrentUser()
-  const [mode, setMode] = useState(DashboardMode.FEED)
+  const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
 
   function logout() {
     setToken(null)

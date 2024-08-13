@@ -10,6 +10,7 @@ export enum DashboardMode {
   LOCAL = 2,
   FEED = 1,
   FEDERATED = 0,
+  PRIVATE = 10,
 }
 
 export async function getDashboard({

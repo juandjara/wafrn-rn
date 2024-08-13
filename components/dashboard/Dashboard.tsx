@@ -9,7 +9,13 @@ import Loading from "../Loading"
 import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
 
-export default function Dashboard({ mode = DashboardMode.FEED }: { mode: DashboardMode }) {
+export default function Dashboard({
+  mode = DashboardMode.FEED,
+  header
+}: {
+  mode: DashboardMode
+  header?: React.ReactElement
+}) {
   const listRef = useRef<FlatList>(null)
   const {
     data,
@@ -49,6 +55,7 @@ export default function Dashboard({ mode = DashboardMode.FEED }: { mode: Dashboa
         renderItem={({ item }) => <Thread thread={item} />}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
+        ListHeaderComponent={header}
       />
       <View className="absolute bottom-3 right-3">
         <Link href='/editor' className="p-3 rounded-full bg-white">
