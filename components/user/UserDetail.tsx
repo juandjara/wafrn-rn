@@ -25,7 +25,9 @@ export default function UserDetail({ user }: { user: User }) {
     const amIFollowing = settings?.followedUsers.includes(user?.id!)
     const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
     const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
-    const commonFollows = followers?.filter((f) => f.id !== me?.userId && settings?.followedUsers.includes(f.id)) || []
+    const commonFollows = followers?.filter(
+      (f) => f.id !== me?.userId && settings?.followedUsers.includes(f.id)
+    ) || []
     return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
   }, [
     user,
