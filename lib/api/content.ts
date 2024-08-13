@@ -63,7 +63,11 @@ function getYoutubeHTML(videoId: string, url: string) {
 
 export function handleDomElement(el: Element, context: DashboardContextData) {
   if (el.tagName === 'a') {
-    const url = new URL(el.attribs['href'])
+    const link = el.attribs['href']
+    if (!link?.startsWith('http')) {
+      return
+    }
+    const url = new URL(link)
     if (url.host === 'www.youtube.com') {
       const videoId = url.searchParams.get('v')
       const html = getYoutubeHTML(videoId!, url.href)
