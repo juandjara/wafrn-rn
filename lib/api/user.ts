@@ -6,8 +6,10 @@ import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
+import { SettingsOption } from "./settings";
 
 export type User = {
+  createdAt: string // iso date
   avatar: string
   blocked: boolean
   description: string // HTML
@@ -35,10 +37,29 @@ export type User = {
     publicKey: string | null
   }
   emojis: UserEmoji[]
+  publicOptions: PublicOption[]
 }
 export type UserEmoji = EmojiBase & Timestamps & {
   emojiCollectionId: string | null
   userEmojiRelations: Timestamps & UserEmojiRelation
+}
+
+export enum PublicOptionNames {
+  CustomFields = 'fediverse.public.attachment'
+}
+
+export type PublicOption = SettingsOption & {
+  public: true
+  optionName: PublicOptionNames
+}
+
+// types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
+export type PublicOptionTypeMap = {
+  [PublicOptionNames.CustomFields]: {
+    type: string
+    name: string // HTML (with emojis)
+    value: string // HTML (with emojis)
+  }[]
 }
 
 export async function getUser(token: string, handle?: string) {

@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
 import { EmojiBase } from "./emojis"
 import { Timestamps } from "./types"
+import { PrivacyLevel } from "./privacy"
 
 type EmojiGroupConfig = Timestamps & {
   id: string
@@ -13,10 +14,31 @@ type EmojiGroupConfig = Timestamps & {
     emojiCollectionId: string // refers to the `id` of the `EmojiGroupConfig` object
   })[]
 }
-type SettingsOption = Timestamps & {
+
+export type SettingsOption = Timestamps & {
   optionValue: string // saved as JSON
   optionName: string
   userId: string
+  public: boolean
+}
+
+export enum WafrnOptionNames {
+  DefaultPostPrivacy = 'wafrn.defaultPostEditorPrivacy',
+  DisableForceAltText = 'wafrn.disableForceAltText',
+  FederateWithThreads = 'wafrn.federateWithThreads',
+  ForceClassicLogo = 'wafrn.forceClassicLogo',
+}
+
+// types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
+export type WafrnOptionTypeMap = {
+  [WafrnOptionNames.DefaultPostPrivacy]: PrivacyLevel
+  [WafrnOptionNames.DisableForceAltText]: boolean
+  [WafrnOptionNames.FederateWithThreads]: boolean
+  [WafrnOptionNames.ForceClassicLogo]: boolean
+}
+
+export type WafrnOption = Omit<SettingsOption, 'public'> & {
+  optionName: WafrnOptionNames
 }
 
 type Settings = {
@@ -26,7 +48,7 @@ type Settings = {
   mutedUsers: string[] // ids of people you've muted
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
-  options: SettingsOption[] // the actual values of the settings for the user
+  options: WafrnOption[] // the actual values of the settings for the user
 }
 
 export async function getSettings(token: string) {
