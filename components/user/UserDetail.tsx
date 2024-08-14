@@ -11,6 +11,7 @@ import { useParsedToken } from "@/lib/contexts/AuthContext";
 import PostHtmlRenderer from "../posts/PostHtmlRenderer";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
+import clsx from "clsx";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -60,7 +61,17 @@ export default function UserDetail({ user }: { user: User }) {
 
   return (
     <View className="mb-2">
-      <View className="flex-row justify-center items-center my-4 rounded-md">
+      {user.headerImage ? (
+        <ZoomableImage
+          src={formatCachedUrl(formatMediaUrl(user.headerImage))}
+          width={width}
+          aspectRatio={0.5}
+        />
+      ) : null}
+      <View className={clsx(
+        'flex-row justify-center items-center my-4 rounded-md',
+        { '-mt-12': !!user.headerImage }
+      )}>
         <ZoomableImage
           src={url}
           width={150}
@@ -148,6 +159,18 @@ export default function UserDetail({ user }: { user: User }) {
             html={description}
             contentWidth={width - 48}
           />
+        </View>
+        <View>
+          <Text className="text-white text-sm text-center mt-2">
+            Joined {new Date(user.createdAt).toLocaleDateString()}
+          </Text>
+          {user.remoteId && (
+            <Link href={user.remoteId} className="my-2">
+              <Text className="text-cyan-500 text-sm text-center">
+                See complete profile on {user.federatedHost?.displayName}
+              </Text>
+            </Link>
+          )}
         </View>
       </View>
     </View>
