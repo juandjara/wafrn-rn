@@ -94,7 +94,7 @@ export default HtmlRenderer
 
 function _HtmlRenderer({ html, renderTextRoot }: { html: string; renderTextRoot?: boolean }) {
   if (!html) {
-    return <Text className='text-gray-500'>rewoot?</Text>
+    return null
   }
   const document = parseDocument(html)
   const children = document.children.map((n, i) => renderNode(n, i))
