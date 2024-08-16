@@ -24,10 +24,8 @@ export default function Search() {
 
   function onSubmit() {
     setQuery(searchTerm)
-    const next = (recent || [])
-      .filter((item) => item !== searchTerm)
-      .concat([searchTerm])
-      .slice(0, 5)
+    const prev = (recent || []).filter((item) => item !== searchTerm)
+    const next = [searchTerm, ...prev].slice(0, 5)
     setRecent(next)
   }
 
