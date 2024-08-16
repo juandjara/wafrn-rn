@@ -92,12 +92,20 @@ For that, use the RenderHTML component from the react-native-render-html package
 const HtmlRenderer = React.memo(_HtmlRenderer)
 export default HtmlRenderer
 
-function _HtmlRenderer({ html, renderTextRoot }: { html: string; renderTextRoot?: boolean }) {
+function _HtmlRenderer({
+  html,
+  color,
+  renderTextRoot
+}: {
+  html: string;
+  color?: string;
+  renderTextRoot?: boolean
+}) {
   if (!html) {
     return null
   }
   const document = parseDocument(html)
-  const children = document.children.map((n, i) => renderNode(n, i))
+  const children = document.children.map((n, i) => renderNode(n, i, color))
   return renderTextRoot ? (
     <>{children}</>
   ) : (
@@ -105,22 +113,26 @@ function _HtmlRenderer({ html, renderTextRoot }: { html: string; renderTextRoot?
   )
 }
 
-function renderNode(node: DomNode, index: number) {
+function renderNode(node: DomNode, index: number, color?: string) {
   switch (node.type) {
     case ElementType.Text:
-      return renderTextNode(node as DataNode, index)
+      return renderTextNode(node as DataNode, index, color)
     case ElementType.Tag:
-      return renderElement(node as ElementNode, index)
+      return renderElement(node as ElementNode, index, color)
     default:
       return null
   }
 }
-function renderTextNode(node: DataNode, index: number) {
-  return <Text style={TAG_STYLES.text} key={index}>{node.data}</Text>
+function renderTextNode(node: DataNode, index: number, color?: string) {
+  const style = {
+    ...TAG_STYLES.text,
+    color: color || (TAG_STYLES.text as TextStyle).color
+  }
+  return <Text style={style} key={index}>{node.data}</Text>
 }
-function renderElement(node: ElementNode, index: number) {
+function renderElement(node: ElementNode, index: number, color?: string) {
   if (node.name === LINK_TAG) {
-    const children = node.children.map((c, i) => renderNode(c, i))
+    const children = node.children.map((c, i) => renderNode(c, i, color))
     return (
       <Link href={node.attribs.href} key={index} style={TAG_STYLES.a}>
         {children}
@@ -140,14 +152,14 @@ function renderElement(node: ElementNode, index: number) {
   if (node.name === 'p') {
     return (
       <View key={index}>
-        {node.children.map((c, i) => renderNode(c, i))}
+        {node.children.map((c, i) => renderNode(c, i, color))}
       </View>
     )
   }
   if (node.name === 'blockquote') {
     return (
       <View key={index} className='border-l border-gray-300 py-1 ml-8 my-2 pl-4'>
-        {node.children.map((c, i) => renderNode(c, i))}
+        {node.children.map((c, i) => renderNode(c, i, color))}
       </View>
     )
   }
@@ -160,7 +172,7 @@ function renderElement(node: ElementNode, index: number) {
   }
   return (
     <View className='flex-row flex-wrap flex-1' key={index}>
-      {node.children.map((c, i) => renderNode(c, i))}
+      {node.children.map((c, i) => renderNode(c, i, color))}
     </View>
   )
 }
