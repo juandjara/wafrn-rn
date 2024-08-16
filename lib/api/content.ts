@@ -176,13 +176,7 @@ export function replaceHashtagLink(el: Element, context: DashboardContextData) {
   }
 }
 
-export function processPostContent(post: Post, context: DashboardContextData) {
-  const ids = context.emojiRelations.postEmojiRelation
-    .filter((e) => e.postId === post.id)
-    .map((e) => e.emojiId) ?? []
-  const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
-  
-  let text = post.content
+export function replaceEmojis(text: string, emojis: EmojiBase[]) {
   for (const emoji of emojis) {
     const url = formatCachedUrl(formatMediaUrl(emoji.url))
     text = text.replaceAll(
@@ -190,22 +184,22 @@ export function processPostContent(post: Post, context: DashboardContextData) {
       `<img width="24" height="24" src="${url}" />`
     )
   }
-
   return text
+}
+
+export function processPostContent(post: Post, context: DashboardContextData) {
+  const ids = context.emojiRelations.postEmojiRelation
+    .filter((e) => e.postId === post.id)
+    .map((e) => e.emojiId) ?? []
+  const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  return replaceEmojis(post.content, emojis)
 }
 
 export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
   if (!user) return ''
   const ids = context.emojiRelations.userEmojiRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) ?? []
   const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
-  let text = user.name
-  for (const emoji of emojis) {
-    text = text.replaceAll(
-      emoji.name,
-      `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`
-    )
-  }
-  return text
+  return replaceEmojis(user.name, emojis)
 }
 
 export type EmojiGroup = {
