@@ -1,9 +1,9 @@
-import { useFollowers, User } from "@/lib/api/user";
+import { PublicOptionNames, PublicOptionTypeMap, useFollowers, User } from "@/lib/api/user";
 import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
-import { getUserNameHTML } from "@/lib/api/content";
+import { getUserNameHTML, replaceEmojis } from "@/lib/api/content";
 import HtmlRenderer from "../HtmlRenderer";
 import ZoomableImage from "../posts/ZoomableImage";
 import { useSettings } from "@/lib/api/settings";
@@ -12,6 +12,7 @@ import PostHtmlRenderer from "../posts/PostHtmlRenderer";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
 import clsx from "clsx";
+import colors from "tailwindcss/colors";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -48,15 +49,17 @@ export default function UserDetail({ user }: { user: User }) {
     } as any)
   }, [user])
   const description = useMemo(() => {
-    let text = user.description
-    for (const emoji of user.emojis) {
-      const url = formatCachedUrl(formatMediaUrl(emoji.url))
-      text = text.replaceAll(
-        emoji.name,
-        `<img width="24" height="24" src="${url}" />`
-      )
-    }
-    return text
+    return replaceEmojis(user.description, user.emojis)
+  }, [user])
+
+  const customFields = useMemo(() => {
+    const json = user.publicOptions.find((o) => o.optionName === PublicOptionNames.CustomFields)?.optionValue
+    if (!json) return []
+    const fields = JSON.parse(json) as PublicOptionTypeMap[PublicOptionNames.CustomFields]
+    return fields.map((f) => ({
+      name: replaceEmojis(f.name, user.emojis),
+      value: replaceEmojis(f.value, user.emojis)
+    }))
   }, [user])
 
   return (
@@ -160,13 +163,30 @@ export default function UserDetail({ user }: { user: User }) {
             contentWidth={width - 48}
           />
         </View>
-        <View>
+        <View id='custom-fields' style={{ width: width - 48 }}>
+          {customFields.map((field) => (
+            <View key={field.name} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
+              <View className="flex-row">
+                <HtmlRenderer
+                  html={field.name}
+                  color={colors.gray[400]}
+                  renderTextRoot
+                />
+              </View>
+              <View className="mt-3 items-start">
+                <PostHtmlRenderer
+                  html={field.value}
+                  contentWidth={width - 48}
+                />
+              </View>
+            </View>
+          ))}
           <Text className="text-white text-sm text-center mt-2">
             Joined {new Date(user.createdAt).toLocaleDateString()}
           </Text>
           {user.remoteId && (
-            <Link href={user.remoteId} className="my-2">
-              <Text className="text-cyan-500 text-sm text-center">
+            <Link href={user.remoteId} className="my-2 text-center">
+              <Text className="text-cyan-500 text-sm">
                 See complete profile on {user.federatedHost?.displayName}
               </Text>
             </Link>
