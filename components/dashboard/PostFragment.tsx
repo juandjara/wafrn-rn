@@ -6,7 +6,7 @@ import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
-import { Link } from "expo-router"
+import { Link, useLocalSearchParams } from "expo-router"
 import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
@@ -88,6 +88,10 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
     setCWOpen((o) => !o)
   }
 
+  const { postid } = useLocalSearchParams()
+  const isDetailView = postid === post.id
+  const Root = isDetailView ? View : Pressable
+
   if (isEmptyRewoot(post, context)) {
     return (
       <RewootRibbon user={user} userNameHTML={userName} />
@@ -96,7 +100,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
 
   return (
     <Link href={`/post/${post.id}`} asChild>
-      <Pressable
+      <Root
         className="px-3"
         android_ripple={{
           color: 'rgba(255, 255, 255, 0.1)',
@@ -138,7 +142,10 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
               </View>
               <View className="flex-shrink flex-grow gap-2">
                 <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
-                <TouchableOpacity className="mr-auto px-2 py-1 bg-indigo-500/20 rounded-full" onPress={toggleCW}>
+                <TouchableOpacity
+                  className="mr-auto px-2 py-1 bg-indigo-500/20 rounded-full"
+                  onPress={_toggleCW}
+                >
                   <Text className='text-indigo-500 text-sm'>
                     {CWOpen ? 'Hide' : 'Show'} content
                   </Text>
@@ -298,7 +305,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
             </View>
           )}
         </View>
-      </Pressable>
+      </Root>
     </Link>
   )
 }
