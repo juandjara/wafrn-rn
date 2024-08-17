@@ -20,12 +20,17 @@ import UserRibbon from "../user/UserRibbon"
 
 const HEIGHT_LIMIT = 300
 
-export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, setCWOpen }: {
+export default function PostFragment({
+  post,
+  isQuote,
+  CWOpen,
+  toggleCWOpen
+}: {
   post: Post
   isQuote?: boolean
-  hasThreadLine?: boolean
   CWOpen: boolean
-  setCWOpen: React.Dispatch<React.SetStateAction<boolean>>
+  toggleCWOpen: () => void
+  // setCWOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [showMore, setShowMore] = useState(true)
   const [showMoreToggle, setShowMoreToggle] = useState(false)
@@ -83,9 +88,9 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
 
-  function toggleCW() {
+  function _toggleCW() {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setCWOpen((o) => !o)
+    toggleCWOpen()
   }
 
   const { postid } = useLocalSearchParams()
@@ -223,7 +228,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                 <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
                   {tags.map((tag, index) => (
                     <Link
-                      key={index}
+                      key={`${tag}-${index}`}
                       href={`/tag/${tag}`}
                       className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
                     >
@@ -238,7 +243,7 @@ export default function PostFragment({ post, isQuote, hasThreadLine, CWOpen, set
                     isQuote
                     post={quotedPost}
                     CWOpen={CWOpen}
-                    setCWOpen={setCWOpen}
+                    toggleCWOpen={_toggleCW}
                   />
                 </View>
               )}

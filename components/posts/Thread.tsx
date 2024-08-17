@@ -36,6 +36,10 @@ export default function Thread({
       sorted[sorted.length - 1]
     ].filter(Boolean)
   }, [thread.ancestors, collapseAncestors])
+
+  function toggleCW() {
+    setCWOpen(o => !o)
+  }
   
   function shouldHide(post: Post) {
     if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {
@@ -64,7 +68,7 @@ export default function Thread({
       <PostFragment
         post={thread}
         CWOpen={CWOpen}
-        setCWOpen={setCWOpen}
+        toggleCWOpen={toggleCW}
       />
     </View>
   )
@@ -77,9 +81,8 @@ export default function Thread({
           <View className="bg-indigo-900/50">
             <PostFragment
               CWOpen={CWOpen}
-              setCWOpen={setCWOpen}
+              toggleCWOpen={toggleCW}
               post={ancestors[0]}
-              hasThreadLine
             />
           </View>
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
@@ -90,9 +93,8 @@ export default function Thread({
           <View className="bg-indigo-900/50">
             <PostFragment
               CWOpen={CWOpen}
-              setCWOpen={setCWOpen}
+              toggleCWOpen={toggleCW}
               post={ancestors[ancestors.length - 1]}
-              hasThreadLine
             />
           </View>
         </>
@@ -107,9 +109,8 @@ export default function Thread({
           >
             <PostFragment
               CWOpen={CWOpen}
-              setCWOpen={setCWOpen}
+              toggleCWOpen={toggleCW}
               post={ancestor}
-              hasThreadLine={!isRewoot}
             />
           </View>
         ))
