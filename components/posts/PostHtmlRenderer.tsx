@@ -61,6 +61,7 @@ export default function PostHtmlRenderer({
       domVisitors={domVisitors}
       defaultTextProps={defaultTextProps}
       renderersProps={RENDERER_PROPS}
+      dangerouslyDisableWhitespaceCollapsing
     />
   )
 }
