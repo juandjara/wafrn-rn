@@ -11,7 +11,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import pluralize from "@/lib/pluralize";
 import { Post, PostUser } from "@/lib/api/posts.types";
 
-// this component is not used
+/**
+ * @deprecated This component is not used
+ * This feature (or its original purpose) is now contained in [postid].tsx
+ */
 export default function Replies({ postId }: { postId: string }) {
   const { data, isFetching } = usePostReplies(postId)
   const { context, userMap, userNames, numReplies, numRewoots } = useMemo(() => {

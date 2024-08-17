@@ -7,6 +7,7 @@ import clsx from "clsx"
 import { isEmptyRewoot } from "@/lib/api/content"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { useSettings } from "@/lib/api/settings"
+import { sortPosts } from "@/lib/api/posts"
 
 const ANCESTOR_LIMIT = 3
 
@@ -22,11 +23,7 @@ export default function Thread({
   const context = useDashboardContext()
   const isRewoot = useMemo(() => isEmptyRewoot(thread, context), [thread, context])
   const ancestors = useMemo(() => {
-    const sorted = thread.ancestors.sort((a, b) => {
-      const sortA = new Date(a.createdAt).getTime()
-      const sortB = new Date(b.createdAt).getTime()
-      return sortA - sortB
-    })
+    const sorted = thread.ancestors.sort(sortPosts)
     if (!collapseAncestors || sorted.length < ANCESTOR_LIMIT) {
       return sorted
     }

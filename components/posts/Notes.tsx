@@ -5,7 +5,10 @@ import RewootRibbon from "./RewootRibbon"
 import ReplyRibbon from "./ReplyRibbon"
 import Loading from "../Loading"
 
-// this component is not used
+/**
+ * @deprecated This component is not used
+ * This feature (or its original purpose) is now contained in [postid].tsx
+ */
 export default function Notes({ postId }: { postId: string }) {
   const { data: descendants, isFetching } = usePostDescendants(postId)
   const notes = useMemo(() => {

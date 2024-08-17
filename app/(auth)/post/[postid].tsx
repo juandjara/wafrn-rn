@@ -2,7 +2,7 @@ import PostFragment from "@/components/dashboard/PostFragment"
 import RewootRibbon from "@/components/posts/RewootRibbon"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { usePostDetail, usePostReplies } from "@/lib/api/posts"
+import { sortPosts, usePostDetail, usePostReplies } from "@/lib/api/posts"
 import { DashboardData, Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
@@ -44,15 +44,13 @@ export default function PostDetail() {
 
     const mainPost = postData?.posts?.[0]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
-    const ancestors = mainPost?.ancestors.map((a, i) => ({
-      ...a,
-      index: 0,
-      className: 'border-t border-slate-600 bg-indigo-900/50',
-    })).sort((a, b) => {
-      const sortA = new Date(a.createdAt).getTime()
-      const sortB = new Date(b.createdAt).getTime()
-      return sortA - sortB
-    }) || []
+    const ancestors = mainPost?.ancestors
+      .map((a) => ({
+        ...a,
+        index: 0,
+        className: 'border-t border-slate-600 bg-indigo-900/50',
+      }))
+      .sort(sortPosts) || []
 
     const mainFragment = mainPost && {
       ...mainPost,
@@ -81,11 +79,8 @@ export default function PostDetail() {
         ...p,
         index: i + 1,
         className: '',
-      })).sort((a, b) => {
-        const sortA = new Date(a.createdAt).getTime()
-        const sortB = new Date(b.createdAt).getTime()
-        return sortA - sortB
-      }) || []
+      }))
+      .sort(sortPosts) || []
 
     const sectionData = [
       { type: 'posts', data: thread },

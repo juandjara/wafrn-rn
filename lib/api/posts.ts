@@ -82,11 +82,6 @@ export async function getPostReplies(token: string, id: string) {
     }
   })
   const data = json as DashboardData
-  data.posts.sort((a, b) => {
-    const aTime = new Date(a.createdAt).getTime()
-    const bTime = new Date(b.createdAt).getTime()
-    return aTime - bTime
-  })
   return data
 }
 
@@ -97,4 +92,15 @@ export function usePostReplies(id: string) {
     queryFn: () => getPostReplies(token!, id),
     enabled: !!token && !!id
   })
+}
+
+/**
+ * sort posts from older to newer
+ * used to sort ancestors in a thread and replies in a post detail
+ * based on the `createdAt` field, so post editing does not alter sort order
+ */
+export function sortPosts(a: Timestamps, b: Timestamps) {
+  const aTime = new Date(a.createdAt).getTime()
+  const bTime = new Date(b.createdAt).getTime()
+  return aTime - bTime
 }
