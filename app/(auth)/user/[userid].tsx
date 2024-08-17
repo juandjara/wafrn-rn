@@ -42,11 +42,11 @@ export default function UserFeed() {
 
   if (userError) {
     return (
-      <ThemedView className="flex-1 justify-center items-center">
+      <ThemedView className="p-3 flex-1 justify-center items-center">
         <Stack.Screen options={{ title: 'User Detail' }} />
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
-          <ThemedText>{userError?.message}</ThemedText>
+          <ThemedText selectable>{userError?.message}</ThemedText>
         </ThemedView>
         <ThemedView className="flex-row gap-3 my-3">
           <Pressable onPress={refresh}>

@@ -1,16 +1,19 @@
 import PostFragment from "@/components/dashboard/PostFragment"
 import RewootRibbon from "@/components/posts/RewootRibbon"
+import { ThemedText } from "@/components/ThemedText"
+import { ThemedView } from "@/components/ThemedView"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { sortPosts, usePostDetail, usePostReplies } from "@/lib/api/posts"
 import { DashboardData, Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
+import { buttonCN } from "@/lib/styles"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
-import { Stack, useLocalSearchParams } from "expo-router"
+import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useState } from "react"
-import { SectionList, Text, View } from "react-native"
+import { Pressable, SectionList, Text, View } from "react-native"
 
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
@@ -18,11 +21,13 @@ export default function PostDetail() {
     data: postData,
     isFetching: postFetching,
     refetch: refetchPost,
+    error: postError,
   } = usePostDetail(postid as string)
   const {
     data: repliesData,
     isFetching: repliesFetching,
     refetch: refetchReplies,
+    error: repliesError,
   } = usePostReplies(postid as string)
 
   const {
@@ -86,9 +91,12 @@ export default function PostDetail() {
       { type: 'posts', data: thread },
       { type: 'replies', data: fullReplies },
     ]
+    if (repliesError) {
+      sectionData.push({ type: 'error', data: [repliesError as any] })
+    }
 
     return { sectionData, context, userMap, userNames, numReplies, numRewoots }
-  }, [postData, repliesData, postid])
+  }, [postData, repliesData, postid, repliesError])
 
   const [cws, setCws] = useState<boolean[]>([])
 
@@ -100,22 +108,38 @@ export default function PostDetail() {
     })
   }
 
-  const screenOptions = (
-    <Stack.Screen options={{ title: 'Woot Detail' }} />
-  )
+  if (postError) {
+    return (
+      <ThemedView className="p-3 flex-1 justify-center items-center">
+        <Stack.Screen options={{ title: 'Woot Detail' }} />
+        <ThemedView>
+          <ThemedText className="text-lg font-bold">Error</ThemedText>
+          <ThemedText selectable>{postError?.message}</ThemedText>
+        </ThemedView>
+        <ThemedView className="flex-row gap-3 my-3">
+          <Pressable onPress={() => {
+            refetchPost()
+            refetchReplies()
+          }}>
+            <Text className='text-gray-500 py-2 px-3 bg-gray-500/20 rounded-full'>Retry</Text>
+          </Pressable>
+          <Pressable onPress={() => router.canGoBack() ? router.back() : router.navigate('/')}>
+            <Text className={buttonCN}>Go back</Text>
+          </Pressable>
+        </ThemedView>
+      </ThemedView>
+    )
+  }
 
   return (
     <DashboardContextProvider data={context}>
-      {screenOptions}
+      <Stack.Screen options={{ title: 'Woot Detail' }} />
       <SectionList
         sections={sectionData}
         keyExtractor={(item) => item.id}
-        renderItem={({ section, item: post }) => {
-          let header = null
-          let content = null
+        renderSectionHeader={({ section }) => {
           if (section.type === 'replies') {
-            const isRewoot = isEmptyRewoot(post, context)
-            header = post.index === 1 ? (
+            return (
               <View className="mt-2">
                 <Text className="text-gray-300 mt-3 px-3 py-1">
                   {numReplies > 0 && <Text>{numReplies} {pluralize(numReplies, 'reply', 'replies')}</Text>}
@@ -123,9 +147,15 @@ export default function PostDetail() {
                   {numRewoots > 0 && <Text>{numRewoots} {pluralize(numRewoots, 'rewoot')}</Text>}
                 </Text>
               </View>
-            ) : null
+            )
+          }
+          return null
+        }}
+        renderItem={({ section, item: post }) => {
+          if (section.type === 'replies') {
+            const isRewoot = isEmptyRewoot(post, context)
             if (isRewoot) {
-              content = (
+              return (
                 <RewootRibbon
                   user={userMap[post.userId]}
                   userNameHTML={userNames[post.userId]}
@@ -133,7 +163,7 @@ export default function PostDetail() {
                 />
               )
             } else {
-              content = (
+              return (
                 <View className="my-2 relative bg-blue-950">
                   <PostFragment
                     post={post}
@@ -152,7 +182,7 @@ export default function PostDetail() {
             }
           }
           if (section.type === 'posts') {
-            content = (
+            return (
               <View className={post.className}>
                 <PostFragment
                   post={post}
@@ -162,12 +192,19 @@ export default function PostDetail() {
               </View>
             )
           }
-          return (
-            <>
-              {header}
-              {content}
-            </>
-          )
+          if (section.type === 'error') {
+            return (
+              <View className="m-1 p-2 bg-red-500/30 rounded-md">
+                <Text className="text-white mb-2 font-bold">
+                  Error fetching replies:
+                </Text>
+                <Text className="text-gray-200">
+                  {(post as any).message}
+                </Text>
+              </View>
+            )
+          }
+          return null
         }}
         refreshing={postFetching || repliesFetching}
         onRefresh={() => {

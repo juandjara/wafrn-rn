@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
-import { getJSON } from "../http"
+import { getJSON, statusError, StatusError } from "../http"
 import { DashboardData, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
 
@@ -10,13 +10,21 @@ export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(token: string, id: string) {
-  const json = await getJSON(`${API_URL}/v2/post/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
+  try {
+    const json = await getJSON(`${API_URL}/v2/post/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    const data = json as DashboardData
+    return data
+  } catch (e) {
+    if ((e as StatusError).status === 404) {
+      throw statusError(404, `Post with id "${id}" not found`)
+    } else {
+      throw e
     }
-  })
-  const data = json as DashboardData
-  return data
+  }
 }
 
 export function usePostDetail(id: string) {
@@ -24,7 +32,8 @@ export function usePostDetail(id: string) {
   return useQuery({
     queryKey: ['postDetail', id],
     queryFn: () => getPostDetail(token!, id),
-    enabled: !!token && !!id
+    enabled: !!token && !!id,
+    throwOnError: false
   })
 }
 
@@ -90,7 +99,8 @@ export function usePostReplies(id: string) {
   return useQuery({
     queryKey: ['postReples', id],
     queryFn: () => getPostReplies(token!, id),
-    enabled: !!token && !!id
+    enabled: !!token && !!id,
+    throwOnError: false
   })
 }
 
