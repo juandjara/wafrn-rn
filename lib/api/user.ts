@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "../config";
-import { getJSON } from "../http";
+import { getJSON, statusError, StatusError } from "../http";
 import { parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
@@ -67,12 +67,20 @@ export async function getUser(token: string, handle?: string) {
     const parsed = parseToken(token)!
     handle = parsed.url
   }
-  const json = await getJSON(`${API_URL}/user?id=${handle}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
+  try {
+    const json = await getJSON(`${API_URL}/user?id=${handle}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    return json as User
+  } catch (e) {
+    if ((e as StatusError).status === 404) {
+      throw statusError(404, `User "${handle}" not found`)
+    } else {
+      throw e
     }
-  })
-  return json as User
+  }
 }
 
 export function useCurrentUser() {
@@ -89,7 +97,8 @@ export function useUser(userId: string) {
   return useQuery({
     queryKey: ['user', userId],
     queryFn: () => getUser(token!, userId),
-    enabled: !!token
+    enabled: !!token,
+    throwOnError: false,
   })
 }
 

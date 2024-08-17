@@ -191,6 +191,7 @@ export function useUserFeed(userId: string) {
     queryFn: ({ pageParam }) => getUserFeed({ userId, startTime: pageParam, token: token! }),
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
-    enabled: !!token
+    enabled: !!token,
+    throwOnError: false,
   })
 }
