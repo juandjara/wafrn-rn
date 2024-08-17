@@ -3,6 +3,7 @@ import { PostMedia } from "./posts.types"
 import { CACHE_HOST } from "../config"
 import probe from 'probe-image-size' 
 import { Buffer } from 'buffer'
+import { useQuery } from "@tanstack/react-query"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -54,11 +55,21 @@ export function isImage(url: string) {
   return !hasExtension || IMG_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
 
+export function useAspectRatio(media: PostMedia) {
+  const url = formatCachedUrl(formatMediaUrl(media.url))
+  const { data } = useQuery({
+    queryKey: ['aspectRatio', media.url],
+    queryFn: () => getRemoteAspectRatio(url),
+    enabled: isImage(url)
+  })
+  return data || 1
+}
+
 export async function getRemoteAspectRatio(url: string) {
   try {
     const res = await fetch(url)
     const abuf = await res.arrayBuffer()
-    const meta = await probe.sync(Buffer.from(abuf))
+    const meta = probe.sync(Buffer.from(abuf))
     if (!meta) {
       console.error(`Error getting aspect ratio for image ${url}: probe.sync returned null`)
       return 1
@@ -68,15 +79,4 @@ export async function getRemoteAspectRatio(url: string) {
     console.error(`Error getting aspect ratio for image ${url}`, error)
     return 1
   }
-}
-
-export async function addSizesToMedias(medias: PostMedia[]) {
-  return Promise.all(medias.map(async (media) => {
-    const url = formatCachedUrl(formatMediaUrl(media.url))
-    if (isImage(url)) {
-      const aspectRatio = await getRemoteAspectRatio(url)
-      return { ...media, aspectRatio }
-    }
-    return media
-  }))
 }

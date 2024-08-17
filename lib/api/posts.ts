@@ -3,7 +3,6 @@ import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
 import { DashboardData, PostUser } from "./posts.types"
-import { addSizesToMedias } from "./media"
 import { Timestamps } from "./types"
 
 const LAYOUT_MARGIN = 24
@@ -17,7 +16,6 @@ export async function getPostDetail(token: string, id: string) {
     }
   })
   const data = json as DashboardData
-  data.medias = await addSizesToMedias(data.medias)
   return data
 }
 
@@ -39,6 +37,9 @@ export type PostDescendants = {
   users: Omit<PostUser, 'remoteId'>[]
 }
 
+/**
+ * @deprecated Use `getPostReplies` instead
+ */
 export async function getPostDescendants(token: string, id: string) {
   const json = await getJSON(`${API_URL}/v2/descendents/${id}`, {
     headers: {
@@ -58,6 +59,9 @@ export async function getPostDescendants(token: string, id: string) {
   return json as PostDescendants
 }
 
+/** 
+ * @deprecated Use `usePostReplies` instead
+ */
 export function usePostDescendants(id: string) {
   const { token } = useAuth()
   return useQuery({
@@ -67,6 +71,10 @@ export function usePostDescendants(id: string) {
   })
 }
 
+/** forum endpoint:
+  - includes complete replies and rewoots,
+  - not paginated, can return lots of posts
+*/
 export async function getPostReplies(token: string, id: string) {
   const json = await getJSON(`${API_URL}/forum/${id}`, {
     headers: {
@@ -74,7 +82,6 @@ export async function getPostReplies(token: string, id: string) {
     }
   })
   const data = json as DashboardData
-  data.medias = await addSizesToMedias(json.medias)
   data.posts.sort((a, b) => {
     const aTime = new Date(a.createdAt).getTime()
     const bTime = new Date(b.createdAt).getTime()
@@ -83,7 +90,6 @@ export async function getPostReplies(token: string, id: string) {
   return data
 }
 
-// forum endpoint: includes complete replies and rewoots
 export function usePostReplies(id: string) {
   const { token } = useAuth()
   return useQuery({

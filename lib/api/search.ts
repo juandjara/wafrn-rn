@@ -2,7 +2,6 @@ import { API_URL } from "../config";
 import { getJSON } from "../http";
 import { DashboardData, PostUser } from "./posts.types";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
-import { addSizesToMedias } from "./media";
 
 type SearchResponse = {
   emojis: EmojiBase[]
@@ -36,7 +35,6 @@ export async function search({
     }
   })
   const data = json as SearchResponse
-  data.posts.medias = await addSizesToMedias(data.posts.medias)
   return {
     users: {
       emojis: data.emojis,

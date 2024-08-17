@@ -1,7 +1,7 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
 import { Pressable, Text, View } from "react-native";
-import { isAudio, isImage, isNotAV, isVideo } from "@/lib/api/media";
+import { isAudio, isImage, isNotAV, isVideo, useAspectRatio } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
@@ -16,7 +16,7 @@ export default function Media({ hidden, media, contentWidth }: {
   contentWidth: number
 }) {
   const src = formatCachedUrl(formatMediaUrl(media.url))
-  const aspectRatio = media.aspectRatio || 1 
+  const aspectRatio = useAspectRatio(media)
   const mediaWidth = contentWidth - MEDIA_MARGIN
 
   return (

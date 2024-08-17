@@ -3,7 +3,6 @@ import { API_URL } from "../config";
 import { getJSON } from "../http";
 import { DashboardData, PostThread } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
-import { addSizesToMedias } from "./media";
 import { DashboardContextData } from "../contexts/DashboardContext";
 
 export enum DashboardMode {
@@ -28,7 +27,6 @@ export async function getDashboard({
     }
   })
   const data = json as DashboardData
-  data.medias = await addSizesToMedias(data.medias)
   return data
 }
 
@@ -183,7 +181,6 @@ export async function getUserFeed({
     }
   })
   const data = json as DashboardData
-  data.medias = await addSizesToMedias(data.medias)
   return data
 }
 
