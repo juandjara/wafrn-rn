@@ -16,6 +16,8 @@ import { FlatList, LayoutAnimation, Pressable, ScrollView, Text, TextInput, Touc
 import { TabView } from "react-native-tab-view"
 import colors from "tailwindcss/colors"
 
+const HISTORY_LIMIT = 10
+
 export default function Search() {
   const [showTips, setShowTips] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -25,7 +27,7 @@ export default function Search() {
   function onSubmit() {
     setQuery(searchTerm)
     const prev = (recent || []).filter((item) => item !== searchTerm)
-    const next = [searchTerm, ...prev].slice(0, 5)
+    const next = [searchTerm, ...prev].slice(0, HISTORY_LIMIT)
     setRecent(next)
   }
 
