@@ -38,7 +38,7 @@ export default function UserRibbon({
                 </Text>
               </TouchableOpacity>
             )}
-            {!amIFollowing && (
+            {!amIFollowing && !amIAwaitingApproval && (
               <TouchableOpacity className="ml-2">
                 <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
                   Follow
