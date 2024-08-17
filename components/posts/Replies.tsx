@@ -9,7 +9,9 @@ import RewootRibbon from "./RewootRibbon";
 import PostFragment from "../dashboard/PostFragment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import pluralize from "@/lib/pluralize";
+import { Post, PostUser } from "@/lib/api/posts.types";
 
+// this component is not used
 export default function Replies({ postId }: { postId: string }) {
   const { data, isFetching } = usePostReplies(postId)
   const { context, userMap, userNames, numReplies, numRewoots } = useMemo(() => {
@@ -84,4 +86,52 @@ export default function Replies({ postId }: { postId: string }) {
       </View>
     </DashboardContextProvider>
   )
+}
+
+function Reply({ post, user, userName, CWOpen, setCWOpen }: {
+  post: Post,
+  user: PostUser,
+  userName: string,
+  CWOpen: boolean,
+  setCWOpen: (open: boolean | ((oldOpen: boolean) => boolean)) => void,
+}) {
+  if (isEmptyRewoot(post, context)) {
+    return (
+      <RewootRibbon
+        key={post.id}
+        user={userMap[post.userId]}
+        userNameHTML={userNames[post.userId]}
+        className="my-2"
+      />
+    )
+  } else {
+    return (
+      <View key={post.id} className="my-2 relative bg-blue-950">
+        <PostFragment
+          key={post.id}
+          post={post}
+          CWOpen={!!cws[index]}
+          setCWOpen={(openArg) => {
+            const oldOpen = !!cws[index]
+            let newOpen = openArg as boolean
+            if (typeof openArg === 'function') {
+              newOpen = !!openArg(oldOpen)
+            }
+            setCws((prev) => {
+              const copy = [...prev]
+              copy[index] = newOpen
+              return copy
+            })
+          }}
+        />
+        <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
+          <MaterialCommunityIcons
+            name="reply"
+            size={16}
+            color="white"
+          />
+        </View>
+      </View>
+    )
+  }
 }
