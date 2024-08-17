@@ -1,5 +1,5 @@
 import { API_URL } from "../config"
-import { isErrorResponse } from "../http"
+import { isErrorResponse, statusError } from "../http"
 
 type TokenResponse = {
   success: true
@@ -15,11 +15,11 @@ export async function login(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   })
   if (!res.ok) {
-    throw new Error(`Network response not ok: ${res.status} ${res.statusText} \n${await res.text()}`)
+    throw statusError(res.status, `Network response not ok: ${res.status} ${res.statusText} \n${await res.text()}`)
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
-    throw new Error(json.errorMessage)
+    throw statusError(500, `Network response error in auth response: ${JSON.stringify(json)}`)
   }
 
   return (json as TokenResponse).token
