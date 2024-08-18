@@ -5,6 +5,9 @@ import { Link } from "expo-router"
 import { Pressable, Text, View } from "react-native"
 import { Image } from 'expo-image'
 
+/**
+ * @deprecated - this component is not used. It was replaced by a different design. 
+ */
 export default function ReplyRibbon({ user, postId }: { user: PostUser; postId: string }) {
   const avatar = formatCachedUrl(formatMediaUrl(user?.avatar || ''))
   return (
