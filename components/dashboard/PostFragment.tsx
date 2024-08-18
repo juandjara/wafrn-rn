@@ -9,7 +9,7 @@ import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
 import RewootRibbon from "../posts/RewootRibbon"
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
@@ -302,15 +302,43 @@ export default function PostFragment({
               })}
             </View>
           )}
-          {post.notes !== undefined && (
-            <View id='notes' className="mb-3 pt-1 border-t border-gray-500">
-              <Text className="text-gray-200 text-sm">
-                {post.notes} Notes
-              </Text>
-            </View>
-          )}
+          <InteractionRibbon post={post} />
         </View>
       </Root>
     </Link>
+  )
+}
+
+function InteractionRibbon({ post }: { post: Post }) {
+  return (
+    <View id='interaction-ribbon' className="items-center flex-row py-2">
+      <View id='notes' className="flex-grow">
+        {post.notes !== undefined ? (
+          <Text id='notes' className="text-gray-200 text-sm">
+            {post.notes} Notes
+          </Text>
+        ) : null}
+      </View>
+      <View id='interactions' className="flex-row gap-3">
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <MaterialCommunityIcons name="reply" size={20} color="white" />
+        </Pressable>
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <MaterialIcons name="format-quote" size={20} color="white" />
+        </Pressable>
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <AntDesign name="retweet" size={20} color="white" />
+        </Pressable>
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <MaterialCommunityIcons name="heart" size={20} color="white" />
+        </Pressable>
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <MaterialIcons name="emoji-emotions" size={20} color="white" />
+        </Pressable>
+        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
+          <MaterialCommunityIcons name="dots-horizontal" size={20} color="white" />
+        </Pressable>
+      </View>
+    </View>
   )
 }
