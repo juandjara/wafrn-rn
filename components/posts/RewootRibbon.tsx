@@ -16,7 +16,7 @@ export default function RewootRibbon({ user, userNameHTML, className }: { user?:
           <Image
             className="rounded-md border border-gray-500"
             style={{ width: 24, height: 24 }}
-            source={{ uri: formatSmallAvatar(user) }}
+            source={{ uri: formatSmallAvatar(user?.avatar) }}
           />
           <View className="flex-row mx-1">
             <HtmlRenderer html={userNameHTML} renderTextRoot />

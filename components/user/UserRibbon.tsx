@@ -19,10 +19,10 @@ export default function UserRibbon({
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
 
   return (
-    <Link href={`/user/${user?.url}`} asChild>
+    <Link href={`/user/${user.url}`} asChild>
       <Pressable id='post-header' className="flex-row w-full gap-3 items-stretch">
         <Image
-          source={{ uri: formatSmallAvatar(user) }}
+          source={{ uri: formatSmallAvatar(user.avatar) }}
           style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
           className="flex-shrink-0 my-3 rounded-md border border-gray-500"
         />

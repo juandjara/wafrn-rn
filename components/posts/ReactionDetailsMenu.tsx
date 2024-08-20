@@ -57,7 +57,7 @@ export default function ReactionDetailsMenu({ children, users, reaction, reactio
               <Pressable className="my-1 flex-row items-center gap-2">
                 <Image
                   className="rounded-lg"
-                  source={{ uri: formatSmallAvatar(user) }}
+                  source={{ uri: formatSmallAvatar(user.avatar) }}
                   style={{ width: 24, height: 24 }}
                 />
                 <Text className="text-gray-200 flex-grow flex-shrink-0">

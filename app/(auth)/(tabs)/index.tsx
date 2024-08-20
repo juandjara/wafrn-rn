@@ -104,7 +104,7 @@ export default function Index() {
                 <MenuTrigger style={{ marginRight: 8 }} customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
                   <Image
                     className="rounded-full"
-                    source={{ uri: formatSmallAvatar(user) }}
+                    source={{ uri: formatSmallAvatar(user.avatar) }}
                     style={{ width: 40, height: 40 }}
                   />
                 </MenuTrigger>
