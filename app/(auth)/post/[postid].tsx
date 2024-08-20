@@ -1,4 +1,5 @@
 import PostFragment from "@/components/dashboard/PostFragment"
+import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
@@ -12,10 +13,11 @@ import { buttonCN } from "@/lib/styles"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { Pressable, SectionList, Text, View } from "react-native"
 
 export default function PostDetail() {
+  const listRef = useRef<SectionList>(null)
   const { postid } = useLocalSearchParams()
   const {
     data: postData,
@@ -31,6 +33,7 @@ export default function PostDetail() {
   } = usePostReplies(postid as string)
 
   const {
+    mainPost,
     sectionData,
     context,
     userMap,
@@ -95,7 +98,7 @@ export default function PostDetail() {
       sectionData.push({ type: 'error', data: [repliesError as any] })
     }
 
-    return { sectionData, context, userMap, userNames, numReplies, numRewoots }
+    return { mainPost, sectionData, context, userMap, userNames, numReplies, numRewoots }
   }, [postData, repliesData, postid, repliesError])
 
   const [cws, setCws] = useState<boolean[]>([])
@@ -135,13 +138,39 @@ export default function PostDetail() {
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Woot Detail' }} />
       <SectionList
+        ref={listRef}
         sections={sectionData}
         keyExtractor={(item) => item.id}
         renderSectionHeader={({ section }) => {
+          if (section.type === 'posts' && sectionData[0]?.data?.length > 2) {
+            return (
+              <View className="p-2">
+                <Pressable
+                  className='text-indigo-500 py-1 px-2 bg-indigo-500/20 rounded-lg flex-row items-baseline gap-1'
+                  onPress={() => {
+                    listRef.current?.scrollToLocation({ sectionIndex: 1, itemIndex: 0 })
+                  }}
+                >
+                  <MaterialCommunityIcons name="arrow-down" size={16} color="white" />
+                  <Text className="text-white">
+                    Go to end of thread
+                    <Text className="text-sm text-gray-300">
+                      {' - '}{sectionData[0]?.data?.length} {pluralize(sectionData[0]?.data?.length, 'post')}
+                    </Text>
+                  </Text>
+                </Pressable>
+              </View>
+            )
+          }
           if (section.type === 'replies') {
             return (
-              <View className="mt-2">
-                <Text className="text-gray-300 mt-3 px-3 py-1">
+              <View>
+                {mainPost && (
+                  <View className="bg-indigo-900/50">
+                    <InteractionRibbon post={mainPost} />
+                  </View>
+                )}
+                <Text className="text-gray-300 mt-4 px-3 py-1">
                   {numReplies > 0 && <Text>{numReplies} {pluralize(numReplies, 'reply', 'replies')}</Text>}
                   {numReplies > 0 && numRewoots > 0 && <Text>, </Text>}
                   {numRewoots > 0 && <Text>{numRewoots} {pluralize(numRewoots, 'rewoot')}</Text>}
