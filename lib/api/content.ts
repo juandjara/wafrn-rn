@@ -8,7 +8,10 @@ import { parseDocument } from 'htmlparser2'
 
 export const inlineImageConfig = {
   img: defaultHTMLElementModels.img.extend({
-    contentModel: HTMLContentModel.mixed
+    contentModel: HTMLContentModel.mixed,
+    mixedUAStyles: {
+      justifyContent: 'flex-start',
+    }
   })
 }
 
@@ -54,9 +57,9 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
 function getYoutubeHTML(videoId: string, url: string) {
   const thumbnail = `https://img.youtube.com/vi/${videoId}/0.jpg`
   return `
-    <div style="border: 1px solid ${colors.gray[400]}; border-radius: 4px;">
+    <div style="border: 1px solid ${colors.gray[400]}; border-radius: 4px; margin-top: 4px;">
       <img src="${thumbnail}" />
-      <p style="margin: 0; font-size: 12px; line-height: 16px; padding: 8px;">${url}</p>
+      <p style="margin: 0; font-size: 12px; line-height: 16px; padding: 8px;">${url.trim()}</p>
     </div>
   `
 }
@@ -73,14 +76,12 @@ export function handleDomElement(el: Element, context: DashboardContextData) {
       const html = getYoutubeHTML(videoId!, url.href)
       const dom = parseDocument(html)
       el.children = dom.children as Node[]
-      el.childNodes = dom.childNodes as Node[]
     }
     if (url.host === 'youtu.be') {
       const videoId = url.pathname.replace('/', '')
       const html = getYoutubeHTML(videoId!, url.href)
       const dom = parseDocument(html)
       el.children = dom.children as Node[]
-      el.childNodes = dom.childNodes as Node[]
     }
     const className = el.attribs['class']
     if (className?.includes('mention')) {
