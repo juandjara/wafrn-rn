@@ -142,7 +142,7 @@ export default function PostDetail() {
         sections={sectionData}
         keyExtractor={(item) => item.id}
         renderSectionHeader={({ section }) => {
-          if (section.type === 'posts' && sectionData[0]?.data?.length > 2) {
+          if (section.type === 'posts' && sectionData[0]?.data?.length > 1) {
             return (
               <View className="p-2">
                 <Pressable

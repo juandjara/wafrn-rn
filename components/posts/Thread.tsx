@@ -11,6 +11,7 @@ import { sortPosts } from "@/lib/api/posts"
 import RewootRibbon from "./RewootRibbon"
 import InteractionRibbon from "./InteractionRibbon"
 import { Link } from "expo-router"
+import ReplyRibbon from "./ReplyRibbon"
 
 const ANCESTOR_LIMIT = 3
 
@@ -18,11 +19,12 @@ export default function Thread({ thread }: { thread: PostThread }) {
   const { data: settings } = useSettings()
   const [CWOpen, setCWOpen] = useState(false)
   const context = useDashboardContext()
-  const { isRewoot, rewootUser, rewootUserName } = useMemo(() => {
+  const { isRewoot, isReply, postUser, postUserName } = useMemo(() => {
     const isRewoot = isEmptyRewoot(thread, context)
-    const rewootUser = isRewoot ? context.users.find((u) => u.id === thread.userId) : null
-    const rewootUserName = rewootUser ? getUserNameHTML(rewootUser, context) : ''
-    return { isRewoot, rewootUser, rewootUserName }
+    const isReply = !!thread.parentId && !isRewoot
+    const postUser = context.users.find((u) => u.id === thread.userId)
+    const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
+    return { isRewoot, isReply, postUser, postUserName }
   }, [thread, context])
 
   const ancestors = useMemo(() => {
@@ -65,12 +67,24 @@ export default function Thread({ thread }: { thread: PostThread }) {
 
   return (
     <View className="mb-4">
-      {rewootUser ? (
-        <RewootRibbon
-          user={rewootUser}
-          userNameHTML={rewootUserName}
-          className="border-b border-slate-600"
-        />
+      {postUser ? (
+        <>
+          {isRewoot && (
+            <RewootRibbon
+              user={postUser}
+              userNameHTML={postUserName}
+              className="border-b border-slate-600"
+            />
+          )}
+          {isReply && (
+            <ReplyRibbon
+              postId={thread.id}
+              user={postUser}
+              userNameHTML={postUserName}
+              className="border-b border-slate-600"
+            />
+          )}
+        </>
       ) : null}
       {thread.ancestors.length >= ANCESTOR_LIMIT ? (
         <>
