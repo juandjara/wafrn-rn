@@ -118,7 +118,7 @@ export default function UserDetail({ user }: { user: User }) {
             )}
           </>
         )}
-        {commonFollows.length > 0 && (
+        {!isMe && commonFollows.length > 0 && (
           <>
             <Text className="text-white text-sm mt-6">
               Followed by people you follow
@@ -161,6 +161,7 @@ export default function UserDetail({ user }: { user: User }) {
           <PostHtmlRenderer
             html={description}
             contentWidth={width - 48}
+            disableWhitespaceCollapsing
           />
         </View>
         <View id='custom-fields' style={{ width: width - 48 }}>
