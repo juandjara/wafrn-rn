@@ -8,8 +8,7 @@ import { POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
-import RewootRibbon from "../posts/RewootRibbon"
-import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
@@ -30,7 +29,6 @@ export default function PostFragment({
   isQuote?: boolean
   CWOpen: boolean
   toggleCWOpen: () => void
-  // setCWOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [showMore, setShowMore] = useState(true)
   const [showMoreToggle, setShowMoreToggle] = useState(false)
@@ -98,9 +96,7 @@ export default function PostFragment({
   const Root = isDetailView ? View : Pressable
 
   if (isEmptyRewoot(post, context)) {
-    return (
-      <RewootRibbon user={user} userNameHTML={userName} />
-    )
+    return null
   }
 
   return (
@@ -108,7 +104,7 @@ export default function PostFragment({
       <Root
         className="px-3"
         android_ripple={{
-          color: 'rgba(255, 255, 255, 0.1)',
+          color: `${colors.cyan[700]}40`,
         }}
       >
         {user && <UserRibbon user={user} userName={userName} />}
@@ -302,43 +298,8 @@ export default function PostFragment({
               })}
             </View>
           )}
-          <InteractionRibbon post={post} />
         </View>
       </Root>
     </Link>
-  )
-}
-
-function InteractionRibbon({ post }: { post: Post }) {
-  return (
-    <View id='interaction-ribbon' className="items-center flex-row py-2">
-      <View id='notes' className="flex-grow">
-        {post.notes !== undefined ? (
-          <Text id='notes' className="text-gray-200 text-sm">
-            {post.notes} Notes
-          </Text>
-        ) : null}
-      </View>
-      <View id='interactions' className="flex-row gap-3">
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <MaterialCommunityIcons name="reply" size={20} color="white" />
-        </Pressable>
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <MaterialIcons name="format-quote" size={20} color="white" />
-        </Pressable>
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <AntDesign name="retweet" size={20} color="white" />
-        </Pressable>
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <MaterialCommunityIcons name="heart" size={20} color="white" />
-        </Pressable>
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <MaterialIcons name="emoji-emotions" size={20} color="white" />
-        </Pressable>
-        <Pressable className="p-1.5 active:bg-gray-300/30 rounded-full">
-          <MaterialCommunityIcons name="dots-horizontal" size={20} color="white" />
-        </Pressable>
-      </View>
-    </View>
   )
 }
