@@ -20,10 +20,12 @@ export default function PostHtmlRenderer({
   html,
   contentWidth,
   hidden,
+  disableWhitespaceCollapsing = false,
 }: {
   html: string;
   contentWidth: number;
   hidden?: boolean;
+  disableWhitespaceCollapsing?: boolean;
 }) {
   const context = useDashboardContext()
 
@@ -61,7 +63,7 @@ export default function PostHtmlRenderer({
       domVisitors={domVisitors}
       defaultTextProps={defaultTextProps}
       renderersProps={RENDERER_PROPS}
-      dangerouslyDisableWhitespaceCollapsing
+      dangerouslyDisableWhitespaceCollapsing={disableWhitespaceCollapsing}
     />
   )
 }
