@@ -3,7 +3,7 @@ import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
-import { getUserNameHTML, replaceEmojis } from "@/lib/api/content";
+import { getUserNameHTML, isValidURL, replaceEmojis } from "@/lib/api/content";
 import HtmlRenderer from "../HtmlRenderer";
 import ZoomableImage from "../posts/ZoomableImage";
 import { useSettings } from "@/lib/api/settings";
@@ -175,10 +175,16 @@ export default function UserDetail({ user }: { user: User }) {
                 />
               </View>
               <View className="mt-3 items-start">
-                <PostHtmlRenderer
-                  html={field.value}
-                  contentWidth={width - 48}
-                />
+                {isValidURL(field.value) ? (
+                  <Link href={field.value.startsWith('http') ? field.value : `http://${field.value}`}>
+                    <Text className="text-cyan-500">{field.value}</Text>
+                  </Link>
+                ) : (
+                  <PostHtmlRenderer
+                    html={field.value}
+                    contentWidth={width - 48}
+                  />
+                )}
               </View>
             </View>
           ))}
