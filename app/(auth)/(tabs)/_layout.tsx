@@ -1,8 +1,11 @@
+import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Tabs } from "expo-router"
 import colors from "tailwindcss/colors"
 
 export default function TabsLayout() {
+  const { data } = useNotificationBadges()
+  
   return (
     <Tabs screenOptions={{
       tabBarInactiveTintColor: colors.indigo[300],
@@ -30,6 +33,11 @@ export default function TabsLayout() {
         name="notifications"
         options={{
           title: 'Notifications',
+          tabBarBadge: data?.notifications || undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: colors.cyan[600],
+            color: colors.white,
+          },
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="bell-outline" size={24} color={color} />
         }}
       />
