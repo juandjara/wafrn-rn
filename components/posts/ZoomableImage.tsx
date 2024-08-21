@@ -61,14 +61,13 @@ export default function ZoomableImage({
           </ThemedView>
         </Modal>
       )}
-      <Pressable onPress={() => !hidden && setModalOpen(true)}>
+      <Pressable className={className} onPress={() => !hidden && setModalOpen(true)}>
         {isSVG(src) ? (
           <SvgUri
             width={width}
             height={width * aspectRatio}
             uri={src}
             style={style}
-            className={className}
           />
         ) : (
           <Image
@@ -78,7 +77,6 @@ export default function ZoomableImage({
               height: width * aspectRatio,
               resizeMode: contentFit
             }]}
-            className={className}
           />
         )}
       </Pressable>

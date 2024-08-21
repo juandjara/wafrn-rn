@@ -102,7 +102,7 @@ export function useUser(userId: string) {
   })
 }
 
-type Follow = Omit<PostUser, 'remoteId'> & {
+export type Follow = Omit<PostUser, 'remoteId'> & {
   follows: Timestamps & {
     accepted: boolean
     followerId: string

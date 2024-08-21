@@ -69,6 +69,7 @@ export default function UserDetail({ user }: { user: User }) {
           src={formatCachedUrl(formatMediaUrl(user.headerImage))}
           width={width}
           aspectRatio={0.5}
+          className="border-b border-gray-500"
         />
       ) : null}
       <View className={clsx(
@@ -79,7 +80,7 @@ export default function UserDetail({ user }: { user: User }) {
           src={url}
           width={150}
           aspectRatio={1}
-          className="rounded-lg border border-gray-500"
+          className="rounded-lg border border-gray-500 bg-black"
         />
       </View>
       <View className="items-center justify-center">
@@ -148,14 +149,18 @@ export default function UserDetail({ user }: { user: User }) {
           </Text>
         )}
         <View className="flex-row gap-6 mt-6">
-          <View className="items-center">
-            <Text className="text-white text-2xl">{user.followed || user.followingCount}</Text>
-            <Text className="text-white text-sm">following</Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-white text-2xl">{user.followers || user.followerCount}</Text>
-            <Text className="text-white text-sm">followers</Text>
-          </View>
+          <Link href={`/user/followed/${user.url}`} asChild>
+            <Pressable className="items-center">
+              <Text className="text-white text-2xl">{user.followed || user.followingCount}</Text>
+              <Text className="text-white text-sm">following</Text>
+            </Pressable>
+          </Link>
+          <Link href={`/user/followers/${user.url}`} asChild>
+            <Pressable className="items-center">
+              <Text className="text-white text-2xl">{user.followers || user.followerCount}</Text>
+              <Text className="text-white text-sm">followers</Text>
+            </Pressable>
+          </Link>
         </View>
         <View style={{ maxWidth: width - 48, paddingVertical: 8 }}>
           <PostHtmlRenderer
