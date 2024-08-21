@@ -62,7 +62,7 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
         >
           <View className="p-2 flex-row gap-2 items-stretch">
             <MaterialIcons name={getIcon(i)} size={24} color="white" />
-            <Text className="text-white flex-grow">{q.questionText}</Text>
+            <Text className="text-white flex-grow flex-shrink">{q.questionText}</Text>
             <Text className="text-white">{`${(getQuestionPercentage(i) * 100).toFixed()} %`}</Text>
           </View>
           <View
