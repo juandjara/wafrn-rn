@@ -38,7 +38,7 @@ export default function Media({ hidden, media, contentWidth }: {
               <Video
                 source={{ uri: src }}
                 resizeMode={ResizeMode.CONTAIN}
-                style={{ width: mediaWidth, height: mediaWidth * (9/16) }}
+                style={{ width: mediaWidth, height: mediaWidth }}
                 isLooping
                 usePoster
                 useNativeControls

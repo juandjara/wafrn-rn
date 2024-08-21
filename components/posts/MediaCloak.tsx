@@ -31,7 +31,7 @@ export default function MediaCloak({
   const cloak = (
     <Pressable
       onPress={() => setHidden(false)}
-      className="items-center justify-center flex-1 bg-gray-500/50"
+      className="items-center justify-center flex-1 bg-gray-500/50 py-4"
     >
       <Feather name="eye-off" size={48} color="white" />
       <Text className="text-white text-lg mx-3 my-2 text-center">
