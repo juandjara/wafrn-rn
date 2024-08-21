@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient"
 import ReactionDetailsMenu from "../posts/ReactionDetailsMenu"
 import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 import UserRibbon from "../user/UserRibbon"
+import Poll from "../posts/Poll"
 
 const HEIGHT_LIMIT = 300
 
@@ -75,6 +76,10 @@ export default function PostFragment({
     return context.quotedPosts.find((p) => p.id === id)
   }, [post, context])
 
+  const poll = useMemo(() => {
+    return context.polls.find((p) => p.postId === post.id)
+  }, [post, context])
+
   const reactions = useMemo(() => {
     return getReactions(post, context)
   }, [post, context])
@@ -89,6 +94,10 @@ export default function PostFragment({
   function _toggleCW() {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     toggleCWOpen()
+  }
+
+  function onPollVote(indexes: number[]) {
+    // TODO: implement
   }
 
   const { postid } = useLocalSearchParams()
@@ -233,6 +242,9 @@ export default function PostFragment({
                     </Link>
                   ))}
                 </View>
+              )}
+              {poll && (
+                <Poll poll={poll} onVote={onPollVote} />
               )}
               {quotedPost && (
                 <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">

@@ -62,7 +62,27 @@ export type PostMention = {
   userMentioned: string
 }
 
-type PostPoll = any // TODO
+export type PostPoll = Timestamps & {
+  id: number
+  postId: string
+  endDate: string // ISO string
+  multiChoice: boolean
+  questionPollQuestions: PollQuestion[]
+}
+export type PollQuestion = Timestamps & {
+  id: number
+  index: number
+  remoteReplies: number
+  questionPollId: number
+  questionText: string
+  questionPollAnswers: PollAnswer[]
+}
+export type PollAnswer = Timestamps & {
+  id: number
+  remoteId: string
+  userId: string
+  questionPollQuestionId: number
+}
 
 export type PostQuote = Timestamps & {
   quotedPostId: string
