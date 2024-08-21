@@ -1,8 +1,12 @@
-import { handleDomElement, HTML_STYLES, inlineImageConfig } from "@/lib/api/content";
+import { getYoutubeImage, handleDomElement, HTML_STYLES, inlineImageConfig, isValidURL } from "@/lib/api/content";
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
-import { router } from "expo-router";
+import { Image, ImageBackground } from "expo-image";
+import { Link, router } from "expo-router";
+import { parseDocument, DomUtils } from "htmlparser2";
 import { useMemo } from "react";
+import { TouchableOpacity, View } from "react-native";
 import RenderHTML, { Element } from "react-native-render-html";
+import colors from "tailwindcss/colors";
 
 const RENDERER_PROPS = {
   a: {
@@ -15,6 +19,11 @@ const RENDERER_PROPS = {
     }
   }
 }
+
+const YT_LINKS = [
+  'www.youtube.com',
+  'youtu.be',
+]
 
 export default function PostHtmlRenderer({
   html,
@@ -42,28 +51,74 @@ export default function PostHtmlRenderer({
 
   const domVisitors = useMemo(() => {
     return {
-      onElement: (el: Element) => handleDomElement(el, context)
+      onElement: (el: Element) => handleDomElement({
+        el,
+        context,
+        width: contentWidth,
+      })
     }
-  }, [context])
+  }, [context, contentWidth])
 
-  const source = useMemo(() => {
-    return { html }
+  const { source, ytLinks } = useMemo(() => {
+    const dom = parseDocument(html)
+    const links = DomUtils.findAll((node) => {
+      if (node.name === 'a') {
+        const href = node.attribs.href
+        if (isValidURL(href)) {
+          return YT_LINKS.includes(new URL(href).host)
+        }
+      }
+      return false
+    }, dom.children)
+
+    return {
+      ytLinks: links.map((node) => ({
+        href: node.attribs.href,
+        image: getYoutubeImage(node.attribs.href),
+      })),
+      source: { html }
+    }
   }, [html])
 
   return (
-    <RenderHTML
-      tagsStyles={HTML_STYLES}
-      baseStyle={baseHTMLStyle}
-      contentWidth={contentWidth}
-      source={source}
-      // all images are set to inline, html renderer doesn't support dynamic block / inline images
-      // and most images inside post content are emojis, so we can just make them all inline
-      // and any block images should be rendered as media anyway
-      customHTMLElementModels={inlineImageConfig}
-      domVisitors={domVisitors}
-      defaultTextProps={defaultTextProps}
-      renderersProps={RENDERER_PROPS}
-      dangerouslyDisableWhitespaceCollapsing={disableWhitespaceCollapsing}
-    />
+    <>
+      <RenderHTML
+        tagsStyles={HTML_STYLES}
+        baseStyle={baseHTMLStyle}
+        contentWidth={contentWidth}
+        source={source}
+        // all images are set to inline, html renderer doesn't support dynamic block / inline images
+        // and most images inside post content are emojis, so we can just make them all inline
+        // and any block images should be rendered as media anyway
+        customHTMLElementModels={inlineImageConfig}
+        domVisitors={domVisitors}
+        defaultTextProps={defaultTextProps}
+        renderersProps={RENDERER_PROPS}
+        dangerouslyDisableWhitespaceCollapsing={disableWhitespaceCollapsing}
+      />
+      <View id='yt-link-cards'>
+        {ytLinks.map(({ href, image }) => (
+          <Link key={href} href={href} asChild>
+            <TouchableOpacity className="mt-4">
+              <ImageBackground
+                source={{ uri: image! }}
+                style={{
+                  width: contentWidth,
+                  height: contentWidth / 1.77,
+                  backgroundColor: colors.gray[200],
+                }}
+              >
+                <View className="flex flex-1 justify-center items-center">
+                  <Image
+                    style={{ width: 64, height: 64 }}
+                    source={require('@/assets/images/yt-logo.png')}
+                  />
+                </View>
+              </ImageBackground>
+            </TouchableOpacity>
+          </Link>
+        ))}
+      </View>
+    </>
   )
 }

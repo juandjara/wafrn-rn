@@ -176,6 +176,7 @@ export default function PostFragment({
                     html={postContent}
                     contentWidth={contentWidth}
                     hidden={hideContent}
+                    disableWhitespaceCollapsing
                   />
                 </View>
                 {showMoreToggle && (

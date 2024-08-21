@@ -1,10 +1,9 @@
-import { defaultHTMLElementModels, Element, HTMLContentModel, Node, Text } from "react-native-render-html"
+import { defaultHTMLElementModels, Element, HTMLContentModel, Text } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import colors from "tailwindcss/colors"
 import { EmojiBase } from "./emojis"
-import { parseDocument } from 'htmlparser2'
 
 export const inlineImageConfig = {
   img: defaultHTMLElementModels.img.extend({
@@ -54,35 +53,12 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   return !hasMedias && !hasTags
 }
 
-function getYoutubeHTML(videoId: string, url: string) {
-  const thumbnail = `https://img.youtube.com/vi/${videoId}/0.jpg`
-  return `
-    <div style="border: 1px solid ${colors.gray[400]}; border-radius: 4px; margin-top: 4px;">
-      <img src="${thumbnail}" />
-      <p style="margin: 0; font-size: 12px; line-height: 16px; padding: 8px;">${url.trim()}</p>
-    </div>
-  `
-}
-
-export function handleDomElement(el: Element, context: DashboardContextData) {
+export function handleDomElement({ el, context, width }: {
+  el: Element
+  context: DashboardContextData
+  width: number
+}) {
   if (el.tagName === 'a') {
-    const link = el.attribs['href']
-    if (!link?.startsWith('http')) {
-      return
-    }
-    const url = new URL(link)
-    if (url.host === 'www.youtube.com') {
-      const videoId = url.searchParams.get('v')
-      const html = getYoutubeHTML(videoId!, url.href)
-      const dom = parseDocument(html)
-      el.children = dom.children as Node[]
-    }
-    if (url.host === 'youtu.be') {
-      const videoId = url.pathname.replace('/', '')
-      const html = getYoutubeHTML(videoId!, url.href)
-      const dom = parseDocument(html)
-      el.children = dom.children as Node[]
-    }
     const className = el.attribs['class']
     if (className?.includes('mention')) {
       replaceMentionLink(el, context)
@@ -234,4 +210,31 @@ export function getReactions(post: Post, context: DashboardContextData) {
     grouped.get(key)!.users.push(r.user!)
   }
   return [...grouped.values()]
+}
+
+export function isValidURL(str: string) {
+  try {
+    new URL(str)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function getYoutubeImage(ytLink: string) {
+  if (!isValidURL(ytLink)) {
+    return null
+  }
+  const url = new URL(ytLink)
+  let videoId = null as string | null
+  if (url.host === 'www.youtube.com') {
+    videoId = url.searchParams.get('v')
+  }
+  if (url.host === 'youtu.be') {
+    videoId = url.pathname.replace('/', '')
+  }
+  if (videoId) {
+    return `https://img.youtube.com/vi/${videoId}/0.jpg`
+  }
+  return null
 }
