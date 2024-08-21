@@ -19,7 +19,8 @@ export default function ReactionDetailsMenu({ children, users, reaction, reactio
       ref={menuRef}
       renderer={renderers.Popover}
       rendererProps={{
-        placement: 'bottom',
+        placement: 'auto',
+        preferredPlacement: 'bottom',
         anchorStyle: {
           backgroundColor: colors.gray[900],
         }
@@ -32,14 +33,15 @@ export default function ReactionDetailsMenu({ children, users, reaction, reactio
         },
       }}>
         <View className="p-2 pb-0">
-          <Text className="text-gray-200 text-sm">
-            {reaction} by
-          </Text>
           {reactionName && (
             <Text className="text-gray-300 text-xs">
               {reactionName}
             </Text>
           )}
+          <View className="flex-row items-center gap-1">
+            <Text className="text-gray-200 text-sm">{reaction}</Text>
+            <Text className="text-gray-200 text-sm">by</Text>
+          </View>
         </View>
         <ScrollView
           style={{ maxHeight: 200 }}
