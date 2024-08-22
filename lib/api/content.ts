@@ -228,7 +228,12 @@ export function getYoutubeImage(ytLink: string) {
   const url = new URL(ytLink)
   let videoId = null as string | null
   if (url.host === 'www.youtube.com') {
-    videoId = url.searchParams.get('v')
+    if (url.pathname === '/watch') {
+      videoId = url.searchParams.get('v')
+    }
+    if (url.pathname.startsWith('/shorts')) {
+      videoId = url.pathname.split('/').pop() ?? null
+    }
   }
   if (url.host === 'youtu.be') {
     videoId = url.pathname.replace('/', '')
