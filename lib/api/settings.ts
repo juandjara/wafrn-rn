@@ -6,7 +6,7 @@ import { EmojiBase } from "./emojis"
 import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
 
-type EmojiGroupConfig = Timestamps & {
+export type EmojiGroupConfig = Timestamps & {
   id: string
   name: string
   comment: string | null

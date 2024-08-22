@@ -1,9 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { API_URL } from "../config";
 import { getJSON } from "../http";
-import { DashboardData, PostThread } from "./posts.types";
+import { DashboardData } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
 import { DashboardContextData } from "../contexts/DashboardContext";
+import { Timestamps } from "./types";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -40,11 +41,12 @@ export function useDashboard(mode: DashboardMode) {
   })
 }
 
-export function getLastDate(posts: PostThread[]) {
-  const lastPost = posts[posts.length - 1]
-  return lastPost
-    ? new Date(lastPost.createdAt).getTime()
-    : undefined
+export function getLastDate(posts: Timestamps[]) {
+  if (!posts.length) {
+    return undefined
+  }
+  const dates = posts.map((post) => new Date(post.createdAt).getTime())
+  return Math.min(...dates)
 }
 
 // TODO: assume everything here could be duplicated data
