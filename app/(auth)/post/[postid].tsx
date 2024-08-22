@@ -10,15 +10,16 @@ import { DashboardData, Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
 import { buttonCN } from "@/lib/styles"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { FlashList } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
-import { Pressable, SectionList, Text, View } from "react-native"
+import { Animated, Pressable, Text, useWindowDimensions, View } from "react-native"
 
 export default function PostDetail() {
-  const listRef = useRef<SectionList>(null)
   const { postid } = useLocalSearchParams()
+  const { width } = useWindowDimensions()
   const {
     data: postData,
     isFetching: postFetching,
@@ -91,24 +92,35 @@ export default function PostDetail() {
       .sort(sortPosts) || []
 
     const sectionData = [
-      { type: 'posts', data: thread },
-      { type: 'replies', data: fullReplies },
+      { type: 'go-to-bottom' as const, data: null },
+      // { type: 'posts', data: thread },
+      ...thread.map((post) => ({ type: 'posts' as const, data: post })),
+      { type: 'separator' as const, data: null },
+      // { type: 'replies', data: fullReplies },
+      ...fullReplies.map((post) => ({ type: 'replies' as const, data: post })),
+      { type: 'error' as const, data: repliesError },
     ]
-    if (repliesError) {
-      sectionData.push({ type: 'error', data: [repliesError as any] })
-    }
 
     return { mainPost, sectionData, context, userMap, userNames, numReplies, numRewoots }
   }, [postData, repliesData, postid, repliesError])
 
+  const listRef = useRef<FlashList<typeof sectionData[number]>>(null)
+  const scrollY = new Animated.Value(0)
+  const diffClamp = Animated.diffClamp(scrollY, 0, 100)
+
   const [cws, setCws] = useState<boolean[]>([])
 
   function toggleCW(index: number) {
+    listRef.current?.prepareForLayoutAnimationRender()
     setCws((prev) => {
       const copy = [...prev]
       copy[index] = !copy[index]
       return copy
     })
+  }
+  
+  function scrollToThreadEnd(animated?: boolean) {
+    listRef.current?.scrollToIndex({ index: mainPost?.ancestors.length! })
   }
 
   if (postError) {
@@ -134,54 +146,44 @@ export default function PostDetail() {
     )
   }
 
+  const postCount = mainPost?.ancestors.length || 0
+
   return (
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Woot Detail' }} />
-      <SectionList
+      <FlashList
+        extraData={cws}
         ref={listRef}
-        sections={sectionData}
-        keyExtractor={(item) => item.id}
-        renderSectionHeader={({ section }) => {
-          if (section.type === 'posts' && sectionData[0]?.data?.length > 1) {
+        data={sectionData}
+        estimatedItemSize={width * 0.5}
+        keyExtractor={(item) => {
+          if (item.type === 'posts' || item.type === 'replies') {
+            return item.data.id
+          }
+          return item.type
+        }}
+        getItemType={(item) => item.type}
+        renderItem={({ item }) => {
+          if (item.type === 'go-to-bottom' && postCount > 0) {
             return (
               <View className="p-2">
                 <Pressable
                   className='text-indigo-500 py-1 px-2 bg-indigo-500/20 rounded-lg flex-row items-baseline gap-1'
-                  onPress={() => {
-                    listRef.current?.scrollToLocation({ sectionIndex: 1, itemIndex: 0 })
-                  }}
+                  onPress={() => scrollToThreadEnd(postCount < 20)}
                 >
                   <MaterialCommunityIcons name="arrow-down" size={16} color="white" />
                   <Text className="text-white">
                     Go to end of thread
                     <Text className="text-sm text-gray-300">
-                      {' - '}{sectionData[0]?.data?.length} {pluralize(sectionData[0]?.data?.length, 'post')}
+                      {' - '}{postCount + 1} {pluralize(postCount + 1, 'post')}
                     </Text>
                   </Text>
                 </Pressable>
               </View>
             )
           }
-          if (section.type === 'replies') {
-            return (
-              <View>
-                {mainPost && (
-                  <View className="bg-indigo-900/50">
-                    <InteractionRibbon post={mainPost} />
-                  </View>
-                )}
-                <Text className="text-gray-300 mt-4 px-3 py-1">
-                  {numReplies > 0 && <Text>{numReplies} {pluralize(numReplies, 'reply', 'replies')}</Text>}
-                  {numReplies > 0 && numRewoots > 0 && <Text>, </Text>}
-                  {numRewoots > 0 && <Text>{numRewoots} {pluralize(numRewoots, 'rewoot')}</Text>}
-                </Text>
-              </View>
-            )
-          }
-          return null
-        }}
-        renderItem={({ section, item: post }) => {
-          if (section.type === 'replies') {
+          if (item.type === 'replies') {
+            const post = item.data
             const isRewoot = isEmptyRewoot(post, context)
             if (isRewoot) {
               return (
@@ -210,7 +212,8 @@ export default function PostDetail() {
               )
             }
           }
-          if (section.type === 'posts') {
+          if (item.type === 'posts') {
+            const post = item.data
             return (
               <View className={post.className}>
                 <PostFragment
@@ -221,14 +224,31 @@ export default function PostDetail() {
               </View>
             )
           }
-          if (section.type === 'error') {
+          if (item.type === 'error' && item.data) {
+            const error = item.data
             return (
               <View className="m-1 p-2 bg-red-500/30 rounded-md">
                 <Text className="text-white mb-2 font-bold">
                   Error fetching replies:
                 </Text>
                 <Text className="text-gray-200">
-                  {(post as any).message}
+                  {error?.message}
+                </Text>
+              </View>
+            )
+          }
+          if (item.type === 'separator') {
+            return (
+              <View>
+                {mainPost && (
+                  <View className="bg-indigo-900/50">
+                    <InteractionRibbon post={mainPost} />
+                  </View>
+                )}
+                <Text className="text-gray-300 mt-4 px-3 py-1">
+                  {numReplies > 0 && <Text>{numReplies} {pluralize(numReplies, 'reply', 'replies')}</Text>}
+                  {numReplies > 0 && numRewoots > 0 && <Text>, </Text>}
+                  {numRewoots > 0 && <Text>{numRewoots} {pluralize(numRewoots, 'rewoot')}</Text>}
                 </Text>
               </View>
             )
@@ -240,8 +260,36 @@ export default function PostDetail() {
           refetchPost()
           refetchReplies()
         }}
-        onEndReachedThreshold={0.5}
+        onScroll={(ev) => {
+          scrollY.setValue(ev.nativeEvent.contentOffset.y)
+        }}
       />
+      <Animated.View
+        className="absolute bottom-2 right-2"
+        style={{
+          opacity: diffClamp.interpolate({
+            inputRange: [0, 100],
+            outputRange: [0, 1],
+            extrapolate: 'clamp',
+          }),
+          transform: [
+            {
+              translateY: diffClamp.interpolate({
+                inputRange: [0, 100],
+                outputRange: [100, 0],
+                extrapolate: 'clamp',
+              }),
+            },
+          ]
+        }}
+      >
+        <Pressable
+          className="p-3 rounded-full bg-white border border-gray-300"
+          onPress={() => listRef.current?.scrollToIndex({ index: 0 })}
+        >
+          <MaterialIcons name="arrow-upward" size={24} />
+        </Pressable>
+      </Animated.View>
     </DashboardContextProvider>
   )
 }
