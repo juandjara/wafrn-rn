@@ -8,6 +8,7 @@ import { isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
 
 export default function ZoomableImage({
+  id,
   src,
   style,
   hidden = false,
@@ -16,6 +17,7 @@ export default function ZoomableImage({
   aspectRatio,
   className
 }: {
+  id: string
   src: string
   style?: ImageStyle
   hidden?: boolean
@@ -42,19 +44,20 @@ export default function ZoomableImage({
             <ReactNativeZoomableView
               minZoom={1}
               maxZoom={30}
+              disablePanOnInitialZoom
               contentWidth={deviceWidth}
-              contentHeight={deviceWidth * aspectRatio}
             >
               {isSVG(src) ? (
                 <SvgUri
                   width={deviceWidth}
-                  height={deviceWidth * aspectRatio}
+                  height='100%'
                   uri={src}
                 />
               ) : (
                 <Image
                   source={src}
-                  style={{ resizeMode: contentFit, width: deviceWidth, height: deviceWidth * aspectRatio }}
+                  cachePolicy={'memory-disk'}
+                  style={{ resizeMode: 'contain', width: deviceWidth, height: '100%' }}
                 />
               )}
             </ReactNativeZoomableView>
@@ -71,6 +74,8 @@ export default function ZoomableImage({
           />
         ) : (
           <Image
+            cachePolicy={'memory-disk'}
+            recyclingKey={id}
             source={src}
             style={[style, {
               width,

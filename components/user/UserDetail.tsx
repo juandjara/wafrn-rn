@@ -66,6 +66,7 @@ export default function UserDetail({ user }: { user: User }) {
     <View className="mb-2">
       {user.headerImage ? (
         <ZoomableImage
+          id="header"
           src={formatCachedUrl(formatMediaUrl(user.headerImage))}
           width={width}
           aspectRatio={0.5}
@@ -77,6 +78,7 @@ export default function UserDetail({ user }: { user: User }) {
         { '-mt-12': !!user.headerImage }
       )}>
         <ZoomableImage
+          id="avatar"
           src={url}
           width={150}
           aspectRatio={1}

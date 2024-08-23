@@ -56,11 +56,12 @@ export default function Media({ hidden, media, contentWidth }: {
         )}
         {isImage(src) && (
           <ZoomableImage
+            id={media.id}
             src={src}
             hidden={hidden}
             width={mediaWidth}
             aspectRatio={aspectRatio}
-            contentFit="contain"
+            contentFit="cover"
             className="rounded-t-md max-w-full"
           />
         )}
