@@ -9,10 +9,12 @@ import HtmlRenderer from "../HtmlRenderer"
 
 export default function UserRibbon({
   user,
-  userName
+  userName,
+  showUnfollowButton = false,
 }: {
   user: PostUser
   userName: string
+  showUnfollowButton?: boolean
 }) {
   const { data: settings } = useSettings()
   const amIFollowing = settings?.followedUsers.includes(user?.id!)
@@ -27,21 +29,29 @@ export default function UserRibbon({
           className="flex-shrink-0 my-3 rounded-md border border-gray-500"
         />
         <View id='user-name-link' className="flex-grow">
-          <View className="flex-row mt-3">
+          <View className="flex-row gap-2 mt-3">
             {userName && (
               <HtmlRenderer html={userName} renderTextRoot />
             )}
-            {amIAwaitingApproval && (
-              <TouchableOpacity className="ml-2">
-                <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
-                  Awaiting approval
-                </Text>
-              </TouchableOpacity>
-            )}
-            {!amIFollowing && !amIAwaitingApproval && (
-              <TouchableOpacity className="ml-2">
+            {!amIFollowing && !amIAwaitingApproval ? (
+              <TouchableOpacity>
                 <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
                   Follow
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              showUnfollowButton ? (
+                <TouchableOpacity>
+                  <Text className="rounded-full px-2 text-sm text-red-500/70 bg-red-500/20">
+                    Unfollow
+                  </Text>
+                </TouchableOpacity>
+              ) : <Text></Text>
+            )}
+            {amIAwaitingApproval && (
+              <TouchableOpacity>
+                <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
+                  Awaiting approval
                 </Text>
               </TouchableOpacity>
             )}
