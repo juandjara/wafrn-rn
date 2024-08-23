@@ -1,3 +1,4 @@
+import CornerButtonContainer, { CornerButtonContainerRef } from "@/components/CornerButtonContainer"
 import PostFragment from "@/components/dashboard/PostFragment"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
@@ -15,7 +16,7 @@ import { FlashList } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
-import { Animated, Pressable, Text, useWindowDimensions, View } from "react-native"
+import { Pressable, Text, useWindowDimensions, View } from "react-native"
 
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
@@ -105,8 +106,7 @@ export default function PostDetail() {
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<typeof sectionData[number]>>(null)
-  const scrollY = new Animated.Value(0)
-  const diffClamp = Animated.diffClamp(scrollY, 0, 100)
+  const cornerButtonRef = useRef<CornerButtonContainerRef>(null)
 
   const [cws, setCws] = useState<boolean[]>([])
 
@@ -261,36 +261,18 @@ export default function PostDetail() {
           refetchReplies()
         }}
         onScroll={(ev) => {
-          scrollY.setValue(ev.nativeEvent.contentOffset.y)
+          cornerButtonRef.current?.scroll(ev.nativeEvent.contentOffset.y)
         }}
         ListFooterComponent={<View className="h-12" />}
       />
-      <Animated.View
-        className="absolute bottom-2 right-2"
-        style={{
-          opacity: diffClamp.interpolate({
-            inputRange: [0, 100],
-            outputRange: [0, 1],
-            extrapolate: 'clamp',
-          }),
-          transform: [
-            {
-              translateY: diffClamp.interpolate({
-                inputRange: [0, 100],
-                outputRange: [100, 0],
-                extrapolate: 'clamp',
-              }),
-            },
-          ]
-        }}
-      >
+      <CornerButtonContainer ref={cornerButtonRef}>
         <Pressable
           className="p-3 rounded-full bg-white border border-gray-300"
           onPress={() => listRef.current?.scrollToIndex({ index: 0 })}
         >
           <MaterialIcons name="arrow-upward" size={24} />
         </Pressable>
-      </Animated.View>
+      </CornerButtonContainer>
     </DashboardContextProvider>
   )
 }
