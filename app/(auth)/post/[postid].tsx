@@ -263,6 +263,7 @@ export default function PostDetail() {
         onScroll={(ev) => {
           scrollY.setValue(ev.nativeEvent.contentOffset.y)
         }}
+        ListFooterComponent={<View className="h-12" />}
       />
       <Animated.View
         className="absolute bottom-2 right-2"
