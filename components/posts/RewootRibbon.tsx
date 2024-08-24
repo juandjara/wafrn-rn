@@ -12,7 +12,7 @@ export default function RewootRibbon({ user, userNameHTML, className }: { user?:
     <Link href={`/user/${user?.url}`} asChild>
       <Pressable>
         <View className={clsx(className, 'pl-1 p-2 flex-row gap-1 items-center bg-blue-950')}>
-          <EvilIcons name="retweet" size={20} color="white" className="mb-1" />
+          <EvilIcons name="retweet" size={20} color="white" className="mb-1 mx-1" />
           <Image
             className="rounded-md border border-gray-500"
             style={{ width: 24, height: 24 }}

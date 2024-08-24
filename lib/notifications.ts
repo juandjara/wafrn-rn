@@ -3,7 +3,7 @@ import { API_URL } from "./config"
 import { getJSON } from "./http"
 import { useAuth } from "./contexts/AuthContext"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { Post, PostEmojiReaction, PostMedia, PostQuote, PostUser, PostUserRelation } from "./api/posts.types"
+import { DashboardData, Post, PostEmojiReaction, PostMedia, PostQuote, PostUser, PostUserRelation } from "./api/posts.types"
 import { Follow } from "./api/user"
 import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
@@ -46,9 +46,9 @@ type NotificationPayload = {
   page: number
 }
 
-type Notifications = {
+type NotificationsPage = {
   emojiReactions: (Timestamps & PostEmojiReaction & { id: string; remoteId: string })[]
-  emojis: EmojiGroupConfig['emojis'][]
+  emojis: EmojiGroupConfig['emojis']
   users: Omit<PostUser, 'remoteId'>[]
   posts: Post[]
   reblogs: Post[]
@@ -59,6 +59,34 @@ type Notifications = {
   quotes: PostQuote[]
 }
 
+export type Notification = Timestamps & NotificationDetails & { user: Omit<PostUser, 'remoteId'> }
+
+export type FollowNotification = {
+  type: 'follow'
+}
+export type LikeNotification = {
+  type: 'like',
+  post: Post
+}
+export type ReblogNotification = {
+  type: 'reblog',
+  post: Post
+}
+export type MentionNotification = {
+  type: 'mention',
+  post: Post
+}
+export type EmojiReactionNotification = {
+  type: 'emoji',
+  emoji: PostEmojiReaction
+}
+export type QuoteNotification = {
+  type: 'quote',
+  post: Post
+}
+export type NotificationDetails = FollowNotification | LikeNotification | ReblogNotification | MentionNotification | EmojiReactionNotification | QuoteNotification
+
+
 export async function getNotifications({ token, payload }: { token: string; payload: NotificationPayload }) {
   const params = new URLSearchParams(payload as any) // force string coercion
   const json = await getJSON(`${API_URL}/v2/notificationsScroll?${params.toString()}`, {
@@ -66,7 +94,7 @@ export async function getNotifications({ token, payload }: { token: string; payl
       Authorization: `Bearer ${token}`
     }
   })
-  return json as Notifications
+  return json as NotificationsPage
 }
 
 export function useNotifications() {
@@ -93,5 +121,81 @@ export function useNotifications() {
       page: lastPageParam.page + 1
     }),
     enabled: !!token,
+  })
+}
+
+export function notificationPageToDashboardPage(page: NotificationsPage) {
+  return {
+    users: page.users.map(u => ({ ...u, remoteId: null })),
+    emojiRelations: {
+      emojis: page.emojis,
+      userEmojiRelation: [],
+      postEmojiRelation: [],
+      postEmojiReactions: page.emojiReactions,
+    },
+    likes: page.likes,
+    medias: page.medias,
+    mentions: [],
+    polls: [],
+    tags: [],
+    posts: [],
+    quotedPosts: page.posts.filter((p) => page.quotes.some((q) => q.quotedPostId === p.id)),
+    quotes: page.quotes,
+  } satisfies DashboardData
+}
+
+export function getNotificationList(pages: NotificationsPage[]) {
+  return pages.flatMap(page => {
+    const notifications = [] as Notification[]
+    notifications.push(...page.follows.map(follow => ({
+      type: 'follow' as const,
+      user: page.users.find(u => u.id === follow.followerId)!,
+      createdAt: follow.createdAt,
+      updatedAt: follow.updatedAt,
+    })))
+    notifications.push(...page.emojiReactions.map(emoji => ({
+      type: 'emoji' as const,
+      emoji,
+      user: page.users.find(u => u.id === emoji.userId)!,
+      post: page.posts.find(p => p.id === emoji.postId)!,
+      createdAt: emoji.createdAt,
+      updatedAt: emoji.updatedAt
+    })))
+    notifications.push(...page.likes.map(like => ({
+      type: 'like' as const,
+      user: page.users.find(u => u.id === like.userId)!,
+      post: page.posts.find(p => p.id === like.postId)!,
+      createdAt: like.createdAt,
+      updatedAt: like.updatedAt,
+    })))
+    notifications.push(...page.reblogs.map(reblog => ({
+      type: 'reblog' as const,
+      user: page.users.find(u => u.id === reblog.userId)!,
+      post: page.posts.find((p) => p.id === reblog.parentId)!,
+      createdAt: reblog.createdAt,
+      updatedAt: reblog.updatedAt,
+    })))
+    notifications.push(...page.mentions.map(mention => ({
+      type: 'mention' as const,
+      user: page.users.find(u => u.id === mention.userId)!,
+      post: mention,
+      createdAt: mention.createdAt,
+      updatedAt: mention.updatedAt,
+    })))
+    notifications.push(...page.quotes.map(quote => {
+      const post = page.posts.find(p => p.id === quote.quoterPostId)!
+      return {
+        type: 'quote' as const,
+        user: page.users.find(u => u.id === post.userId)!,
+        post,
+        createdAt: quote.createdAt,
+        updatedAt: quote.updatedAt,
+      }
+    }))
+    return notifications.sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime()
+      const bTime = new Date(b.createdAt).getTime()
+      return bTime - aTime
+    })
   })
 }
