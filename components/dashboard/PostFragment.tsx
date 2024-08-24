@@ -7,7 +7,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
-import { getReactions, getUserNameHTML, isEmptyRewoot, processPostContent } from "@/lib/api/content"
+import { getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import colors from "tailwindcss/colors"
@@ -43,7 +43,7 @@ export default function PostFragment({
   )
 
   const userName = useMemo(() => {
-    return getUserNameHTML(user!, context)
+    return replaceEmojis(user?.name || '', context.emojiRelations.emojis)
   }, [user, context])
 
   const postContent = useMemo(
