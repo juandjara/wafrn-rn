@@ -1,13 +1,10 @@
 import Loading from "@/components/Loading"
 import UserRibbon from "@/components/user/UserRibbon"
 import { useFollowers } from "@/lib/api/user"
+import { timeAgo } from "@/lib/formatters"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { FlatList, Text, View } from "react-native"
-import dayjs from "dayjs"
-import relativeTime from 'dayjs/plugin/relativeTime'
-
-dayjs.extend(relativeTime)
 
 export default function Followers() {
   const { userid } = useLocalSearchParams()
@@ -23,8 +20,6 @@ export default function Followers() {
         data={sorted}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
-          const date = dayjs(new Date(item.follows.createdAt))
-          const timeAgo = date.fromNow()
           return (
             <View className="bg-indigo-950 border-t border-gray-600 px-2 relative">
               <UserRibbon
@@ -33,7 +28,7 @@ export default function Followers() {
                 showUnfollowButton
               />
               <View className="absolute top-1 right-2">
-                <Text className="text-gray-300 text-xs">{timeAgo}</Text>
+                <Text className="text-gray-300 text-xs">{timeAgo(item.follows.createdAt)}</Text>
               </View>
             </View>
           )
