@@ -40,7 +40,7 @@ export default function NotificationList() {
     return getNotificationList(data.pages)
   }, [data])
 
-  const listRef = useRef<FlashList<typeof notifications[number]>>(null)
+  const listRef = useRef<FlashList<Notification>>(null)
 
   useScrollToTop(listRef as any)
 
@@ -51,14 +51,12 @@ export default function NotificationList() {
     })
   }
 
-  // console.log(JSON.stringify(notifications, null, 2))
-
   return (
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Notifications' }} />
       <FlashList
         data={notifications}
-        estimatedItemSize={300}
+        estimatedItemSize={200}
         getItemType={(item) => item.type}
         refreshing={isFetching}
         onRefresh={refresh}
@@ -171,17 +169,15 @@ function NotificationItem({ notification }: { notification: Notification }) {
     )
   } else {
     const post = (notification as any).post as Post
-    if (!post) {
-      console.log('no post', JSON.stringify(notification, null, 2))
-      return null
+    if (post) {
+      content = (
+        <PostFragment
+          post={post}
+          CWOpen={false}
+          toggleCWOpen={() => {}}
+        />
+      )
     }
-    content = (
-      <PostFragment
-        post={post}
-        CWOpen={false}
-        toggleCWOpen={() => {}}
-      />
-    )
   }
 
   const verbs = {
@@ -199,7 +195,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
         {ribbon}
       </View>
       {notification.type !== 'mention' && (
-        <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 border border-slate-600 rounded-md">
+        <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
           <Text className="text-gray-300 text-xs font-bold">{verbs[notification.type]}</Text>
           <Text className="text-gray-300 text-xs">{timeAgo(notification.createdAt)}</Text>
         </View>

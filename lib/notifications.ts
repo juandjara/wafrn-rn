@@ -97,6 +97,18 @@ export async function getNotifications({ token, payload }: { token: string; payl
   return json as NotificationsPage
 }
 
+export function getNotificationPageEnd(page: NotificationsPage) {
+  const dates = [
+    getLastDate(page.emojiReactions),
+    getLastDate(page.likes),
+    getLastDate(page.follows),
+    getLastDate(page.reblogs),
+    getLastDate(page.mentions),
+    getLastDate(page.quotes),
+  ]
+  return Math.max(...dates.filter(Boolean) as number[]) 
+}
+
 export function useNotifications() {
   const { token } = useAuth()
   return useInfiniteQuery({
@@ -111,15 +123,18 @@ export function useNotifications() {
       quotesDate: Date.now(),
       page: 0
     },
-    getNextPageParam: (lastPage, allPages, lastPageParam) => ({
-      likesDate: getLastDate(lastPage.likes) || 0,
-      followsDate: getLastDate(lastPage.follows) || 0,
-      reblogsDate: getLastDate(lastPage.reblogs) || 0,
-      mentionsDate: getLastDate(lastPage.mentions) || 0,
-      emojiReactionDate: getLastDate(lastPage.emojiReactions) || 0,
-      quotesDate: getLastDate(lastPage.quotes) || 0,
-      page: lastPageParam.page + 1
-    }),
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      const endDate = getNotificationPageEnd(lastPage)
+      return {
+        likesDate: endDate,
+        followsDate: endDate,
+        reblogsDate: endDate,
+        mentionsDate: endDate,
+        emojiReactionDate: endDate,
+        quotesDate: endDate,
+        page: lastPageParam.page + 1
+      }
+    },
     enabled: !!token,
   })
 }
@@ -145,7 +160,8 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
 }
 
 export function getNotificationList(pages: NotificationsPage[]) {
-  return pages.flatMap(page => {
+  const list = pages.flatMap(page => {
+    const endDate = getNotificationPageEnd(page)
     const notifications = [] as Notification[]
     notifications.push(...page.follows.map(follow => ({
       type: 'follow' as const,
@@ -192,10 +208,24 @@ export function getNotificationList(pages: NotificationsPage[]) {
         updatedAt: quote.updatedAt,
       }
     }))
-    return notifications.sort((a, b) => {
-      const aTime = new Date(a.createdAt).getTime()
-      const bTime = new Date(b.createdAt).getTime()
-      return bTime - aTime
-    })
+    return notifications
+      .filter((n) => new Date(n.createdAt).getTime() >= endDate)
+      .sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime()
+        const bTime = new Date(b.createdAt).getTime()
+        return bTime - aTime
+      })
+  })
+
+  const seen = new Set<string>()
+  const keyFn = (item: Notification) => `${item.user.url}-${item.createdAt}`
+
+  return list.filter(item => {
+    const key = keyFn(item)
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
   })
 }

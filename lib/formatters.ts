@@ -39,13 +39,13 @@ export function formatUserUrl(user?: PostUser) {
 export function timeAgo(date: string) {
   const day = dayjs(new Date(date))
   const timeAgo = day.fromNow()
-    .replace(/one|an|a /, '1')
     .replace(/ years?/, 'y')
     .replace(/ months?/, 'mo')
     .replace(/ days?/, 'd')
     .replace(/ hours?/, 'h')
     .replace(/ minutes?/, 'm')
     .replace(/ seconds?/, 's')
+    .replace(/^one|^an|^a/, '1')
 
   return timeAgo
 }
