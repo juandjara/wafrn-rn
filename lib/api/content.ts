@@ -227,7 +227,7 @@ export function getYoutubeImage(ytLink: string) {
   }
   const url = new URL(ytLink)
   let videoId = null as string | null
-  if (url.host === 'www.youtube.com') {
+  if (url.host.endsWith('youtube.com')) {
     if (url.pathname === '/watch') {
       videoId = url.searchParams.get('v')
     }

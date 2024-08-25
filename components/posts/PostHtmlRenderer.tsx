@@ -20,8 +20,9 @@ const RENDERER_PROPS = {
   }
 }
 
-const YT_LINKS = [
+const YT_HOSTS = [
   'www.youtube.com',
+  'youtube.com',
   'youtu.be',
 ]
 
@@ -64,8 +65,9 @@ export default function PostHtmlRenderer({
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
         const href = node.attribs.href
+        console.log('ytLink', href)
         if (isValidURL(href)) {
-          return YT_LINKS.includes(new URL(href).host)
+          return YT_HOSTS.includes(new URL(href).host)
         }
       }
       return false
