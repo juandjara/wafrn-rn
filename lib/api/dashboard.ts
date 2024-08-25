@@ -5,6 +5,7 @@ import { DashboardData } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { Timestamps } from "./types";
+import { useNotificationBadges } from "../notifications";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -33,9 +34,14 @@ export async function getDashboard({
 
 export function useDashboard(mode: DashboardMode) {
   const { token } = useAuth()
+  const { refetch: refetchBadge } = useNotificationBadges()
   return useInfiniteQuery({
     queryKey: ['dashboard', mode],
-    queryFn: ({ pageParam }) => getDashboard({ mode, startTime: pageParam, token: token! }),
+    queryFn: async ({ pageParam }) => {
+      const list = await getDashboard({ mode, startTime: pageParam, token: token! })
+      await refetchBadge()
+      return list
+    },
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts)
   })

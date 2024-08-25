@@ -30,7 +30,7 @@ export function useNotificationBadges() {
   const { token } = useAuth()
   const time = useMemo(() => Date.now(), [])
   return useQuery({
-    queryKey: ["notifications", token],
+    queryKey: ["notificationsBadge", token],
     queryFn: () => getNotificationBadges({ token: token!, time }),
     enabled: !!token
   })
@@ -110,10 +110,15 @@ export function getNotificationPageEnd(page: NotificationsPage) {
 }
 
 export function useNotifications() {
+  const { refetch: refetchBadge } = useNotificationBadges()
   const { token } = useAuth()
   return useInfiniteQuery({
     queryKey: ['notifications'],
-    queryFn: ({ pageParam }) => getNotifications({ token: token!, payload: pageParam }),
+    queryFn: async ({ pageParam }) => {
+      const list = await getNotifications({ token: token!, payload: pageParam })
+      await refetchBadge()
+      return list
+    },
     initialPageParam: {
       likesDate: Date.now(),
       followsDate: Date.now(),
