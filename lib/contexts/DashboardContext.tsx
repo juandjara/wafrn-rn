@@ -18,6 +18,7 @@ const DashboardContext = createContext<DashboardContextData>({
   quotedPosts: [],
   quotes: [],
   tags: [],
+  asks: [],
 })
 
 export function DashboardContextProvider({ data, children }: {

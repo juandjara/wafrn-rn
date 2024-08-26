@@ -55,8 +55,8 @@ export function getLastDate(posts: Timestamps[]) {
   return Math.min(...dates)
 }
 
-// TODO: assume everything here could be duplicated data
-// dedupe by id when UI for each part is implemented
+// assume everything here could be duplicated data
+// and dedupe by unique key relevant to each data type
 export function getDashboardContext(data: DashboardData[]) {
   const seen = new Set<string>()
   const context = {
@@ -74,6 +74,7 @@ export function getDashboardContext(data: DashboardData[]) {
     quotedPosts: [],
     quotes: [],
     tags: [],
+    asks: [],
   } as DashboardContextData
 
   for (const page of data) {
@@ -136,6 +137,14 @@ export function getDashboardContext(data: DashboardData[]) {
       if (!seen.has(key)) {
         seen.add(key)
         context.tags.push(...tagGroup.items)
+      }
+    }
+
+    for (const ask of page.asks) {
+      const key = `asks-${ask.postId}-${ask.userAsker}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        context.asks.push(ask)
       }
     }
   }

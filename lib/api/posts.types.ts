@@ -104,5 +104,13 @@ export type DashboardData = {
   quotes: PostQuote[]
   users: PostUser[]
   tags: PostTag[]
+  asks: PostAsk[]
 }
 
+export type PostAsk = Timestamps & {
+  apObject: string // full AP object encoded as JSON, not typed
+  postId: string
+  userAsked: string // ID
+  userAsker: string // ID
+  question: string // raw question text parsed from AP object
+}

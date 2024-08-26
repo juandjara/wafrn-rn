@@ -1,10 +1,10 @@
 import { Post, PostUser } from "@/lib/api/posts.types"
 import { LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
-import { formatCachedUrl, formatDate, formatMediaUrl } from "@/lib/formatters"
+import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
-import { POST_MARGIN } from "@/lib/api/posts"
+import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import { getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
@@ -17,6 +17,7 @@ import ReactionDetailsMenu from "../posts/ReactionDetailsMenu"
 import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 import UserRibbon from "../user/UserRibbon"
 import Poll from "../posts/Poll"
+import HtmlRenderer from "../HtmlRenderer"
 
 const HEIGHT_LIMIT = 300
 
@@ -74,6 +75,19 @@ export default function PostFragment({
   const quotedPost = useMemo(() => {
     const id = context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
     return context.quotedPosts.find((p) => p.id === id)
+  }, [post, context])
+
+  const ask = useMemo(() => {
+    const ask = context.asks.find((a) => a.postId === post.id)
+    if (!ask) {
+      return null
+    }
+    const askUser = context.users.find((u) => u.id === ask.userAsker)
+    return {
+      user: askUser,
+      userName: replaceEmojis(askUser?.name || '', context.emojiRelations.emojis),
+      question: ask.question,
+    }
   }, [post, context])
 
   const poll = useMemo(() => {
@@ -181,6 +195,22 @@ export default function PostFragment({
                     }
                   }}
                 >
+                  {ask && (
+                    <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                      <View className="flex-row gap-2 mb-4 items-center">
+                        <Image
+                          source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
+                          style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+                          className="flex-shrink-0 rounded-md border border-gray-500"
+                        />
+                        <View className="flex-row items-center flex-grow flex-shrink text-white">
+                          <HtmlRenderer html={ask.userName} renderTextRoot />
+                          <Text className="text-white"> asked: </Text>
+                        </View>
+                      </View>
+                      <Text className="text-white my-1">{ask.question}</Text>
+                    </View>
+                  )}
                   <PostHtmlRenderer
                     html={postContent}
                     contentWidth={contentWidth}
