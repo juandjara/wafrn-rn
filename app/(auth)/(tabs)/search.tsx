@@ -10,8 +10,9 @@ import { buttonCN } from "@/lib/styles"
 import useAsyncStorage from "@/lib/useLocalStorage"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
+import clsx from "clsx"
 import { Stack } from "expo-router"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { FlatList, LayoutAnimation, Pressable, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { TabView } from "react-native-tab-view"
 import colors from "tailwindcss/colors"
@@ -212,6 +213,16 @@ function SearchResults({ query }: { query: string }) {
     })
   }, [data?.pages])
 
+  useEffect(() => {
+    if (view === SearchView.Users && users.length === 0) {
+      setView(SearchView.Posts)
+    }
+    if (view === SearchView.Posts && deduped.length === 0) {
+      setView(SearchView.Users)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deduped, users])
+
   if (!data) {
     return <Loading />
   }
@@ -221,7 +232,12 @@ function SearchResults({ query }: { query: string }) {
       <View className="h-full">
         <TabView
           renderTabBar={(props) => (
-            <SearchViewSelect view={view} setView={setView} />
+            <SearchViewSelect
+              view={view}
+              setView={setView}
+              numPosts={deduped.length}
+              numUsers={users.length}
+            />
           )}
           navigationState={{
             index: view === SearchView.Posts ? 0 : 1,
@@ -244,7 +260,17 @@ function SearchResults({ query }: { query: string }) {
                   onEndReached={() => (
                     view === SearchView.Posts && hasNextPage && !isFetching && fetchNextPage()
                   )}
-                  ListFooterComponent={isFetching ? <Loading /> : null}
+                  ListFooterComponent={
+                    isFetching
+                      ? <Loading />
+                      : (
+                        <View>
+                          {deduped.length === 0 && (
+                            <Text className="text-white text-center py-4">No posts found</Text>
+                          )}
+                        </View>
+                      )
+                  }
                 />
               )
             }
@@ -276,17 +302,40 @@ function SearchResults({ query }: { query: string }) {
   )
 }
 
-function SearchViewSelect({ view, setView }: {
+function SearchViewSelect({
+  view,
+  setView,
+  numPosts,
+  numUsers,
+}: {
   view: SearchView
   setView: (view: SearchView) => void
+  numPosts: number
+  numUsers: number
 }) {
   return (
     <View className="flex-row gap-2 p-2">
       <Pressable onPress={() => setView(SearchView.Posts)}>
-        <Text className={view === SearchView.Posts ? buttonCN : 'text-gray-300 py-2 px-3'}>Posts</Text>
+        <Text
+          className={clsx(
+            'py-2 px-3 rounded-full',
+            { 'opacity-50': numPosts === 0 },
+            view === SearchView.Posts
+              ? 'text-indigo-500 bg-indigo-500/20'
+              : 'text-gray-300'
+          )}
+        >Posts</Text>
       </Pressable>
       <Pressable onPress={() => setView(SearchView.Users)}>
-        <Text className={view === SearchView.Users ? buttonCN : 'text-gray-300 py-2 px-3'}>Users</Text>
+        <Text
+          className={clsx(
+            'py-2 px-3 rounded-full',
+            { 'opacity-50': numUsers === 0 },
+            view === SearchView.Users
+              ? 'text-indigo-500 bg-indigo-500/20'
+              : 'text-gray-300'
+          )}
+        >Users</Text>
       </Pressable>
     </View>
   )
