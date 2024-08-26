@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON, statusError, StatusError } from "../http"
@@ -113,4 +113,22 @@ export function sortPosts(a: Timestamps, b: Timestamps) {
   const aTime = new Date(a.createdAt).getTime()
   const bTime = new Date(b.createdAt).getTime()
   return aTime - bTime
+}
+
+export async function requestMoreRemoteReplies(token: string, id: string) {
+  await getJSON(`${API_URL}/loadRemoteResponses?id=${id}`, {
+    headers: {  'Authorization': `Bearer ${token}` }
+  })
+}
+
+export function useRemoteRepliesMutation(postId: string) {
+  const { token } = useAuth()
+  const { refetch } = usePostReplies(postId)
+  return useMutation({
+    mutationKey: ['loadRemoteReplies', postId],
+    mutationFn: async () => {
+      await requestMoreRemoteReplies(token!, postId)
+      await refetch()
+    },
+  })
 }

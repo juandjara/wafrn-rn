@@ -1,12 +1,13 @@
 import CornerButtonContainer, { CornerButtonContainerRef } from "@/components/CornerButtonContainer"
 import PostFragment from "@/components/dashboard/PostFragment"
+import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { sortPosts, usePostDetail, usePostReplies } from "@/lib/api/posts"
+import { sortPosts, usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
 import { DashboardData, Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
@@ -33,6 +34,7 @@ export default function PostDetail() {
     refetch: refetchReplies,
     error: repliesError,
   } = usePostReplies(postid as string)
+  const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
 
   const {
     mainPost,
@@ -263,7 +265,25 @@ export default function PostDetail() {
         onScroll={(ev) => {
           cornerButtonRef.current?.scroll(ev.nativeEvent.contentOffset.y)
         }}
-        ListFooterComponent={<View className="h-12" />}
+        ListFooterComponent={(
+          <View className="my-8">
+            {mainPost?.remotePostId && (
+              <>
+                {remoteRepliesMutation.isPending && <Loading />}
+                <Text
+                  onPress={() => remoteRepliesMutation.mutate()}
+                  className={clsx(
+                    'text-center items-center mx-4 py-3 rounded-full',
+                    { 'opacity-50 text-gray-300 bg-gray-600/50': remoteRepliesMutation.isPending },
+                    { 'text-indigo-400 bg-indigo-950 active:bg-indigo-900': remoteRepliesMutation.isIdle }
+                  )}
+                >
+                  Fetch more replies from remote instance
+                </Text>
+              </>
+            )}
+          </View>
+        )}
       />
       <CornerButtonContainer ref={cornerButtonRef}>
         <Pressable
