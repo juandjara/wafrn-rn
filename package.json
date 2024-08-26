@@ -21,10 +21,12 @@
     "@react-native-picker/picker": "2.7.5",
     "@react-navigation/native": "^6.0.2",
     "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
+    "@shopify/flash-list": "1.6.4",
     "@tanstack/react-query": "^5.51.1",
     "@types/probe-image-size": "^7.2.5",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "emoji-datasource": "^15.1.2",
     "expo": "~51.0.20",
     "expo-av": "~14.0.6",
     "expo-constants": "~16.0.2",
@@ -57,8 +59,7 @@
     "react-native-svg": "^15.5.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.10",
-    "tailwindcss": "^3.4.5",
-    "@shopify/flash-list": "1.6.4"
+    "tailwindcss": "^3.4.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
