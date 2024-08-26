@@ -7,13 +7,20 @@ import { DashboardData, Post, PostEmojiReaction, PostMedia, PostQuote, PostUser,
 import { Follow } from "./api/user"
 import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
-import { getLastDate } from "./api/dashboard"
 
 type NotificationsBadges = {
   notifications: number
   followsAwaitingAproval: number
   reports: number
   usersAwaitingAproval: number
+}
+
+function getLastDate(posts: Timestamps[]) {
+  if (!posts.length) {
+    return undefined
+  }
+  const dates = posts.map((post) => new Date(post.createdAt).getTime())
+  return Math.min(...dates)
 }
 
 export async function getNotificationBadges({ token, time }: { token: string; time: number }) {
