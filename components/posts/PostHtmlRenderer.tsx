@@ -65,7 +65,6 @@ export default function PostHtmlRenderer({
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
         const href = node.attribs.href
-        console.log('ytLink', href)
         if (isValidURL(href)) {
           return YT_HOSTS.includes(new URL(href).host)
         }
