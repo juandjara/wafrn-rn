@@ -63,6 +63,7 @@ export default function Media({ hidden, media, contentWidth }: {
             aspectRatio={aspectRatio}
             contentFit="cover"
             className="rounded-t-md max-w-full"
+            imgClassName="rounded-t-md"
           />
         )}
         {isNotAV(src) && (

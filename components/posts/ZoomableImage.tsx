@@ -15,7 +15,8 @@ export default function ZoomableImage({
   contentFit,
   width,
   aspectRatio,
-  className
+  className,
+  imgClassName,
 }: {
   id: string
   src: string
@@ -25,6 +26,7 @@ export default function ZoomableImage({
   width: number
   aspectRatio: number
   className?: string
+  imgClassName?: string
 }) {
   const [modalOpen, setModalOpen] = useState(false)
   const { width: deviceWidth } = useWindowDimensions()
@@ -77,6 +79,7 @@ export default function ZoomableImage({
             cachePolicy={'memory-disk'}
             recyclingKey={id}
             source={src}
+            className={imgClassName}
             style={[style, {
               width,
               height: width * aspectRatio,

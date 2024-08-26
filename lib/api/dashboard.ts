@@ -140,7 +140,7 @@ export function getDashboardContext(data: DashboardData[]) {
       }
     }
 
-    for (const ask of page.asks) {
+    for (const ask of (page.asks || [])) {
       const key = `asks-${ask.postId}-${ask.userAsker}`
       if (!seen.has(key)) {
         seen.add(key)

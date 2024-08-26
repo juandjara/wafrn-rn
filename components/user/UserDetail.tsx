@@ -83,6 +83,7 @@ export default function UserDetail({ user }: { user: User }) {
           width={150}
           aspectRatio={1}
           className="rounded-lg border border-gray-500 bg-black"
+          imgClassName="rounded-lg"
         />
       </View>
       <View className="items-center justify-center">
@@ -164,37 +165,39 @@ export default function UserDetail({ user }: { user: User }) {
             </Pressable>
           </Link>
         </View>
-        <View style={{ maxWidth: width - 48, paddingVertical: 8 }}>
-          <PostHtmlRenderer
-            html={description}
-            contentWidth={width - 48}
-            disableWhitespaceCollapsing
-          />
-        </View>
-        <View id='custom-fields' style={{ width: width - 48 }}>
-          {customFields.map((field) => (
-            <View key={field.name} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
-              <View className="flex-row">
-                <HtmlRenderer
-                  html={field.name}
-                  color={colors.gray[400]}
-                  renderTextRoot
-                />
-              </View>
-              <View className="mt-3 items-start">
-                {isValidURL(field.value) ? (
-                  <Link href={field.value.startsWith('http') ? field.value : `http://${field.value}`}>
-                    <Text className="text-cyan-500">{field.value}</Text>
-                  </Link>
-                ) : (
-                  <PostHtmlRenderer
-                    html={field.value}
-                    contentWidth={width - 48}
+        <View style={{ maxWidth: width - 48 }}>  
+          <View style={{ paddingVertical: 8 }}>
+            <PostHtmlRenderer
+              html={description}
+              contentWidth={width - 48}
+              disableWhitespaceCollapsing
+            />
+          </View>
+          <View id='custom-fields'>
+            {customFields.map((field) => (
+              <View key={field.name} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
+                <View className="flex-row">
+                  <HtmlRenderer
+                    html={field.name}
+                    color={colors.gray[400]}
+                    renderTextRoot
                   />
-                )}
+                </View>
+                <View className="mt-3 items-start">
+                  {isValidURL(field.value) ? (
+                    <Link href={field.value.startsWith('http') ? field.value : `http://${field.value}`}>
+                      <Text className="text-cyan-500">{field.value}</Text>
+                    </Link>
+                  ) : (
+                    <PostHtmlRenderer
+                      html={field.value}
+                      contentWidth={width - 48}
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
           <Text className="text-white text-sm text-center mt-2">
             Joined {new Date(user.createdAt).toLocaleDateString()}
           </Text>
