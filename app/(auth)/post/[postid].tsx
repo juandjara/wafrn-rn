@@ -42,8 +42,6 @@ export default function PostDetail() {
     context,
     userMap,
     userNames,
-    numReplies,
-    numRewoots,
   } = useMemo(() => {
     const context = getDashboardContext(
       [postData, repliesData].filter(Boolean) as DashboardData[]
@@ -52,7 +50,17 @@ export default function PostDetail() {
     const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
     const replies = repliesData?.posts || []
     const numRewoots = replies.filter((p) => isEmptyRewoot(p, context) && p.parentId === postid).length
-    const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length 
+    const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length
+    let separatorText = ''
+    if (numReplies > 0) {
+      separatorText += `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}`
+    }
+    if (numReplies > 0 && numRewoots > 0) {
+      separatorText += ', '
+    }
+    if (numRewoots > 0) {
+      separatorText += `${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
+    }
 
     const mainPost = postData?.posts?.[0]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
@@ -98,13 +106,13 @@ export default function PostDetail() {
       { type: 'go-to-bottom' as const, data: null },
       // { type: 'posts', data: thread },
       ...thread.map((post) => ({ type: 'posts' as const, data: post })),
-      { type: 'separator' as const, data: null },
+      { type: 'separator' as const, data: separatorText },
       // { type: 'replies', data: fullReplies },
       ...fullReplies.map((post) => ({ type: 'replies' as const, data: post })),
       { type: 'error' as const, data: repliesError },
     ]
 
-    return { mainPost, sectionData, context, userMap, userNames, numReplies, numRewoots }
+    return { mainPost, sectionData, context, userMap, userNames }
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<typeof sectionData[number]>>(null)
@@ -247,11 +255,9 @@ export default function PostDetail() {
                     <InteractionRibbon post={mainPost} />
                   </View>
                 )}
-                <Text className="text-gray-300 mt-4 px-3 py-1">
-                  {numReplies > 0 && <Text>{numReplies} {pluralize(numReplies, 'reply', 'replies')}</Text>}
-                  {numReplies > 0 && numRewoots > 0 && <Text>, </Text>}
-                  {numRewoots > 0 && <Text>{numRewoots} {pluralize(numRewoots, 'rewoot')}</Text>}
-                </Text>
+                {item.data && (
+                  <Text className="text-gray-300 mt-4 px-3 py-1">{item.data}</Text>
+                )}
               </View>
             )
           }
