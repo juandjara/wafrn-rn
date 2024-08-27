@@ -16,12 +16,11 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { FlashList } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useMemo, useRef, useState } from "react"
-import { Pressable, Text, useWindowDimensions, View } from "react-native"
+import { useMemo, useRef } from "react"
+import { Pressable, Text, View } from "react-native"
 
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
-  const { width } = useWindowDimensions()
   const {
     data: postData,
     isFetching: postFetching,
@@ -65,16 +64,18 @@ export default function PostDetail() {
     const mainPost = postData?.posts?.[0]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
-      .map((a) => ({
+      .sort(sortPosts)  
+      .map((a, i) => ({
         ...a,
-        index: 0,
+        cwIndex: 0,
+        listIndex: i + 1,
         className: 'border-t border-slate-600 bg-indigo-900/50',
-      }))
-      .sort(sortPosts) || []
+      })) || []
 
     const mainFragment = mainPost && {
       ...mainPost,
-      index: 0,
+      cwIndex: 0,
+      listIndex: ancestors.length,
       className: clsx(
         'bg-indigo-950 border-slate-600',
         {
@@ -95,12 +96,13 @@ export default function PostDetail() {
     const fullReplies = repliesData?.posts
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
+      .sort(sortPosts)
       .map((p, i) => ({
         ...p,
-        index: i + 1,
+        listIndex: i + 1 + thread.length,
+        cwIndex: i + 1,
         className: '',
-      }))
-      .sort(sortPosts) || []
+      })) || []
 
     const sectionData = [
       { type: 'go-to-bottom' as const, data: null },
@@ -118,19 +120,8 @@ export default function PostDetail() {
   const listRef = useRef<FlashList<typeof sectionData[number]>>(null)
   const cornerButtonRef = useRef<CornerButtonContainerRef>(null)
 
-  const [cws, setCws] = useState<boolean[]>([])
-
-  function toggleCW(index: number) {
-    listRef.current?.prepareForLayoutAnimationRender()
-    setCws((prev) => {
-      const copy = [...prev]
-      copy[index] = !copy[index]
-      return copy
-    })
-  }
-  
   function scrollToThreadEnd(animated?: boolean) {
-    listRef.current?.scrollToIndex({ index: mainPost?.ancestors.length! })
+    listRef.current?.scrollToIndex({ index: (mainPost?.ancestors.length || 0) + 1 })
   }
 
   if (postError) {
@@ -162,10 +153,9 @@ export default function PostDetail() {
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Woot Detail' }} />
       <FlashList
-        extraData={cws}
         ref={listRef}
         data={sectionData}
-        estimatedItemSize={width * 0.5}
+        estimatedItemSize={300}
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {
             return item.data.id
@@ -198,6 +188,7 @@ export default function PostDetail() {
             if (isRewoot) {
               return (
                 <RewootRibbon
+                  key={post.userId}
                   user={userMap[post.userId]}
                   userNameHTML={userNames[post.userId]}
                   className="my-2"
@@ -205,12 +196,8 @@ export default function PostDetail() {
               )
             } else {
               return (
-                <View className="my-2 relative bg-blue-950">
-                  <PostFragment
-                    post={post}
-                    CWOpen={cws[post.index]}
-                    toggleCWOpen={() => toggleCW(post.index)}
-                  />
+                <View key={post.id} className="my-2 relative bg-blue-950">
+                  <PostFragment post={post} listRef={listRef} />
                   <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
                     <MaterialCommunityIcons
                       name="reply"
@@ -225,12 +212,8 @@ export default function PostDetail() {
           if (item.type === 'posts') {
             const post = item.data
             return (
-              <View className={post.className}>
-                <PostFragment
-                  post={post}
-                  CWOpen={cws[post.index]}
-                  toggleCWOpen={() => toggleCW(post.index)}
-                />
+              <View key={post.id} className={post.className}>
+                <PostFragment post={post} listRef={listRef} />
               </View>
             )
           }

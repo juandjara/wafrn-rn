@@ -10,10 +10,10 @@ import MediaCloak from "./MediaCloak";
 
 export const MEDIA_MARGIN = -2
 
-export default function Media({ hidden, media, contentWidth }: {
-  hidden: boolean
+export default function Media({ media, contentWidth, hidden }: {
   media: PostMedia
   contentWidth: number
+  hidden?: boolean
 }) {
   const src = formatCachedUrl(formatMediaUrl(media.url))
   const aspectRatio = useAspectRatio(media)

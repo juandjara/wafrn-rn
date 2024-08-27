@@ -11,6 +11,7 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
   const totalVotes = useMemo(() => poll.questionPollQuestions.reduce((acc, q) => acc + q.remoteReplies, 0), [poll])
   const haveIVoted = useMemo(() => poll.questionPollQuestions.some((q) => q.questionPollAnswers.some((a) => a.userId === me?.userId)), [poll, me])
   const [localVote, setLocalVote] = useState<number[]>([])
+  const isEnded = new Date(poll.endDate) < new Date()
   
   function getIcon(index: number) {
     const question = poll.questionPollQuestions[index]
@@ -24,7 +25,7 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
   }
 
   function doLocalVote(index: number) {
-    if (haveIVoted) {
+    if (haveIVoted || isEnded) {
       return
     }
 
@@ -47,13 +48,13 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
   }
 
   return (
-    <View>
+    <View className="my-2">
       {poll.questionPollQuestions.map((q, i) => (
         <Pressable
           key={q.id}
           className={clsx(
-            'relative border border-gray-600 mb-2',
-            getQuestionPercentage(i) > 0 ? 'rounded-t-xl' : 'rounded-xl',
+            'relative border border-gray-600 mb-2 rounded-xl',
+            // getQuestionPercentage(i) > 0 ? 'rounded-t-xl' : 'rounded-xl',
             {
               'active:bg-white/20': !haveIVoted,
             },
@@ -66,7 +67,10 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
             <Text className="text-white">{`${(getQuestionPercentage(i) * 100).toFixed()} %`}</Text>
           </View>
           <View
-            className="absolute -bottom-0.5 left-0 right-0"
+            className={clsx(
+              'absolute -bottom-0.5 left-0 right-0 mx-1',
+              getQuestionPercentage(i) === 1 ? 'rounded-b-lg' : 'rounded-bl-lg',
+            )}
             style={{
               height: 3,
               backgroundColor: colors.blue[500],
@@ -78,14 +82,14 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
       <Pressable
         onPress={() => onVote(localVote)}
         disabled={localVote.length === 0}
-        className="mt-1 mb-3 p-2 bg-blue-500/75 active:bg-blue-600/50 disabled:bg-white/20 rounded-full"
+        className="mt-1 mb-2 p-2 bg-blue-500/75 active:bg-blue-600/50 disabled:bg-white/20 rounded-full"
       >
         <Text className="text-white text-center text-lg">
           {haveIVoted ? "Already voted" : "Vote"}
         </Text>
       </Pressable>
       <Text className="my-2 text-sm text-gray-200">
-        {totalVotes} votes - ends at {new Date(poll.endDate).toLocaleString()}
+        {totalVotes} votes - {isEnded ? 'ended' : `ends at ${new Date(poll.endDate).toLocaleString()}`}
       </Text>
     </View>
   )

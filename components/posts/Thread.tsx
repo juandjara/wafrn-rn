@@ -1,5 +1,5 @@
 import { Post, PostThread } from "@/lib/api/posts.types"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
@@ -17,7 +17,6 @@ const ANCESTOR_LIMIT = 3
 
 export default function Thread({ thread }: { thread: PostThread }) {
   const { data: settings } = useSettings()
-  const [CWOpen, setCWOpen] = useState(false)
   const context = useDashboardContext()
   const { isRewoot, isReply, postUser, postUserName } = useMemo(() => {
     const isRewoot = isEmptyRewoot(thread, context)
@@ -46,10 +45,6 @@ export default function Thread({ thread }: { thread: PostThread }) {
       ? { ...rewootAncestor, notes: thread.notes }
       : thread
   }, [isRewoot, thread])
-
-  function toggleCW() {
-    setCWOpen(o => !o)
-  }
   
   function shouldHide(post: Post) {
     if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {
@@ -89,11 +84,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
       {thread.ancestors.length >= ANCESTOR_LIMIT ? (
         <>
           <View className="bg-indigo-900/50">
-            <PostFragment
-              CWOpen={CWOpen}
-              toggleCWOpen={toggleCW}
-              post={ancestors[0]}
-            />
+            <PostFragment post={ancestors[0]} />
           </View>
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
             <Link href={`/post/${interactionPost.id}`} className="text-sm text-white p-2">
@@ -101,11 +92,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
             </Link>
           </View>
           <View className="bg-indigo-900/50">
-            <PostFragment
-              CWOpen={CWOpen}
-              toggleCWOpen={toggleCW}
-              post={ancestors[ancestors.length - 1]}
-            />
+            <PostFragment post={ancestors[ancestors.length - 1]} />
           </View>
         </>
       ) : (
@@ -117,11 +104,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
               { 'border-t': index > 0 }
             )}
           >
-            <PostFragment
-              CWOpen={CWOpen}
-              toggleCWOpen={toggleCW}
-              post={ancestor}
-            />
+            <PostFragment post={ancestor} />
           </View>
         ))
       )}
@@ -129,11 +112,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
         'bg-indigo-950',
         { 'border-t border-slate-600': !isRewoot && ancestors.length > 0 },
       )}>
-        <PostFragment
-          post={thread}
-          CWOpen={CWOpen}
-          toggleCWOpen={toggleCW}
-        />
+        <PostFragment post={thread} />
         <InteractionRibbon post={interactionPost} />
       </View>
     </View>

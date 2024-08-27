@@ -1,5 +1,5 @@
 import { Post, PostUser } from "@/lib/api/posts.types"
-import { LayoutAnimation, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useState } from "react"
@@ -9,7 +9,6 @@ import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import { getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import clsx from "clsx"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { LinearGradient } from "expo-linear-gradient"
@@ -18,22 +17,20 @@ import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 import UserRibbon from "../user/UserRibbon"
 import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
+import useLayoutAnimation from "@/lib/useLayoutAnimation"
 
-const HEIGHT_LIMIT = 300
+const HEIGHT_LIMIT = 400
 
 export default function PostFragment({
   post,
   isQuote,
-  CWOpen,
-  toggleCWOpen
 }: {
   post: Post
   isQuote?: boolean
-  CWOpen: boolean
-  toggleCWOpen: () => void
 }) {
-  const [showMore, setShowMore] = useState(true)
-  const [showMoreToggle, setShowMoreToggle] = useState(false)
+  const [CWOpen, setCWOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [shouldCollapse, setShouldCollapse] = useState(false)
 
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
@@ -104,10 +101,16 @@ export default function PostFragment({
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
+  const animate = useLayoutAnimation()
 
-  function _toggleCW() {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    toggleCWOpen()
+  function toggleCWOpen() {
+    animate()
+    setCWOpen((o) => !o)
+  }
+
+  function toggleShowMore() {
+    animate()
+    setCollapsed((c) => !c)
   }
 
   function onPollVote(indexes: number[]) {
@@ -140,7 +143,7 @@ export default function PostFragment({
         <View id='content'>
           {post.content_warning && (
             <View
-              id='content-warning-message'
+              id='content-warning-indicator'
               className='flex-row items-start gap-3 my-4 p-2 border border-yellow-300 rounded-xl'
             >
               <View className="ml-1 gap-1">
@@ -167,8 +170,9 @@ export default function PostFragment({
               <View className="flex-shrink flex-grow gap-2">
                 <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
                 <TouchableOpacity
+                  id='content-warning-toggle'
                   className="mr-auto px-2 py-1 bg-indigo-500/20 rounded-full"
-                  onPress={_toggleCW}
+                  onPress={toggleCWOpen}
                 >
                   <Text className='text-indigo-500 text-sm'>
                     {CWOpen ? 'Hide' : 'Show'} content
@@ -177,171 +181,158 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          {hideContent ? null : (
-            <>              
-              <View id='show-more-container' className="relative pb-2">
-                <View
-                  id='show-more-content'
-                  style={{
-                    overflow: 'hidden',
-                    maxHeight: showMore ? undefined : HEIGHT_LIMIT,
-                    paddingBottom: showMoreToggle && showMore ? 28 : 4,
-                  }}
-                  onLayout={(ev) => {
-                    const height = ev.nativeEvent.layout.height
-                    if (height > HEIGHT_LIMIT && !showMoreToggle) {
-                      setShowMoreToggle(true)
-                      setShowMore(false)
-                    }
-                  }}
-                >
-                  {ask && (
-                    <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
-                      <View className="flex-row gap-2 mb-4 items-center">
-                        <Image
-                          source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
-                          style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-                          className="flex-shrink-0 rounded-md border border-gray-500"
-                        />
-                        <View className="flex-row items-center flex-grow flex-shrink text-white">
-                          <HtmlRenderer html={ask.userName} renderTextRoot />
-                          <Text className="text-white"> asked: </Text>
-                        </View>
-                      </View>
-                      <Text className="text-white my-1">{ask.question}</Text>
-                    </View>
-                  )}
-                  <PostHtmlRenderer
-                    html={postContent}
-                    contentWidth={contentWidth}
-                    hidden={hideContent}
-                    disableWhitespaceCollapsing
+          <View
+            className="content-warning-content"
+            style={{ height: hideContent ? 0 : 'auto', overflow: 'hidden' }}
+          >
+            {ask && (
+              <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                <View className="flex-row gap-2 mb-4 items-center">
+                  <Image
+                    source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
+                    style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+                    className="flex-shrink-0 rounded-md border border-gray-500"
                   />
+                  <View className="flex-row items-center flex-grow flex-shrink text-white">
+                    <HtmlRenderer html={ask.userName} renderTextRoot />
+                    <Text className="text-white"> asked: </Text>
+                  </View>
                 </View>
-                {showMoreToggle && (
-                  <LinearGradient
+                <Text className="text-white my-1">{ask.question}</Text>
+              </View>
+            )}
+            <View id='show-more-container' className="relative pb-2">
+              <View
+                id='show-more-content'
+                style={collapsed ? {
+                  overflow: 'hidden',
+                  maxHeight: HEIGHT_LIMIT,
+                  paddingBottom: 4,
+                } : {
+                  paddingBottom: shouldCollapse ? 28 : 4,
+                }}
+                onLayout={(ev) => {
+                  const h = ev.nativeEvent.layout.height
+                  if (h > HEIGHT_LIMIT && !shouldCollapse) {
+                    setShouldCollapse(true)
+                    setCollapsed(true)
+                  }
+                }}
+              >
+                <PostHtmlRenderer
+                  html={postContent}
+                  contentWidth={contentWidth}
+                  disableWhitespaceCollapsing
+                />
+              </View>
+              {shouldCollapse && (
+                <LinearGradient
+                  id='show-more-backdrop'
+                  colors={['transparent', colors.indigo[950]]}
+                  className='flex-row justify-center absolute pt-10 px-2 bottom-0 left-0 right-0'
+                >
+                  <Pressable
                     id='show-more-toggle'
-                    colors={[
-                      'transparent',
-                      colors.indigo[900],
-                    ]}
-                    className={clsx(
-                      'flex-row justify-center absolute pt-4 pb-2 px-2 bottom-0 -left-3 -right-3',
-                      { 'opacity-0': hideContent }
+                    className="active:bg-white/10 px-3 py-1 rounded-full border border-indigo-500"
+                    onPress={toggleShowMore}
+                  >
+                    <Text className='text-indigo-500'>
+                      {collapsed ? 'Show more' : 'Show less'}
+                    </Text>
+                  </Pressable>
+                </LinearGradient>
+              )}
+            </View>
+            {medias.length > 0 && (
+              <View 
+                id='media-list'
+                className='pt-4 pb-2'
+              >
+                {medias.map((media, index) => (
+                  <Media
+                    key={`${media.id}-${index}`}
+                    media={media}
+                    contentWidth={contentWidth}
+                  />
+                ))}
+              </View>
+            )}
+            {poll && (
+              <Poll poll={poll} onVote={onPollVote} />
+            )}
+            {tags.length > 0 && (
+              <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
+                {tags.map((tag, index) => (
+                  <Link
+                    key={`${tag}-${index}`}
+                    href={`/tag/${tag}`}
+                    className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </View>
+            )}
+            {quotedPost && (
+              <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                <PostFragment isQuote post={quotedPost} />
+              </View>
+            )}
+          </View>
+        </View>
+        {hasReactions && (
+          <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
+            {likes.length > 0 && (
+              <ReactionDetailsMenu
+                users={likes.map((l) => l.user).filter(l => l) as PostUser[]}
+                reaction='liked'
+              >
+                <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                  ❤️ {likes.length}
+                </Text>
+              </ReactionDetailsMenu>
+            )}
+            {reactions.map((r) => {
+              if (typeof r.emoji === 'string') {
+                return (
+                  <ReactionDetailsMenu
+                    key={r.id}
+                    users={r.users}
+                    reaction={r.emoji}
+                  >
+                    <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+                      {r.emoji} {r.users.length}
+                    </Text>
+                  </ReactionDetailsMenu>
+                )
+              } else {
+                return (
+                  <ReactionDetailsMenu
+                    key={r.id}
+                    users={r.users}
+                    reactionName={r.emoji.name}
+                    reaction={(
+                      <Image
+                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
+                      />
                     )}
                   >
-                    <Pressable
-                      className="bg-indigo-950 px-3 py-1 rounded-full"
-                      onPress={() => {
-                        if (!hideContent) {
-                          setShowMore(e => !e)
-                        }
-                      }}
-                    >
-                      <Text className='text-indigo-500'>
-                        {showMore ? 'Show less' : 'Show more'}
+                    <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+                      <Image
+                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
+                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
+                      />
+                      <Text className="text-gray-200">
+                        {r.users.length}
                       </Text>
-                    </Pressable>
-                  </LinearGradient>
-                )}
-              </View>
-              {medias.length > 0 && (
-                <View 
-                  id='media-list'
-                  className='pt-4 pb-2'
-                >
-                  {medias.map((media, index) => (
-                    <Media
-                      key={`${media.id}-${index}`}
-                      hidden={hideContent}
-                      media={media}
-                      contentWidth={contentWidth}
-                    />
-                  ))}
-                </View>
-              )}
-              {tags.length > 0 && (
-                <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
-                  {tags.map((tag, index) => (
-                    <Link
-                      key={`${tag}-${index}`}
-                      href={`/tag/${tag}`}
-                      className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </View>
-              )}
-              {poll && (
-                <Poll poll={poll} onVote={onPollVote} />
-              )}
-              {quotedPost && (
-                <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
-                  <PostFragment
-                    isQuote
-                    post={quotedPost}
-                    CWOpen={CWOpen}
-                    toggleCWOpen={_toggleCW}
-                  />
-                </View>
-              )}
-            </>
-          )}
-          {hasReactions && (
-            <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-              {likes.length > 0 && (
-                <ReactionDetailsMenu
-                  users={likes.map((l) => l.user).filter(l => l) as PostUser[]}
-                  reaction='liked'
-                >
-                  <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                    ❤️ {likes.length}
-                  </Text>
-                </ReactionDetailsMenu>
-              )}
-              {reactions.map((r) => {
-                if (typeof r.emoji === 'string') {
-                  return (
-                    <ReactionDetailsMenu
-                      key={r.id}
-                      users={r.users}
-                      reaction={r.emoji}
-                    >
-                      <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                        {r.emoji} {r.users.length}
-                      </Text>
-                    </ReactionDetailsMenu>
-                  )
-                } else {
-                  return (
-                    <ReactionDetailsMenu
-                      key={r.id}
-                      users={r.users}
-                      reactionName={r.emoji.name}
-                      reaction={(
-                        <Image
-                          source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                          style={{ resizeMode: 'contain', width: 20, height: 20 }}
-                        />
-                      )}
-                    >
-                      <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
-                        <Image
-                          source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                          style={{ resizeMode: 'contain', width: 20, height: 20 }}
-                        />
-                        <Text className="text-gray-200">
-                          {r.users.length}
-                        </Text>
-                      </View>
-                    </ReactionDetailsMenu>
-                  )
-                }
-              })}
-            </View>
-          )}
-        </View>
+                    </View>
+                  </ReactionDetailsMenu>
+                )
+              }
+            })}
+          </View>
+        )}
       </Root>
     </Link>
   )

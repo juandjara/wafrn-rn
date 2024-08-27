@@ -7,13 +7,14 @@ import { useAuth } from "@/lib/contexts/AuthContext"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
 import { buttonCN } from "@/lib/styles"
+import useLayoutAnimation from "@/lib/useLayoutAnimation"
 import useAsyncStorage from "@/lib/useLocalStorage"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import { Stack } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
-import { FlatList, LayoutAnimation, Pressable, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { FlatList, Pressable, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { TabView } from "react-native-tab-view"
 import colors from "tailwindcss/colors"
 
@@ -24,6 +25,7 @@ export default function Search() {
   const [searchTerm, setSearchTerm] = useState('')
   const [query, setQuery] = useState('')
   const { value: recent, setValue: setRecent } = useAsyncStorage<string[]>('searchHistory', [])
+  const animate = useLayoutAnimation()
 
   function onSubmit() {
     setQuery(searchTerm)
@@ -42,8 +44,7 @@ export default function Search() {
   }
 
   function toggleTips() {
-    // magic automatic transitions
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    animate()
     setShowTips((f) => !f)
   }
 
