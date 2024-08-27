@@ -46,7 +46,6 @@ export default function ZoomableImage({
             <ReactNativeZoomableView
               minZoom={1}
               maxZoom={30}
-              disablePanOnInitialZoom
               contentWidth={deviceWidth}
             >
               {isSVG(src) ? (

@@ -3,7 +3,7 @@ import { API_URL } from "./config"
 import { getJSON } from "./http"
 import { useAuth } from "./contexts/AuthContext"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { DashboardData, Post, PostEmojiReaction, PostMedia, PostQuote, PostUser, PostUserRelation } from "./api/posts.types"
+import { DashboardData, Post, PostAsk, PostEmojiReaction, PostMedia, PostQuote, PostUser, PostUserRelation } from "./api/posts.types"
 import { Follow } from "./api/user"
 import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
@@ -64,6 +64,7 @@ type NotificationsPage = {
   follows: Follow['follows'][]
   medias: PostMedia[]
   quotes: PostQuote[]
+  asks: PostAsk[]
 }
 
 export type Notification = Timestamps & NotificationDetails & { user: Omit<PostUser, 'remoteId'> }
@@ -168,6 +169,7 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
     posts: [],
     quotedPosts: page.posts.filter((p) => page.quotes.some((q) => q.quotedPostId === p.id)),
     quotes: page.quotes,
+    asks: page.asks,
   } satisfies DashboardData
 }
 
