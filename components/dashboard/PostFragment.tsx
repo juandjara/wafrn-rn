@@ -2,7 +2,7 @@ import { Post, PostUser } from "@/lib/api/posts.types"
 import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -30,7 +30,24 @@ export default function PostFragment({
 }) {
   const [CWOpen, setCWOpen] = useState(!post.content_warning)
   const [collapsed, setCollapsed] = useState(true)
-  const [showExpander, setShowExpander] = useState(true)
+  const [showExpander, setShowExpander] = useState(false)
+
+  const maxHeight = useMemo(() => {
+    if (!CWOpen) {
+      return 0
+    }
+    if (CWOpen && collapsed) {
+      return HEIGHT_LIMIT
+    }
+    return undefined
+  }, [CWOpen, collapsed])
+
+  // reset collapsed state when post changes (changing prop from recycled component)
+  useEffect(() => {
+    setCWOpen(!post.content_warning)
+    setCollapsed(true)
+    setShowExpander(false)
+  }, [post])
 
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
@@ -183,99 +200,94 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          <View
-            id="content-warning-content"
-            style={{ height: CWOpen ? 'auto' : 0, overflow: 'hidden' }}
-          >
-            {ask && (
-              <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
-                <View className="flex-row gap-2 mb-4 items-center">
-                  <Image
-                    source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
-                    style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-                    className="flex-shrink-0 rounded-md border border-gray-500"
-                  />
-                  <View className="flex-row items-center flex-grow flex-shrink text-white">
-                    <HtmlRenderer html={ask.userName} renderTextRoot />
-                    <Text className="text-white"> asked: </Text>
+          <View id='show-more-container' className="relative pb-2">
+            <View
+              id='show-more-content'
+              style={typeof maxHeight === 'number' ? {
+                maxHeight,
+                overflow: 'hidden',
+                paddingBottom: 4,
+              } : {
+                paddingBottom: showExpander ? 28 : 4,
+              }}
+              onLayout={(ev) => {
+                const h = ev.nativeEvent.layout.height
+                setShowExpander(h >= HEIGHT_LIMIT)
+              }}
+            >
+              {ask && (
+                <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                  <View className="flex-row gap-2 mb-4 items-center">
+                    <Image
+                      source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
+                      style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+                      className="flex-shrink-0 rounded-md border border-gray-500"
+                    />
+                    <View className="flex-row items-center flex-grow flex-shrink text-white">
+                      <HtmlRenderer html={ask.userName} renderTextRoot />
+                      <Text className="text-white"> asked: </Text>
+                    </View>
                   </View>
+                  <Text className="text-white my-1">{ask.question}</Text>
                 </View>
-                <Text className="text-white my-1">{ask.question}</Text>
-              </View>
-            )}
-            <View id='show-more-container' className="relative pb-2">
-              <View
-                id='show-more-content'
-                style={collapsed ? {
-                  overflow: 'hidden',
-                  maxHeight: HEIGHT_LIMIT,
-                  paddingBottom: 4,
-                } : {
-                  paddingBottom: showExpander ? 28 : 4,
-                }}
-                onLayout={(ev) => {
-                  const h = ev.nativeEvent.layout.height
-                  setShowExpander(h >= HEIGHT_LIMIT)
-                }}
-              >
-                <PostHtmlRenderer
-                  html={postContent}
-                  contentWidth={contentWidth}
-                  disableWhitespaceCollapsing
-                />
-              </View>
-              {showExpander && (
-                <LinearGradient
-                  id='show-more-backdrop'
-                  colors={['transparent', `${colors.indigo[950]}`]}
-                  className='flex-row justify-center absolute pt-10 pb-2 px-2 bottom-0 left-0 right-0'
+              )}
+              <PostHtmlRenderer
+                html={postContent}
+                contentWidth={contentWidth}
+                disableWhitespaceCollapsing
+              />
+              {medias.length > 0 && (
+                <View 
+                  id='media-list'
+                  className='pt-4 pb-2'
                 >
-                  <Pressable
-                    id='show-more-toggle'
-                    className="active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
-                    onPress={toggleShowMore}
-                  >
-                    <Text className='text-indigo-500'>
-                      {collapsed ? 'Show more' : 'Show less'}
-                    </Text>
-                  </Pressable>
-                </LinearGradient>
+                  {medias.map((media, index) => (
+                    <Media
+                      key={`${media.id}-${index}`}
+                      media={media}
+                      contentWidth={contentWidth}
+                    />
+                  ))}
+                </View>
+              )}
+              {poll && (
+                <Poll poll={poll} onVote={onPollVote} />
+              )}
+              {tags.length > 0 && (
+                <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
+                  {tags.map((tag, index) => (
+                    <Link
+                      key={`${tag}-${index}`}
+                      href={`/tag/${tag}`}
+                      className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
+                    >
+                      #{tag}
+                    </Link>
+                  ))}
+                </View>
+              )}
+              {quotedPost && (
+                <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                  <PostFragment isQuote post={quotedPost} />
+                </View>
               )}
             </View>
-            {medias.length > 0 && (
-              <View 
-                id='media-list'
-                className='pt-4 pb-2'
+            {showExpander && (
+              <LinearGradient
+                id='show-more-backdrop'
+                colors={['transparent', `${colors.indigo[950]}`]}
+                className='flex-row justify-center absolute pt-10 pb-2 px-2 bottom-0 left-0 right-0'
               >
-                {medias.map((media, index) => (
-                  <Media
-                    key={`${media.id}-${index}`}
-                    media={media}
-                    contentWidth={contentWidth}
-                  />
-                ))}
-              </View>
-            )}
-            {poll && (
-              <Poll poll={poll} onVote={onPollVote} />
-            )}
-            {tags.length > 0 && (
-              <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
-                {tags.map((tag, index) => (
-                  <Link
-                    key={`${tag}-${index}`}
-                    href={`/tag/${tag}`}
-                    className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
-                  >
-                    #{tag}
-                  </Link>
-                ))}
-              </View>
-            )}
-            {quotedPost && (
-              <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
-                <PostFragment isQuote post={quotedPost} />
-              </View>
+                <Pressable
+                  id='show-more-toggle'
+                  className="active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
+                  onPress={toggleShowMore}
+                >
+                  <Text className='text-indigo-500'>
+                    {collapsed ? 'Show more' : 'Show less'}
+                  </Text>
+                </Pressable>
+              </LinearGradient>
             )}
           </View>
         </View>
@@ -283,7 +295,7 @@ export default function PostFragment({
           <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
             {likes.length > 0 && (
               <ReactionDetailsMenu
-                users={likes.map((l) => l.user).filter(l => l) as PostUser[]}
+                users={likes.map((l) => l.user).filter(l => !!l)}
                 reaction='liked'
               >
                 <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
