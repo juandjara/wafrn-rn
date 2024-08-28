@@ -28,9 +28,9 @@ export default function PostFragment({
   post: Post
   isQuote?: boolean
 }) {
-  const [CWOpen, setCWOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(false)
-  const [shouldCollapse, setShouldCollapse] = useState(false)
+  const [CWOpen, setCWOpen] = useState(!post.content_warning)
+  const [collapsed, setCollapsed] = useState(true)
+  const [showExpander, setShowExpander] = useState(true)
 
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
@@ -96,7 +96,6 @@ export default function PostFragment({
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
-  const hideContent = !!post.content_warning && !CWOpen
 
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
@@ -105,6 +104,9 @@ export default function PostFragment({
 
   function toggleCWOpen() {
     animate()
+    if (CWOpen) {
+      setCollapsed(true)
+    }
     setCWOpen((o) => !o)
   }
 
@@ -182,8 +184,8 @@ export default function PostFragment({
             </View>
           )}
           <View
-            className="content-warning-content"
-            style={{ height: hideContent ? 0 : 'auto', overflow: 'hidden' }}
+            id="content-warning-content"
+            style={{ height: CWOpen ? 'auto' : 0, overflow: 'hidden' }}
           >
             {ask && (
               <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
@@ -209,14 +211,11 @@ export default function PostFragment({
                   maxHeight: HEIGHT_LIMIT,
                   paddingBottom: 4,
                 } : {
-                  paddingBottom: shouldCollapse ? 28 : 4,
+                  paddingBottom: showExpander ? 28 : 4,
                 }}
                 onLayout={(ev) => {
                   const h = ev.nativeEvent.layout.height
-                  if (h > HEIGHT_LIMIT && !shouldCollapse) {
-                    setShouldCollapse(true)
-                    setCollapsed(true)
-                  }
+                  setShowExpander(h >= HEIGHT_LIMIT)
                 }}
               >
                 <PostHtmlRenderer
@@ -225,7 +224,7 @@ export default function PostFragment({
                   disableWhitespaceCollapsing
                 />
               </View>
-              {shouldCollapse && (
+              {showExpander && (
                 <LinearGradient
                   id='show-more-backdrop'
                   colors={['transparent', `${colors.indigo[950]}`]}
@@ -233,7 +232,7 @@ export default function PostFragment({
                 >
                   <Pressable
                     id='show-more-toggle'
-                    className="active:bg-white/10 px-3 py-1 rounded-full border border-indigo-500"
+                    className="active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
                     onPress={toggleShowMore}
                   >
                     <Text className='text-indigo-500'>
