@@ -61,7 +61,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
   }
 
   return (
-    <View className="mb-4 bg-indigo-900/50">
+    <View className="mb-4">
       {postUser ? (
         <>
           {isRewoot && (

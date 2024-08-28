@@ -128,7 +128,7 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className="px-3"
+        className="px-3 bg-indigo-950"
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
@@ -228,7 +228,7 @@ export default function PostFragment({
               {shouldCollapse && (
                 <LinearGradient
                   id='show-more-backdrop'
-                  colors={['transparent', colors.indigo[950]]}
+                  colors={['transparent', `${colors.indigo[950]}`]}
                   className='flex-row justify-center absolute pt-10 pb-2 px-2 bottom-0 left-0 right-0'
                 >
                   <Pressable

@@ -69,20 +69,17 @@ export default function PostDetail() {
         ...a,
         cwIndex: 0,
         listIndex: i + 1,
-        className: 'border-t border-slate-600 bg-indigo-900/50',
+        className: 'border-t border-slate-600',
       })) || []
 
     const mainFragment = mainPost && {
       ...mainPost,
       cwIndex: 0,
       listIndex: ancestors.length,
-      className: clsx(
-        'bg-indigo-950 border-slate-600',
-        {
-          'border-b': mainIsRewoot,
-          'border-t': !mainIsRewoot && ancestors.length > 0
-        },
-      ),
+      className: clsx('border-slate-600', {
+        'border-b': mainIsRewoot,
+        'border-t': !mainIsRewoot && ancestors.length > 0
+      }),
     }
 
     const thread = mainFragment 
