@@ -229,7 +229,7 @@ export default function PostFragment({
                 <LinearGradient
                   id='show-more-backdrop'
                   colors={['transparent', colors.indigo[950]]}
-                  className='flex-row justify-center absolute pt-10 px-2 bottom-0 left-0 right-0'
+                  className='flex-row justify-center absolute pt-10 pb-2 px-2 bottom-0 left-0 right-0'
                 >
                   <Pressable
                     id='show-more-toggle'

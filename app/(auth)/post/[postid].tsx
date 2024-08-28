@@ -197,7 +197,7 @@ export default function PostDetail() {
             } else {
               return (
                 <View key={post.id} className="my-2 relative bg-blue-950">
-                  <PostFragment post={post} listRef={listRef} />
+                  <PostFragment post={post} />
                   <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
                     <MaterialCommunityIcons
                       name="reply"
@@ -213,7 +213,7 @@ export default function PostDetail() {
             const post = item.data
             return (
               <View key={post.id} className={post.className}>
-                <PostFragment post={post} listRef={listRef} />
+                <PostFragment post={post} />
               </View>
             )
           }

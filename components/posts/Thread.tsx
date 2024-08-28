@@ -61,7 +61,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
   }
 
   return (
-    <View className="mb-4">
+    <View className="mb-4 bg-indigo-900/50">
       {postUser ? (
         <>
           {isRewoot && (
@@ -83,38 +83,30 @@ export default function Thread({ thread }: { thread: PostThread }) {
       ) : null}
       {thread.ancestors.length >= ANCESTOR_LIMIT ? (
         <>
-          <View className="bg-indigo-900/50">
-            <PostFragment post={ancestors[0]} />
-          </View>
+          <PostFragment post={ancestors[0]} />
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
             <Link href={`/post/${interactionPost.id}`} className="text-sm text-white p-2">
               ...{thread.ancestors.length - 2} more posts
             </Link>
           </View>
-          <View className="bg-indigo-900/50">
-            <PostFragment post={ancestors[ancestors.length - 1]} />
-          </View>
+          <PostFragment post={ancestors[ancestors.length - 1]} />
         </>
       ) : (
         ancestors.map((ancestor, index) => (
           <View
             key={ancestor.id}
-            className={clsx(
-              'border-slate-600 bg-indigo-900/50',
-              { 'border-t': index > 0 }
-            )}
+            className={clsx('border-slate-600', { 'border-t': index > 0 })}
           >
             <PostFragment post={ancestor} />
           </View>
         ))
       )}
-      <View className={clsx(
-        'bg-indigo-950',
-        { 'border-t border-slate-600': !isRewoot && ancestors.length > 0 },
-      )}>
+      <View className={clsx({
+        'border-t border-slate-600': !isRewoot && ancestors.length > 0
+      })}>
         <PostFragment post={thread} />
-        <InteractionRibbon post={interactionPost} />
       </View>
+      <InteractionRibbon post={interactionPost} />
     </View>
   )
 }

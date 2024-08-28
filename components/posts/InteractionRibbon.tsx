@@ -133,7 +133,7 @@ export default function InteractionRibbon({ post }: { post: Post }) {
   return (
     <>
       <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
-      <View id='interaction-ribbon' className="items-center flex-row py-2 px-3">
+      <View id='interaction-ribbon' className="bg-indigo-950 items-center flex-row py-2 px-3">
         {post.notes !== undefined ? (
           <Link id='notes' href={`/post/${post.id}`} asChild>
             <Text className="flex-grow text-gray-200 text-sm active:bg-indigo-900/75 py-1 px-1 -mx-1 rounded-md">
