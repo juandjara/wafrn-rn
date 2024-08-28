@@ -1,4 +1,4 @@
-import { Post, PostUser } from "@/lib/api/posts.types"
+import { Post } from "@/lib/api/posts.types"
 import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
@@ -19,7 +19,7 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import useLayoutAnimation from "@/lib/useLayoutAnimation"
 
-const HEIGHT_LIMIT = 400
+const HEIGHT_LIMIT = 420 + 42.0 // blaze it
 
 export default function PostFragment({
   post,
