@@ -50,7 +50,10 @@ export default function MediaCloak({
       blurRadius={10}
     >{cloak}</ImageBackground>
   ) : (
-    <View style={style} className={className}>{cloak}</View>
+    <View 
+      style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
+      className={className}
+    >{cloak}</View>
   )
 
   return hidden ? cloakWrapper : (
