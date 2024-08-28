@@ -31,7 +31,9 @@ export default function UserRibbon({
         <View id='user-name-link' className="flex-grow">
           <View className="flex-row gap-2 mt-3">
             {userName && (
-              <HtmlRenderer html={userName} renderTextRoot />
+              <View className="flex-row">
+                <HtmlRenderer html={userName} renderTextRoot />
+              </View>
             )}
             {!amIFollowing && !amIAwaitingApproval ? (
               <TouchableOpacity>
