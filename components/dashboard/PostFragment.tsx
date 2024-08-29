@@ -1,5 +1,5 @@
 import { Post } from "@/lib/api/posts.types"
-import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useEffect, useMemo, useState } from "react"
@@ -48,6 +48,26 @@ export default function PostFragment({
     setCollapsed(true)
     setShowExpander(false)
   }, [post])
+
+  const animate = useLayoutAnimation()
+
+  function toggleCWOpen() {
+    animate()
+    if (CWOpen) {
+      setCollapsed(true)
+    }
+    setCWOpen((o) => !o)
+  }
+
+  function toggleShowMore() {
+    animate()
+    setCollapsed((c) => !c)
+  }
+
+  function onLayout(ev: LayoutChangeEvent) {
+    const h = ev.nativeEvent.layout.height
+    setShowExpander(h >= HEIGHT_LIMIT)
+  }
 
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
@@ -117,20 +137,6 @@ export default function PostFragment({
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
   const hasReactions = likes.length > 0 || reactions.length > 0
-  const animate = useLayoutAnimation()
-
-  function toggleCWOpen() {
-    animate()
-    if (CWOpen) {
-      setCollapsed(true)
-    }
-    setCWOpen((o) => !o)
-  }
-
-  function toggleShowMore() {
-    animate()
-    setCollapsed((c) => !c)
-  }
 
   function onPollVote(indexes: number[]) {
     // TODO: implement
@@ -202,6 +208,7 @@ export default function PostFragment({
           )}
           <View id='show-more-container' className="relative">
             <View
+              key={post.id}
               id='show-more-content'
               style={typeof maxHeight === 'number' ? {
                 maxHeight,
@@ -210,10 +217,7 @@ export default function PostFragment({
               } : {
                 paddingBottom: showExpander ? 28 : 4,
               }}
-              onLayout={(ev) => {
-                const h = ev.nativeEvent.layout.height
-                setShowExpander(h >= HEIGHT_LIMIT)
-              }}
+              onLayout={onLayout}
             >
               {ask && (
                 <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
