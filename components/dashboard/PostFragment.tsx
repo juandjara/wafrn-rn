@@ -200,7 +200,7 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          <View id='show-more-container' className="relative pb-2">
+          <View id='show-more-container' className="relative">
             <View
               id='show-more-content'
               style={typeof maxHeight === 'number' ? {
@@ -231,11 +231,13 @@ export default function PostFragment({
                   <Text className="text-white my-1">{ask.question}</Text>
                 </View>
               )}
-              <PostHtmlRenderer
-                html={postContent}
-                contentWidth={contentWidth}
-                disableWhitespaceCollapsing
-              />
+              <View className="pb-2">
+                <PostHtmlRenderer
+                  html={postContent}
+                  contentWidth={contentWidth}
+                  disableWhitespaceCollapsing
+                />
+              </View>
               {medias.length > 0 && (
                 <View 
                   id='media-list'
