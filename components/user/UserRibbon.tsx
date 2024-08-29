@@ -21,46 +21,48 @@ export default function UserRibbon({
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
 
   return (
-    <Link href={`/user/${user.url}`} asChild>
-      <Pressable id='post-header' className="flex-row w-full gap-3 items-stretch">
+    <View className="flex-row w-full gap-3 items-stretch">
+      <Link href={`/user/${user.url}`} className="flex-shrink-0 my-3">
         <Image
           source={{ uri: formatSmallAvatar(user.avatar) }}
           style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-          className="flex-shrink-0 my-3 rounded-md border border-gray-500"
+          className="rounded-md border border-gray-500"
         />
-        <View id='user-name-link' className="flex-grow">
-          <View className="flex-row gap-2 mt-3">
-            {userName && (
-              <View className="flex-row">
-                <HtmlRenderer html={userName} renderTextRoot />
-              </View>
-            )}
-            {!amIFollowing && !amIAwaitingApproval ? (
+      </Link>
+      <View id='user-name-and-url' className="flex-grow">
+        <View className="flex-row gap-2 mt-3">
+          {userName && (
+            <View className="flex-row">
+              <HtmlRenderer html={userName} renderTextRoot />
+            </View>
+          )}
+          {!amIFollowing && !amIAwaitingApproval ? (
+            <TouchableOpacity>
+              <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
+                Follow
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            showUnfollowButton ? (
               <TouchableOpacity>
-                <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
-                  Follow
+                <Text className="rounded-full px-2 text-sm text-red-500/70 bg-red-500/20">
+                  Unfollow
                 </Text>
               </TouchableOpacity>
-            ) : (
-              showUnfollowButton ? (
-                <TouchableOpacity>
-                  <Text className="rounded-full px-2 text-sm text-red-500/70 bg-red-500/20">
-                    Unfollow
-                  </Text>
-                </TouchableOpacity>
-              ) : <Text></Text>
-            )}
-            {amIAwaitingApproval && (
-              <TouchableOpacity>
-                <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
-                  Awaiting approval
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
+            ) : <Text></Text>
+          )}
+          {amIAwaitingApproval && (
+            <TouchableOpacity>
+              <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
+                Awaiting approval
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-      </Pressable>
-    </Link>
+        <Link href={`/user/${user.url}`}>
+          <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
+        </Link>
+      </View>
+    </View>
   )
 }
