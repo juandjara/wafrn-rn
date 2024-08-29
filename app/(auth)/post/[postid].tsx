@@ -65,17 +65,10 @@ export default function PostDetail() {
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
       .sort(sortPosts)  
-      .map((a, i) => ({
-        ...a,
-        cwIndex: 0,
-        listIndex: i + 1,
-        className: 'border-t border-slate-600',
-      })) || []
+      .map((a, i) => ({ ...a, className: 'border-t border-slate-600' })) || []
 
     const mainFragment = mainPost && {
       ...mainPost,
-      cwIndex: 0,
-      listIndex: ancestors.length,
       className: clsx('border-slate-600', {
         'border-b': mainIsRewoot,
         'border-t': !mainIsRewoot && ancestors.length > 0
@@ -94,12 +87,7 @@ export default function PostDetail() {
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
       .sort(sortPosts)
-      .map((p, i) => ({
-        ...p,
-        listIndex: i + 1 + thread.length,
-        cwIndex: i + 1,
-        className: '',
-      })) || []
+      .map((p, i) => ({ ...p, className: '' })) || []
 
     const sectionData = [
       { type: 'go-to-bottom' as const, data: null },
@@ -152,7 +140,7 @@ export default function PostDetail() {
       <FlashList
         ref={listRef}
         data={sectionData}
-        estimatedItemSize={300}
+        estimatedItemSize={360}
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {
             return item.data.id
