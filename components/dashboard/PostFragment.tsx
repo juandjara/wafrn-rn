@@ -1,8 +1,8 @@
 import { Post } from "@/lib/api/posts.types"
-import { LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -17,42 +17,70 @@ import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 import UserRibbon from "../user/UserRibbon"
 import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
-import useLayoutAnimation from "@/lib/useLayoutAnimation"
+import clsx from "clsx"
 
 const HEIGHT_LIMIT = 420 + 42.0 // blaze it
+const EXPANDER_MARGIN = 38
 
 export default function PostFragment({
-  post,
+  post: _post,
   isQuote,
 }: {
   post: Post
   isQuote?: boolean
 }) {
+  const postRef = useRef(_post)
+  const post = postRef.current
   const [CWOpen, setCWOpen] = useState(!post.content_warning)
   const [collapsed, setCollapsed] = useState(true)
-  const [showExpander, setShowExpander] = useState(false)
+  const [fullHeight, setFullHeight] = useState(0)
+  const showExpander = fullHeight >= HEIGHT_LIMIT
+
+  // recommended way of updating react hooks state when props change
+  // taken from the old `getDerivedStateFromProps` lifecycle method
+  if (postRef.current !== _post) {
+    console.log(`PostFragment recycled \n new: ${_post.id} \n old: ${postRef.current.id}`)
+    postRef.current = _post
+    setCWOpen(!_post.content_warning)
+    setCollapsed(true)
+    setFullHeight(0)
+  }
 
   const maxHeight = useMemo(() => {
     if (!CWOpen) {
       return 0
     }
     if (CWOpen && collapsed) {
-      return HEIGHT_LIMIT
+      return fullHeight ? Math.min(fullHeight, HEIGHT_LIMIT) : HEIGHT_LIMIT
     }
-    return undefined
-  }, [CWOpen, collapsed])
+    return fullHeight + EXPANDER_MARGIN
+  }, [fullHeight, CWOpen, collapsed])
 
-  // reset collapsed state when post changes (changing prop from recycled component)
+  const layoutRef = useRef<View>(null)
+  const measured = useRef(false)
+
   useEffect(() => {
-    setCWOpen(!post.content_warning)
-    setCollapsed(true)
-    setShowExpander(false)
-  }, [post])
+    if (!measured.current) {
+      return
+    }
+    const raf = requestAnimationFrame(() => {
+      layoutRef.current?.measure((x, y, width, height) => {
+        if (!height) {
+          console.log('no height')
+          return
+        }
+        if (height !== fullHeight) {
+          setFullHeight(height)
+        }
+      })
+    })
+    return () => {
+      cancelAnimationFrame(raf)
+    }
+  }, [fullHeight])
 
-  const animate = useLayoutAnimation()
 
   function toggleCWOpen() {
-    animate()
     if (CWOpen) {
       setCollapsed(true)
     }
@@ -60,13 +88,7 @@ export default function PostFragment({
   }
 
   function toggleShowMore() {
-    animate()
     setCollapsed((c) => !c)
-  }
-
-  function onLayout(ev: LayoutChangeEvent) {
-    const h = ev.nativeEvent.layout.height
-    setShowExpander(h >= HEIGHT_LIMIT)
   }
 
   const { width } = useWindowDimensions()
@@ -153,7 +175,7 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className="px-3 bg-indigo-950"
+        className={clsx('px-3 bg-indigo-950', { 'opacity-20': !fullHeight })}
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
@@ -206,18 +228,25 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          <View id='show-more-container' className="relative">
+          <View
+            id='show-more-container'
+            className="relative pb-1"
+            style={{
+              height: typeof maxHeight === 'number' ? maxHeight : 'auto',
+              overflow: 'hidden',
+            }}
+          >
             <View
-              key={post.id}
               id='show-more-content'
-              style={typeof maxHeight === 'number' ? {
-                maxHeight,
-                overflow: 'hidden',
-                paddingBottom: 4,
-              } : {
-                paddingBottom: showExpander ? 28 : 4,
+              className="absolute"
+              ref={layoutRef}
+              onLayout={(ev) => {
+                const { height } = ev.nativeEvent.layout
+                if (height !== fullHeight) {
+                  setFullHeight(height)
+                  measured.current = true
+                }
               }}
-              onLayout={onLayout}
             >
               {ask && (
                 <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
@@ -282,7 +311,7 @@ export default function PostFragment({
               <LinearGradient
                 id='show-more-backdrop'
                 colors={['transparent', `${colors.indigo[950]}`]}
-                className='flex-row justify-center absolute pt-10 pb-2 px-2 bottom-0 left-0 right-0'
+                className='flex-row justify-center absolute pt-10 pb-3 px-2 bottom-0 left-0 right-0'
               >
                 <Pressable
                   id='show-more-toggle'
