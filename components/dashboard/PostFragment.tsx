@@ -180,11 +180,13 @@ export default function PostFragment({
           <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
           <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
-        <View id='content'>
+        <View id='content' className={clsx({
+          'border border-yellow-500 rounded-xl my-4': !!post.content_warning,
+        })}>
           {post.content_warning && (
             <View
               id='content-warning-indicator'
-              className='flex-row items-start gap-3 my-4 p-2 border border-yellow-300 rounded-xl'
+              className='flex-row items-start gap-3 p-2'
             >
               <View className="ml-1 gap-1">
                 <Ionicons
@@ -223,7 +225,7 @@ export default function PostFragment({
           )}
           <View
             id='show-more-container'
-            className="relative mb-1"
+            className={clsx('relative mb-1', { 'px-3': !!post.content_warning })}
             style={collapsed ? {
               maxHeight: typeof maxHeight === 'number' ? maxHeight : 'auto',
               overflow: 'hidden',
@@ -299,6 +301,7 @@ export default function PostFragment({
               <LinearGradient
                 id='show-more-backdrop'
                 colors={['transparent', `${colors.indigo[950]}`]}
+                style={{ borderRadius: 12 }}
                 className='flex-row justify-center absolute pt-10 pb-3 px-2 bottom-0 left-0 right-0'
               >
                 <Pressable
