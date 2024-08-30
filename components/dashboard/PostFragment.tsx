@@ -1,5 +1,5 @@
 import { Post } from "@/lib/api/posts.types"
-import { LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { Animated, Easing, LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useRef, useState } from "react"
@@ -36,7 +36,8 @@ export default function PostFragment({
   const [fullHeight, setFullHeight] = useState(0)
   const showExpander = fullHeight >= HEIGHT_LIMIT
 
-  const maxHeight = CWOpen ? HEIGHT_LIMIT : 0
+  const maxHeightRef = useRef(new Animated.Value(CWOpen ? HEIGHT_LIMIT : 0))
+  const maxHeight = maxHeightRef.current
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
 
@@ -78,6 +79,12 @@ export default function PostFragment({
       setCollapsed(true)
     }
     setCWOpen((o) => !o)
+    Animated.timing(maxHeight, {
+      toValue: CWOpen ? 0 : HEIGHT_LIMIT,
+      duration: 300,
+      easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease),
+      useNativeDriver: false,
+    }).start()
   }
 
   function toggleShowMore() {
@@ -223,11 +230,11 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          <View
+          <Animated.View
             id='show-more-container'
             className={clsx('relative mb-1', { 'px-3': !!post.content_warning })}
             style={collapsed ? {
-              maxHeight: typeof maxHeight === 'number' ? maxHeight : 'auto',
+              maxHeight,
               overflow: 'hidden',
             } : {
               paddingBottom: EXPANDER_MARGIN,
@@ -301,7 +308,7 @@ export default function PostFragment({
               <LinearGradient
                 id='show-more-backdrop'
                 colors={['transparent', `${colors.indigo[950]}`]}
-                style={{ borderRadius: 12 }}
+                style={{ borderRadius: post.content_warning ? 12 : 0 }}
                 className='flex-row justify-center absolute pt-10 pb-3 px-2 bottom-0 left-0 right-0'
               >
                 <Pressable
@@ -315,7 +322,7 @@ export default function PostFragment({
                 </Pressable>
               </LinearGradient>
             )}
-          </View>
+          </Animated.View>
         </View>
         {hasReactions && (
           <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
