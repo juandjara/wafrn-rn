@@ -1,8 +1,8 @@
 import { Post } from "@/lib/api/posts.types"
-import { Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -19,7 +19,7 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 
-const HEIGHT_LIMIT = 420 + 42.0 // blaze it
+const HEIGHT_LIMIT = 462
 const EXPANDER_MARGIN = 38
 
 export default function PostFragment({
@@ -36,40 +36,42 @@ export default function PostFragment({
   const [fullHeight, setFullHeight] = useState(0)
   const showExpander = fullHeight >= HEIGHT_LIMIT
 
-  // recommended way of updating react hooks state when props change
-  // taken from the old `getDerivedStateFromProps` lifecycle method
-  if (postRef.current !== _post) {
-    console.log(`PostFragment recycled \n new: ${_post.id} \n old: ${postRef.current.id}`)
-    postRef.current = _post
-    setCWOpen(!_post.content_warning)
-    setCollapsed(true)
-    setFullHeight(0)
-  }
-
   const maxHeight = CWOpen ? HEIGHT_LIMIT : 0
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
 
-  useEffect(() => {
-    if (!measured.current) {
-      return
-    }
-    const raf = requestAnimationFrame(() => {
-      layoutRef.current?.measure((x, y, width, height) => {
-        if (!height) {
-          console.log('no height, possible expander toggle missing on post ', postRef.current.id)
-          return
-        }
-        if (height !== fullHeight) {
-          setFullHeight(height)
-        }
-      })
-    })
-    return () => {
-      cancelAnimationFrame(raf)
-    }
-  }, [fullHeight])
+  // recommended way of updating react hooks state when props change
+  // taken from the old `getDerivedStateFromProps` lifecycle method
+  if (postRef.current.id !== _post.id) {
+    recycleState(_post)
+  }
 
+  function recycleState(post: Post) {
+    console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
+    postRef.current = post
+    setCWOpen(!post.content_warning)
+    setCollapsed(true)
+    if (measured.current) {
+      setFullHeight(0)
+      requestAnimationFrame(() => {
+        layoutRef.current?.measure((x, y, width, height) => {
+          if (height) {
+            setFullHeight(Math.round(height))
+          } else {
+            console.log('measure height failed for post ', postRef.current.id)
+          }
+        })
+      })
+    }
+  }
+
+  function onLayout(ev: LayoutChangeEvent) {
+    const height = Math.round(ev.nativeEvent.layout.height)
+    if (height !== fullHeight) {
+      setFullHeight(height)
+      measured.current = true
+    }
+  }
 
   function toggleCWOpen() {
     if (CWOpen) {
@@ -221,7 +223,7 @@ export default function PostFragment({
           )}
           <View
             id='show-more-container'
-            className="relative pb-1"
+            className="relative mb-1"
             style={collapsed ? {
               maxHeight: typeof maxHeight === 'number' ? maxHeight : 'auto',
               overflow: 'hidden',
@@ -232,13 +234,7 @@ export default function PostFragment({
             <View
               id='show-more-content'
               ref={layoutRef}
-              onLayout={(ev) => {
-                const { height } = ev.nativeEvent.layout
-                if (height !== fullHeight) {
-                  setFullHeight(height)
-                  measured.current = true
-                }
-              }}
+              onLayout={onLayout}
             >
               {ask && (
                 <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
