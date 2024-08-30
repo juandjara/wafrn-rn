@@ -8,7 +8,7 @@ import { ThemedView } from "@/components/ThemedView"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { sortPosts, usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
-import { DashboardData, Post } from "@/lib/api/posts.types"
+import { DashboardData, Post, PostThread, PostUser } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
 import { buttonCN } from "@/lib/styles"
@@ -16,8 +16,33 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { FlashList } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useMemo, useRef } from "react"
+import { memo, useCallback, useMemo, useRef } from "react"
 import { Pressable, Text, View } from "react-native"
+
+type PostDetailItemData = {
+  type: 'posts'
+  data: {
+    post: Post
+    className: string
+  } 
+} | {
+  type: 'replies'
+  data: {
+    isRewoot: boolean
+    user: PostUser
+    userName: string
+    post: Post
+  }
+} | {
+  type: 'separator'
+  data: string
+} | {
+  type: 'error'
+  data: Error | null
+} | {
+  type: 'go-to-bottom'
+  data: null
+}
 
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
@@ -37,10 +62,8 @@ export default function PostDetail() {
 
   const {
     mainPost,
-    sectionData,
+    listData,
     context,
-    userMap,
-    userNames,
   } = useMemo(() => {
     const context = getDashboardContext(
       [postData, repliesData].filter(Boolean) as DashboardData[]
@@ -65,10 +88,10 @@ export default function PostDetail() {
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
       .sort(sortPosts)  
-      .map((a, i) => ({ ...a, className: 'border-t border-slate-600' })) || []
+      .map((a) => ({ post: a, className: 'border-t border-slate-600' })) || []
 
     const mainFragment = mainPost && {
-      ...mainPost,
+      post: mainPost,
       className: clsx('border-slate-600', {
         'border-b': mainIsRewoot,
         'border-t': !mainIsRewoot && ancestors.length > 0
@@ -80,16 +103,21 @@ export default function PostDetail() {
         mainIsRewoot 
           ? [mainFragment, ...ancestors] 
           : [...ancestors, mainFragment]
-      ) satisfies (Post & { className: string })[]
+      )
       : [] 
 
     const fullReplies = repliesData?.posts
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
       .sort(sortPosts)
-      .map((p, i) => ({ ...p, className: '' })) || []
+      .map((p, i) => ({
+        isRewoot: isEmptyRewoot(p, context),
+        user: userMap[p.userId],
+        userName: userNames[p.userId],
+        post: p,
+      })) || []
 
-    const sectionData = [
+    const listData = [
       { type: 'go-to-bottom' as const, data: null },
       // { type: 'posts', data: thread },
       ...thread.map((post) => ({ type: 'posts' as const, data: post })),
@@ -99,15 +127,38 @@ export default function PostDetail() {
       { type: 'error' as const, data: repliesError },
     ]
 
-    return { mainPost, sectionData, context, userMap, userNames }
+    return { mainPost, listData, context, userMap, userNames }
   }, [postData, repliesData, postid, repliesError])
 
-  const listRef = useRef<FlashList<typeof sectionData[number]>>(null)
+  const listRef = useRef<FlashList<PostDetailItemData>>(null)
   const cornerButtonRef = useRef<CornerButtonContainerRef>(null)
 
-  function scrollToThreadEnd(animated?: boolean) {
-    listRef.current?.scrollToIndex({ index: (mainPost?.ancestors.length || 0) + 1 })
+  function scrollToTop() {
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex({ index: 0, animated: false })
+    })
   }
+
+  function refresh() {
+    refetchPost()
+    refetchReplies()
+  }
+
+  const renderItem = useCallback(({ item, index }: { item: PostDetailItemData, index: number }) => {
+    function scrollToEnd(animated?: boolean) {
+      requestAnimationFrame(() => {
+        const postCount = mainPost?.ancestors.length || 0
+        listRef.current?.scrollToIndex({ index: postCount + 1, animated: false })
+      })
+    }
+    return (
+      <PostDetailItem
+        item={item}
+        mainPost={mainPost}
+        onScrollEnd={scrollToEnd}
+      />
+    )
+  }, [mainPost])
 
   if (postError) {
     return (
@@ -118,10 +169,7 @@ export default function PostDetail() {
           <ThemedText selectable>{postError?.message}</ThemedText>
         </ThemedView>
         <ThemedView className="flex-row gap-3 my-3">
-          <Pressable onPress={() => {
-            refetchPost()
-            refetchReplies()
-          }}>
+          <Pressable onPress={refresh}>
             <Text className='text-gray-500 py-2 px-3 bg-gray-500/20 rounded-full'>Retry</Text>
           </Pressable>
           <Pressable onPress={() => router.canGoBack() ? router.back() : router.navigate('/')}>
@@ -132,110 +180,28 @@ export default function PostDetail() {
     )
   }
 
-  const postCount = mainPost?.ancestors.length || 0
-
   return (
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Woot Detail' }} />
       <FlashList
         ref={listRef}
-        data={sectionData}
-        estimatedItemSize={360}
+        data={listData}
+        estimatedItemSize={300}
+        removeClippedSubviews
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {
-            return item.data.id
+            return item.data.post.id
           }
           return item.type
         }}
-        getItemType={(item) => item.type}
-        renderItem={({ item }) => {
-          if (item.type === 'go-to-bottom' && postCount > 0) {
-            return (
-              <View className="p-2">
-                <Pressable
-                  className='text-indigo-500 py-1 px-2 bg-indigo-500/20 rounded-lg flex-row items-baseline gap-1'
-                  onPress={() => scrollToThreadEnd(postCount < 20)}
-                >
-                  <MaterialCommunityIcons name="arrow-down" size={16} color="white" />
-                  <Text className="text-white">
-                    Go to end of thread
-                    <Text className="text-sm text-gray-300">
-                      {' - '}{postCount + 1} {pluralize(postCount + 1, 'post')}
-                    </Text>
-                  </Text>
-                </Pressable>
-              </View>
-            )
-          }
-          if (item.type === 'replies') {
-            const post = item.data
-            const isRewoot = isEmptyRewoot(post, context)
-            if (isRewoot) {
-              return (
-                <RewootRibbon
-                  key={post.userId}
-                  user={userMap[post.userId]}
-                  userNameHTML={userNames[post.userId]}
-                  className="my-2"
-                />
-              )
-            } else {
-              return (
-                <View key={post.id} className="my-2 relative bg-blue-950">
-                  <PostFragment post={post} />
-                  <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
-                    <MaterialCommunityIcons
-                      name="reply"
-                      size={16}
-                      color="white"
-                    />
-                  </View>
-                </View>
-              )
-            }
-          }
-          if (item.type === 'posts') {
-            const post = item.data
-            return (
-              <View key={post.id} className={post.className}>
-                <PostFragment post={post} />
-              </View>
-            )
-          }
-          if (item.type === 'error' && item.data) {
-            const error = item.data
-            return (
-              <View className="m-1 p-2 bg-red-500/30 rounded-md">
-                <Text className="text-white mb-2 font-bold">
-                  Error fetching replies:
-                </Text>
-                <Text className="text-gray-200">
-                  {error?.message}
-                </Text>
-              </View>
-            )
-          }
-          if (item.type === 'separator') {
-            return (
-              <View>
-                {mainPost && (
-                  <View className="bg-indigo-900/50">
-                    <InteractionRibbon post={mainPost} />
-                  </View>
-                )}
-                {item.data && (
-                  <Text className="text-gray-300 mt-4 px-3 py-1">{item.data}</Text>
-                )}
-              </View>
-            )
-          }
-          return null
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          // autoscrollToTopThreshold: 10,
         }}
+        renderItem={renderItem}
         refreshing={postFetching || repliesFetching}
-        onRefresh={() => {
-          refetchPost()
-          refetchReplies()
-        }}
+        onRefresh={refresh}
+        scrollEventThrottle={100}
         onScroll={(ev) => {
           cornerButtonRef.current?.scroll(ev.nativeEvent.contentOffset.y)
         }}
@@ -262,7 +228,7 @@ export default function PostDetail() {
       <CornerButtonContainer ref={cornerButtonRef}>
         <Pressable
           className="p-3 rounded-full bg-white border border-gray-300"
-          onPress={() => listRef.current?.scrollToIndex({ index: 0 })}
+          onPress={scrollToTop}
         >
           <MaterialIcons name="arrow-upward" size={24} />
         </Pressable>
@@ -270,3 +236,92 @@ export default function PostDetail() {
     </DashboardContextProvider>
   )
 }
+
+function _PostDetailItem({ item, mainPost, onScrollEnd }: {
+  item: PostDetailItemData;
+  mainPost?: PostThread;
+  onScrollEnd: (animmted: boolean) => void
+}) {
+  const postCount = mainPost?.ancestors.length || 0
+  if (item.type === 'go-to-bottom' && postCount > 0) {
+    return (
+      <View className="p-2">
+        <Pressable
+          className='text-indigo-500 py-1 px-2 bg-indigo-500/20 rounded-lg flex-row items-baseline gap-1'
+          onPress={() => onScrollEnd(postCount < 20)}
+        >
+          <MaterialCommunityIcons name="arrow-down" size={16} color="white" />
+          <Text className="text-white">
+            Go to end of thread
+            <Text className="text-sm text-gray-300">
+              {' - '}{postCount + 1} {pluralize(postCount + 1, 'post')}
+            </Text>
+          </Text>
+        </Pressable>
+      </View>
+    )
+  }
+  if (item.type === 'replies') {
+    const post = item.data.post
+    if (item.data.isRewoot) {
+      return (
+        <RewootRibbon
+          key={post.userId}
+          user={item.data.user}
+          userNameHTML={item.data.userName}
+          className="my-2"
+        />
+      )
+    } else {
+      return (
+        <View key={post.id} className="my-2 relative bg-blue-950">
+          <PostFragment post={post} />
+          <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
+            <MaterialCommunityIcons
+              name="reply"
+              size={16}
+              color="white"
+            />
+          </View>
+        </View>
+      )
+    }
+  }
+  if (item.type === 'posts') {
+    const post = item.data.post
+    return (
+      <View key={post.id} className={item.data.className}>
+        <PostFragment post={post} />
+      </View>
+    )
+  }
+  if (item.type === 'error' && item.data) {
+    const error = item.data
+    return (
+      <View className="m-1 p-2 bg-red-500/30 rounded-md">
+        <Text className="text-white mb-2 font-bold">
+          Error fetching replies:
+        </Text>
+        <Text className="text-gray-200">
+          {error?.message}
+        </Text>
+      </View>
+    )
+  }
+  if (item.type === 'separator') {
+    return (
+      <View>
+        {mainPost && (
+          <View className="bg-indigo-900/50">
+            <InteractionRibbon post={mainPost} />
+          </View>
+        )}
+        {item.data && (
+          <Text className="text-gray-300 mt-4 px-3 py-1">{item.data}</Text>
+        )}
+      </View>
+    )
+  }
+  return null
+}
+const PostDetailItem = memo(_PostDetailItem)
