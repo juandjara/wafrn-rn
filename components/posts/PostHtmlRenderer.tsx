@@ -1,9 +1,9 @@
-import { getYoutubeImage, handleDomElement, HTML_STYLES, inlineImageConfig, isValidURL } from "@/lib/api/content";
+import { getYoutubeImage, handleDomElement, HTML_STYLES, inlineImageConfig, isValidYTLink } from "@/lib/api/content";
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
 import { Image, ImageBackground } from "expo-image";
 import { Link, router } from "expo-router";
 import { parseDocument, DomUtils } from "htmlparser2";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { TouchableOpacity, View } from "react-native";
 import RenderHTML, { Element } from "react-native-render-html";
 import colors from "tailwindcss/colors";
@@ -20,13 +20,7 @@ const RENDERER_PROPS = {
   }
 }
 
-const YT_HOSTS = [
-  'www.youtube.com',
-  'youtube.com',
-  'youtu.be',
-]
-
-export default function PostHtmlRenderer({
+function _PostHtmlRenderer({
   html,
   contentWidth,
   hidden,
@@ -65,9 +59,7 @@ export default function PostHtmlRenderer({
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
         const href = node.attribs.href
-        if (isValidURL(href)) {
-          return YT_HOSTS.includes(new URL(href).host)
-        }
+        return isValidYTLink(href)
       }
       return false
     }, dom.children)
@@ -123,3 +115,6 @@ export default function PostHtmlRenderer({
     </>
   )
 }
+
+const PostHtmlRenderer = memo(_PostHtmlRenderer)
+export default PostHtmlRenderer

@@ -221,6 +221,17 @@ export function isValidURL(str: string) {
   }
 }
 
+const YT_HOSTS = ['youtube.com','youtu.be']
+export function isValidYTLink(href: string) {
+  if (!isValidURL(href)) {
+    return false
+  }
+  return YT_HOSTS.some((h) => {
+    const host = new URL(href).host
+    return host === h || host.endsWith(`.${h}`)
+  })
+}
+
 export function getYoutubeImage(ytLink: string) {
   if (!isValidURL(ytLink)) {
     return null
