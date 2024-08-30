@@ -194,10 +194,10 @@ export default function PostDetail() {
           }
           return item.type
         }}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          // autoscrollToTopThreshold: 10,
-        }}
+        // maintainVisibleContentPosition={{
+        //   minIndexForVisible: 0,
+        //   // autoscrollToTopThreshold: 10,
+        // }}
         renderItem={renderItem}
         refreshing={postFetching || repliesFetching}
         onRefresh={refresh}
