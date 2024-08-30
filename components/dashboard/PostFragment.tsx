@@ -46,16 +46,7 @@ export default function PostFragment({
     setFullHeight(0)
   }
 
-  const maxHeight = useMemo(() => {
-    if (!CWOpen) {
-      return 0
-    }
-    if (CWOpen && collapsed) {
-      return fullHeight ? Math.min(fullHeight, HEIGHT_LIMIT) : HEIGHT_LIMIT
-    }
-    return fullHeight + EXPANDER_MARGIN
-  }, [fullHeight, CWOpen, collapsed])
-
+  const maxHeight = CWOpen ? HEIGHT_LIMIT : 0
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
 
@@ -66,7 +57,7 @@ export default function PostFragment({
     const raf = requestAnimationFrame(() => {
       layoutRef.current?.measure((x, y, width, height) => {
         if (!height) {
-          console.log('no height')
+          console.log('no height, possible expander toggle missing on post ', postRef.current.id)
           return
         }
         if (height !== fullHeight) {
@@ -175,7 +166,7 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className={clsx('px-3 bg-indigo-950', { 'opacity-20': !fullHeight })}
+        className={clsx('px-3 bg-indigo-950')}
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
@@ -231,14 +222,15 @@ export default function PostFragment({
           <View
             id='show-more-container'
             className="relative pb-1"
-            style={{
-              height: typeof maxHeight === 'number' ? maxHeight : 'auto',
+            style={collapsed ? {
+              maxHeight: typeof maxHeight === 'number' ? maxHeight : 'auto',
               overflow: 'hidden',
+            } : {
+              paddingBottom: EXPANDER_MARGIN,
             }}
           >
             <View
               id='show-more-content'
-              className="absolute"
               ref={layoutRef}
               onLayout={(ev) => {
                 const { height } = ev.nativeEvent.layout
