@@ -21,14 +21,14 @@ function _CornerButtonContainer({ children }: { children: React.ReactNode }, ref
       style={{
         opacity: diffClamp.interpolate({
           inputRange: [0, 100],
-          outputRange: [0, 1],
+          outputRange: [1, 0],
           extrapolate: 'clamp',
         }),
         transform: [
           {
             translateY: diffClamp.interpolate({
               inputRange: [0, 100],
-              outputRange: [100, 0],
+              outputRange: [0, 100],
               extrapolate: 'clamp',
             }),
           },
