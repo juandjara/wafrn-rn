@@ -3,6 +3,11 @@ import { getJSON } from "../http";
 import { DashboardData, PostUser } from "./posts.types";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 
+export enum SearchView {
+  Users = 'users',
+  Posts = 'posts',
+}
+
 type SearchResponse = {
   emojis: EmojiBase[]
   userEmojiIds: UserEmojiRelation[]
