@@ -1,7 +1,7 @@
 import { login } from "@/lib/api/auth"
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { useMutation } from "@tanstack/react-query"
-import { router, Stack } from "expo-router"
+import { Link, router, Stack } from "expo-router"
 import { useState } from "react"
 import { ThemedText as Text } from '@/components/ThemedText'
 import { ThemedView as View } from '@/components/ThemedView'
@@ -55,6 +55,15 @@ export default function SignIn() {
           onPress={() => mutation.mutate({ email, password })}
         />
       </View>
+      <Text className="text-white">
+        Don't have an account?{' '}
+        <Link
+          href={'https://app.wafrn.net/register'}
+          className="text-blue-500"
+        >
+          Register here
+        </Link>
+      </Text>
     </View>
   )  
 }
