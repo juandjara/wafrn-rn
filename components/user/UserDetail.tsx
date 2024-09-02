@@ -154,13 +154,13 @@ export default function UserDetail({ user }: { user: User }) {
         <View className="flex-row gap-6 mt-6">
           <Link href={`/user/followed/${user.url}`} asChild>
             <Pressable className="items-center">
-              <Text className="text-white text-2xl">{user.followed || user.followingCount}</Text>
+              <Text className="text-white text-2xl">{user.followed || user.followingCount || '--'}</Text>
               <Text className="text-white text-sm">following</Text>
             </Pressable>
           </Link>
           <Link href={`/user/followers/${user.url}`} asChild>
             <Pressable className="items-center">
-              <Text className="text-white text-2xl">{user.followers || user.followerCount}</Text>
+              <Text className="text-white text-2xl">{user.followers || user.followerCount || '--'}</Text>
               <Text className="text-white text-sm">followers</Text>
             </Pressable>
           </Link>
