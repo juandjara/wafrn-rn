@@ -47,7 +47,9 @@ function _PostHtmlRenderer({
       parent: HTMLViewNode,
       defaultRenderer: HTMLViewNodeRenderer,
     ) {
+      // run after the grouping of inline elements
       if (node.attribs?.parsed === 'true') {
+        // use expo-image instead of RNImage
         if (node.name === 'img') {
           const width = Number(node.attribs['width'])
           const height = Number(node.attribs['height'])
@@ -67,10 +69,16 @@ function _PostHtmlRenderer({
         return undefined // default render
       }
 
+      // parse mention and hashtag links to route inside the app
       if (node.name === 'a') {
         replaceHref(node, context)
       }
+      // remove empty paragraphs
+      if (node.name === 'p' && node.children.length === 0) {
+        return null
+      }
 
+      // render text with inherited inline styles
       if (node.type === 'text') {
         const customStyle = inheritedStyle(parent as HTMLNodeWithParent)
         return (
@@ -138,6 +146,11 @@ function _PostHtmlRenderer({
       <HTMLView
         value={source.html}
         renderNode={renderNode}
+        textComponentProps={{
+          selectable: true,
+          // this style is only applied to <li> markers
+          style: { color: colors.gray[300] },
+        }}
         onLinkPress={onLinkPress}
         paragraphBreak={BR}
       />
