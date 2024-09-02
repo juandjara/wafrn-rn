@@ -7,12 +7,14 @@ import { ThemedText as Text } from '@/components/ThemedText'
 import { ThemedView as View } from '@/components/ThemedView'
 import { TextInput, Button } from "react-native"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { useThemeColor } from "@/hooks/useThemeColor"
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { setToken } = useAuth()
   const sx = useSafeAreaPadding()
+  const color = useThemeColor({}, 'text')
 
   const mutation = useMutation<string, Error, { email: string; password: string }>({
     mutationKey: ['signIn'],
@@ -31,14 +33,16 @@ export default function SignIn() {
         <TextInput
           inputMode="email"
           placeholder="Email"
-          className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400 text-white"
+          style={{ color }}
+          className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
           value={email}
           onChangeText={setEmail}
         />
         <TextInput
           secureTextEntry
           placeholder="Password"
-          className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400 text-white"
+          style={{ color }}
+          className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
           value={password}
           onChangeText={setPassword}
         />
@@ -55,7 +59,7 @@ export default function SignIn() {
           onPress={() => mutation.mutate({ email, password })}
         />
       </View>
-      <Text className="text-white">
+      <Text className="p-3">
         Don't have an account?{' '}
         <Link
           href={'https://app.wafrn.net/register'}
