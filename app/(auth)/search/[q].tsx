@@ -142,18 +142,25 @@ export default function SearchResults() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deduped, users])
 
+  const screenTitle = (
+    <Stack.Screen options={{
+      title: 'Search results',
+      headerBackTitle: 'Back'
+    }} /> 
+  )
+
   if (!data) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Search results' }} /> 
         <Loading />
+        {screenTitle}
       </>
     )
   }
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{ title: 'Search results' }} /> 
+      {screenTitle}
       <View className="h-full">
         <TabView
           renderTabBar={(props) => (

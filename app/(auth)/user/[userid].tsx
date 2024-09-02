@@ -40,10 +40,17 @@ export default function UserFeed() {
   )
   const deduped = useMemo(() => dedupePosts(feed?.pages || []), [feed?.pages])
 
+  const screenTitle = (
+    <Stack.Screen options={{
+      title: 'User Detail',
+      headerBackTitle: 'Back',
+    }} />
+  )
+
   if (userError) {
     return (
       <ThemedView className="p-3 flex-1 justify-center items-center">
-        <Stack.Screen options={{ title: 'User Detail' }} />
+        {screenTitle}
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{userError?.message}</ThemedText>
@@ -64,7 +71,7 @@ export default function UserFeed() {
     return (
       <>
         <Loading />
-        <Stack.Screen options={{ title: 'User Detail' }} />
+        {screenTitle}
       </>
     )
   }
@@ -72,7 +79,7 @@ export default function UserFeed() {
   return (
     <ThemedView className="flex-1">
       <DashboardContextProvider data={context}>
-        <Stack.Screen options={{ title: 'User Detail' }} />
+        {screenTitle}
         <FlatList
           data={deduped}
           refreshing={feedFetching || userFetching}

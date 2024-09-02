@@ -1,5 +1,5 @@
 import { DashboardMode, dedupePosts, getDashboardContext, useDashboard } from "@/lib/api/dashboard"
-import { FlatList, View } from "react-native"
+import { FlatList, Pressable, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
 import { useMemo, useRef } from "react"
@@ -57,9 +57,11 @@ export default function Dashboard({
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
       />
-      <View className="absolute bottom-3 right-3">
-        <Link href='/editor' className="p-3 rounded-full bg-white">
-          <MaterialIcons name="edit-square" size={24} />
+      <View key='editor-link' className="absolute bottom-3 right-3">
+        <Link href='/editor' asChild>
+          <Pressable className="p-3 rounded-full bg-white">
+            <MaterialIcons name="edit-square" size={24} />
+          </Pressable>
         </Link>
       </View>
     </DashboardContextProvider>

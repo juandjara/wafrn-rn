@@ -163,7 +163,7 @@ export default function PostDetail() {
   if (postError) {
     return (
       <ThemedView className="p-3 flex-1 justify-center items-center">
-        <Stack.Screen options={{ title: 'Woot Detail' }} />
+        <Stack.Screen options={{ headerBackTitle: 'Dashboard', title: 'Woot Detail' }} />
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{postError?.message}</ThemedText>
@@ -182,7 +182,10 @@ export default function PostDetail() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{ title: 'Woot Detail' }} />
+      <Stack.Screen options={{
+        headerBackTitle: 'Back',
+        title: 'Woot Detail'
+      }} />
       <FlashList
         ref={listRef}
         data={listData}

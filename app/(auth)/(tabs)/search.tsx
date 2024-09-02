@@ -75,7 +75,7 @@ export default function Search() {
           <View id='search-tips' className="mb-3">
             <View className="flex-row items-center mb-2">
               <Text className="text-gray-300 flex-grow">Search tips</Text>
-              <Pressable onPress={toggleTips}>
+              <Pressable onPress={toggleTips} className="rounded-full">
                 <Text className={buttonCN}>{showTips ? 'Hide' : 'Show'}</Text>
               </Pressable>
             </View>

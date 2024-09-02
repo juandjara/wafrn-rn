@@ -129,9 +129,12 @@ export default function PostFragment({
   }, [post, context])
 
   const quotedPost = useMemo(() => {
+    if (isQuote) {
+      return undefined
+    }
     const id = context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
     return context.quotedPosts.find((p) => p.id === id)
-  }, [post, context])
+  }, [post, isQuote, context])
 
   const ask = useMemo(() => {
     const ask = context.asks.find((a) => a.postId === post.id)
@@ -305,22 +308,31 @@ export default function PostFragment({
               )}
             </View>
             {showExpander && (
-              <LinearGradient
+              <View
                 id='show-more-backdrop'
-                colors={['transparent', `${colors.indigo[950]}`]}
-                style={{ borderRadius: post.content_warning ? 12 : 0 }}
-                className='flex-row justify-center absolute pt-10 pb-3 px-2 bottom-0 left-0 right-0'
+                className='absolute bottom-0 left-0 right-0'
               >
-                <Pressable
-                  id='show-more-toggle'
-                  className="active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
-                  onPress={toggleShowMore}
+                <LinearGradient
+                  colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
+                  style={{
+                    width: '100%',
+                    paddingTop: 40,
+                    paddingBottom: 12,
+                    paddingHorizontal: 8,
+                    borderRadius: post.content_warning ? 12 : 0
+                  }}
                 >
-                  <Text className='text-indigo-500'>
-                    {collapsed ? 'Show more' : 'Show less'}
-                  </Text>
-                </Pressable>
-              </LinearGradient>
+                  <Pressable
+                    id='show-more-toggle'
+                    className="mx-auto active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
+                    onPress={toggleShowMore}
+                  >
+                    <Text className='text-indigo-500'>
+                      {collapsed ? 'Show more' : 'Show less'}
+                    </Text>
+                  </Pressable>
+                </LinearGradient>
+              </View>
             )}
           </Animated.View>
         </View>
