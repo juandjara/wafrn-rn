@@ -141,6 +141,9 @@ function renderElement(node: ElementNode, index: number, color?: string) {
   }
   if (node.name === IMG_TAG) {
     const { src, width, height } = node.attribs
+    if (!src || !width || !height) {
+      return null
+    }
     return (
       <Image
         style={{ width: Number(width), height: Number(height), resizeMode: 'contain' }}
