@@ -4,7 +4,7 @@ import { useSettings } from "@/lib/api/settings"
 import { formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
 import { Image } from "expo-image"
 import { Link } from "expo-router"
-import { Pressable, Text, TouchableOpacity, View } from "react-native"
+import { Text, TouchableOpacity, View } from "react-native"
 import HtmlRenderer from "../HtmlRenderer"
 
 export default function UserRibbon({
