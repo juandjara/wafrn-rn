@@ -261,7 +261,7 @@ export default function PostFragment({
                   <Text className="text-white my-1">{ask.question}</Text>
                 </View>
               )}
-              <View className="pb-2">
+              <View className="py-2">
                 <PostHtmlRenderer
                   html={postContent}
                   contentWidth={contentWidth}

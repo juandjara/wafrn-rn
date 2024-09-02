@@ -1,22 +1,27 @@
-import { getYoutubeImage, handleDomElement, HTML_STYLES, inlineImageConfig, isValidYTLink } from "@/lib/api/content";
+import {
+  BR,
+  HTML_INLINE_STYLES,
+  isDisplayBlock,
+  replaceHref,
+  inheritedStyle,
+  HTMLNodeWithParent,
+} from "@/lib/api/html";
+import { isValidYTLink, getYoutubeImage } from '@/lib/api/content'
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
 import { Image, ImageBackground } from "expo-image";
 import { Link, router } from "expo-router";
 import { parseDocument, DomUtils } from "htmlparser2";
-import { memo, useMemo } from "react";
-import { TouchableOpacity, View } from "react-native";
-import RenderHTML, { Element } from "react-native-render-html";
+import { memo, useMemo, useRef } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import HTMLView, { HTMLViewNode, HTMLViewNodeRenderer } from "react-native-htmlview";
 import colors from "tailwindcss/colors";
+import { decodeHTML } from 'entities';
 
-const RENDERER_PROPS = {
-  a: {
-    onPress(event: unknown, url: string) {
-      if (url.startsWith('wafrn://')) {
-        router.navigate(url.replace('wafrn://', ''))
-      } else {
-        router.navigate(url)
-      }
-    }
+function onLinkPress(url: string) {
+  if (url.startsWith('wafrn://')) {
+    router.navigate(url.replace('wafrn://', ''))
+  } else {
+    router.navigate(url)
   }
 }
 
@@ -32,27 +37,82 @@ function _PostHtmlRenderer({
   disableWhitespaceCollapsing?: boolean;
 }) {
   const context = useDashboardContext()
+  const renderContext = useRef({} as Record<string, any>)
 
-  const baseHTMLStyle = useMemo(() => {
-    return {
-      ...HTML_STYLES.text,
-      opacity: hidden ? 0 : 1,
+  const renderNode = useMemo(() => {
+    return function renderNode(
+      node: HTMLViewNode,
+      index: number,
+      siblings: HTMLViewNode[],
+      parent: HTMLViewNode,
+      defaultRenderer: HTMLViewNodeRenderer,
+    ) {
+      if (node.attribs?.parsed === 'true') {
+        if (node.name === 'img') {
+          const width = Number(node.attribs['width'])
+          const height = Number(node.attribs['height'])
+          const src = node.attribs['src']
+          if (!src || !width || !height) {
+            return null
+          }
+  
+          return (
+            <Image
+              key={index}
+              source={{ uri: node.attribs.src }}
+              style={{ width, height }}
+            />
+          )
+        }
+        return undefined // default render
+      }
+
+      if (node.name === 'a') {
+        replaceHref(node, context)
+      }
+
+      if (node.type === 'text') {
+        const customStyle = inheritedStyle(parent as HTMLNodeWithParent)
+        return (
+          <Text
+            selectable
+            key={index}
+            style={[HTML_INLINE_STYLES.text, customStyle]}
+          >{decodeHTML(node.data || '')}</Text>
+        )
+      }
+
+      const currentIsBlock = isDisplayBlock(node)
+      // only apply inline group to first level inline elements
+      if (!!parent || siblings.length === 1 || currentIsBlock) {
+        renderContext.current = {}
+        return undefined // default render
+      }
+
+      const ctx = renderContext.current      
+      ctx.nodes = ctx.nodes || []
+      ctx.nodes.push(node)
+      const nextNode = siblings[index + 1]
+      const nextIsBlock = nextNode && isDisplayBlock(nextNode)      
+      const shouldAcumulate = nextNode && !nextIsBlock
+
+      if (shouldAcumulate) {
+        return null // skip rendering this element, defer to render group in context
+      } else {
+        const nodes = ctx.nodes.map((n: HTMLViewNode) => {
+          n.attribs = n.attribs || {}
+          n.attribs.parsed = 'true'
+          return n
+        })
+        delete ctx.nodes
+        return (
+          <Text key={index}>
+            {defaultRenderer(nodes, parent)}
+          </Text>
+        )
+      }
     }
-  }, [hidden])
-
-  const defaultTextProps = useMemo(() => { 
-    return { selectable: !hidden }
-  }, [hidden])
-
-  const domVisitors = useMemo(() => {
-    return {
-      onElement: (el: Element) => handleDomElement({
-        el,
-        context,
-        width: contentWidth,
-      })
-    }
-  }, [context, contentWidth])
+  }, [context])
 
   const { source, ytLinks } = useMemo(() => {
     const dom = parseDocument(html)
@@ -75,19 +135,11 @@ function _PostHtmlRenderer({
 
   return (
     <>
-      <RenderHTML
-        tagsStyles={HTML_STYLES}
-        baseStyle={baseHTMLStyle}
-        contentWidth={contentWidth}
-        source={source}
-        // all images are set to inline, html renderer doesn't support dynamic block / inline images
-        // and most images inside post content are emojis, so we can just make them all inline
-        // and any block images should be rendered as media anyway
-        customHTMLElementModels={inlineImageConfig}
-        domVisitors={domVisitors}
-        defaultTextProps={defaultTextProps}
-        renderersProps={RENDERER_PROPS}
-        dangerouslyDisableWhitespaceCollapsing={disableWhitespaceCollapsing}
+      <HTMLView
+        value={source.html}
+        renderNode={renderNode}
+        onLinkPress={onLinkPress}
+        paragraphBreak={BR}
       />
       <View id='yt-link-cards'>
         {ytLinks.map(({ href, image }) => (
