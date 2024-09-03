@@ -1,11 +1,15 @@
 import { Image, ImageStyle } from 'expo-image'
 import { useState } from "react"
 import { Modal, Pressable, useWindowDimensions } from "react-native"
-import { ThemedView } from "../ThemedView"
 import { MaterialIcons } from "@expo/vector-icons"
 import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view"
 import { isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
+import { useThemeColor } from '@/hooks/useThemeColor'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { cssInterop } from 'nativewind'
+
+cssInterop(SafeAreaView, { className: 'style' })
 
 export default function ZoomableImage({
   id,
@@ -30,6 +34,7 @@ export default function ZoomableImage({
 }) {
   const [modalOpen, setModalOpen] = useState(false)
   const { width: deviceWidth } = useWindowDimensions()
+  const backgroundColor = useThemeColor({}, 'background')
 
   return (
     <>
@@ -39,7 +44,7 @@ export default function ZoomableImage({
           animationType="slide"
           onRequestClose={() => setModalOpen(false)}
         >
-          <ThemedView className="flex-1 relative">
+          <SafeAreaView className="flex-1 relative" style={{ backgroundColor }}>
             <Pressable onPress={() => setModalOpen(false)} className="p-3">
               <MaterialIcons name="close" size={24} color='white' />
             </Pressable>
@@ -62,7 +67,7 @@ export default function ZoomableImage({
                 />
               )}
             </ReactNativeZoomableView>
-          </ThemedView>
+          </SafeAreaView>
         </Modal>
       )}
       <Pressable className={className} onPress={() => !hidden && setModalOpen(true)}>

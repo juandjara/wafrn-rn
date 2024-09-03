@@ -9,6 +9,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import colors from 'tailwindcss/colors'
 import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { cssInterop } from 'nativewind'
+
+cssInterop(SafeAreaView, { className: 'style' })
 
 type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -75,7 +79,7 @@ export default function EmojiPicker({
       animationType="slide"
       onRequestClose={() => setOpen(false)}
     >
-      <View className='bg-indigo-950 flex-1'>
+      <SafeAreaView className='bg-indigo-950 flex-1'>
         <View className='p-4 flex-row items-center justify-between'>
           <Text className='text-white text-lg font-medium'>React with an emoji</Text>
           <Pressable onPress={() => setOpen(false)}>
@@ -145,7 +149,7 @@ export default function EmojiPicker({
             )
           }}
         />
-      </View>
+      </SafeAreaView>
     </Modal>
   )
 }
