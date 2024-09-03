@@ -133,14 +133,16 @@ export default function SearchResults() {
   }, [data?.pages])
 
   useEffect(() => {
-    if (view === SearchView.Users && users.length === 0) {
-      setView(SearchView.Posts)
-    }
-    if (view === SearchView.Posts && deduped.length === 0) {
-      setView(SearchView.Users)
+    if (!isFetching) {
+      if (view === SearchView.Users && users.length === 0) {
+        setView(SearchView.Posts)
+      }
+      if (view === SearchView.Posts && deduped.length === 0) {
+        setView(SearchView.Users)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deduped, users])
+  }, [isFetching, deduped, users])
 
   const screenTitle = (
     <Stack.Screen options={{
@@ -222,7 +224,17 @@ export default function SearchResults() {
                   onEndReached={() => (
                     view === SearchView.Users && hasNextPage && !isFetching && fetchNextPage()
                   )}
-                  ListFooterComponent={isFetching ? <Loading /> : null}
+                  ListFooterComponent={
+                    isFetching
+                      ? <Loading />
+                      : (
+                        <View>
+                          {users.length === 0 && (
+                            <Text className="text-white text-center py-4">No users found</Text>
+                          )}
+                        </View>
+                      )
+                  }
                 />
               )
             }
