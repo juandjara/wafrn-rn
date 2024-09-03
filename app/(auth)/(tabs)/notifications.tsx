@@ -55,6 +55,7 @@ export default function NotificationList() {
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{ title: 'Notifications' }} />
       <FlashList
+        ref={listRef}
         data={notifications}
         estimatedItemSize={200}
         getItemType={(item) => item.type}
