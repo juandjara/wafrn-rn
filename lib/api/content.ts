@@ -1,17 +1,7 @@
-import { defaultHTMLElementModels, HTMLContentModel } from "react-native-render-html"
 import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
-
-export const inlineImageConfig = {
-  img: defaultHTMLElementModels.img.extend({
-    contentModel: HTMLContentModel.mixed,
-    mixedUAStyles: {
-      justifyContent: 'flex-start',
-    }
-  })
-}
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content) {
