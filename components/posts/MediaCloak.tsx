@@ -47,7 +47,7 @@ export default function MediaCloak({
     <ImageBackground
       source={{ uri: `${backgroundImage.src}&avatar=true` }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
-      blurRadius={10}
+      blurRadius={1000}
     >{cloak}</ImageBackground>
   ) : (
     <View 
