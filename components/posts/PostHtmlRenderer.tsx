@@ -116,19 +116,26 @@ function _PostHtmlRenderer({
           ctx.nodes.push(node)
           return null 
         } else {
-          const nodes = ctx.nodes ? [...ctx.nodes, node] : [node]
-          ctx.completed = true
-          return (
-            <Text testID="inline-fragment" key={index}>{renderDom(nodes, dom)}</Text>
-          )
+          if (ctx.nodes) {
+            const nodes = [...ctx.nodes, node]
+            ctx.completed = true
+            return (
+              <Text testID="inline-fragment" key={index}>{renderDom(nodes, dom)}</Text>
+            )
+          }          
         }
       }
 
       if (node.type === 'text') {
         const customStyle = inheritedStyle(node as any)
-        const text = decodeHTML(node.data || '')
+        let text = decodeHTML(node.data || '')
+        if (node.parent?.type === 'tag' && (node.parent?.name === 'pre' || node.parent?.name === 'code')) {
+          text = text.trimStart()
+        }
+
         return (
           <Text
+            testID="text"
             style={[HTML_INLINE_STYLES.text, customStyle]}
             key={index}
           >{text}</Text>
