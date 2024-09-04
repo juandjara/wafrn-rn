@@ -87,7 +87,7 @@ type ElementNode = DomNode & {
 This renderer is only used for simple inline html rendering
 for things such as usernames and rewoot ribbons.
 It does not support the complex html rendering needed for post contents.
-For that, use the RenderHTML component from the react-native-render-html package
+For that, use the PostHtmlRenderer component.
 */
 const HtmlRenderer = React.memo(_HtmlRenderer)
 export default HtmlRenderer

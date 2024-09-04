@@ -1,20 +1,20 @@
 import { Platform, TextStyle, ViewStyle } from "react-native";
-import { HTMLViewNode } from "react-native-htmlview";
 import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
+import { ChildNode, Element } from 'domhandler'
 
 export const BR = '\n'
 
 export const HTML_BLOCK_STYLES = {
   blockquote: {
     paddingLeft: 12,
-    marginBottom: 16,
+    margin: 12,
     borderLeftWidth: 2,
     borderLeftColor: colors.gray[400],
     // backgroundColor: colors.gray[900],
   },
   ul: {
-    paddingLeft: 16,
+    marginLeft: 16,
     paddingBottom: 16,
   },
   ol: {
@@ -23,9 +23,9 @@ export const HTML_BLOCK_STYLES = {
   // li: {
   //   paddingLeft: 8,
   // },
-  // p: {
-  //   marginBottom: 4,
-  // },
+  p: {
+    marginBottom: 16,
+  },
 } satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
 const boldStyle = {fontWeight: 'bold' as const};
@@ -94,7 +94,7 @@ const BLOCK_TAGS = [
   'legend',
 ]
 
-export function isDisplayBlock(node: HTMLViewNode) {
+export function isDisplayBlock(node: ChildNode) {
   if (node.type !== 'tag') {
     return false
   }
@@ -108,8 +108,16 @@ export function isDisplayBlock(node: HTMLViewNode) {
   return style.includes('display: block')
 }
 
-function getNodeStyle(node: HTMLViewNode) {
+function getNodeStyle(node: ChildNode) {
+  if (node.type !== 'tag') {
+    return {}
+  }
+
   const styleText = node.attribs.style as string || ''
+  if (!styleText) {
+    return {}
+  }
+
   const style = styleText.split(';').reduce((acc, style) => {
     const [key, value] = style.split(':')
     if (key && value) {
@@ -133,29 +141,33 @@ function getNodeStyle(node: HTMLViewNode) {
   return filteredStyle as TextStyle
 }
 
-function getTagStyle(tag?: string) {
-  if (!tag) {
+function getTagStyle(node: ChildNode) {
+  if (node.type !== 'tag') {
     return {}
   }
-  const inline = HTML_INLINE_STYLES[tag]
-  const block = HTML_BLOCK_STYLES[tag]
-  return { ...inline, ...block }
+  const tag = node.name
+  return HTML_INLINE_STYLES[tag]
+  // const block = HTML_BLOCK_STYLES[tag]
+  // return { ...inline, ...block }
 }
 
-export type HTMLNodeWithParent = HTMLViewNode & { parent: HTMLNodeWithParent }
-
-export function inheritedStyle(node: HTMLNodeWithParent | null): TextStyle | null {
+export function inheritedStyle(node: ChildNode | null): TextStyle | null {
   if (!node) {
     return null
   }
-  const tagStyle = getTagStyle(node.name)
+  const tagStyle = getTagStyle(node)
   const nodeStyle = getNodeStyle(node)
   const style = {...tagStyle, ...nodeStyle}
   const parentStyle = inheritedStyle(node.parent)
   return {...parentStyle, ...style}
 }
 
-export function replaceHref(node: HTMLViewNode, context: DashboardContextData) {
+export function replaceHref(node: ChildNode, context: DashboardContextData) {
+  const isA = node.type === 'tag' && node.name === 'a'
+  if (!isA) {
+    return
+  }
+
   const className = node.attribs['class']
   if (className?.includes('mention')) {
     replaceMentionLink(node, context)
@@ -167,8 +179,8 @@ export function replaceHref(node: HTMLViewNode, context: DashboardContextData) {
   }
 }
 
-export function replaceMentionLink(node: HTMLViewNode, context: DashboardContextData) {
-  if (node.attribs['href']?.startsWith('wafrn:///')) {
+export function replaceMentionLink(node: Element, context: DashboardContextData) {
+  if (node.attribs['href'].startsWith('wafrn:///')) {
     return
   }
 
@@ -197,7 +209,7 @@ export function replaceMentionLink(node: HTMLViewNode, context: DashboardContext
     if (node.children.length === 2) {
       const [part1, part2] = node.children
       const firstPartIsAt = part1 && part1.type === 'text' && part1.data === '@'
-      const secondPartIsSpan = part2 && part2.name === 'span'
+      const secondPartIsSpan = part2 && part2.type === 'tag' && part2.name === 'span'
       if (firstPartIsAt && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {
@@ -214,8 +226,8 @@ export function replaceMentionLink(node: HTMLViewNode, context: DashboardContext
   }
 }
 
-export function replaceHashtagLink(node: HTMLViewNode, context: DashboardContextData) {
-  if (node.attribs['href']?.startsWith('wafrn:///')) {
+export function replaceHashtagLink(node: Element, context: DashboardContextData) {
+  if (node.attribs['href'].startsWith('wafrn:///')) {
     return
   }
 
@@ -226,7 +238,7 @@ export function replaceHashtagLink(node: HTMLViewNode, context: DashboardContext
     if (node.children.length === 1) {
       const child = node.children[0]
       if (child.type === 'text') {
-        const text = (node.data || '').replace('#', '')
+        const text = (child.data || '').replace('#', '')
         const tag = context.tags.find((t) => t.tagName === text)
         if (tag) {
           node.attribs['href'] = `wafrn:///tag/${tag.tagName}`
@@ -236,7 +248,7 @@ export function replaceHashtagLink(node: HTMLViewNode, context: DashboardContext
     if (node.children.length === 2) {
       const [part1, part2] = node.children
       const firstPartIsHash = part1 && part1.type === 'text' && part1.data === '#'
-      const secondPartIsSpan = part2 && part2.name === 'span'
+      const secondPartIsSpan = part2 && part2.type === 'tag' && part2.name === 'span'
       if (firstPartIsHash && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {

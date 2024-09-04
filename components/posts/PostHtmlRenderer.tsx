@@ -4,18 +4,19 @@ import {
   isDisplayBlock,
   replaceHref,
   inheritedStyle,
-  HTMLNodeWithParent,
+  HTML_BLOCK_STYLES,
 } from "@/lib/api/html";
 import { isValidYTLink, getYoutubeImage } from '@/lib/api/content'
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
 import { Image, ImageBackground } from "expo-image";
 import { Link, router } from "expo-router";
 import { parseDocument, DomUtils } from "htmlparser2";
+import { ChildNode } from 'domhandler'
 import { memo, useMemo, useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import HTMLView, { HTMLViewNode, HTMLViewNodeRenderer } from "react-native-htmlview";
 import colors from "tailwindcss/colors";
 import { decodeHTML } from 'entities';
+import { crush } from 'html-crush'
 
 function onLinkPress(url: string) {
   if (url.startsWith('wafrn://')) {
@@ -39,91 +40,13 @@ function _PostHtmlRenderer({
   const context = useDashboardContext()
   const renderContext = useRef({} as Record<string, any>)
 
-  const renderNode = useMemo(() => {
-    return function renderNode(
-      node: HTMLViewNode,
-      index: number,
-      siblings: HTMLViewNode[],
-      parent: HTMLViewNode,
-      defaultRenderer: HTMLViewNodeRenderer,
-    ) {
-      // run after the grouping of inline elements
-      if (node.attribs?.parsed === 'true') {
-        // use expo-image instead of RNImage
-        if (node.name === 'img') {
-          const width = Number(node.attribs['width'])
-          const height = Number(node.attribs['height'])
-          const src = node.attribs['src']
-          if (!src || !width || !height) {
-            return null
-          }
-  
-          return (
-            <Image
-              key={index}
-              source={{ uri: node.attribs.src }}
-              style={{ width, height }}
-            />
-          )
-        }
-        return undefined // default render
-      }
+  const { dom, ytLinks } = useMemo(() => {
+    const miniHtml = crush(html, {
+      removeLineBreaks: true,
+      lineLengthLimit: Infinity,
+    })
+    const dom = parseDocument(miniHtml.result)
 
-      // parse mention and hashtag links to route inside the app
-      if (node.name === 'a') {
-        replaceHref(node, context)
-      }
-      // remove empty paragraphs
-      if (node.name === 'p' && node.children.length === 0) {
-        return null
-      }
-
-      // render text with inherited inline styles
-      if (node.type === 'text') {
-        const customStyle = inheritedStyle(parent as HTMLNodeWithParent)
-        return (
-          <Text
-            selectable
-            key={index}
-            style={[HTML_INLINE_STYLES.text, customStyle]}
-          >{decodeHTML(node.data || '')}</Text>
-        )
-      }
-
-      const currentIsBlock = isDisplayBlock(node)
-      // only apply inline group to first level inline elements
-      if (!!parent || siblings.length === 1 || currentIsBlock) {
-        renderContext.current = {}
-        return undefined // default render
-      }
-
-      const ctx = renderContext.current      
-      ctx.nodes = ctx.nodes || []
-      ctx.nodes.push(node)
-      const nextNode = siblings[index + 1]
-      const nextIsBlock = nextNode && isDisplayBlock(nextNode)      
-      const shouldAcumulate = nextNode && !nextIsBlock
-
-      if (shouldAcumulate) {
-        return null // skip rendering this element, defer to render group in context
-      } else {
-        const nodes = ctx.nodes.map((n: HTMLViewNode) => {
-          n.attribs = n.attribs || {}
-          n.attribs.parsed = 'true'
-          return n
-        })
-        delete ctx.nodes
-        return (
-          <Text key={index}>
-            {defaultRenderer(nodes, parent)}
-          </Text>
-        )
-      }
-    }
-  }, [context])
-
-  const { source, ytLinks } = useMemo(() => {
-    const dom = parseDocument(html)
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
         const href = node.attribs.href
@@ -137,23 +60,122 @@ function _PostHtmlRenderer({
         href: node.attribs.href,
         image: getYoutubeImage(node.attribs.href),
       })),
-      source: { html }
+      dom,
     }
   }, [html])
 
+  function renderDom(nodes: ChildNode[], parent?: ChildNode): React.ReactNode[] {
+    let orderedListCounter = 1
+    return nodes.map((node, index) => {
+      const currentIsBlock = node.type === 'tag' && isDisplayBlock(node as any)
+
+      if (currentIsBlock) {
+        if (node.name === 'li' && parent?.type === 'tag') {
+          let listItemPrefix = null;
+          const defaultStyle = HTML_INLINE_STYLES.text
+          const customStyle = inheritedStyle(node as any);
+
+          if (parent.name === 'ol') {
+            listItemPrefix = (
+              <Text testID="ol-marker" style={[defaultStyle, customStyle]}>
+                {`${orderedListCounter++}. `}
+              </Text>
+            );
+          } else if (parent.name === 'ul') {
+            listItemPrefix = (
+              <Text testID="ul-marker" style={[defaultStyle, customStyle]}>{'· '}</Text>
+            );
+          }
+          return (
+            <Text key={index} testID="child-text">
+              {listItemPrefix}
+              {renderDom(node.children, node)}
+            </Text>
+          )
+        }
+
+        return (
+          <View testID={node.name} key={index} style={HTML_BLOCK_STYLES[node.name]}>
+            {renderDom(node.children, node)}
+          </View>
+        )
+      }
+
+      const ctx = renderContext.current
+      if (ctx.completed) {
+        const isLastChild = index === nodes.length - 1
+        if (isLastChild) {
+          renderContext.current = {}
+        }
+      } else {
+        const nextNode = nodes[index + 1]
+        const shouldAcumulate = nextNode && !isDisplayBlock(nextNode as any)
+
+        if (shouldAcumulate) {
+          ctx.nodes = ctx.nodes || []
+          ctx.nodes.push(node)
+          return null 
+        } else {
+          const nodes = ctx.nodes ? [...ctx.nodes, node] : [node]
+          ctx.completed = true
+          return (
+            <Text testID="inline-fragment" key={index}>{renderDom(nodes, dom)}</Text>
+          )
+        }
+      }
+
+      if (node.type === 'text') {
+        const customStyle = inheritedStyle(node as any)
+        const text = decodeHTML(node.data || '')
+        return (
+          <Text
+            style={[HTML_INLINE_STYLES.text, customStyle]}
+            key={index}
+          >{text}</Text>
+        )
+      }
+
+      if (node.type === 'tag') {
+        if (node.name === 'a') {
+          replaceHref(node as any, context)
+          return (
+            <Text testID="a" key={index} onPress={() => onLinkPress(decodeHTML(node.attribs.href))}>
+              {renderDom(node.children, node)}
+            </Text>
+          )
+        }
+
+        if (node.name === 'img') {
+          const width = Number(node.attribs['width'])
+          const height = Number(node.attribs['height'])
+          const src = node.attribs['src']
+          if (!src || !width || !height) {
+            return null
+          }
+
+          return (
+            <Image
+              key={index}
+              source={{ uri: node.attribs.src }}
+              style={{ width, height }}
+            />
+          )
+        }
+
+        if (node.name === 'br') {
+          return <Text testID="br" key={index}>{BR}</Text>
+        }
+
+        return renderDom(node.children, node)
+      }
+
+      return null
+    })
+  }
+
   return (
     <>
-      <HTMLView
-        value={source.html}
-        renderNode={renderNode}
-        textComponentProps={{
-          selectable: true,
-          // this style is only applied to <li> markers
-          style: { color: colors.gray[300] },
-        }}
-        onLinkPress={onLinkPress}
-        paragraphBreak={BR}
-      />
+      <View id='html-content'>{renderDom(dom.children)}</View>
       <View id='yt-link-cards'>
         {ytLinks.map(({ href, image }) => (
           <Link key={href} href={href} asChild>
