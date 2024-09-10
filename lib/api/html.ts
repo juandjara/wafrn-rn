@@ -2,6 +2,7 @@ import { Platform, TextStyle, ViewStyle } from "react-native";
 import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
+import { DomUtils } from "htmlparser2";
 
 export const BR = '\n'
 
@@ -164,7 +165,8 @@ export function inheritedStyle(node: ChildNode | null): TextStyle | null {
 
 export function replaceHref(node: ChildNode, context: DashboardContextData) {
   const isA = node.type === 'tag' && node.name === 'a'
-  if (!isA) {
+  const validNode = isA && !!node.attribs['href']
+  if (!validNode) {
     return
   }
 
