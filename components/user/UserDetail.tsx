@@ -13,6 +13,7 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import clsx from "clsx";
 import colors from "tailwindcss/colors";
+import AskModal from "./AskModal";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -200,11 +201,7 @@ export default function UserDetail({ user }: { user: User }) {
             ))}
           </View>
           {hasAsks && (
-            <Pressable>
-              <Text className="text-cyan-500 bg-cyan-500/20 py-2 mb-4 px-5 text-lg rounded-full text-center">
-                Ask a question
-              </Text>
-            </Pressable>
+            <AskModal user={user} userName={userName} />
           )}
           <Text className="text-white text-sm text-center mt-2">
             Joined {new Date(user.createdAt).toLocaleDateString()}
