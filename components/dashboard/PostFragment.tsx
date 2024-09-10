@@ -18,6 +18,7 @@ import UserRibbon from "../user/UserRibbon"
 import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
+import InteractionRibbon from "../posts/InteractionRibbon"
 
 const HEIGHT_LIMIT = 462
 const EXPANDER_MARGIN = 38
@@ -178,11 +179,14 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className={clsx('px-3 bg-indigo-950')}
+        className='px-3 bg-indigo-950 relative'
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
       >
+        <View className="absolute z-20 top-0 right-0">
+          <InteractionRibbon post={post} orientation="vertical" />
+        </View>
         {user && <UserRibbon user={user} userName={userName} />}
         <View id='date-line' className="flex-row gap-1 items-center">
           {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}

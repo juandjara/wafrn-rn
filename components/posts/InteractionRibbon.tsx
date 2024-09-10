@@ -18,50 +18,51 @@ const optionStyle = (i: number) => ({
   gap: 12,
 })
 
-export default function InteractionRibbon({ post }: { post: Post }) {
+export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
+  post: Post
+  orientation?: 'horizontal' | 'vertical'
+}) {
   const me = useParsedToken()
   const createdByMe = post.userId === me?.userId
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
-  const mainOptions = useMemo(() => {
-    return [
+  const { mainOptions, collapsedOptions } = useMemo(() => {
+    const iconColor = orientation === 'vertical' ? 'black' : 'white'
+    const mainOptions = [
       {
         action: () => {},
-        label: 'reply',
-        icon: <MaterialCommunityIcons name="reply" size={20} color="white" />,
+        label: 'Reply to this woot',
+        icon: <MaterialCommunityIcons name="reply" size={20} color={iconColor} />,
         enabled: true
       },
       {
         action: () => {},
-        label: 'quote',
-        icon: <MaterialIcons name="format-quote" size={20} color="white" />,
+        label: 'Quote woot',
+        icon: <MaterialIcons name="format-quote" size={20} color={iconColor} />,
         enabled: post.privacy === PrivacyLevel.PUBLIC || post.privacy === PrivacyLevel.UNLISTED
       },
       {
         action: () => {},
-        label: 'rewoot',
-        icon: <AntDesign name="retweet" size={20} color="white" />,
+        label: 'Rewoot',
+        icon: <AntDesign name="retweet" size={20} color={iconColor} />,
         enabled: post.privacy !== PrivacyLevel.DIRECT_MESSAGE && post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
       },
       {
         action: () => {},
-        label: 'like',
-        icon: <MaterialCommunityIcons name="heart" size={20} color="white" />,
+        label: 'Like',
+        icon: <MaterialCommunityIcons name="heart" size={20} color={iconColor} />,
         enabled: !createdByMe
       },
       {
         action: () => {
           setEmojiPickerOpen(true)
         },
-        label: 'emoji-react',
-        icon: <MaterialIcons name="emoji-emotions" size={20} color="white" />,
+        label: 'React with an emoji',
+        icon: <MaterialIcons name="emoji-emotions" size={20} color={iconColor} />,
         enabled: !createdByMe
       }
     ].filter((opt) => opt.enabled)
-  }, [post, createdByMe])
-
-  const collapsedOptions = useMemo(() => {
-    return [
+    const collapsedOptions = [
       {
         action: () => {
           Share.share({
@@ -123,11 +124,63 @@ export default function InteractionRibbon({ post }: { post: Post }) {
         enabled: createdByMe,
       }
     ].filter((opt) => opt.enabled)
-  }, [post, createdByMe])
+
+    if (orientation === 'vertical') {
+      return {
+        mainOptions: [],
+        collapsedOptions: mainOptions.concat(collapsedOptions)
+      }
+    } else {
+      return {
+        mainOptions,
+        collapsedOptions
+      }
+    }
+  }, [orientation, post, createdByMe])
 
   function onPickEmoji() {
     setEmojiPickerOpen(false)
     // TODO run emoji reaction mutation
+  }
+
+  if (orientation === 'vertical') {
+    return (
+      <>
+        <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
+        <Menu style={{
+          margin: 6,
+          borderRadius: 8,
+          backgroundColor: colors.indigo[950]
+        }}>
+          <MenuTrigger style={{ padding: 6 }}>
+            <MaterialCommunityIcons
+              size={20}
+              name={`dots-${orientation}`}
+              color={colors.gray[300]}
+              style={{ opacity: 0.75 }}
+            />
+          </MenuTrigger>
+          <MenuOptions customStyles={{
+            optionsContainer: {
+              transformOrigin: 'top right',
+              borderRadius: 8,
+            },
+          }}>
+            {collapsedOptions.map((option, i) => (
+              <MenuOption
+                key={i}
+                value={option.label}
+                style={optionStyle(i)}
+                onSelect={option.action}
+              >
+                {option.icon}
+                <Text className="text-sm flex-grow">{option.label}</Text>
+              </MenuOption>
+            ))}
+          </MenuOptions>
+        </Menu>
+      </>
+    )
   }
 
   return (
@@ -149,7 +202,7 @@ export default function InteractionRibbon({ post }: { post: Post }) {
           ))}
           <Menu>
             <MenuTrigger style={{ padding: 6 }}>
-              <MaterialCommunityIcons name="dots-horizontal" size={20} color="white" />
+              <MaterialCommunityIcons name={`dots-${orientation}`} size={20} color="white" />
             </MenuTrigger>
             <MenuOptions customStyles={{
               optionsContainer: {
