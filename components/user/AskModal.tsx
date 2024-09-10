@@ -51,10 +51,11 @@ export default function AskModal({ user, userName }: { user: PostUser; userName:
           <Text className="pt-3 px-4 text-gray-300 text-sm">
             You are logged in. This user will see you as the asker of this question
           </Text>
-          <Collapsible className="px-3 pt-4 pb-5" title='How to ask an anonymous question?'>
+          <Collapsible className="px-3 pt-4 pb-5" title='How to ask from your fedi instance?'>
             <Text className="text-white text-sm" style={{ marginLeft: 2 }}>
-              To ask an anonymous question to this user (even from other fedi instances), send a DM to this user with the following format:
-              "!ask @{user.url} {'<your question here>'}"
+              To ask a question (non anonymous) to this user from other fedi instances, send a DM to this user with the following format:
+              "!ask @{user.url} {'<your question here>'}" (only one mention per message).
+              Emojis and other media will be removed from the displayed question text but the DM content will be kept as is in the federated message.
             </Text>
           </Collapsible>
         </SafeAreaView>
