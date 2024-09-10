@@ -45,7 +45,13 @@ export type UserEmoji = EmojiBase & Timestamps & {
 }
 
 export enum PublicOptionNames {
-  CustomFields = 'fediverse.public.attachment'
+  CustomFields = 'fediverse.public.attachment',
+  Asks = 'wafrn.public.asks'
+}
+export enum AskOptionValue {
+  AllowAnonAsks = 1,
+  AllowIdentifiedAsks = 2,
+  AllowNoAsks = 3
 }
 
 export type PublicOption = SettingsOption & {
@@ -60,6 +66,19 @@ export type PublicOptionTypeMap = {
     name: string // HTML (with emojis)
     value: string // HTML (with emojis)
   }[]
+  [PublicOptionNames.Asks]: AskOptionValue
+}
+
+export function getPublicOptionValue<T extends PublicOptionNames = PublicOptionNames>(options: PublicOption[], key: T) {
+  const option = options.find((o) => o.optionName === key)
+  const json = option?.optionValue
+  if (!json) return null
+  try {
+    return JSON.parse(json) as PublicOptionTypeMap[typeof key]
+  } catch (e) {
+    console.error(`Failed to parse public option value "${json}"`, e)
+    return null
+  }
 }
 
 export async function getUser(token: string, handle?: string) {

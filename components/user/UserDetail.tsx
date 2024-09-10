@@ -1,4 +1,4 @@
-import { PublicOptionNames, PublicOptionTypeMap, useFollowers, User } from "@/lib/api/user";
+import { AskOptionValue, getPublicOptionValue, PublicOptionNames, useFollowers, User } from "@/lib/api/user";
 import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
@@ -53,14 +53,15 @@ export default function UserDetail({ user }: { user: User }) {
   }, [user])
 
   const customFields = useMemo(() => {
-    const json = user.publicOptions.find((o) => o.optionName === PublicOptionNames.CustomFields)?.optionValue
-    if (!json) return []
-    const fields = JSON.parse(json) as PublicOptionTypeMap[PublicOptionNames.CustomFields]
+    const fields = getPublicOptionValue(user.publicOptions, PublicOptionNames.CustomFields) || []
     return fields.map((f) => ({
       name: replaceEmojis(f.name, user.emojis),
       value: replaceEmojis(f.value, user.emojis)
     }))
   }, [user])
+
+  const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
+  const hasAsks = askFlag !== AskOptionValue.AllowNoAsks
 
   return (
     <View className="mb-2">
@@ -198,6 +199,13 @@ export default function UserDetail({ user }: { user: User }) {
               </View>
             ))}
           </View>
+          {hasAsks && (
+            <Pressable>
+              <Text className="text-cyan-500 bg-cyan-500/20 py-2 mb-4 px-5 text-lg rounded-full text-center">
+                Ask a question
+              </Text>
+            </Pressable>
+          )}
           <Text className="text-white text-sm text-center mt-2">
             Joined {new Date(user.createdAt).toLocaleDateString()}
           </Text>
