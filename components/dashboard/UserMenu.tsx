@@ -45,7 +45,7 @@ export default function UserMenu() {
           onSelect={() => router.push(`/user/${user.url}`)}
           style={optionStyle(0)}
         >
-          <MaterialCommunityIcons name="account" size={20} color={colors.gray[600]} />
+          <MaterialCommunityIcons name="account-outline" size={20} color={colors.gray[600]} />
           <Text className="text-sm flex-grow">My profile</Text>
         </MenuOption>
         <MenuOption
