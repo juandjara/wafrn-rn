@@ -7,9 +7,6 @@ import { isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { cssInterop } from 'nativewind'
-
-cssInterop(SafeAreaView, { className: 'style' })
 
 export default function ZoomableImage({
   id,

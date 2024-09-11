@@ -4,9 +4,6 @@ import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { DashboardMode } from "@/lib/api/dashboard"
 import colors from "tailwindcss/colors"
-import { cssInterop } from "nativewind"
-
-cssInterop(Image, { className: "style" })
 
 const MODES = [
   DashboardMode.FEED,

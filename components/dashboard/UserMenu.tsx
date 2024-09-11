@@ -1,14 +1,20 @@
 import { useCurrentUser } from "@/lib/api/user"
 import { formatSmallAvatar } from "@/lib/formatters"
 import { router } from "expo-router"
-import { TouchableOpacity } from "react-native"
+import { Text, TouchableOpacity } from "react-native"
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu"
 import colors from "tailwindcss/colors"
 import { Image } from 'expo-image'
 import { useAuth } from "@/lib/contexts/AuthContext"
-import { cssInterop } from "nativewind"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 
-cssInterop(Image, { className: "style" })
+const optionStyle = (i: number) => ({
+  padding: 12,
+  borderTopWidth: i > 0 ? 1 : 0,
+  borderTopColor: colors.gray[200],
+  flexDirection: 'row' as const,
+  gap: 12,
+})
 
 export default function UserMenu() {
   const { setToken } = useAuth()
@@ -36,21 +42,19 @@ export default function UserMenu() {
         },
       }}>
         <MenuOption
-          text='My profile'
           onSelect={() => router.push(`/user/${user.url}`)}
-          style={{
-            padding: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray[200],
-          }}
-        />
+          style={optionStyle(0)}
+        >
+          <MaterialCommunityIcons name="account" size={20} color={colors.gray[600]} />
+          <Text className="text-sm flex-grow">My profile</Text>
+        </MenuOption>
         <MenuOption
-          text='Sign out'
           onSelect={logout}
-          style={{
-            padding: 12,
-          }}
-        />
+          style={optionStyle(1)}
+        >
+          <MaterialCommunityIcons name="logout" size={20} color={colors.gray[600]} />
+          <Text className="text-sm flex-grow">Logout</Text>
+        </MenuOption>
       </MenuOptions>
     </Menu>
   )

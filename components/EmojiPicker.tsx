@@ -10,9 +10,6 @@ import colors from 'tailwindcss/colors'
 import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { cssInterop } from 'nativewind'
-
-cssInterop(SafeAreaView, { className: 'style' })
 
 type Emoji = EmojiBase & {
   emojiCollectionId?: string
