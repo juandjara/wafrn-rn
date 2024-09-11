@@ -9,14 +9,7 @@ import { Pressable, Share, Text, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
 import colors from "tailwindcss/colors";
 import EmojiPicker from "../EmojiPicker";
-
-const optionStyle = (i: number) => ({
-  padding: 12,
-  borderTopWidth: i > 0 ? 1 : 0,
-  borderTopColor: colors.gray[200],
-  flexDirection: 'row' as const,
-  gap: 12,
-})
+import { optionStyle } from "@/lib/styles";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post

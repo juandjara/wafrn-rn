@@ -7,23 +7,35 @@ import colors from "tailwindcss/colors"
 import { Image } from 'expo-image'
 import { useAuth } from "@/lib/contexts/AuthContext"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-
-const optionStyle = (i: number) => ({
-  padding: 12,
-  borderTopWidth: i > 0 ? 1 : 0,
-  borderTopColor: colors.gray[200],
-  flexDirection: 'row' as const,
-  gap: 12,
-})
+import { optionStyle } from "@/lib/styles"
 
 export default function UserMenu() {
   const { setToken } = useAuth()
   const { data: user } = useCurrentUser()
 
-  function logout() {
-    setToken(null)
-  }
-  
+  const options = [
+    {
+      icon: 'account-outline',
+      label: 'My profile',
+      action: () => router.push(`/user/${user?.url}`)
+    },
+    // {
+    //   icon: 'account-clock-outline',
+    //   label: 'Awaiting follows',
+    //   action: () => router.push('/awaiting-follows')
+    // },
+    {
+      icon: 'cog-outline',
+      label: 'Settings',
+      action: () => router.push('/settings')
+    },
+    {
+      icon: 'logout',
+      label: 'Logout',
+      action: () => setToken(null)
+    },
+  ] as const
+
   if (!user) return undefined
   return (
     <Menu>
@@ -41,20 +53,16 @@ export default function UserMenu() {
           borderRadius: 8,
         },
       }}>
-        <MenuOption
-          onSelect={() => router.push(`/user/${user.url}`)}
-          style={optionStyle(0)}
-        >
-          <MaterialCommunityIcons name="account-outline" size={20} color={colors.gray[600]} />
-          <Text className="text-sm flex-grow">My profile</Text>
-        </MenuOption>
-        <MenuOption
-          onSelect={logout}
-          style={optionStyle(1)}
-        >
-          <MaterialCommunityIcons name="logout" size={20} color={colors.gray[600]} />
-          <Text className="text-sm flex-grow">Logout</Text>
-        </MenuOption>
+        {options.map((option, i) => (
+          <MenuOption
+            key={i}
+            onSelect={option.action}
+            style={optionStyle(i)}
+          >
+            <MaterialCommunityIcons name={option.icon} size={20} color={colors.gray[600]} />
+            <Text className="text-sm flex-grow">{option.label}</Text>
+          </MenuOption>
+        ))}
       </MenuOptions>
     </Menu>
   )
