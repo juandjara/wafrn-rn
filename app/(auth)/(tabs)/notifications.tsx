@@ -58,6 +58,9 @@ export default function NotificationList() {
         options={{
           title: 'Notifications',
           headerRight: () => {
+            if (!notificationCountByType?.asks) {
+              return null
+            }
             return (
               <Link href='/asks' asChild>
                 <Pressable className="mr-2 active:bg-cyan-500/25 pl-2 pr-3 py-1 rounded-lg flex-row gap-2">
