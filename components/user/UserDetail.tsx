@@ -62,7 +62,7 @@ export default function UserDetail({ user }: { user: User }) {
   }, [user])
 
   const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
-  const hasAsks = askFlag !== AskOptionValue.AllowNoAsks
+  const hasAsks = !user.remoteId && askFlag !== AskOptionValue.AllowNoAsks
 
   return (
     <View className="mb-2">
