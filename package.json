@@ -42,6 +42,7 @@
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
+    "expo-video-player": "^2.2.0",
     "expo-web-browser": "~13.0.3",
     "html-crush": "^4.2.0",
     "htmlparser2": "^9.1.0",

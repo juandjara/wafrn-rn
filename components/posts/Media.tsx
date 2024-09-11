@@ -5,8 +5,9 @@ import { isAudio, isImage, isNotAV, isVideo, useAspectRatio } from "@/lib/api/me
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { ResizeMode, Video } from "expo-av";
+import { ResizeMode } from "expo-av";
 import MediaCloak from "./MediaCloak";
+import VideoPlayer from "expo-video-player";
 
 export const MEDIA_MARGIN = -2
 
@@ -35,14 +36,23 @@ export default function Media({ media, contentWidth, hidden }: {
         {isVideo(src) && (
           <>
             <Pressable>
-              <Video
+              <VideoPlayer
+                style={{ width: mediaWidth, height: mediaWidth }}
+                videoProps={{
+                  source: { uri: src },
+                  resizeMode: ResizeMode.CONTAIN,
+                  isLooping: true,
+                  usePoster: true,
+                }}
+              />
+              {/* <Video
                 source={{ uri: src }}
                 resizeMode={ResizeMode.CONTAIN}
                 style={{ width: mediaWidth, height: mediaWidth }}
                 isLooping
                 usePoster
                 useNativeControls
-              />
+              /> */}
             </Pressable>
           </>
         )}
