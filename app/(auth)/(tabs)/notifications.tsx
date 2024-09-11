@@ -8,7 +8,7 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
-import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
+import { getNotificationList, notificationPageToDashboardPage, useNotificationBadges, useNotifications, type Notification } from "@/lib/notifications"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useScrollToTop } from "@react-navigation/native"
 import { FlashList } from "@shopify/flash-list"
@@ -17,10 +17,11 @@ import { Image } from "expo-image"
 import { LinearGradient } from "expo-linear-gradient"
 import { Link, Stack } from "expo-router"
 import { useMemo, useRef } from "react"
-import { Text, useWindowDimensions, View } from "react-native"
+import { Pressable, Text, useWindowDimensions, View } from "react-native"
 import colors from "tailwindcss/colors"
 
 export default function NotificationList() {
+  const { data: notificationCountByType } = useNotificationBadges()
   const {
     data,
     fetchNextPage,
@@ -53,7 +54,25 @@ export default function NotificationList() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{ title: 'Notifications' }} />
+      <Stack.Screen
+        options={{
+          title: 'Notifications',
+          headerRight: () => {
+            return (
+              <Link href='/asks' asChild>
+                <Pressable className="mr-2 active:bg-cyan-500/25 pl-2 pr-3 py-1 rounded-lg flex-row gap-2">
+                  <Text className="text-white bg-cyan-700 rounded-full w-6 text-center">
+                    {notificationCountByType?.asks}
+                  </Text> 
+                  <Text className="text-white">
+                    Asks
+                  </Text>
+                </Pressable>
+              </Link>
+            )
+          }
+        }}
+      />
       <FlashList
         ref={listRef}
         data={notifications}

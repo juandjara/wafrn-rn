@@ -1,10 +1,16 @@
 import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Tabs } from "expo-router"
+import { useMemo } from "react"
 import colors from "tailwindcss/colors"
 
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
+  const notificationCount = useMemo(() => {
+    const notifications = data?.notifications || 0
+    const asks = data?.asks || 0
+    return notifications + asks
+  }, [data])
   
   return (
     <Tabs screenOptions={{
@@ -33,7 +39,7 @@ export default function TabsLayout() {
         name="notifications"
         options={{
           title: 'Notifications',
-          tabBarBadge: data?.notifications || undefined,
+          tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
             backgroundColor: colors.cyan[600],
             color: colors.white,

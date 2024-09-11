@@ -9,6 +9,7 @@ import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
 
 type NotificationsBadges = {
+  asks: number
   notifications: number
   followsAwaitingAproval: number
   reports: number
