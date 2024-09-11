@@ -45,24 +45,22 @@ export default function Media({ media, contentWidth, hidden }: {
                   usePoster: true,
                 }}
               />
-              {/* <Video
-                source={{ uri: src }}
-                resizeMode={ResizeMode.CONTAIN}
-                style={{ width: mediaWidth, height: mediaWidth }}
-                isLooping
-                usePoster
-                useNativeControls
-              /> */}
             </Pressable>
           </>
         )}
         {isAudio(src) && (
-          <Text className="text-white p-2 italic">Audio not yet supported :c</Text>
-          // <audio
-          //   className="rounded-md"
-          //   controls
-          //   src={url}
-          // />
+          <View className="p-1 bg-black">
+            <VideoPlayer
+              style={{ width: mediaWidth, height: 80 }}
+              fullscreen={{ visible: false }}
+              autoHidePlayer={false}
+              defaultControlsVisible
+              videoProps={{
+                source: { uri: src },
+                isLooping: true,
+              }}
+            />
+          </View>
         )}
         {isImage(src) && (
           <ZoomableImage
