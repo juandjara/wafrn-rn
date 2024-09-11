@@ -1,3 +1,4 @@
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, Stack } from "expo-router";
@@ -5,6 +6,7 @@ import { Pressable, ScrollView, Text } from "react-native";
 import colors from "tailwindcss/colors";
 
 export default function Settings() {
+  const { setToken } = useAuth()
 
   const options = [
     {
@@ -56,6 +58,14 @@ export default function Settings() {
             </Pressable>
           </Link>
         ))}
+        <Pressable
+          onPress={() => setToken(null)}
+          className="active:bg-white/10"
+          style={optionStyleDark(0)}
+        >
+          <MaterialCommunityIcons name='logout' size={24} color={colors.red[400]} />
+          <Text className="text-red-400">Log out</Text>
+        </Pressable>
       </ScrollView>
     </>
   )
