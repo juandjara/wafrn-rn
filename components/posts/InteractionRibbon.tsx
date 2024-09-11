@@ -31,13 +31,13 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     const mainOptions = [
       {
         action: () => {},
-        label: 'Reply to this woot',
+        label: 'Reply',
         icon: <MaterialCommunityIcons name="reply" size={20} color={iconColor} />,
         enabled: true
       },
       {
         action: () => {},
-        label: 'Quote woot',
+        label: 'Quote',
         icon: <MaterialIcons name="format-quote" size={20} color={iconColor} />,
         enabled: post.privacy === PrivacyLevel.PUBLIC || post.privacy === PrivacyLevel.UNLISTED
       },
@@ -200,29 +200,6 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
               {opt.icon}
             </Pressable>
           ))}
-          <Menu>
-            <MenuTrigger style={{ padding: 6 }}>
-              <MaterialCommunityIcons name={`dots-${orientation}`} size={20} color="white" />
-            </MenuTrigger>
-            <MenuOptions customStyles={{
-              optionsContainer: {
-                transformOrigin: 'top right',
-                borderRadius: 8,
-              },
-            }}>
-              {collapsedOptions.map((option, i) => (
-                <MenuOption
-                  key={i}
-                  value={option.label}
-                  style={optionStyle(i)}
-                  onSelect={option.action}
-                >
-                  {option.icon}
-                  <Text className="text-sm flex-grow">{option.label}</Text>
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
         </View>
       </View>
     </>
