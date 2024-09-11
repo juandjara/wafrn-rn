@@ -3,6 +3,11 @@ import useAsyncStorage from "../useLocalStorage";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { parseToken } from "../api/auth";
 
+export enum UserRoles {
+  Admin = 10,
+  User = 0,
+}
+
 type AuthContextData = {
   token: string | null;
   setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>;
