@@ -103,17 +103,6 @@ function NotificationItem({ notification }: { notification: Notification }) {
   if (notification.type === 'reblog') {
     ribbon = <RewootRibbon user={user} userNameHTML={userName} />
   }
-  if (notification.type === 'mention') {
-    ribbon = (
-      <View className="bg-indigo-700 p-0.5 absolute rounded-full -top-1 -left-1">
-        <MaterialCommunityIcons
-          name="reply"
-          size={16}
-          color="white"
-        />
-      </View>
-    )
-  }
   if (notification.type === 'quote') {
     ribbon = (
       <GenericRibbon
