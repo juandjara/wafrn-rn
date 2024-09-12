@@ -53,6 +53,7 @@ export default function PostFragment({
     postRef.current = post
     setCWOpen(!post.content_warning)
     setCollapsed(true)
+    maxHeightRef.current.setValue(post.content_warning ? 0 : HEIGHT_LIMIT)
     if (measured.current) {
       setFullHeight(0)
       requestAnimationFrame(() => {
