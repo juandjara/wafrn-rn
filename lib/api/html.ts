@@ -2,7 +2,6 @@ import { Platform, TextStyle, ViewStyle } from "react-native";
 import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
-import { DomUtils } from "htmlparser2";
 
 export const BR = '\n'
 
