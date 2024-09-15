@@ -54,7 +54,7 @@ type NotificationPayload = {
   page: number
 }
 
-type NotificationsPage = {
+export type NotificationsPage = {
   emojiReactions: (Timestamps & PostEmojiReaction & { id: string; remoteId: string })[]
   emojis: EmojiGroupConfig['emojis']
   users: Omit<PostUser, 'remoteId'>[]
@@ -171,6 +171,7 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
     quotedPosts: page.posts.filter((p) => page.quotes.some((q) => q.quotedPostId === p.id)),
     quotes: page.quotes,
     asks: page.asks,
+    rewootIds: [], // TODO consider if we can get data here somehow
   } satisfies DashboardData
 }
 

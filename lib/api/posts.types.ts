@@ -105,6 +105,7 @@ export type DashboardData = {
   users: PostUser[]
   tags: PostTag[]
   asks: PostAsk[]
+  rewootIds?: string[] // ids of posts rewooted by me
 }
 
 export type PostAsk = Timestamps & {

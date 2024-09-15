@@ -30,7 +30,7 @@ export async function getPostDetail(token: string, id: string) {
 export function usePostDetail(id: string) {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['postDetail', id],
+    queryKey: ['post', id, 'detail'],
     queryFn: () => getPostDetail(token!, id),
     enabled: !!token && !!id,
     throwOnError: false
@@ -97,7 +97,7 @@ export async function getPostReplies(token: string, id: string) {
 export function usePostReplies(id: string) {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['postReples', id],
+    queryKey: ['post', id, 'replies'],
     queryFn: () => getPostReplies(token!, id),
     enabled: !!token && !!id,
     throwOnError: false

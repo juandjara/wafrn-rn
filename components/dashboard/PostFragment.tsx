@@ -7,7 +7,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
-import { getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
+import { EmojiGroup, getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
@@ -26,9 +26,11 @@ const EXPANDER_MARGIN = 38
 export default function PostFragment({
   post: _post,
   isQuote,
+  hasCornerMenu = true
 }: {
   post: Post
   isQuote?: boolean
+  hasCornerMenu?: boolean
 }) {
   const postRef = useRef(_post)
   const post = postRef.current
@@ -121,15 +123,6 @@ export default function PostFragment({
       .sort((a, b) => a.order - b.order)
   }, [post, context])
 
-  const likes = useMemo(() => {
-    return context.likes
-      .filter((l) => l.postId === post.id)
-      .map((l) => ({
-        user: context.users.find((u) => u.id === l.userId),
-        emoji: '❤️'
-      }))
-  }, [post, context])
-
   const quotedPost = useMemo(() => {
     if (isQuote) {
       return undefined
@@ -156,14 +149,30 @@ export default function PostFragment({
   }, [post, context])
 
   const reactions = useMemo(() => {
-    return getReactions(post, context)
+    const reactions = getReactions(post, context)
+    const likeReactions = reactions.filter((r) => r.emoji === '❤️' || r.emoji === '♥️')
+    const likeUsers = context.likes
+      .filter((l) => l.postId === post.id)
+      .map((l) => context.users.find((u) => u.id === l.userId))
+      .filter((u) => !!u)
+      .concat(likeReactions?.flatMap((l) => l.users) || [])
+
+    const fullReactions = reactions.filter((r) => r.emoji !== '❤️' && r.emoji !== '♥️')
+    if (likeUsers.length) {
+      return [{
+        id: `${post.id}-likes`,
+        emoji: '❤️' as any,
+        users: likeUsers,
+      }].concat(fullReactions)
+    }
+
+    return fullReactions
   }, [post, context])
 
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
 
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
-  const hasReactions = likes.length > 0 || reactions.length > 0
 
   function onPollVote(indexes: number[]) {
     // TODO: implement
@@ -185,9 +194,11 @@ export default function PostFragment({
           color: `${colors.cyan[700]}40`,
         }}
       >
-        <View className="absolute z-20 top-0 right-0">
-          <InteractionRibbon post={post} orientation="vertical" />
-        </View>
+        {hasCornerMenu && (
+          <View className="absolute z-20 top-0 right-0">
+            <InteractionRibbon post={post} orientation="vertical" />
+          </View>
+        )}
         {user && <UserRibbon user={user} userName={userName} />}
         <View id='date-line' className="flex-row gap-1 items-center">
           {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
@@ -256,11 +267,13 @@ export default function PostFragment({
               {ask && (
                 <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
                   <View className="flex-row gap-2 mb-4 items-center">
-                    <Image
-                      source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
-                      style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-                      className="flex-shrink-0 rounded-md border border-gray-500"
-                    />
+                    <Link href={`/user/${ask.user?.url}`}>
+                      <Image
+                        source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
+                        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+                        className="flex-shrink-0 rounded-md border border-gray-500"
+                      />
+                    </Link>
                     <View className="flex-row items-center flex-grow flex-shrink text-white">
                       <HtmlRenderer html={ask.userName} renderTextRoot />
                       <Text className="text-white"> asked: </Text>
@@ -341,60 +354,52 @@ export default function PostFragment({
             )}
           </Animated.View>
         </View>
-        {hasReactions && (
+        {reactions.length > 0 && (
           <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-            {likes.length > 0 && (
-              <ReactionDetailsMenu
-                users={likes.map((l) => l.user).filter(l => !!l)}
-                reaction='liked'
-              >
-                <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                  ❤️ {likes.length}
-                </Text>
-              </ReactionDetailsMenu>
-            )}
-            {reactions.map((r) => {
-              if (typeof r.emoji === 'string') {
-                return (
-                  <ReactionDetailsMenu
-                    key={r.id}
-                    users={r.users}
-                    reaction={r.emoji}
-                  >
-                    <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-                      {r.emoji} {r.users.length}
-                    </Text>
-                  </ReactionDetailsMenu>
-                )
-              } else {
-                return (
-                  <ReactionDetailsMenu
-                    key={r.id}
-                    users={r.users}
-                    reactionName={r.emoji.name}
-                    reaction={(
-                      <Image
-                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
-                      />
-                    )}
-                  >
-                    <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
-                      <Image
-                        source={{ uri: formatCachedUrl(formatMediaUrl(r.emoji.url)) }}
-                        style={{ resizeMode: 'contain', width: 20, height: 20 }}
-                      />
-                      <Text className="text-gray-200">
-                        {r.users.length}
-                      </Text>
-                    </View>
-                  </ReactionDetailsMenu>
-                )
-              }
-            })}
+            {reactions.map((r) => <Reaction key={r.id} reaction={r} />)}
           </View>
         )}
       </Root>
     </Link>
   )
+}
+
+function Reaction({ reaction }: { reaction: EmojiGroup }) {
+  if (typeof reaction.emoji === 'string') {
+    return (
+      <ReactionDetailsMenu
+        key={reaction.id}
+        users={reaction.users}
+        reaction={reaction.emoji}
+      >
+        <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
+          {reaction.emoji} {reaction.users.length}
+        </Text>
+      </ReactionDetailsMenu>
+    )
+  } else {
+    return (
+      <ReactionDetailsMenu
+        key={reaction.id}
+        users={reaction.users}
+        reactionName={reaction.emoji.name}
+        reaction={(
+          <Image
+            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
+            style={{ resizeMode: 'contain', width: 20, height: 20 }}
+          />
+        )}
+      >
+        <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+          <Image
+            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
+            style={{ resizeMode: 'contain', width: 20, height: 20 }}
+          />
+          <Text className="text-gray-200">
+            {reaction.users.length}
+          </Text>
+        </View>
+      </ReactionDetailsMenu>
+    )
+  }
 }

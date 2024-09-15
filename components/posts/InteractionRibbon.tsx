@@ -10,17 +10,37 @@ import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-m
 import colors from "tailwindcss/colors";
 import EmojiPicker from "../EmojiPicker";
 import { optionStyle } from "@/lib/styles";
+import { useDashboardContext } from "@/lib/contexts/DashboardContext";
+import AnimatedIcon from "./AnimatedIcon";
+import { useSharedValue, withSpring } from "react-native-reanimated";
+import { useLikeMutation } from "@/lib/interaction";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
   orientation?: 'horizontal' | 'vertical'
 }) {
   const me = useParsedToken()
-  const createdByMe = post.userId === me?.userId
+  const context = useDashboardContext()
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
-  const { mainOptions, collapsedOptions } = useMemo(() => {
+  const isLiked = context.likes.some((like) => like.postId === post.id && like.userId === me?.userId)
+  const liked = useSharedValue(isLiked ? 1 : 0)
+  if (isLiked !== Boolean(Math.round(liked.value))) {
+    liked.value = isLiked ? 1 : 0
+  }
+
+  const isRewooted = (context.rewootIds || []).includes(post.id)
+  const rewooted = useSharedValue(isRewooted ? 1 : 0)
+  if (isRewooted !== Boolean(Math.round(rewooted.value))) {
+    rewooted.value = isRewooted ? 1 : 0
+  }
+
+  const likeMutation = useLikeMutation(post)
+
+  const { mainOptions, secondaryOptions } = useMemo(() => {
+    const createdByMe = post.userId === me?.userId
     const iconColor = orientation === 'vertical' ? 'black' : 'white'
+
     const mainOptions = [
       {
         action: () => {},
@@ -35,15 +55,36 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         enabled: post.privacy === PrivacyLevel.PUBLIC || post.privacy === PrivacyLevel.UNLISTED
       },
       {
-        action: () => {},
-        label: 'Rewoot',
-        icon: <AntDesign name="retweet" size={20} color={iconColor} />,
+        action: () => {
+          rewooted.value = withSpring(isRewooted ? 0 : 1)
+        },
+        label: isRewooted ? 'Undo Rewoot' : 'Rewoot',
+        icon: (
+          <AnimatedIcon
+            animValue={rewooted}
+            icon={<AntDesign name="retweet" size={20} color={iconColor} />}
+            iconActive={<AntDesign name="retweet" size={20} color={colors.green[500]} />}
+          />
+        ),
         enabled: post.privacy !== PrivacyLevel.DIRECT_MESSAGE && post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
       },
       {
-        action: () => {},
-        label: 'Like',
-        icon: <MaterialCommunityIcons name="heart" size={20} color={iconColor} />,
+        action: () => {
+          liked.value = withSpring(isLiked ? 0 : 1)
+          if (!likeMutation.isPending) {
+            likeMutation.mutate(isLiked)
+          }
+          // optimisticUpdateQueries({ qc, me, post, isLiked })
+        },
+        disabled: likeMutation.isPending,
+        label: isLiked ? 'Undo Like' : 'Like',
+        icon: (
+          <AnimatedIcon
+            animValue={liked}
+            icon={<MaterialCommunityIcons name="heart-outline" size={20} color={iconColor} />}
+            iconActive={<MaterialCommunityIcons name="heart" size={20} color={colors.red[500]} />}
+          />
+        ),
         enabled: !createdByMe
       },
       {
@@ -55,7 +96,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         enabled: !createdByMe
       }
     ].filter((opt) => opt.enabled)
-    const collapsedOptions = [
+    const secondaryOptions = [
       {
         action: () => {
           Share.share({
@@ -65,6 +106,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         icon: <MaterialCommunityIcons name='share-variant' size={20} />,
         label: 'Share wafrn link',
         enabled: true,
+        disabled: false,
       },
       {
         action: () => {
@@ -121,15 +163,16 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     if (orientation === 'vertical') {
       return {
         mainOptions: [],
-        collapsedOptions: mainOptions.concat(collapsedOptions)
+        secondaryOptions: mainOptions.concat(secondaryOptions)
       }
     } else {
       return {
         mainOptions,
-        collapsedOptions
+        secondaryOptions
       }
     }
-  }, [orientation, post, createdByMe])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orientation, post, me, isRewooted, isLiked, likeMutation])
 
   function onPickEmoji() {
     setEmojiPickerOpen(false)
@@ -159,11 +202,14 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
               borderRadius: 8,
             },
           }}>
-            {collapsedOptions.map((option, i) => (
+            {secondaryOptions.map((option, i) => (
               <MenuOption
                 key={i}
                 value={option.label}
-                style={optionStyle(i)}
+                style={{
+                  ...optionStyle(i),
+                  opacity: option.disabled ? 0.75 : 1
+                }}
                 onSelect={option.action}
               >
                 {option.icon}
@@ -189,7 +235,14 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         ) : null}
         <View id='interactions' className="flex-row gap-3">
           {mainOptions.map((opt) => (
-            <Pressable key={opt.label} onPress={opt.action} className="p-1.5 active:bg-gray-300/30 rounded-full">
+            <Pressable
+              key={opt.label}
+              onPress={opt.action}
+              className="p-1.5 active:bg-gray-300/30 rounded-full relative"
+              style={{
+                opacity: opt.disabled ? 0.5 : 1
+              }}
+            >
               {opt.icon}
             </Pressable>
           ))}

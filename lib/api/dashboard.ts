@@ -75,6 +75,7 @@ export function getDashboardContext(data: DashboardData[]) {
     quotes: [],
     tags: [],
     asks: [],
+    rewootIds: []
   } as DashboardContextData
 
   for (const page of data) {
@@ -147,6 +148,13 @@ export function getDashboardContext(data: DashboardData[]) {
         context.asks.push(ask)
       }
     }
+
+    for (const rewootId of (page.rewootIds || [])) {
+      if (!seen.has(rewootId)) {
+        seen.add(rewootId)
+        context.rewootIds?.push(rewootId)
+      }
+    }
   }
   return context
 }
@@ -204,7 +212,7 @@ export async function getUserFeed({
 export function useUserFeed(userId: string) {
   const { token } = useAuth()
   return useInfiniteQuery({
-    queryKey: ['userFeed', userId],
+    queryKey: ['dashboard', 'userFeed', userId],
     queryFn: ({ pageParam }) => getUserFeed({ userId, startTime: pageParam, token: token! }),
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
