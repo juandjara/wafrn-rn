@@ -6,6 +6,8 @@ import { Image } from "expo-image"
 import { Link } from "expo-router"
 import { Text, TouchableOpacity, View } from "react-native"
 import HtmlRenderer from "../HtmlRenderer"
+import { useFollowMutation } from "@/lib/interaction"
+import clsx from "clsx"
 
 export default function UserRibbon({
   user,
@@ -19,6 +21,13 @@ export default function UserRibbon({
   const { data: settings } = useSettings()
   const amIFollowing = settings?.followedUsers.includes(user?.id!)
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+  const followMutation = useFollowMutation(user)
+
+  function toggleFollow() {
+    if (!followMutation.isPending) {
+      followMutation.mutate(!!amIFollowing)
+    }
+  }
 
   return (
     <View className="flex-row w-full gap-3 items-stretch">
@@ -37,14 +46,20 @@ export default function UserRibbon({
             </View>
           )}
           {!amIFollowing && !amIAwaitingApproval ? (
-            <TouchableOpacity>
+            <TouchableOpacity
+              className={clsx({ 'opacity-50': followMutation.isPending })}
+              onPress={toggleFollow}
+            >
               <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
                 Follow
               </Text>
             </TouchableOpacity>
           ) : (
             showUnfollowButton ? (
-              <TouchableOpacity>
+              <TouchableOpacity
+                className={clsx({ 'opacity-50': followMutation.isPending })}
+                onPress={toggleFollow}
+              >
                 <Text className="rounded-full px-2 text-sm text-red-500/70 bg-red-500/20">
                   Unfollow
                 </Text>

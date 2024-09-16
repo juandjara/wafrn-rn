@@ -14,6 +14,7 @@ import { Link } from "expo-router";
 import clsx from "clsx";
 import colors from "tailwindcss/colors";
 import AskModal from "./AskModal";
+import { useFollowMutation } from "@/lib/interaction";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -22,6 +23,8 @@ export default function UserDetail({ user }: { user: User }) {
   const { data: settings } = useSettings()
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
+  const followMutation = useFollowMutation(user)
+
   const {
     amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows
   } = useMemo(() => {
@@ -64,6 +67,12 @@ export default function UserDetail({ user }: { user: User }) {
   const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
   const hasAsks = !user.remoteId && askFlag !== AskOptionValue.AllowNoAsks
 
+  function toggleFollow() {
+    if (!followMutation.isPending) {
+      followMutation.mutate(!!amIFollowing)
+    }
+  }
+
   return (
     <View className="mb-2">
       {user.headerImage ? (
@@ -102,7 +111,10 @@ export default function UserDetail({ user }: { user: User }) {
         ) : (
           <>
             {amIFollowing && (
-              <Pressable>
+              <Pressable
+                className={clsx({ 'opacity-50': followMutation.isPending })}
+                onPress={toggleFollow}
+              >
                 <Text className="text-red-500 bg-red-500/20 py-2 mt-6 px-5 text-lg rounded-full">
                   Unfollow
                 </Text>
@@ -116,7 +128,10 @@ export default function UserDetail({ user }: { user: User }) {
               </Pressable>
             )}
             {!amIFollowing && !amIAwaitingApproval && (
-              <Pressable>
+              <Pressable
+                className={clsx({ 'opacity-50': followMutation.isPending })}
+                onPress={toggleFollow}
+              >
                 <Text className="text-indigo-500 bg-indigo-500/20 py-2 mt-6 px-5 text-lg rounded-full">
                   Follow
                 </Text>

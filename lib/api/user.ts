@@ -111,11 +111,11 @@ export function useCurrentUser() {
   })
 }
 
-export function useUser(userId: string) {
+export function useUser(handle: string) {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => getUser(token!, userId),
+    queryKey: ['user', handle],
+    queryFn: () => getUser(token!, handle),
     enabled: !!token,
     throwOnError: false,
   })
