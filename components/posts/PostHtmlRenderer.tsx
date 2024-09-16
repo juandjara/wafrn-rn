@@ -59,7 +59,7 @@ function _PostHtmlRenderer({
       ytLinks: links.map((node) => ({
         href: node.attribs.href,
         image: getYoutubeImage(node.attribs.href),
-      })),
+      })).filter((link) => link.image),
       dom,
     }
   }, [html])
