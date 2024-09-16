@@ -79,7 +79,7 @@ function showToast(message: string, backgroundColor: string, textColor: string) 
   })
 }
 
-type LikeMutationContext = [QueryKey, QueriesData | undefined][]
+type PostMutationContext = [QueryKey, QueriesData | undefined][]
 
 export function optimisticUpdateQueries({ qc, me, post, isRewooted, isLiked }: {
   qc: QueryClient,
@@ -147,7 +147,7 @@ export function useLikeMutation(post: Post) {
   const me = useParsedToken()
   const { token } = useAuth()
 
-  return useMutation<void, Error, boolean, LikeMutationContext>({
+  return useMutation<void, Error, boolean, PostMutationContext>({
     mutationKey: ['like', post.id],
     mutationFn: variables => toggleLikePost({
       token: token!,
