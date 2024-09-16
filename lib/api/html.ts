@@ -234,7 +234,7 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
 
   const tagName = node.attribs['data-tag']
   if (tagName) {
-    node.attribs['href'] = `wafrn:///tag/${tagName}`
+    node.attribs['href'] = `wafrn:///search/${tagName}`
   } else {
     if (node.children.length === 1) {
       const child = node.children[0]
@@ -242,7 +242,7 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
         const text = (child.data || '').replace('#', '')
         const tag = context.tags.find((t) => t.tagName === text)
         if (tag) {
-          node.attribs['href'] = `wafrn:///tag/${tag.tagName}`
+          node.attribs['href'] = `wafrn:///search/${tag.tagName}`
         }
       }
     }
@@ -256,7 +256,7 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
           const text = spanText.data
           const tag = context.tags.find((t) => t.tagName === text)
           if (tag) {
-            node.attribs['href'] = `wafrn:///tag/${tag.tagName}`
+            node.attribs['href'] = `wafrn:///search/${tag.tagName}`
           }
         }
       }
