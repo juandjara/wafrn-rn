@@ -74,7 +74,6 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
           if (!likeMutation.isPending) {
             likeMutation.mutate(isLiked)
           }
-          // optimisticUpdateQueries({ qc, me, post, isLiked })
         },
         disabled: likeMutation.isPending,
         label: isLiked ? 'Undo Like' : 'Like',
