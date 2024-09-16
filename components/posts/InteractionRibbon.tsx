@@ -8,12 +8,13 @@ import { useMemo, useState } from "react";
 import { Pressable, Share, Text, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
 import colors from "tailwindcss/colors";
-import EmojiPicker from "../EmojiPicker";
+import EmojiPicker, { Emoji } from "../EmojiPicker";
 import { optionStyle } from "@/lib/styles";
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
 import AnimatedIcon from "./AnimatedIcon";
 import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
+import { useEmojiReactMutation } from "@/lib/api/emojis";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -36,6 +37,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   }
 
   const likeMutation = useLikeMutation(post)
+  const emojiReactMutation = useEmojiReactMutation(post)
 
   const { mainOptions, secondaryOptions } = useMemo(() => {
     const createdByMe = post.userId === me?.userId
@@ -92,6 +94,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         },
         label: 'React with an emoji',
         icon: <MaterialIcons name="emoji-emotions" size={20} color={iconColor} />,
+        disabled: emojiReactMutation.isPending,
         enabled: !createdByMe
       }
     ].filter((opt) => opt.enabled)
@@ -173,9 +176,9 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orientation, post, me, isRewooted, isLiked, likeMutation])
 
-  function onPickEmoji() {
+  function onPickEmoji(emoji: Emoji) {
     setEmojiPickerOpen(false)
-    // TODO run emoji reaction mutation
+    emojiReactMutation.mutate(emoji.content || emoji.name)
   }
 
   if (orientation === 'vertical') {

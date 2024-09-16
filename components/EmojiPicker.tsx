@@ -11,7 +11,7 @@ import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-type Emoji = EmojiBase & {
+export type Emoji = EmojiBase & {
   emojiCollectionId?: string
   content?: string
 }
