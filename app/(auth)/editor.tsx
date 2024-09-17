@@ -9,6 +9,7 @@ import { DarkTheme } from "@react-navigation/native"
 import { Colors } from "@/constants/Colors"
 import clsx from "clsx"
 import { PRIVACY_ICONS, PRIVACY_LABELS, PrivacyLevel } from "@/lib/api/privacy"
+import colors from "tailwindcss/colors"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -186,16 +187,21 @@ function EditorHeader({ onPublish }: { onPublish: () => void }) {
       <Link href='../' className="rounded-full active:bg-white/10 p-1">
         <MaterialIcons name="close" color='white' size={20} />
       </Link>
-      <View className="flex-grow"></View>
-      <Pressable onPress={onPublish} className="p-4">
-        <Text className="font-bold text-white">Publish</Text>
-      </Pressable>
       <Pressable
         onPress={() => setModalOpen(true)} 
         className="flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600 active:bg-gray-500/50"
       >
-        <MaterialCommunityIcons name={PRIVACY_ICONS[privacy]} color='white' size={24} />
+        <MaterialCommunityIcons name={PRIVACY_ICONS[privacy]} color='white' size={20} />
+        <Text className="text-white text-sm px-1">{PRIVACY_LABELS[privacy]}</Text>
         <MaterialCommunityIcons name='chevron-down' color={Colors.dark.icon} size={20} />
+      </Pressable>
+      <View className="flex-grow"></View>
+      <Pressable
+        onPress={onPublish}
+        className="px-4 py-2 my-2 rounded-full bg-cyan-500/25 active:bg-cyan-500/50 flex-row items-center gap-2"
+      >
+        <MaterialCommunityIcons name='send' color='white' size={20} />
+        <Text className="font-medium text-white">Publish</Text>
       </Pressable>
       <Modal
         visible={modalOpen}
@@ -272,19 +278,42 @@ function Editor({
   triggers,
   inputRef
 }: EditorProps) {
+  const [tagsLine, setTagsLine] = useState('')
+  const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
+
   return (
     <View className="border border-gray-600 flex-1 justify-between rounded-lg mx-2">
-      <ScrollView>
+      <View className="border border-yellow-500 flex-row items-center pl-2 rounded-lg overflow-hidden">
+        <MaterialIcons name='warning-amber' color={colors.yellow[500]} size={24} />
         <TextInput
-          ref={inputRef}
-          autoFocus
-          multiline
           className="placeholder:text-gray-500 text-white py-2 px-3"
-          placeholder="How are you feeling?"
-          {...textInputProps}
+          placeholder="Content warning"
         />
-      </ScrollView>
+      </View>
+      <TextInput
+        ref={inputRef}
+        autoFocus
+        multiline
+        className="placeholder:text-gray-500 text-white py-2 px-3"
+        placeholder="How are you feeling?"
+        {...textInputProps}
+      />
       <Suggestions {...triggers.mention} />
+      <View className="overflow-hidden border-t border-gray-600">
+        <TextInput
+          className="placeholder:text-gray-500 text-white py-2 px-3"
+          placeholder="Tags"
+          value={tagsLine}
+          onChangeText={setTagsLine}
+        />
+        {parsedTags.length > 0 && (
+          <View className="flex-row items-center gap-2 p-2">
+            {parsedTags.map((tag) => (
+              <Text key={tag} className="bg-gray-600 px-1 rounded-lg text-white">#{tag}</Text>
+            ))}
+          </View>
+        )}
+      </View>
     </View>
   )
 }
@@ -340,24 +369,41 @@ type EditorActionProps = {
 
 function EditorActions({ actions }: EditorActionProps) {
   return (
-    <ScrollView contentContainerClassName="gap-3" className="p-3 flex-grow-0" keyboardShouldPersistTaps='always' horizontal>
+    <ScrollView
+      contentContainerClassName="gap-3 mx-auto"
+      className="p-3 flex-grow-0"
+      keyboardShouldPersistTaps="always"
+      horizontal
+    >
       <Pressable
         onPress={() => actions.insertCharacter('@')}
         className="active:bg-white/50 bg-white/15 p-2 rounded-full"
       >
         <MaterialCommunityIcons name='at' color='white' size={24} />
       </Pressable>        
-      <Pressable
+      {/* <Pressable
         onPress={() => actions.wrapSelection('**')}
         className="active:bg-white/50 bg-white/15 p-2 rounded-full"
       >
         <MaterialCommunityIcons name='format-bold' color='white' size={24} />
+      </Pressable> */}
+      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
+        <MaterialIcons name="emoji-emotions" size={24} color='white' />
+      </Pressable>
+      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
+        <MaterialCommunityIcons name="message-alert" size={24} color='white' />
       </Pressable>
       <Pressable
         onPress={actions.pickImage}
         className="active:bg-white/50 bg-white/15 p-2 rounded-full"
       >
         <MaterialCommunityIcons name='image' color='white' size={24} />
+      </Pressable>
+      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
+        <MaterialCommunityIcons name='format-quote-close' color='white' size={24} />
+      </Pressable>
+      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
+        <MaterialIcons name='format-size' color='white' size={24} />
       </Pressable>
     </ScrollView>
   )
