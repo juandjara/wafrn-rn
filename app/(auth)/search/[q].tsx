@@ -2,11 +2,10 @@ import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
 import UserRibbon from "@/components/user/UserRibbon"
 import { dedupeById, dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
-import { search, SearchView } from "@/lib/api/search"
-import { useAuth } from "@/lib/contexts/AuthContext"
+import { SearchView, useSearch } from "@/lib/api/search"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
@@ -58,8 +57,6 @@ function SearchViewSelect({
 }
 
 export default function SearchResults() {
-  // save the time when the component is mounted
-  const time = useMemo(() => Date.now(), [])
   const { q } = useLocalSearchParams()
   const query = q as string || ''
 
@@ -72,26 +69,12 @@ export default function SearchResults() {
   })
 
   const { width } = useWindowDimensions()
-  const { token } = useAuth()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
-    queryKey: ['search', query, time],
-    queryFn: ({ pageParam }) => search({ page: pageParam, term: query, time, token: token! }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      if (view === SearchView.Users && lastPage.users.foundUsers.length === 0) {
-        return undefined
-      }
-      if (view  === SearchView.Posts && lastPage.posts.posts.length === 0) {
-        return undefined
-      }
-      return lastPageParam + 1
-    },
-  })
+  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query, view)
 
   const qc = useQueryClient()
   const refresh = async () => {
     await qc.resetQueries({
-      queryKey: ['search', query, time]
+      queryKey: ['search', query]
     })
   }
 
