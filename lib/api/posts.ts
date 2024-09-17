@@ -215,10 +215,10 @@ export function useRewootMutation(post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to rewoot`, colors.red[100], colors.red[900])
+      showToast(`Failed to ${variables ? 'un' : ''}rewoot`, colors.red[100], colors.red[900])
     },
     onSuccess: (data, variables) => {
-      showToast(`Woot Rewooted`, colors.green[100], colors.green[900])
+      showToast(`Woot ${variables ? 'un' : ''}rewooted`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)
