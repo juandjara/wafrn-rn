@@ -120,10 +120,10 @@ export function useSilenceMutation(post: Post) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}silence post`, colors.red[100], colors.red[900])
+      showToast(`Failed to ${variables ? 'un' : ''}silence woot`, colors.red[100], colors.red[900])
     },
     onSuccess: (data, variables) => {
-      showToast(`Post ${variables ? 'un' : ''}silenced`, colors.green[100], colors.green[900])
+      showToast(`Woot ${variables ? 'un' : ''}silenced`, colors.green[100], colors.green[900])
     },
     onSettled: () => invalidatePostQueries(qc, post)
   })

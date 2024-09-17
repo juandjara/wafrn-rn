@@ -47,7 +47,7 @@ export function useEmojiReactMutation(post: Post) {
     mutationFn: (emojiName) => emojiReact(token!, { post, emojiName }),
     onError: (err) => {
       console.error(err)
-      showToast(`Failed to react to post`, colors.red[100], colors.red[900])
+      showToast(`Failed to react to woot`, colors.red[100], colors.red[900])
     },
     onSuccess: () => {
       showToast(`Reaction sent`, colors.green[100], colors.green[900])

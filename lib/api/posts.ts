@@ -190,6 +190,40 @@ export async function rewoot(token: string, postId: string) {
   })
 }
 
+export async function deleteRewoot(token: string, postId: string) {
+  await getJSON(`${API_URL}/deleteRewoots?id=${postId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function useRewootMutation(post: Post) {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+
+  return useMutation<void, Error, boolean>({
+    mutationKey: ['rewoot', post.id],
+    mutationFn: async (isRewooted) => {
+      if (isRewooted) {
+        await deleteRewoot(token!, post.id)
+      } else {
+        await rewoot(token!, post.id)
+      }
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToast(`Failed to rewoot`, colors.red[100], colors.red[900])
+    },
+    onSuccess: (data, variables) => {
+      showToast(`Woot Rewooted`, colors.green[100], colors.green[900])
+    },
+    // after either error or success, refetch the queries to make sure cache and server are in sync
+    onSettled: () => invalidatePostQueries(qc, post)
+  })
+}
+
 export async function deletePost(token: string, postId: string) {
   await getJSON(`${API_URL}/deletePost?id=${postId}`, {
     method: 'DELETE',
@@ -210,10 +244,10 @@ export function useDeleteMutation(post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to delete post`, colors.red[100], colors.red[900])
+      showToast(`Failed to delete woot`, colors.red[100], colors.red[900])
     },
     onSuccess: (data, variables) => {
-      showToast(`Post deleted`, colors.green[100], colors.green[900])
+      showToast(`Woot deleted`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)

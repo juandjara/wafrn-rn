@@ -15,7 +15,7 @@ import AnimatedIcon from "./AnimatedIcon";
 import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
 import { useEmojiReactMutation } from "@/lib/api/emojis";
-import { useDeleteMutation } from "@/lib/api/posts";
+import { useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -38,6 +38,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   }
 
   const likeMutation = useLikeMutation(post)
+  const rewootMutation = useRewootMutation(post)
   const emojiReactMutation = useEmojiReactMutation(post)
   const deleteMutation = useDeleteMutation(post)
 
@@ -61,6 +62,9 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       {
         action: () => {
           rewooted.value = withSpring(isRewooted ? 0 : 1)
+          if (!rewootMutation.isPending) {
+            rewootMutation.mutate(isRewooted)
+          }
         },
         label: isRewooted ? 'Undo Rewoot' : 'Rewoot',
         icon: (
@@ -70,6 +74,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
             iconActive={<AntDesign name="retweet" size={20} color={colors.green[500]} />}
           />
         ),
+        disabled: rewootMutation.isPending,
         enabled: post.privacy !== PrivacyLevel.DIRECT_MESSAGE && post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
       },
       {
@@ -200,6 +205,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     isRewooted,
     isLiked,
     likeMutation,
+    rewootMutation,
     emojiReactMutation,
     deleteMutation,
   ])
