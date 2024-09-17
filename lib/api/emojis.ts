@@ -54,7 +54,7 @@ export function useEmojiReactMutation(post: Post) {
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async () => {
-      return await qc.invalidateQueries({
+      await qc.invalidateQueries({
         predicate: (query) => (
           query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
             || query.queryKey[0] === 'search'

@@ -35,7 +35,7 @@ export default function MediaCloak({
     >
       <Feather name="eye-off" size={48} color="white" />
       <Text className="text-white text-lg mx-3 my-2 text-center">
-        This image is hidden
+        This media is hidden
       </Text>
       <Text className="text-gray-200 text-center">
         Click to reveal
@@ -47,7 +47,7 @@ export default function MediaCloak({
     <ImageBackground
       source={{ uri: `${backgroundImage.src}&avatar=true` }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
-      blurRadius={1000}
+      blurRadius={50}
     >{cloak}</ImageBackground>
   ) : (
     <View 

@@ -3,6 +3,7 @@ import { PostMedia } from "./posts.types"
 import { CACHE_HOST } from "../config"
 import { useQuery } from "@tanstack/react-query"
 import { isValidURL } from "./content"
+import { Timestamps } from "./types"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -84,3 +85,14 @@ export async function getRemoteAspectRatio(url: string) {
   //   return 1
   // }
 }
+
+export async function uploadMedia(file: File) {
+  // TODO send FormData with key "image" as binary data
+}
+
+export type MediaUploadResponse = Timestamps
+  & Omit<PostMedia, 'posts' | 'description' | 'aspectRatio'>
+  & {
+    userId: string
+    ipUpload: string
+  }

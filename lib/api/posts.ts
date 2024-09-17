@@ -1,9 +1,13 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON, statusError, StatusError } from "../http"
-import { DashboardData, PostUser } from "./posts.types"
+import { DashboardData, Post, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
+import { PrivacyLevel } from "./privacy"
+import { MediaUploadResponse } from "./media"
+import { showToast } from "../interaction"
+import colors from "tailwindcss/colors"
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -117,7 +121,7 @@ export function sortPosts(a: Timestamps, b: Timestamps) {
 
 export async function requestMoreRemoteReplies(token: string, id: string) {
   await getJSON(`${API_URL}/loadRemoteResponses?id=${id}`, {
-    headers: {  'Authorization': `Bearer ${token}` }
+    headers: { 'Authorization': `Bearer ${token}` }
   })
 }
 
@@ -130,5 +134,96 @@ export function useRemoteRepliesMutation(postId: string) {
       await requestMoreRemoteReplies(token!, postId)
       await refetch()
     },
+  })
+}
+
+export type CreatePostPayload = {
+  content: string
+  parentId?: string
+  askId?: string
+  contentWarning?: string
+  quotedPostId?: string
+  editingPostId?: string
+  joinedTags?: string // comma separated tags
+  privacy: PrivacyLevel
+  medias: (MediaUploadResponse & { description: string })[]
+}
+
+export async function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+/** wait for the estimated time the post queue takes to process creating a post */
+export async function arbitraryWaitPostQueue() {
+  await wait(500)
+}
+
+export async function createPost(token: string, payload: CreatePostPayload) {
+  const data = await getJSON(`${API_URL}/v2/post`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      content: payload.content,
+      parent: payload.parentId,
+      medias: payload.medias,
+      tags: payload.joinedTags,
+      privacy: payload.privacy,
+      content_warning: payload.contentWarning,
+      idPostToEdit: payload.editingPostId,
+      postToQuote: payload.quotedPostId,
+      ask: payload.askId,
+    })
+  })
+  await arbitraryWaitPostQueue()
+  
+  const json = data as { id: string }
+  return json.id
+}
+
+export async function rewoot(token: string, postId: string) {
+  return await createPost(token, {
+    content: '',
+    parentId: postId,
+    privacy: 0,
+    medias: [],
+  })
+}
+
+export async function deletePost(token: string, postId: string) {
+  await getJSON(`${API_URL}/deletePost?id=${postId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function useDeleteMutation(post: Post) {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationKey: ['deletePost', post.id],
+    mutationFn: async () => {
+      await deletePost(token!, post.id)
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToast(`Failed to delete post`, colors.red[100], colors.red[900])
+    },
+    onSuccess: (data, variables) => {
+      showToast(`Post deleted`, colors.green[100], colors.green[900])
+    },
+    // after either error or success, refetch the queries to make sure cache and server are in sync
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
+            || query.queryKey[0] === 'search'
+            || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
+        )
+      })
+    }
   })
 }

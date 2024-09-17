@@ -6,11 +6,14 @@ import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
 import { useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
-import { buttonCN } from "@/lib/styles"
+import { buttonCN, optionStyle } from "@/lib/styles"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { FlatList, Pressable, Text, View } from "react-native"
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu"
+import colors from "tailwindcss/colors"
 
 export default function UserFeed() {
   const { userid } = useLocalSearchParams()
@@ -40,17 +43,13 @@ export default function UserFeed() {
   )
   const deduped = useMemo(() => dedupePosts(feed?.pages || []), [feed?.pages])
 
-  const screenTitle = (
-    <Stack.Screen options={{
-      title: 'User Detail',
-      headerBackTitle: 'Back',
-    }} />
-  )
-
   if (userError) {
     return (
       <ThemedView className="p-3 flex-1 justify-center items-center">
-        {screenTitle}
+        <Stack.Screen options={{
+          title: 'User Detail',
+          headerBackTitle: 'Back',
+        }} />
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{userError?.message}</ThemedText>
@@ -71,7 +70,10 @@ export default function UserFeed() {
     return (
       <>
         <Loading />
-        {screenTitle}
+        <Stack.Screen options={{
+          title: 'User Detail',
+          headerBackTitle: 'Back',
+        }} />
       </>
     )
   }
@@ -79,7 +81,41 @@ export default function UserFeed() {
   return (
     <ThemedView className="flex-1">
       <DashboardContextProvider data={context}>
-        {screenTitle}
+        <Stack.Screen options={{
+          title: 'User Detail',
+          headerBackTitle: 'Back',
+          headerRight: () => (
+            <Menu>
+              <MenuTrigger style={{ padding: 6 }}>
+                <MaterialCommunityIcons
+                  size={24}
+                  name={`dots-vertical`}
+                  color={colors.gray[300]}
+                />
+              </MenuTrigger>
+              <MenuOptions customStyles={{
+                optionsContainer: {
+                  transformOrigin: 'top right',
+                  marginTop: 40,
+                  borderRadius: 8,
+                },
+              }}>
+                <MenuOption style={optionStyle(0)}>
+                  <MaterialCommunityIcons name='volume-off' size={20} color={colors.gray[600]} />
+                  <Text className="text-sm flex-grow">Mute user</Text>
+                </MenuOption>
+                <MenuOption style={optionStyle(1)}>
+                  <MaterialCommunityIcons name='account-cancel-outline' size={20} color={colors.gray[600]} />
+                  <Text className="text-sm flex-grow">Block user</Text>
+                </MenuOption>
+                <MenuOption style={optionStyle(2)}>
+                  <MaterialCommunityIcons name='server-off' size={20} color={colors.gray[600]} />
+                  <Text className="text-sm flex-grow">Block server</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          ),
+        }} />
         <FlatList
           data={deduped}
           refreshing={feedFetching || userFetching}

@@ -55,7 +55,7 @@ export function useLikeMutation(post: Post) {
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async (data, err, variables, context) => {
-      return await qc.invalidateQueries({
+      await qc.invalidateQueries({
         predicate: (query) => (
           query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
             || query.queryKey[0] === 'search'
@@ -102,7 +102,7 @@ export function useFollowMutation(user: PostUser) {
       showToast(`User ${variables ? 'un' : ''}followed`, colors.green[100], colors.green[900])
     },
     onSettled: async (data, err, variables, context) => {
-      return await qc.invalidateQueries({
+      await qc.invalidateQueries({
         predicate: (query) => (
           query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
             || query.queryKey[0] === 'search'

@@ -5,7 +5,7 @@ import { useParsedToken } from "@/lib/contexts/AuthContext";
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { useMemo, useState } from "react";
-import { Pressable, Share, Text, View } from "react-native";
+import { Alert, Pressable, Share, Text, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
 import colors from "tailwindcss/colors";
 import EmojiPicker, { Emoji } from "../EmojiPicker";
@@ -15,6 +15,7 @@ import AnimatedIcon from "./AnimatedIcon";
 import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
 import { useEmojiReactMutation } from "@/lib/api/emojis";
+import { useDeleteMutation } from "@/lib/api/posts";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -38,6 +39,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
 
   const likeMutation = useLikeMutation(post)
   const emojiReactMutation = useEmojiReactMutation(post)
+  const deleteMutation = useDeleteMutation(post)
 
   const { mainOptions, secondaryOptions } = useMemo(() => {
     const createdByMe = post.userId === me?.userId
@@ -97,7 +99,13 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         disabled: emojiReactMutation.isPending,
         enabled: !createdByMe
       }
-    ].filter((opt) => opt.enabled)
+    ]
+      .filter((opt) => opt.enabled)
+      .map((opt) => ({
+        ...opt,
+        disabled: opt.disabled || deleteMutation.isPending,
+      }))
+
     const secondaryOptions = [
       {
         action: () => {
@@ -154,13 +162,24 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       },
       {
         action: () => {
+          Alert.alert('Delete post', 'Are you sure you want to delete this post?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => {
+              deleteMutation.mutate()
+            } }
+          ], { cancelable: true })
           // TODO launch confirmation dialog and run delete mutation
         },
         icon: <MaterialCommunityIcons name='delete-outline' size={20} />,
         label: 'Delete woot',
         enabled: createdByMe,
       }
-    ].filter((opt) => opt.enabled)
+    ]
+      .filter((opt) => opt.enabled)
+      .map((opt) => ({
+        ...opt,
+        disabled: opt.disabled || deleteMutation.isPending,
+      }))
 
     if (orientation === 'vertical') {
       return {
@@ -174,7 +193,16 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orientation, post, me, isRewooted, isLiked, likeMutation])
+  }, [
+    orientation,
+    post,
+    me,
+    isRewooted,
+    isLiked,
+    likeMutation,
+    emojiReactMutation,
+    deleteMutation,
+  ])
 
   function onPickEmoji(emoji: Emoji) {
     setEmojiPickerOpen(false)
