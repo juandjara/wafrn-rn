@@ -21,7 +21,7 @@ import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 
 const HEIGHT_LIMIT = 462
-const EXPANDER_MARGIN = 38
+const EXPANDER_MARGIN = 42
 
 export default function PostFragment({
   post: _post,
@@ -335,7 +335,7 @@ export default function PostFragment({
                   style={{
                     width: '100%',
                     paddingTop: 40,
-                    paddingBottom: 12,
+                    paddingBottom: 8,
                     paddingHorizontal: 8,
                     borderRadius: post.content_warning ? 12 : 0
                   }}
