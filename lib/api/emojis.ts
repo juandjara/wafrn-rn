@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
-import { showToast } from "../interaction"
+import { invalidatePostQueries, showToast } from "../interaction"
 import colors from "tailwindcss/colors"
 import { Post } from "./posts.types"
 
@@ -53,14 +53,6 @@ export function useEmojiReactMutation(post: Post) {
       showToast(`Reaction sent`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: async () => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-        )
-      })
-    }
+    onSettled: () => invalidatePostQueries(qc, post)
   })
 }

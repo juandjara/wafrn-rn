@@ -6,7 +6,7 @@ import { DashboardData, Post, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
 import { MediaUploadResponse } from "./media"
-import { showToast } from "../interaction"
+import { invalidatePostQueries, showToast } from "../interaction"
 import colors from "tailwindcss/colors"
 
 const LAYOUT_MARGIN = 24
@@ -216,14 +216,6 @@ export function useDeleteMutation(post: Post) {
       showToast(`Post deleted`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: async () => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-        )
-      })
-    }
+    onSettled: () => invalidatePostQueries(qc, post)
   })
 }

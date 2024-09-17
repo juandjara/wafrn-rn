@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
-import { showToast } from "../interaction"
+import { invalidatePostQueries, invalidateUserQueries, showToast } from "../interaction"
 import { Post, PostUser } from "./posts.types"
 import colors from "tailwindcss/colors"
 
@@ -42,16 +42,7 @@ export function useBlockMutation(user: PostUser) {
     onSuccess: (data, variables) => {
       showToast(`User ${variables ? 'un' : ''}blocked`, colors.green[100], colors.green[900])
     },
-    onSettled: async (data, err, variables, context) => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
-      })
-    }
+    onSettled: () => invalidateUserQueries(qc, user)
   })
 }
 
@@ -91,16 +82,7 @@ export function useMuteMutation(user: PostUser) {
     onSuccess: (data, variables) => {
       showToast(`User ${variables ? 'un' : ''}muted`, colors.green[100], colors.green[900])
     },
-    onSettled: async (data, err, variables, context) => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
-      })
-    }
+    onSettled: () => invalidateUserQueries(qc, user)
   })
 }
 
@@ -143,14 +125,6 @@ export function useSilenceMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToast(`Post ${variables ? 'un' : ''}silenced`, colors.green[100], colors.green[900])
     },
-    onSettled: async (data, err, variables, context) => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-        )
-      })
-    }
+    onSettled: () => invalidatePostQueries(qc, post)
   })
 }

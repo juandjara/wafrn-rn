@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Post, PostUser } from "./api/posts.types"
 import { useAuth } from "./contexts/AuthContext"
 import { getJSON } from "./http"
@@ -54,15 +54,7 @@ export function useLikeMutation(post: Post) {
       showToast(`Post ${variables ? 'un' : ''}liked`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: async (data, err, variables, context) => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-        )
-      })
-    }
+    onSettled: () => invalidatePostQueries(qc, post)
   })
 }
 
@@ -101,15 +93,27 @@ export function useFollowMutation(user: PostUser) {
     onSuccess: (data, variables) => {
       showToast(`User ${variables ? 'un' : ''}followed`, colors.green[100], colors.green[900])
     },
-    onSettled: async (data, err, variables, context) => {
-      await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
-      })
-    }
+    onSettled: () => invalidateUserQueries(qc, user)
+  })
+}
+
+export async function invalidatePostQueries(qc: QueryClient, post: Post) {
+  await qc.invalidateQueries({
+    predicate: (query) => (
+      query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
+        || query.queryKey[0] === 'search'
+        || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
+    )
+  })
+}
+
+export async function invalidateUserQueries(qc: QueryClient, user: PostUser) {
+  await qc.invalidateQueries({
+    predicate: (query) => (
+      query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
+        || query.queryKey[0] === 'search'
+        || query.queryKey[0] === 'settings'
+        || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
+    )
   })
 }
