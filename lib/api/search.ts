@@ -4,7 +4,7 @@ import { DashboardData, PostUser } from "./posts.types";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { useAuth } from "../contexts/AuthContext";
 import { useMemo } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 export enum SearchView {
   Users = 'users',
@@ -71,5 +71,23 @@ export function useSearch(query: string, view: SearchView) {
       }
       return lastPageParam + 1
     },
+  })
+}
+
+export async function searchUser(token: string, handlePart: string) {
+  const json = await getJSON(`${API_URL}/userSearch/${encodeURIComponent(handlePart)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return json as { users: PostUser[] }
+}
+
+export function useUserSearch(query: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['userSearch', query],
+    queryFn: () => searchUser(token!, query),
+    enabled: !!token && query.length > 1
   })
 }

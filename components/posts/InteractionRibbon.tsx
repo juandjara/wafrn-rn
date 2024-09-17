@@ -48,13 +48,17 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
 
     const mainOptions = [
       {
-        action: () => {},
+        action: () => {
+          router.navigate(`/editor?replyId=${post.id}`)
+        },
         label: 'Reply',
         icon: <MaterialCommunityIcons name="reply" size={20} color={iconColor} />,
         enabled: true
       },
       {
-        action: () => {},
+        action: () => {
+          router.navigate(`/editor?quoteId${post.id}`)
+        },
         label: 'Quote',
         icon: <MaterialIcons name="format-quote" size={20} color={iconColor} />,
         enabled: post.privacy === PrivacyLevel.PUBLIC || post.privacy === PrivacyLevel.UNLISTED
