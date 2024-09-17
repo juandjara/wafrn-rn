@@ -158,9 +158,10 @@ export async function arbitraryWaitPostQueue() {
 }
 
 export async function createPost(token: string, payload: CreatePostPayload) {
-  const data = await getJSON(`${API_URL}/v2/post`, {
+  const data = await getJSON(`${API_URL}/v2/createPost`, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
@@ -169,7 +170,7 @@ export async function createPost(token: string, payload: CreatePostPayload) {
       medias: payload.medias,
       tags: payload.joinedTags,
       privacy: payload.privacy,
-      content_warning: payload.contentWarning,
+      content_warning: payload.contentWarning || '',
       idPostToEdit: payload.editingPostId,
       postToQuote: payload.quotedPostId,
       ask: payload.askId,
