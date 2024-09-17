@@ -181,22 +181,18 @@ function EditorHeader({ onPublish }: { onPublish: () => void }) {
   const [privacy, setPrivacy] = useState(PrivacyLevel.PUBLIC)
   const [modalOpen, setModalOpen] = useState(false)
 
-  function openSelectPrivacy() {
-    setModalOpen(true)
-  }
-
   return (
-    <View className="flex-row gap-2 justify-between items-center">
-      <Link href='../'>
-        <MaterialIcons name="close" color='white' size={24} />
+    <View className="flex-row gap-2 justify-between items-center px-2">
+      <Link href='../' className="rounded-full active:bg-white/10 p-1">
+        <MaterialIcons name="close" color='white' size={20} />
       </Link>
       <View className="flex-grow"></View>
       <Pressable onPress={onPublish} className="p-4">
         <Text className="font-bold text-white">Publish</Text>
       </Pressable>
       <Pressable
-        onPress={openSelectPrivacy} 
-        className="flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-500 active:bg-gray-500/50"
+        onPress={() => setModalOpen(true)} 
+        className="flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600 active:bg-gray-500/50"
       >
         <MaterialCommunityIcons name={PRIVACY_ICONS[privacy]} color='white' size={24} />
         <MaterialCommunityIcons name='chevron-down' color={Colors.dark.icon} size={20} />
@@ -277,14 +273,14 @@ function Editor({
   inputRef
 }: EditorProps) {
   return (
-    <View className="border border-white flex-1 justify-between">
+    <View className="border border-gray-600 flex-1 justify-between rounded-lg mx-2">
       <ScrollView>
         <TextInput
           ref={inputRef}
           autoFocus
           multiline
-          className="placeholder:text-gray-500 text-white p-2"
-          placeholder="Write something..."
+          className="placeholder:text-gray-500 text-white py-2 px-3"
+          placeholder="How are you feeling?"
           {...textInputProps}
         />
       </ScrollView>
