@@ -342,10 +342,10 @@ export default function PostFragment({
                 >
                   <Pressable
                     id='show-more-toggle'
-                    className="mx-auto active:bg-white/10 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-500"
+                    className="active:bg-indigo-900/40 bg-indigo-950/75 px-3 py-1.5 rounded-full border border-indigo-500"
                     onPress={toggleShowMore}
                   >
-                    <Text className='text-indigo-500'>
+                    <Text className='text-indigo-500 text-center text-base uppercase'>
                       {collapsed ? 'Show more' : 'Show less'}
                     </Text>
                   </Pressable>

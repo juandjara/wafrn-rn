@@ -40,9 +40,10 @@ export default function AskModal({ user, userName }: { user: PostUser; userName:
             />
             <Pressable
               onPress={() => setOpen(false)}
-              className="bg-cyan-500/25 active:bg-cyan-500/50 py-2 px-3 text-lg rounded-lg text-center mx-4"
+              className="bg-cyan-500/25 active:bg-cyan-500/50 py-2 px-3 text-lg rounded-lg text-center mx-4 flex-row items-center justify-center gap-3"
             >
-              <Text className="text-cyan-500">Ask your question</Text>
+              <Text className="text-cyan-200 text-lg">Send</Text>
+              <MaterialCommunityIcons name='send' size={24} color={colors.cyan[200]} />
             </Pressable>
             <Text className="pt-3 px-4 text-gray-300 text-sm">
               You are logged in. This user will see you as the asker of this question
