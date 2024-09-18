@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import { Link, Stack } from "expo-router"
-import { useRef, useState } from "react"
+import { Link, Stack, useLocalSearchParams } from "expo-router"
+import { useMemo, useRef, useState } from "react"
 import { Image, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, SuggestionsProvidedProps, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -10,6 +10,12 @@ import { Colors } from "@/constants/Colors"
 import clsx from "clsx"
 import { PRIVACY_ICONS, PRIVACY_LABELS, PrivacyLevel } from "@/lib/api/privacy"
 import colors from "tailwindcss/colors"
+import { usePostDetail } from "@/lib/api/posts"
+import { useAsks } from "@/lib/asks"
+import { getDashboardContext } from "@/lib/api/dashboard"
+import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
+import PostFragment from "@/components/dashboard/PostFragment"
+import GenericRibbon from "@/components/GenericRibbon"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -78,15 +84,54 @@ type ImageData = {
   height: number
 }
 
+type EditorSearchParams = {
+  replyId: string
+  askId: string
+  quoteId: string
+  type: 'reply' | 'ask' | 'quote'
+}
+
+type EditorFormState = {
+  content: string
+  contentWarning: string
+  contentWarningOpen: boolean
+  tags: string
+  privacy: PrivacyLevel
+  medias: ImageData[]
+}
+
 export default function EditorView() {
-  const [text, setText] = useState('')
-  const [selection, setSelection] = useState({ start: 0, end: 0 })
+  const [form, setForm] = useState<EditorFormState>({
+    content: '',
+    contentWarning: '',
+    contentWarningOpen: false,
+    tags: '',
+    privacy: PrivacyLevel.PUBLIC,
+    medias: [] as ImageData[],
+  })
+
   const inputRef = useRef<TextInput>(null)
-  const [images, setImages] = useState<ImageData[]>([])
+  const [selection, setSelection] = useState({ start: 0, end: 0 })
+  const { replyId, askId, quoteId } = useLocalSearchParams<EditorSearchParams>()
+
+  const { data: reply } = usePostDetail(replyId)
+  const { data: quote } = usePostDetail(quoteId)
+  const { data: asks } = useAsks()
+
+  const { ask, askUser, context } = useMemo(() => {
+    const ask = asks?.asks.find(a => a.id === Number(askId))
+    const askUser = asks?.users.find(u => u.id === ask?.userAsker)
+    const context =  getDashboardContext([reply, quote].filter(d => !!d))
+    return { ask, askUser, context }
+  }, [reply, quote, asks, askId])
+
+  function update(key: keyof typeof form, value: string | PrivacyLevel | ImageData[] | boolean) {
+    setForm((prev) => ({ ...prev, [key]: value }))
+  }
 
   const mentionApi = useMentions({
-    value: text,
-    onChange: setText,
+    value: form.content,
+    onChange: (value) => update('content', value),
     triggersConfig,
     onSelectionChange: setSelection,
   })
@@ -121,7 +166,8 @@ export default function EditorView() {
         selection.end,
       )
       const newText = `${textBeforeCursor}${character}${textAfterCursor}`
-      setText(
+      update(
+        'content',
         generateValueFromMentionStateAndChangedText(
           mentionApi.mentionState,
           newText,
@@ -141,7 +187,8 @@ export default function EditorView() {
         selection.end,
       )
       const newText = `${textBeforeCursor}${wrap}${textInCursor}${wrap}${textAfterCursor}`
-      setText(
+      update(
+        'content',
         generateValueFromMentionStateAndChangedText(
           mentionApi.mentionState,
           newText,
@@ -157,29 +204,79 @@ export default function EditorView() {
         quality: 0.5,
       })
       if (!result.canceled) {
-        setImages(result.assets)
+        update('medias', result.assets)
       }
+    },
+    toggleCW: () => {
+      update('contentWarningOpen', !form.contentWarningOpen)
     },
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
-      <Stack.Screen
-        options={{
-          animation: 'slide_from_bottom',
-          headerShown: false,
-        }}
-      />
-      <EditorHeader onPublish={log} />
-      <Editor {...mentionApi} inputRef={inputRef} />
-      <ImageList images={images} setImages={setImages} />
-      <EditorActions actions={actions} />
-    </SafeAreaView>
+    <DashboardContextProvider data={context}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
+        <Stack.Screen
+          options={{
+            animation: 'slide_from_bottom',
+            headerShown: false,
+          }}
+        />
+        <EditorHeader
+          privacy={form.privacy}
+          setPrivacy={(privacy) => update('privacy', privacy)}
+          onPublish={log}
+        />
+        <ScrollView
+          id="editor-scroll"
+          nestedScrollEnabled
+        >
+          {reply && (
+            <View className="m-2 mb-4 rounded-lg">
+              <Text className="text-white mb-2">Replying to:</Text>
+              <PostFragment post={reply.posts[0]} />
+            </View>
+          )}
+          {quote && (
+            <View className="m-2 mb-4 rounded-lg">
+              <Text className="text-white mb-2">Quoting:</Text>
+              <PostFragment post={quote.posts[0]} />
+            </View>
+          )}
+          {ask && askUser && (
+            <View className="m-2 mb-4 rounded-lg bg-indigo-950">
+              <GenericRibbon
+                user={askUser}
+                userNameHTML={askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`}
+                label="asked"
+                link={`/user/${askUser.url}`}
+                icon={<MaterialIcons name="question-mark" size={24} color="white" />}
+                className="border-b border-slate-600"
+              />
+              <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
+            </View>
+          )}
+          <Editor
+            {...mentionApi}
+            inputRef={inputRef}
+            formState={form}
+            updateFormState={update}
+          />
+          <ImageList
+            images={form.medias}
+            setImages={(images) => update('medias', images)}
+          />
+        </ScrollView>
+        <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
+      </SafeAreaView>
+    </DashboardContextProvider>
   )
 }
 
-function EditorHeader({ onPublish }: { onPublish: () => void }) {
-  const [privacy, setPrivacy] = useState(PrivacyLevel.PUBLIC)
+function EditorHeader({ privacy, setPrivacy, onPublish }: {
+  privacy: PrivacyLevel
+  setPrivacy: (privacy: PrivacyLevel) => void
+  onPublish: () => void
+}) {
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -271,40 +368,62 @@ function ImageList({ images, setImages }: { images: ImageData[], setImages: (ima
 
 type EditorProps = MentionApi & {
   inputRef: React.RefObject<TextInput>
+  formState: EditorFormState
+  updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
 }
 
 function Editor({
   textInputProps,
   triggers,
-  inputRef
+  inputRef,
+  formState,
+  updateFormState
 }: EditorProps) {
-  const [tagsLine, setTagsLine] = useState('')
+  const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
+  const { type } = useLocalSearchParams<EditorSearchParams>()
+  const placeholderTypeMap = {
+    'reply': 'Write your reply',
+    'ask': 'Write your answer',
+    'quote': 'Write your quote',
+  }
+  const placeholder = type ? placeholderTypeMap[type] : 'How are you feeling?'
 
   return (
-    <View className="border border-gray-600 flex-1 justify-between rounded-lg mx-2">
-      <View className="border border-yellow-500 flex-row items-center pl-2 rounded-lg overflow-hidden">
-        <MaterialIcons name='warning-amber' color={colors.yellow[500]} size={24} />
+    <View
+      id="editor"
+      className="border border-gray-600 flex-grow justify-between rounded-lg mx-2"
+    >
+      {formState.contentWarningOpen && (
+        <View className="border border-yellow-500 flex-row items-center pl-2 rounded-lg overflow-hidden">
+          <MaterialIcons name='warning-amber' color={colors.yellow[500]} size={24} />
+          <TextInput
+            className="placeholder:text-gray-500 text-white py-2 px-3"
+            placeholder="Content warning"
+            value={formState.contentWarning}
+            onChangeText={(text) => updateFormState('contentWarning', text)}
+          />
+        </View>
+      )}
+      <View className="flex-1">
         <TextInput
+          ref={inputRef}
+          autoFocus
+          multiline
+          numberOfLines={10}
+          textAlignVertical="top"
           className="placeholder:text-gray-500 text-white py-2 px-3"
-          placeholder="Content warning"
+          placeholder={placeholder}
+          {...textInputProps}
         />
       </View>
-      <TextInput
-        ref={inputRef}
-        autoFocus
-        multiline
-        className="placeholder:text-gray-500 text-white py-2 px-3"
-        placeholder="How are you feeling?"
-        {...textInputProps}
-      />
       <Suggestions {...triggers.mention} />
       <View className="overflow-hidden border-t border-gray-600">
         <TextInput
           className="placeholder:text-gray-500 text-white py-2 px-3"
           placeholder="Tags"
           value={tagsLine}
-          onChangeText={setTagsLine}
+          onChangeText={(text) => updateFormState('tags', text)}
         />
         {parsedTags.length > 0 && (
           <View className="flex-row items-center gap-2 p-2">
@@ -363,11 +482,13 @@ type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
     wrapSelection: (wrap: string) => void
-    pickImage: () => void
+    pickImage: () => Promise<void>
+    toggleCW: () => void
   }
+  cwOpen: boolean
 }
 
-function EditorActions({ actions }: EditorActionProps) {
+function EditorActions({ actions, cwOpen }: EditorActionProps) {
   return (
     <ScrollView
       contentContainerClassName="gap-3 mx-auto"
@@ -380,18 +501,18 @@ function EditorActions({ actions }: EditorActionProps) {
         className="active:bg-white/50 bg-white/15 p-2 rounded-full"
       >
         <MaterialCommunityIcons name='at' color='white' size={24} />
-      </Pressable>        
-      {/* <Pressable
-        onPress={() => actions.wrapSelection('**')}
+      </Pressable>
+      <Pressable
+        onPress={() => actions.insertCharacter(':')}
         className="active:bg-white/50 bg-white/15 p-2 rounded-full"
       >
-        <MaterialCommunityIcons name='format-bold' color='white' size={24} />
-      </Pressable> */}
-      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
         <MaterialIcons name="emoji-emotions" size={24} color='white' />
       </Pressable>
-      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
-        <MaterialCommunityIcons name="message-alert" size={24} color='white' />
+      <Pressable
+        onPress={actions.toggleCW}
+        className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+      >
+        <MaterialCommunityIcons name="message-alert" size={24} color={cwOpen ? colors.yellow[500] : 'white'} />
       </Pressable>
       <Pressable
         onPress={actions.pickImage}
@@ -399,9 +520,9 @@ function EditorActions({ actions }: EditorActionProps) {
       >
         <MaterialCommunityIcons name='image' color='white' size={24} />
       </Pressable>
-      <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
+      {/* <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
         <MaterialCommunityIcons name='format-quote-close' color='white' size={24} />
-      </Pressable>
+      </Pressable> */}
       <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
         <MaterialIcons name='format-size' color='white' size={24} />
       </Pressable>

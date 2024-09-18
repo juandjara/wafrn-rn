@@ -49,7 +49,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     const mainOptions = [
       {
         action: () => {
-          router.navigate(`/editor?replyId=${post.id}`)
+          router.navigate(`/editor?type=reply&replyId=${post.id}`)
         },
         label: 'Reply',
         icon: <MaterialCommunityIcons name="reply" size={20} color={iconColor} />,
@@ -57,7 +57,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       },
       {
         action: () => {
-          router.navigate(`/editor?quoteId${post.id}`)
+          router.navigate(`/editor?type=quote&quoteId=${post.id}`)
         },
         label: 'Quote',
         icon: <MaterialIcons name="format-quote" size={20} color={iconColor} />,

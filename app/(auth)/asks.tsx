@@ -27,7 +27,7 @@ export default function Asks() {
               />
               <Text className="text-lg text-white px-3 py-4">{item.question}</Text>
               <View className="flex-row gap-3 p-3">
-                <Link href={`/editor?askId=${item.id}}`} asChild>
+                <Link href={`/editor?type=ask&askId=${item.id}`} asChild>
                   <Pressable className="bg-cyan-500/20 px-3 py-1 rounded-lg">
                     <Text className="text-cyan-100">Answer</Text>
                   </Pressable>
