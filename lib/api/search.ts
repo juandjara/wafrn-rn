@@ -80,7 +80,8 @@ export async function searchUser(token: string, handlePart: string) {
       Authorization: `Bearer ${token}`
     }
   })
-  return json as { users: PostUser[] }
+  const data = json as { users: PostUser[] }
+  return data.users
 }
 
 export function useUserSearch(query: string) {

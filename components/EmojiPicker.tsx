@@ -104,7 +104,6 @@ export default function EmojiPicker({
             <Pressable
               className='p-3'
               onPress={() => {
-                console.log('naviage to', item)
                 listRef.current?.scrollToIndex({ index: item.index, animated: true })
               }}
             >

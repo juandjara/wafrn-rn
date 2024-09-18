@@ -1,7 +1,7 @@
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { Link, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
-import { Image, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native"
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, SuggestionsProvidedProps, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
@@ -16,10 +16,18 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import PostFragment from "@/components/dashboard/PostFragment"
 import GenericRibbon from "@/components/GenericRibbon"
+import { useUserSearch } from "@/lib/api/search"
+import useDebounce from "@/lib/useDebounce"
+import { useSettings } from "@/lib/api/settings"
+import { getUnicodeEmojiGroups } from "@/lib/emojis"
+import { Emoji } from "@/components/EmojiPicker"
+import { PostUser } from "@/lib/api/posts.types"
+import { formatCachedUrl, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
+import { Image } from 'expo-image'
 
 type MentionApi = ReturnType<typeof useMentions>
 
-const triggersConfig: TriggersConfig<'mention' | 'bold' | 'color'> = {
+const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
     trigger: '@',
     isInsertSpaceAfterMention: true,
@@ -27,6 +35,25 @@ const triggersConfig: TriggersConfig<'mention' | 'bold' | 'color'> = {
       fontWeight: 'bold',
       color: 'deepskyblue',
     }
+  },
+  emoji: {
+    trigger: ':',
+    pattern: /(:\w+:)/gi,
+    isInsertSpaceAfterMention: true,
+    textStyle: {
+      fontWeight: 'bold',
+      color: 'deepskyblue',
+    },
+    getTriggerData: (match) => {
+      return ({
+        trigger: ':',
+        original: match,
+        name: match,
+        id: match,
+      });
+    },
+    getTriggerValue: (suggestion) => suggestion.name,
+    getPlainString: (triggerData) => triggerData.name,
   },
   bold: {
     trigger: '**',
@@ -140,6 +167,7 @@ export default function EditorView() {
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
+      console.log(part)
       if (!trigger) {
         text += part.text
         continue
@@ -153,7 +181,7 @@ export default function EditorView() {
         continue
       }
     }
-    console.log(text) // text converted to html tags
+    console.log('full text: ', text) // text converted to html tags
   }
 
   const actions: EditorActionProps['actions'] = {
@@ -226,10 +254,7 @@ export default function EditorView() {
           setPrivacy={(privacy) => update('privacy', privacy)}
           onPublish={log}
         />
-        <ScrollView
-          id="editor-scroll"
-          nestedScrollEnabled
-        >
+        <ScrollView id="editor-scroll" keyboardShouldPersistTaps="always">
           {reply && (
             <View className="m-2 mb-4 rounded-lg">
               <Text className="text-white mb-2">Replying to:</Text>
@@ -342,7 +367,7 @@ function ImageList({ images, setImages }: { images: ImageData[], setImages: (ima
   }
 
   return (
-    <ScrollView horizontal className="flex-grow-0">
+    <ScrollView horizontal style={{ flex: 0 }} contentContainerStyle={{ flex: 0 }}>
       {images.map((img, index) => (
         <View className="relative" key={img.uri}>
           <Image
@@ -392,7 +417,7 @@ function Editor({
   return (
     <View
       id="editor"
-      className="border border-gray-600 flex-grow justify-between rounded-lg mx-2"
+      className="border border-gray-600 rounded-lg mx-2"
     >
       {formState.contentWarningOpen && (
         <View className="border border-yellow-500 flex-row items-center pl-2 rounded-lg overflow-hidden">
@@ -417,7 +442,8 @@ function Editor({
           {...textInputProps}
         />
       </View>
-      <Suggestions {...triggers.mention} />
+      <Suggestions {...triggers.mention} type='mention' />
+      <Suggestions {...triggers.emoji} type='emoji' />
       <View className="overflow-hidden border-t border-gray-600">
         <TextInput
           className="placeholder:text-gray-500 text-white py-2 px-3"
@@ -437,45 +463,115 @@ function Editor({
   )
 }
 
-const suggestions = [
-  { id: '1', name: 'John_Doe' },
-  { id: '2', name: 'Jane_Doe' },
-  { id: '3', name: 'John_Smith' },
-  { id: '4', name: 'Jane_Smith' },
-  { id: '5', name: 'John_Johnson' },
-  { id: '6', name: 'Jane_Johnson' },
-  { id: '7', name: 'John_Brown' },
-  { id: '8', name: 'Dave_Brown' },
-  { id: '9', name: 'John_Davis' },
-  { id: '10', name: 'Jane_Davis' },
-]
+const SUGGESTION_DEBOUNCE_TIME = 300 // ms
+const ucGroups = getUnicodeEmojiGroups()
+
+function useSuggestions(keyword: string | undefined, type: 'mention' | 'emoji') {
+  const debouncedKeyword = useDebounce(keyword, SUGGESTION_DEBOUNCE_TIME)
+  const { data: users, isLoading: usersLoading } = useUserSearch(debouncedKeyword || '')
+  const { data: settings, isLoading: settingsLoading } = useSettings()
+
+  const emojis = useMemo(() => {
+    if (type !== 'emoji' || !settings?.emojis) {
+      return []
+    }
+
+    return settings.emojis
+      .concat(ucGroups)
+      .flatMap((g) => g.emojis as Emoji[])
+      .filter((e) => {
+        if (!debouncedKeyword || debouncedKeyword.length < 2) {
+          return false
+        }
+        return e.name.toLowerCase().includes(debouncedKeyword.toLowerCase())
+      })
+      .slice(0, 100)
+  }, [settings, debouncedKeyword, type])
+  
+  let data = null
+  let isLoading = false
+  if (debouncedKeyword) {
+    if (type === 'mention') {
+      data = users
+      isLoading = usersLoading
+    }
+    if (type === 'emoji') {
+      data = emojis
+      isLoading = settingsLoading
+    }
+  }
+  return { data, isLoading }
+}
 
 function Suggestions({
   onSelect,
-  keyword
-}: SuggestionsProvidedProps) {
-  if (!keyword) return null
-  
-  const filteredSuggestions = suggestions.filter(s => s.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase()))
-  if (!filteredSuggestions.length) {
-    return (
-      <Text className="text-white p-2">No suggestions found</Text>
-    )
+  keyword,
+  type,
+}: SuggestionsProvidedProps & {
+  type: 'mention' | 'emoji'
+}) {
+  const { data, isLoading } = useSuggestions(keyword, type)
+
+  if (!data) return null
+  if (isLoading) {
+    return <Text className="text-white p-2">Loading...</Text>
+  }
+  if (!data.length) {
+    return <Text className="text-white p-2">No suggestions found</Text>
   }
 
   return (
-    <ScrollView className="max-h-60 flex-grow-0 bottom-0 bg-slate-700" keyboardShouldPersistTaps='always'>
-      {filteredSuggestions.map(s => (
-        <Pressable
-          key={s.id}
-          onPress={() => onSelect(s)}
-          style={{padding: 12}}
-        >
-          <Text className="text-white">{s.name}</Text>
-        </Pressable>
+    <View>
+      {data.map(s => (
+        <SuggestionItem key={s.id} onSelect={onSelect} type={type} item={s} />
       ))}
-    </ScrollView>
+    </View>
   )
+}
+
+function SuggestionItem({ item, type, onSelect }: {
+  item: Emoji | PostUser
+  type: 'mention' | 'emoji'
+  onSelect: (item: Emoji | PostUser) => void
+}) {
+  if (type === 'emoji') {
+    const emoji = item as Emoji
+    return (
+      <Pressable
+        className='p-2 flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600'
+        onPress={() => onSelect({ ...emoji, name: emoji.name.includes(':') ? emoji.name : emoji.content || emoji.name })}
+      >
+        {emoji.content ? (
+          <Text className='text-2xl'>{emoji.content}</Text>
+        ) : (
+          <Image
+            source={{ uri: formatCachedUrl(formatMediaUrl(emoji.url)) }}
+            style={{ resizeMode: 'contain', width: 32, height: 32 }}
+          />
+        )}
+        <Text className='text-white'>{emoji.name}</Text>
+      </Pressable>
+    )
+  }
+  if (type === 'mention') {
+    console.log(item)
+    const user = item as PostUser
+    return (
+      <Pressable
+        className="flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600"
+        onPress={() => onSelect({ ...user, name: user.url })}
+      >
+        <Image
+          source={{ uri: formatSmallAvatar(user.avatar) }}
+          style={{ resizeMode: 'contain', width: 48, height: 48 }}
+        />
+        <Text className="text-white text-lg font-medium flex-shrink">
+          {user.url.startsWith('@') ? user.url : `@${user.url}`}
+        </Text>
+      </Pressable>
+    )
+  }
+  return null
 }
 
 type EditorActionProps = {
@@ -492,7 +588,7 @@ function EditorActions({ actions, cwOpen }: EditorActionProps) {
   return (
     <ScrollView
       contentContainerClassName="gap-3 mx-auto"
-      className="p-3 flex-grow-0"
+      className="p-3 flex-shrink-0 flex-grow-0"
       keyboardShouldPersistTaps="always"
       horizontal
     >
