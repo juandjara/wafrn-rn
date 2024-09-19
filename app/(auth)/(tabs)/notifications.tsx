@@ -168,6 +168,20 @@ function NotificationItem({ notification }: { notification: Notification }) {
       />
     )
   }
+  if (notification.type === 'mention') {
+    const isReply = !!notification.post.parentId
+    ribbon = (
+      <GenericRibbon
+        user={user}
+        userNameHTML={userName}
+        link={`/post/${notification.post.id}`}
+        label={isReply ? 'replied' : 'mentioned you'}
+        icon={
+          <MaterialCommunityIcons name={isReply ? 'reply' : 'at'} size={20} color="white" className="mx-1" />
+        }
+      />
+    )
+  }
 
   let content = null
   if (notification.type === 'follow') {
