@@ -22,7 +22,7 @@ import { useSettings } from "@/lib/api/settings"
 import { getUnicodeEmojiGroups } from "@/lib/emojis"
 import { Emoji } from "@/components/EmojiPicker"
 import { PostUser } from "@/lib/api/posts.types"
-import { formatCachedUrl, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
+import { formatCachedUrl, formatMediaUrl, formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
 import { Image } from 'expo-image'
 
 type MentionApi = ReturnType<typeof useMentions>
@@ -30,11 +30,22 @@ type MentionApi = ReturnType<typeof useMentions>
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
     trigger: '@',
+    pattern: /(@\w+@?.+)/gi,
     isInsertSpaceAfterMention: true,
     textStyle: {
       fontWeight: 'bold',
       color: 'deepskyblue',
-    }
+    },
+    getTriggerData: (match) => {
+      return ({
+        trigger: '@',
+        original: match,
+        name: match,
+        id: match,
+      });
+    },
+    getTriggerValue: (suggestion) => suggestion.name,
+    getPlainString: (triggerData) => triggerData.name,
   },
   emoji: {
     trigger: ':',
@@ -285,6 +296,7 @@ export default function EditorView() {
             inputRef={inputRef}
             formState={form}
             updateFormState={update}
+            selection={selection}
           />
           <ImageList
             images={form.medias}
@@ -395,6 +407,7 @@ type EditorProps = MentionApi & {
   inputRef: React.RefObject<TextInput>
   formState: EditorFormState
   updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
+  selection: { start: number; end: number }
 }
 
 function Editor({
@@ -402,7 +415,8 @@ function Editor({
   triggers,
   inputRef,
   formState,
-  updateFormState
+  updateFormState,
+  selection
 }: EditorProps) {
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
@@ -413,6 +427,20 @@ function Editor({
     'quote': 'Write your quote',
   }
   const placeholder = type ? placeholderTypeMap[type] : 'How are you feeling?'
+
+  const debouncedText = useDebounce(formState.content, 300)
+  const debouncedSelectionStart = useDebounce(selection.start, 300)
+
+  const debouncedMentionKeyword = useMemo(() => {
+    const MAX_CHARACTER_LOOKUP = 300
+    const textBeforeCursor = debouncedText.substring(
+      Math.max(0, debouncedSelectionStart - MAX_CHARACTER_LOOKUP),
+      debouncedSelectionStart
+    )
+    const match = textBeforeCursor.match(/@[A-Z0-9a-z_.@-]+$/)
+    const lastMention = match && match[0]?.substring(1)
+    return lastMention
+  }, [debouncedText, debouncedSelectionStart])
 
   return (
     <View
@@ -442,7 +470,23 @@ function Editor({
           {...textInputProps}
         />
       </View>
-      <Suggestions {...triggers.mention} type='mention' />
+      <Suggestions
+        onSelect={(data) => {
+          if (data.name.lastIndexOf('@') > 0) {
+            updateFormState(
+              'content',
+              formState.content.replace(
+                debouncedMentionKeyword || '',
+                `${data.name.replace(/^@/, '')} `
+              )
+            )
+          } else {
+            triggers.mention.onSelect(data)
+          }
+        }}
+        keyword={debouncedMentionKeyword || undefined}
+        type='mention'
+      />
       <Suggestions {...triggers.emoji} type='emoji' />
       <View className="overflow-hidden border-t border-gray-600">
         <TextInput
@@ -554,19 +598,19 @@ function SuggestionItem({ item, type, onSelect }: {
     )
   }
   if (type === 'mention') {
-    console.log(item)
     const user = item as PostUser
+    const url = formatUserUrl(user)
     return (
       <Pressable
         className="flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600"
-        onPress={() => onSelect({ ...user, name: user.url })}
+        onPress={() => onSelect({ ...user, name: url })}
       >
         <Image
           source={{ uri: formatSmallAvatar(user.avatar) }}
           style={{ resizeMode: 'contain', width: 48, height: 48 }}
         />
         <Text className="text-white text-lg font-medium flex-shrink">
-          {user.url.startsWith('@') ? user.url : `@${user.url}`}
+          {url}
         </Text>
       </Pressable>
     )
