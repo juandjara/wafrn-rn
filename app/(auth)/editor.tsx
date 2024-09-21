@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
-import { ScrollView, Text, TextInput, View } from "react-native"
+import { KeyboardAvoidingView, KeyboardAvoidingViewBase, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
@@ -227,59 +227,61 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
-        <Stack.Screen
-          options={{
-            animation: 'slide_from_bottom',
-            headerShown: false,
-          }}
-        />
-        <EditorHeader
-          privacy={form.privacy}
-          setPrivacy={(privacy) => update('privacy', privacy)}
-          onPublish={onPublish}
-        />
-        <ScrollView id="editor-scroll" keyboardShouldPersistTaps="always">
-          {reply && (
-            <View className="m-2 mb-4 rounded-lg">
-              <Text className="text-white mb-2">Replying to:</Text>
-              <PostFragment post={reply.posts[0]} />
-            </View>
-          )}
-          {quote && (
-            <View className="m-2 mb-4 rounded-lg">
-              <Text className="text-white mb-2">Quoting:</Text>
-              <PostFragment post={quote.posts[0]} />
-            </View>
-          )}
-          {ask && askUser && (
-            <View className="m-2 mb-4 rounded-lg bg-indigo-950">
-              <GenericRibbon
-                user={askUser}
-                userNameHTML={askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`}
-                label="asked"
-                link={`/user/${askUser.url}`}
-                icon={<MaterialIcons name="question-mark" size={24} color="white" />}
-                className="border-b border-slate-600"
-              />
-              <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
-            </View>
-          )}
-          <Editor
-            {...mentionApi}
-            inputRef={inputRef}
-            formState={form}
-            updateFormState={update}
-            selection={selection}
-            mentionState={mentionApi.mentionState}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
+          <Stack.Screen
+            options={{
+              animation: 'slide_from_bottom',
+              headerShown: false,
+            }}
           />
-          <ImageList
-            images={form.medias}
-            setImages={(images) => update('medias', images)}
+          <EditorHeader
+            privacy={form.privacy}
+            setPrivacy={(privacy) => update('privacy', privacy)}
+            onPublish={onPublish}
           />
-        </ScrollView>
-        <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
-      </SafeAreaView>
+          <ScrollView id="editor-scroll" keyboardShouldPersistTaps="always">
+            {reply && (
+              <View className="m-2 mb-4 rounded-lg">
+                <Text className="text-white mb-2">Replying to:</Text>
+                <PostFragment post={reply.posts[0]} />
+              </View>
+            )}
+            {quote && (
+              <View className="m-2 mb-4 rounded-lg">
+                <Text className="text-white mb-2">Quoting:</Text>
+                <PostFragment post={quote.posts[0]} />
+              </View>
+            )}
+            {ask && askUser && (
+              <View className="m-2 mb-4 rounded-lg bg-indigo-950">
+                <GenericRibbon
+                  user={askUser}
+                  userNameHTML={askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`}
+                  label="asked"
+                  link={`/user/${askUser.url}`}
+                  icon={<MaterialIcons name="question-mark" size={24} color="white" />}
+                  className="border-b border-slate-600"
+                />
+                <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
+              </View>
+            )}
+            <Editor
+              {...mentionApi}
+              inputRef={inputRef}
+              formState={form}
+              updateFormState={update}
+              selection={selection}
+              mentionState={mentionApi.mentionState}
+            />
+            <ImageList
+              images={form.medias}
+              setImages={(images) => update('medias', images)}
+            />
+          </ScrollView>
+          <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </DashboardContextProvider>
   )
 }
