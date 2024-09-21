@@ -24,13 +24,15 @@ import { Emoji } from "@/components/EmojiPicker"
 import { PostUser } from "@/lib/api/posts.types"
 import { formatCachedUrl, formatMediaUrl, formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
 import { Image } from 'expo-image'
+import { useQueryClient } from "@tanstack/react-query"
+import { formatMentionHTML } from "@/lib/api/html"
 
 type MentionApi = ReturnType<typeof useMentions>
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
     trigger: '@',
-    pattern: /(@\w+@?.+)/gi,
+    pattern: /(@\w+@?[\w-\.]*)/gi,
     isInsertSpaceAfterMention: true,
     textStyle: {
       fontWeight: 'bold',
@@ -174,17 +176,29 @@ export default function EditorView() {
     onSelectionChange: setSelection,
   })
 
+  const qc = useQueryClient()
+
   function log() {
+    const users = qc.getQueriesData<PostUser[]>({
+      predicate: (query) => query.queryKey[0] === 'userSearch'
+    })
+      .map((q) => q[1])
+      .filter((u) => !!u)
+      .flat()
+
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
-      console.log(part)
       if (!trigger) {
         text += part.text
         continue
       }
       if (trigger === '@') {
-        text += `<a href="${part.data?.id}">${part.text}</a>`
+        const url = part.data?.id
+        const user = users.find((u) => u.url === url)
+        const remoteId = user?.remoteId || ''
+        const id = user?.id || ''
+        text += url ? formatMentionHTML(url, remoteId, id) : part.text
         continue
       }
       if (trigger === '**') {
@@ -192,6 +206,7 @@ export default function EditorView() {
         continue
       }
     }
+
     console.log('full text: ', text) // text converted to html tags
   }
 
@@ -437,7 +452,7 @@ function Editor({
       Math.max(0, debouncedSelectionStart - MAX_CHARACTER_LOOKUP),
       debouncedSelectionStart
     )
-    const match = textBeforeCursor.match(/@[A-Z0-9a-z_.@-]+$/)
+    const match = textBeforeCursor.match(/@\w+@?[\w-\.]*$/)
     const lastMention = match && match[0]?.substring(1)
     return lastMention
   }, [debouncedText, debouncedSelectionStart])
@@ -556,10 +571,12 @@ function Suggestions({
 }) {
   const { data, isLoading } = useSuggestions(keyword, type)
 
-  if (!data) return null
   if (isLoading) {
     return <Text className="text-white p-2">Loading...</Text>
   }
+
+  if (!data) return null
+  
   if (!data.length) {
     return <Text className="text-white p-2">No suggestions found</Text>
   }

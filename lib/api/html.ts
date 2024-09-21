@@ -2,6 +2,7 @@ import { Platform, TextStyle, ViewStyle } from "react-native";
 import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
+import { BASE_URL } from "../config";
 
 export const BR = '\n'
 
@@ -170,13 +171,13 @@ export function replaceHref(node: ChildNode, context: DashboardContextData) {
   }
 
   const className = node.attribs['class']
-  if (className?.includes('mention')) {
-    replaceMentionLink(node, context)
-  }
   // TODO: consider whether to replace hashtag link or not
   // since we already display a line with hastags at the bottom of the post
   if (className?.includes('hashtag')) {
-    replaceHashtagLink(node, context)
+    return replaceHashtagLink(node, context)
+  }
+  if (className?.includes('mention')) {
+    return replaceMentionLink(node, context)
   }
 }
 
@@ -262,4 +263,11 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
       }
     }
   }
+}
+
+export function formatMentionHTML(mention: string, remoteId?: string, id?: string) {
+  const user = remoteId ? mention.split('@')[1] : mention
+  const href = remoteId || `${BASE_URL}/blog/${mention}`
+  const attr = id ? `data-id="${id}"` : ''
+  return `<span class="h-card" translate="no"><a ${attr} href="${href}" class="u-url mention">@<span>${user}</span></a></span>`
 }
