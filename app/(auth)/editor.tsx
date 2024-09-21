@@ -207,13 +207,9 @@ export default function EditorView() {
 
   const actions: EditorActionProps['actions'] = {
     insertCharacter: (character: string) => {
-      const textBeforeCursor = mentionApi.mentionState.plainText.substring(
-        0,
-        selection.start,
-      )
-      const textAfterCursor = mentionApi.mentionState.plainText.substring(
-        selection.end,
-      )
+      const text = mentionApi.mentionState.plainText
+      const textBeforeCursor = text.substring(0, selection.start)
+      const textAfterCursor = text.substring(selection.end)
       const newText = `${textBeforeCursor}${character}${textAfterCursor}`
       update(
         'content',
@@ -224,17 +220,10 @@ export default function EditorView() {
       )
     },
     wrapSelection: (wrap: string) => {
-      const textBeforeCursor = mentionApi.mentionState.plainText.substring(
-        0,
-        selection.start,
-      )
-      const textInCursor = mentionApi.mentionState.plainText.substring(
-        selection.start,
-        selection.end,
-      )
-      const textAfterCursor = mentionApi.mentionState.plainText.substring(
-        selection.end,
-      )
+      const text = mentionApi.mentionState.plainText
+      const textBeforeCursor = text.substring(0, selection.start)
+      const textInCursor = text.substring(selection.start, selection.end)
+      const textAfterCursor = text.substring(selection.end)
       const newText = `${textBeforeCursor}${wrap}${textInCursor}${wrap}${textAfterCursor}`
       update(
         'content',
@@ -452,10 +441,10 @@ function Editor({
     )
     const match = textBeforeCursor.match(/@\w+@?[\w-\.]*$/)
     const lastMention = match && match[0]?.substring(1)
-    return lastMention
+    return lastMention || undefined
   }, [debouncedText, debouncedSelectionStart])
 
-  function insertMention(data: Suggestion) {
+  function selectMentionUser(data: Suggestion) {
     const id = (data as PostUser).id
     const remoteId = (data as PostUser).remoteId || `${BASE_URL}/blog/${(data as PostUser).url}`
     const newText = mentionState.plainText.replace(
@@ -497,8 +486,8 @@ function Editor({
         />
       </View>
       <Suggestions
-        onSelect={insertMention}
-        keyword={debouncedMentionKeyword || undefined}
+        onSelect={selectMentionUser}
+        keyword={debouncedMentionKeyword}
         type='mention'
       />
       <Suggestions {...triggers.emoji} type='emoji' />
