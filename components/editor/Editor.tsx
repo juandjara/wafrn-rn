@@ -13,13 +13,6 @@ import { ImageData } from "./EditorImages"
 
 type MentionApi = ReturnType<typeof useMentions>
 
-type EditorSearchParams = {
-  replyId: string
-  askId: string
-  quoteId: string
-  type: 'reply' | 'ask' | 'quote'
-}
-
 export type EditorFormState = {
   content: string
   contentWarning: string
@@ -48,7 +41,7 @@ export default function Editor({
 }: EditorProps) {
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
-  const { type } = useLocalSearchParams<EditorSearchParams>()
+  const { type } = useLocalSearchParams<{ type: 'reply' | 'ask' | 'quote' }>()
   const placeholderTypeMap = {
     'reply': 'Write your reply',
     'ask': 'Write your answer',
