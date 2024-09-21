@@ -3,6 +3,7 @@ import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
 import { BASE_URL } from "../config";
+import { isValidURL } from "./content";
 
 export const BR = '\n'
 
@@ -265,9 +266,16 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
   }
 }
 
-export function formatMentionHTML(mention: string, remoteId?: string, id?: string) {
+export function formatMentionHTML(mention: string, remoteId?: string) {
   const user = remoteId ? mention.split('@')[1] : mention
-  const href = remoteId || `${BASE_URL}/blog/${mention}`
+  let href = remoteId || `${BASE_URL}/blog/${mention}`
+  let id = undefined
+  if (isValidURL(href)) {
+    const url = new URL(href)
+    id = url.searchParams.get('id')
+    url.searchParams.delete('id')
+    href = url.toString()
+  }
   const attr = id ? `data-id="${id}"` : ''
   return `<span class="h-card" translate="no"><a ${attr} href="${href}" class="u-url mention">@<span>${user}</span></a></span>`
 }

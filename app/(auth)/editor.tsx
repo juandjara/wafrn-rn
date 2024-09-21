@@ -2,7 +2,7 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-ic
 import { Link, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native"
-import { generateValueFromMentionStateAndChangedText, isTriggerConfig, SuggestionsProvidedProps, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
+import { generateValueFromMentionStateAndChangedText, isTriggerConfig, Suggestion, SuggestionsProvidedProps, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import { DarkTheme } from "@react-navigation/native"
@@ -24,29 +24,35 @@ import { Emoji } from "@/components/EmojiPicker"
 import { PostUser } from "@/lib/api/posts.types"
 import { formatCachedUrl, formatMediaUrl, formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
 import { Image } from 'expo-image'
-import { useQueryClient } from "@tanstack/react-query"
 import { formatMentionHTML } from "@/lib/api/html"
+import { BASE_URL } from "@/lib/config"
 
 type MentionApi = ReturnType<typeof useMentions>
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
     trigger: '@',
-    pattern: /(@\w+@?[\w-\.]*)/gi,
+    pattern: /(\[@\w+@?[\w-\.]*\]\([^(^)]+\))/gi,
     isInsertSpaceAfterMention: true,
     textStyle: {
       fontWeight: 'bold',
       color: 'deepskyblue',
     },
     getTriggerData: (match) => {
+      const [first, last] = match.split('](')
+      if (!first || !last) {
+        return { trigger: '@', original: match, name: match, id: match }
+      }
+      const name = first.replace('[', '')
+      const id = last.replace(')', '')
       return ({
         trigger: '@',
         original: match,
-        name: match,
-        id: match,
+        name,
+        id,
       });
     },
-    getTriggerValue: (suggestion) => suggestion.name,
+    getTriggerValue: (suggestion) => `[${suggestion.name}](${suggestion.id})`,
     getPlainString: (triggerData) => triggerData.name,
   },
   emoji: {
@@ -176,16 +182,7 @@ export default function EditorView() {
     onSelectionChange: setSelection,
   })
 
-  const qc = useQueryClient()
-
   function log() {
-    const users = qc.getQueriesData<PostUser[]>({
-      predicate: (query) => query.queryKey[0] === 'userSearch'
-    })
-      .map((q) => q[1])
-      .filter((u) => !!u)
-      .flat()
-
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
@@ -194,11 +191,9 @@ export default function EditorView() {
         continue
       }
       if (trigger === '@') {
-        const url = part.data?.id
-        const user = users.find((u) => u.url === url)
-        const remoteId = user?.remoteId || ''
-        const id = user?.id || ''
-        text += url ? formatMentionHTML(url, remoteId, id) : part.text
+        const remoteId = part.data?.id
+        const url = part.data?.name
+        text += url ? formatMentionHTML(url, remoteId) : part.text
         continue
       }
       if (trigger === '**') {
@@ -312,6 +307,7 @@ export default function EditorView() {
             formState={form}
             updateFormState={update}
             selection={selection}
+            mentionState={mentionApi.mentionState}
           />
           <ImageList
             images={form.medias}
@@ -423,6 +419,7 @@ type EditorProps = MentionApi & {
   formState: EditorFormState
   updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
   selection: { start: number; end: number }
+  mentionState: MentionApi['mentionState']
 }
 
 function Editor({
@@ -431,7 +428,8 @@ function Editor({
   inputRef,
   formState,
   updateFormState,
-  selection
+  selection,
+  mentionState
 }: EditorProps) {
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
@@ -443,7 +441,7 @@ function Editor({
   }
   const placeholder = type ? placeholderTypeMap[type] : 'How are you feeling?'
 
-  const debouncedText = useDebounce(formState.content, 300)
+  const debouncedText = useDebounce(mentionState.plainText, 300)
   const debouncedSelectionStart = useDebounce(selection.start, 300)
 
   const debouncedMentionKeyword = useMemo(() => {
@@ -456,6 +454,19 @@ function Editor({
     const lastMention = match && match[0]?.substring(1)
     return lastMention
   }, [debouncedText, debouncedSelectionStart])
+
+  function insertMention(data: Suggestion) {
+    const id = (data as PostUser).id
+    const remoteId = (data as PostUser).remoteId || `${BASE_URL}/blog/${(data as PostUser).url}`
+    const newText = mentionState.plainText.replace(
+      `@${debouncedMentionKeyword}`,
+      `[${data.name}](${remoteId}?id=${id}) `
+    )
+    updateFormState(
+      'content',
+      generateValueFromMentionStateAndChangedText(mentionState, newText)
+    )
+  }
 
   return (
     <View
@@ -486,19 +497,7 @@ function Editor({
         />
       </View>
       <Suggestions
-        onSelect={(data) => {
-          if (data.name.lastIndexOf('@') > 0) {
-            updateFormState(
-              'content',
-              formState.content.replace(
-                debouncedMentionKeyword || '',
-                `${data.name.replace(/^@/, '')} `
-              )
-            )
-          } else {
-            triggers.mention.onSelect(data)
-          }
-        }}
+        onSelect={insertMention}
         keyword={debouncedMentionKeyword || undefined}
         type='mention'
       />
