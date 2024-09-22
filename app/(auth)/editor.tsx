@@ -198,6 +198,10 @@ export default function EditorView() {
         text += `<strong>${part.text}</strong>`
         continue
       }
+      if (trigger === '#?') {
+        text += `<span style="color: ${part.data?.id}">${part.text}</span>`
+        continue
+      }
     }
 
     console.log('full text: ', text) // text converted to html tags
