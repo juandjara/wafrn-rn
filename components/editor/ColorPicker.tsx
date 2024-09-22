@@ -1,5 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { Modal, Pressable, ScrollView } from "react-native"
+import clsx from "clsx"
+import { useState } from "react"
+import { Modal, Pressable, ScrollView, Text, View } from "react-native"
 import colors from "tailwindcss/colors"
 
 const COLORS = [
@@ -27,13 +29,15 @@ const COLORS = [
   'rose',
 ] as const
 
-// const INTENSITIES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
+const INTENSITIES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
 
 export default function ColorPicker({ open, setOpen, selectColor }: {
   open: boolean,
   setOpen: (open: boolean) => void,
   selectColor: (color: string) => void
 }) {
+  const [intensity, setIntensity] = useState<typeof INTENSITIES[number]>(500)
+
   return (
     <Modal
       visible={open}
@@ -42,23 +46,49 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
       transparent
     >
       <Pressable className="bg-black/50 flex-grow" onPress={() => setOpen(false)} />
-      <ScrollView
-        contentContainerClassName="gap-3 pr-6"
-        className="p-3 flex-shrink-0 flex-grow-0 bg-indigo-950"
-        keyboardShouldPersistTaps="always"
-        horizontal
-      >
-        {COLORS.map((color) => (
-          <Pressable
-            key={color}
-            onPress={() => selectColor(colors[color][500])}
-            style={{ backgroundColor: colors[color][500] }}
-            className={`p-2 rounded-full`}
-          >
-            <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
-          </Pressable>
-        ))}
-      </ScrollView>
+      <View className="bg-indigo-950 p-2">
+        <Text className="text-white text-sm font-medium">Color intensity</Text>
+        <ScrollView
+          contentContainerClassName="gap-3"
+          className="flex-shrink-0 flex-grow-0 pt-2 pb-4"
+          keyboardShouldPersistTaps="always"
+          horizontal
+        >
+          {INTENSITIES.map((i) => (
+            <Pressable
+              key={i}
+              onPress={() => setIntensity(i)}
+              className={clsx(
+                'px-2 py-1 rounded-lg border border-gray-500 active:bg-white/10',
+                intensity === i ? 'bg-white' : '',
+              )}
+            >
+              <Text className={intensity === i ? 'text-gray-700' : 'text-white'}>{i}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+        <Text className="text-white text-sm font-medium">Color hue</Text>
+        <ScrollView
+          contentContainerClassName="gap-3"
+          className="flex-shrink-0 flex-grow-0 pt-2 pb-4"
+          keyboardShouldPersistTaps="always"
+          horizontal
+        >
+          {COLORS.map((color) => (
+            <Pressable
+              key={color}
+              onPress={() => {
+                selectColor(colors[color][intensity])
+                setOpen(false)
+              }}
+              style={{ backgroundColor: colors[color][intensity] }}
+              className={`p-2 rounded-full`}
+            >
+              <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
     </Modal>
   )
 }
