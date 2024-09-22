@@ -2,6 +2,7 @@ import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
+import { useMentions } from "react-native-more-controlled-mentions"
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content) {
@@ -113,4 +114,32 @@ export function getYoutubeImage(ytLink: string) {
     return `https://img.youtube.com/vi/${videoId}/0.jpg`
   }
   return null
+}
+
+type MentionApi = ReturnType<typeof useMentions>
+
+export function clearSelectionRangeFormat(
+  state: MentionApi['mentionState'],
+  selection: { start: number; end: number }
+) {
+  const rangesWithFormat = state.parts.filter((part) => {
+    const start = part.position.start
+    const end = part.position.end
+    return selection.start < end && selection.end > start
+  })
+  if (rangesWithFormat.length === 0) {
+    return state
+  }
+  return {
+    ...state,
+    parts: state.parts.map((part) => {
+      if (rangesWithFormat.includes(part)) {
+        return {
+          text: part.text,
+          position: part.position,
+        }
+      }
+      return part
+    })
+  }
 }

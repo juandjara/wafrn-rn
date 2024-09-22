@@ -21,6 +21,7 @@ import Editor, { EditorFormState } from "@/components/editor/Editor"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
+import { clearSelectionRangeFormat } from "@/lib/api/content"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
@@ -216,16 +217,19 @@ export default function EditorView() {
         )
       )
     },
-    wrapSelection: (wrap: string) => {
+    wrapSelection: (start: string, end?: string) => {
       const text = mentionApi.mentionState.plainText
       const textBeforeCursor = text.substring(0, selection.start)
       const textInCursor = text.substring(selection.start, selection.end)
+      if (!textInCursor) {
+        return
+      }
       const textAfterCursor = text.substring(selection.end)
-      const newText = `${textBeforeCursor}${wrap}${textInCursor}${wrap}${textAfterCursor}`
+      const newText = `${textBeforeCursor}${start}${textInCursor}${end || start}${textAfterCursor}`
       update(
         'content',
         generateValueFromMentionStateAndChangedText(
-          mentionApi.mentionState,
+          clearSelectionRangeFormat(mentionApi.mentionState, selection),
           newText,
         )
       )

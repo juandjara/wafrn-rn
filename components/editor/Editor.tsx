@@ -10,6 +10,7 @@ import { generateValueFromMentionStateAndChangedText, Suggestion, useMentions } 
 import colors from "tailwindcss/colors"
 import EditorSuggestions from "./EditorSuggestions"
 import { EditorImage } from "./EditorImages"
+import { clearSelectionRangeFormat } from "@/lib/api/content"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -22,11 +23,12 @@ export type EditorFormState = {
   medias: EditorImage[]
 }
 
+type Selection = { start: number; end: number }
 type EditorProps = MentionApi & {
   inputRef: React.RefObject<TextInput>
   formState: EditorFormState
   updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
-  selection: { start: number; end: number }
+  selection: Selection
   mentionState: MentionApi['mentionState']
 }
 
@@ -64,6 +66,7 @@ export default function Editor({
   }, [debouncedText, debouncedSelectionStart])
 
   function selectMentionUser(data: Suggestion) {
+    console.log(JSON.stringify(mentionState, null, 2))
     const id = (data as PostUser).id
     const remoteId = (data as PostUser).remoteId || `${BASE_URL}/blog/${(data as PostUser).url}`
     const newText = mentionState.plainText.replace(
@@ -72,7 +75,10 @@ export default function Editor({
     )
     updateFormState(
       'content',
-      generateValueFromMentionStateAndChangedText(mentionState, newText)
+      generateValueFromMentionStateAndChangedText(
+        clearSelectionRangeFormat(mentionState, selection),
+        newText
+      )
     )
   }
 
