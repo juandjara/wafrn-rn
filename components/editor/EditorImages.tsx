@@ -1,6 +1,6 @@
-import { useMediaUploadMutation } from "@/lib/api/media"
 import { MaterialIcons } from "@expo/vector-icons"
 import { DarkTheme } from "@react-navigation/native"
+import { useMutationState } from "@tanstack/react-query"
 import clsx from "clsx"
 import Checkbox from "expo-checkbox"
 import { Image } from "expo-image"
@@ -22,7 +22,13 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
   setImages: (images: EditorImage[]) => void
   disableForceAltText: boolean
 }) {
-  const uploadMutation = useMediaUploadMutation()
+  const mutationParams = useMutationState({
+    filters: {
+      mutationKey: ['mediaUpload'], 
+    },
+    select: m => m.state.variables as { uri: string }[]
+  }).at(-1)
+
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
   const { width } = useWindowDimensions()
@@ -37,7 +43,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
   }
 
   function isLoading(img: EditorImage) {
-    return uploadMutation.isPending && uploadMutation.variables?.some(v => v.uri === img.uri)
+    return mutationParams?.some(v => v.uri === img.uri)
   }
 
   function removeImage(index: number) {
@@ -141,7 +147,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 style={StyleSheet.absoluteFill}
                 className="z-10 items-center justify-center bg-black/50"
               >
-                <ActivityIndicator size="small" color="white" />
+                <ActivityIndicator size="large" color="white" />
               </View>
             ) : null}
           </View>
