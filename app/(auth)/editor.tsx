@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons"
-import { Stack, useLocalSearchParams } from "expo-router"
+import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import { DarkTheme } from "@react-navigation/native"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { usePostDetail } from "@/lib/api/posts"
+import { useCreatePostMutation, usePostDetail } from "@/lib/api/posts"
 import { useAsks } from "@/lib/asks"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
@@ -158,10 +158,23 @@ export default function EditorView() {
   }, [reply, quote, asks, askId])
 
   const uploadMutation = useMediaUploadMutation()
+  const createMutation = useCreatePostMutation()
+
   const canPublish = useMemo(() => {
-    const validMedias = form.medias.filter((m) => !!m.id && (disableForceAltText ? true : !!m.description))
-    return form.content.length > 0 || validMedias.length > 0 || form.tags.length > 0
-  }, [form, disableForceAltText])
+    if (createMutation.isPending || uploadMutation.isPending) {
+      return false
+    }
+    const invalidMedias = form.medias.some((m) => {
+      if (m.id) {
+        return false
+      }
+      return disableForceAltText ? false : !m.description
+    })
+    if (invalidMedias) {
+      return false
+    }
+    return form.content.length > 0 || form.tags.length > 0 || form.medias.length > 0
+  }, [form, disableForceAltText, createMutation, uploadMutation])
 
   type FormKey = keyof typeof form
   type FormValue = typeof form[FormKey]
@@ -180,7 +193,12 @@ export default function EditorView() {
     onSelectionChange: setSelection,
   })
 
+
   function onPublish() {
+    if (!canPublish) {
+      return
+    }
+
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
@@ -205,6 +223,27 @@ export default function EditorView() {
     }
 
     console.log('full text: ', text) // text converted to html tags
+    createMutation.mutate({
+      content: text,
+      parentId: replyId,
+      askId,
+      quotedPostId: quoteId,
+      contentWarning: form.contentWarning,
+      privacy: form.privacy,
+      joinedTags: form.tags,
+      medias: form.medias.map((m) => ({
+        id: m.id!,
+        uri: m.uri,
+        width: m.width,
+        height: m.height,
+        description: m.description || '',
+        NSFW: m.NSFW || false,
+      })),
+    }, {
+      onSuccess(data) {
+        router.replace(`/post/${data}`)
+      },
+    })
   }
 
   const actions: EditorActionProps['actions'] = {

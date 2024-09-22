@@ -182,6 +182,34 @@ export async function createPost(token: string, payload: CreatePostPayload) {
   return json.id
 }
 
+export function useCreatePostMutation() {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+
+  return useMutation<string, Error, CreatePostPayload>({
+    mutationKey: ['createPost'],
+    mutationFn: async (payload) => {
+      return await createPost(token!, payload)
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToast('Failed to create woot', colors.red[100], colors.red[900])
+    },
+    onSuccess: (data, variables) => {
+      showToast('Woot Created', colors.green[100], colors.green[900])
+    },
+    // after either error or success, refetch the queries to make sure cache and server are in sync
+    onSettled: async (data, error, variables) => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
+            || (query.queryKey[0] === 'post' && query.queryKey[1] === variables.parentId)
+        )
+      })
+    }
+  })
+}
+
 export async function rewoot(token: string, postId: string) {
   return await createPost(token, {
     content: '',

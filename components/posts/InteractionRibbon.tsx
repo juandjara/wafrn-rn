@@ -3,7 +3,7 @@ import { PrivacyLevel } from "@/lib/api/privacy";
 import { BASE_URL } from "@/lib/config";
 import { useParsedToken } from "@/lib/contexts/AuthContext";
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Alert, Pressable, Share, Text, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
@@ -21,6 +21,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   post: Post
   orientation?: 'horizontal' | 'vertical'
 }) {
+  const { postid } = useLocalSearchParams()
   const me = useParsedToken()
   const context = useDashboardContext()
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
@@ -107,6 +108,28 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         icon: <MaterialIcons name="emoji-emotions" size={20} color={iconColor} />,
         disabled: emojiReactMutation.isPending,
         enabled: !createdByMe
+      },
+      {
+        action: () => {
+          Alert.alert('Delete post', 'Are you sure you want to delete this post?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => {
+              deleteMutation.mutate(undefined, {
+                onSuccess: () => {
+                  // if we are on the post detail route for the exact post we just deleted, go back
+                  if (post.id === postid) {
+                    if (router.canGoBack()) {
+                      router.back()
+                    }
+                  }
+                },
+              })
+            } }
+          ], { cancelable: true })
+        },
+        icon: <MaterialCommunityIcons name='delete-outline' size={20} color={iconColor} />,
+        label: 'Delete woot',
+        enabled: createdByMe,
       }
     ]
       .filter((opt) => opt.enabled)
@@ -169,20 +192,6 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         label: 'Edit',
         enabled: createdByMe && post.privacy === PrivacyLevel.INSTANCE_ONLY,
       },
-      {
-        action: () => {
-          Alert.alert('Delete post', 'Are you sure you want to delete this post?', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Delete', style: 'destructive', onPress: () => {
-              deleteMutation.mutate()
-            } }
-          ], { cancelable: true })
-          // TODO launch confirmation dialog and run delete mutation
-        },
-        icon: <MaterialCommunityIcons name='delete-outline' size={20} />,
-        label: 'Delete woot',
-        enabled: createdByMe,
-      }
     ]
       .filter((opt) => opt.enabled)
       .map((opt) => ({
