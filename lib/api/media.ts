@@ -97,7 +97,6 @@ type UploadPayload = {
 }
 
 export async function uploadMedia(token: string, payload: UploadPayload) {
-  console.log('Uploading media', payload)
   const formData = new FormData()
   // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
   formData.append('image', { ...payload } as any)

@@ -234,16 +234,12 @@ export default function EditorView() {
           name: a.fileName!,
         })), {
           onSuccess(data, variables) {
-            console.log('Media uploaded', data)
             // on success, update the images with the new data
             update('medias', (prevMedias) => {
               return (prevMedias as EditorImage[]).map((m) => {
                 const dataIndex = variables.findIndex((v) => v.uri === m.uri)
                 if (dataIndex === -1) {
                   return m
-                }
-                if (!data[dataIndex].url) {
-                  console.log('Media upload weird', data[dataIndex])
                 }
                 return {
                   ...m,
