@@ -9,7 +9,7 @@ import { Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, Suggestion, useMentions } from "react-native-more-controlled-mentions"
 import colors from "tailwindcss/colors"
 import EditorSuggestions from "./EditorSuggestions"
-import { ImageData } from "./EditorImages"
+import { EditorImage } from "./EditorImages"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -19,7 +19,7 @@ export type EditorFormState = {
   contentWarningOpen: boolean
   tags: string
   privacy: PrivacyLevel
-  medias: ImageData[]
+  medias: EditorImage[]
 }
 
 type EditorProps = MentionApi & {
@@ -99,7 +99,7 @@ export default function Editor({
           multiline
           numberOfLines={10}
           textAlignVertical="top"
-          className="placeholder:text-gray-500 text-white py-2 px-3"
+          className="placeholder:text-gray-500 text-white py-2 px-3 min-h-[200px]"
           placeholder={placeholder}
           {...textInputProps}
         />

@@ -1,9 +1,13 @@
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { PostMedia } from "./posts.types"
-import { CACHE_HOST } from "../config"
-import { useQuery } from "@tanstack/react-query"
+import { BASE_URL, CACHE_HOST } from "../config"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { isValidURL } from "./content"
 import { Timestamps } from "./types"
+import { useAuth } from "../contexts/AuthContext"
+import { showToast } from "../interaction"
+import colors from "tailwindcss/colors"
+import { getJSON } from "../http"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -86,9 +90,64 @@ export async function getRemoteAspectRatio(url: string) {
   // }
 }
 
-export async function uploadMedia(file: File) {
-  // TODO send FormData with key "image" as binary data
+type UploadPayload = {
+  uri: string
+  type: string
+  name: string
 }
+
+export async function uploadMedia(token: string, payload: UploadPayload) {
+  console.log('Uploading media', payload)
+  const formData = new FormData()
+  // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
+  formData.append('image', { ...payload } as any)
+  const response = await getJSON(`${BASE_URL}/api/uploadMedia`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    }
+  })
+  const data = response as MediaUploadResponse[]
+  return Array.isArray(data) ? data[0] : data
+}
+
+export function useMediaUploadMutation() {
+  const { token } = useAuth()
+  return useMutation({
+    mutationKey: ['mediaUpload'],
+    mutationFn: (medias: UploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
+    onSuccess: () => {
+      showToast('Media uploaded', colors.green[100], colors.green[900])
+    },
+    onError: (err) => {
+      console.error(err)
+      showToast('Failed to upload media', colors.red[100], colors.red[900])
+    }
+  })
+}
+
+// code from here: https://github.com/expo/examples/blob/master/with-firebase-storage-upload/App.js#L193
+// async function getBlobFromUri(uri: string) {
+//   // Why are we using XMLHttpRequest? See:
+//   // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+//   const blob = await new Promise((resolve, reject) => {
+//     const xhr = new XMLHttpRequest()
+//     xhr.onload = function () {
+//       resolve(xhr.response)
+//     }
+//     xhr.onerror = function (e) {
+//       console.log(e)
+//       reject(new TypeError("XMLHttpRequest failed"))
+//     }
+//     xhr.responseType = "blob"
+//     xhr.open("GET", uri, true)
+//     xhr.send(null)
+//   })
+
+//   return blob as any
+// }
+
 
 export type MediaUploadResponse = Timestamps
   & Omit<PostMedia, 'posts' | 'description' | 'aspectRatio'>

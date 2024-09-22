@@ -1,22 +1,27 @@
+import { useMediaUploadMutation } from "@/lib/api/media"
 import { MaterialIcons } from "@expo/vector-icons"
 import { DarkTheme } from "@react-navigation/native"
+import clsx from "clsx"
 import Checkbox from "expo-checkbox"
 import { Image } from "expo-image"
 import { useState } from "react"
-import { Modal, Pressable, ScrollView, Text, useWindowDimensions, View, TextInput } from "react-native"
+import { Modal, Pressable, ScrollView, Text, useWindowDimensions, View, TextInput, ActivityIndicator, StyleSheet } from "react-native"
+import colors from "tailwindcss/colors"
 
-export type ImageData = {
+export type EditorImage = {
   uri: string
   width: number
   height: number
   description?: string
-  nsfw?: boolean
+  NSFW?: boolean
+  id?: string
 }
 
 export default function ImageList({ images, setImages }: {
-  images: ImageData[]
-  setImages: (images: ImageData[]) => void
+  images: EditorImage[]
+  setImages: (images: EditorImage[]) => void
 }) {
+  const uploadMutation = useMediaUploadMutation()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
   const { width } = useWindowDimensions()
@@ -26,17 +31,41 @@ export default function ImageList({ images, setImages }: {
     return null
   }
 
+  function updateOpenImage(update: Partial<EditorImage>) {
+    setImages(images.map((img, i) => i === openIndex ? { ...img, ...update } : img))
+  }
+
+  function isLoading(img: EditorImage) {
+    return uploadMutation.isPending && uploadMutation.variables?.some(v => v.uri === img.uri)
+  }
+
+  function removeImage(index: number) {
+    setImages(images.filter((_, i) => i !== index))
+  }
+
   return (
     <>
       <Modal
         visible={openIndex !== null}
         onRequestClose={() => setOpenIndex(null)}
       >
-        <View
-          className="p-2 flex-1 justify-center"
+        <ScrollView
+          contentContainerClassName="p-2 flex-1 justify-center"
           style={{ backgroundColor: DarkTheme.colors.card }}
         >
-          <Text className="text-white text-lg mb-2">Editing image</Text>
+          <View className="flex-row justify-between">
+            <Text className="text-white text-lg mb-2">Editing image</Text>
+            <Pressable
+              className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
+              onPress={() => {
+                setOpenIndex(null)
+                removeImage(openIndex!)
+              }}
+            >
+              <Text className="text-sm text-red-700">Delete image</Text>
+              <MaterialIcons name="delete" color={colors.red[700]} size={20} />
+            </Pressable>
+          </View>
           <View className="border border-gray-600 rounded-lg">
             <Image
               source={selectedImage}
@@ -47,15 +76,20 @@ export default function ImageList({ images, setImages }: {
             <Text className="text-gray-300">Description</Text>
             <TextInput
               value={selectedImage.description}
-              onChangeText={description => setImages(images.map((img, i) => i === openIndex ? { ...img, description } : img))}
+              onChangeText={description => updateOpenImage({ description })}
               placeholder="Please enter a brief description"
-              className="color-white placeholder:text-gray-500 bg-white/5 p-2 mt-1 rounded-md"
+              className={clsx(
+                'color-white border bg-white/5 p-2 mt-1 rounded-md',
+                selectedImage.description
+                  ? 'border-transparent placeholder:text-gray-500'
+                  : 'border-red-500 placeholder:text-red-300/50'
+              )}
             />
           </View>
           <View className="flex-row items-center gap-4 pt-2 p-3">
             <Checkbox
-              value={selectedImage.nsfw}
-              onValueChange={nsfw => setImages(images.map((img, i) => i === openIndex ? { ...img, nsfw } : img))}
+              value={selectedImage.NSFW}
+              onValueChange={NSFW => updateOpenImage({ NSFW })}
             />
             <Text className="text-white">NSFW</Text>
           </View>
@@ -66,12 +100,15 @@ export default function ImageList({ images, setImages }: {
             <MaterialIcons name="done" color='white' size={24} />
             <Text className="text-white text-lg">Done</Text>
           </Pressable>
-        </View>
+        </ScrollView>
       </Modal>
       <ScrollView horizontal style={{ flex: 0 }} contentContainerStyle={{ flex: 0 }}>
         {images.map((img, index) => (
           <View className="relative" key={img.uri}>
-            <Pressable onPress={() => setOpenIndex(index)}>
+            <Pressable
+              disabled={isLoading(img)}
+              onPress={() => setOpenIndex(index)}
+            >
               <Image
                 source={img}
                 className="rounded-md border-2 border-gray-300 m-2"
@@ -79,20 +116,33 @@ export default function ImageList({ images, setImages }: {
               />
             </Pressable>
             <Pressable
-              className="absolute top-0 right-0 bg-white rounded-full p-1"
-              onPress={() => {
-                setImages(images.filter((_, i) => i !== index))
-              }}
+              disabled={isLoading(img)}
+              className={clsx(
+                'absolute top-0 right-0 bg-white rounded-full p-1',
+                { 'opacity-0': isLoading(img) }
+              )}
+              onPress={() => removeImage(index)}
             >
               <MaterialIcons name="close" color='black' size={20} />
             </Pressable>
             {img.description ? null : (
-              <Pressable
-                className="absolute bottom-0 right-0 p-1.5 rounded-full bg-red-700"
+              <View
+                className={clsx(
+                  'absolute bottom-0 right-0 p-1.5 rounded-full bg-red-700',
+                  { 'opacity-0': isLoading(img) }
+                )}
               >
                 <MaterialIcons name='warning' color='white' size={16} />
-              </Pressable>
+              </View>
             )}
+            {isLoading(img) ? (
+              <View
+                style={StyleSheet.absoluteFill}
+                className="items-center justify-center bg-black/50"
+              >
+                <ActivityIndicator size="small" color="white" />
+              </View>
+            ) : null}
           </View>
         ))}
       </ScrollView>

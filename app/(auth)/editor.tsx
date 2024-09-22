@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo, useRef, useState } from "react"
-import { KeyboardAvoidingView, KeyboardAvoidingViewBase, ScrollView, Text, TextInput, View } from "react-native"
+import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
@@ -16,8 +16,10 @@ import GenericRibbon from "@/components/GenericRibbon"
 import { formatMentionHTML } from "@/lib/api/html"
 import EditorHeader from "@/components/editor/EditorHeader"
 import EditorActions, { EditorActionProps } from "@/components/editor/EditorActions"
-import ImageList, { ImageData } from "@/components/editor/EditorImages"
+import ImageList, { EditorImage } from "@/components/editor/EditorImages"
 import Editor, { EditorFormState } from "@/components/editor/Editor"
+import { useMediaUploadMutation } from "@/lib/api/media"
+import { formatMediaUrl } from "@/lib/formatters"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
@@ -128,7 +130,7 @@ export default function EditorView() {
     contentWarningOpen: false,
     tags: '',
     privacy: PrivacyLevel.PUBLIC,
-    medias: [] as ImageData[],
+    medias: [] as EditorImage[],
   })
 
   const inputRef = useRef<TextInput>(null)
@@ -146,8 +148,16 @@ export default function EditorView() {
     return { ask, askUser, context }
   }, [reply, quote, asks, askId])
 
-  function update(key: keyof typeof form, value: string | PrivacyLevel | ImageData[] | boolean) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+  const uploadMutation = useMediaUploadMutation()
+
+  type FormKey = keyof typeof form
+  type FormValue = typeof form[FormKey]
+
+  function update(key: FormKey, value: FormValue | ((prev: FormValue) => FormValue)) {
+    setForm((prev) => {
+      const newValue = typeof value === 'function' ? value(prev[key]) : value
+      return { ...prev, [key]: newValue }
+    })
   }
 
   const mentionApi = useMentions({
@@ -218,6 +228,38 @@ export default function EditorView() {
       })
       if (!result.canceled) {
         update('medias', result.assets)
+        uploadMutation.mutate(result.assets.map((a) => ({
+          uri: a.uri,
+          type: a.mimeType!,
+          name: a.fileName!,
+        })), {
+          onSuccess(data, variables) {
+            console.log('Media uploaded', data)
+            // on success, update the images with the new data
+            update('medias', (prevMedias) => {
+              return (prevMedias as EditorImage[]).map((m) => {
+                const dataIndex = variables.findIndex((v) => v.uri === m.uri)
+                if (dataIndex === -1) {
+                  return m
+                }
+                if (!data[dataIndex].url) {
+                  console.log('Media upload weird', data[dataIndex])
+                }
+                return {
+                  ...m,
+                  uri: formatMediaUrl(data[dataIndex].url || ''),
+                  id: data[dataIndex].id,
+                }
+              })
+            })
+          },
+          onError: () => {
+            // on error, remove from the list the images that we were trying to upload
+            update('medias', (prevMedias) => {
+              return (prevMedias as EditorImage[]).filter((m) => !result.assets.find((a) => a.uri === m.uri))
+            })
+          }
+        })
       }
     },
     toggleCW: () => {
@@ -227,7 +269,10 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
           <Stack.Screen
             options={{

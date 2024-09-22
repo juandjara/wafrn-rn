@@ -5,9 +5,9 @@ import { getJSON, statusError, StatusError } from "../http"
 import { DashboardData, Post, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
-import { MediaUploadResponse } from "./media"
 import { invalidatePostQueries, showToast } from "../interaction"
 import colors from "tailwindcss/colors"
+import { EditorImage } from "@/components/editor/EditorImages"
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -146,7 +146,7 @@ export type CreatePostPayload = {
   editingPostId?: string
   joinedTags?: string // comma separated tags
   privacy: PrivacyLevel
-  medias: (MediaUploadResponse & { description: string })[]
+  medias: Required<EditorImage>[]
 }
 
 export async function wait(ms: number) {
