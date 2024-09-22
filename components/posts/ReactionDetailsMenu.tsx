@@ -1,5 +1,5 @@
 import { PostUser } from "@/lib/api/posts.types"
-import { formatSmallAvatar } from "@/lib/formatters"
+import { formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
 import { Link } from "expo-router"
 import { useRef } from "react"
 import { Pressable, ScrollView, Text, View } from "react-native"
@@ -63,7 +63,7 @@ export default function ReactionDetailsMenu({ children, users, reaction, reactio
                   style={{ width: 24, height: 24 }}
                 />
                 <Text className="text-gray-200 flex-grow flex-shrink-0">
-                  {user.url}
+                  {formatUserUrl(user)}
                 </Text>
               </Pressable>
             </Link>
