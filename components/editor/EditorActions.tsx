@@ -58,12 +58,6 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
         >
           <MaterialCommunityIcons name='image' color='white' size={24} />
         </Pressable>
-        {/* <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
-          <MaterialCommunityIcons name='format-quote-close' color='white' size={24} />
-        </Pressable> */}
-        <Pressable className="active:bg-white/50 bg-white/15 p-2 rounded-full">
-          <MaterialIcons name='format-size' color='white' size={24} />
-        </Pressable>
         <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
