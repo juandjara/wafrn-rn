@@ -224,7 +224,7 @@ export default function EditorView() {
 
     console.log('full text: ', text) // text converted to html tags
     createMutation.mutate({
-      content: text,
+      content: text.replace(/\n/g, '<br>'),
       parentId: replyId,
       askId,
       quotedPostId: quoteId,
