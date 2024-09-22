@@ -6,9 +6,10 @@ import { useState } from "react"
 import { Modal, Pressable, Text, View } from "react-native"
 import colors from "tailwindcss/colors"
 
-export default function EditorHeader({ privacy, setPrivacy, onPublish }: {
+export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublish }: {
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
+  canPublish: boolean
   onPublish: () => void
 }) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -28,8 +29,15 @@ export default function EditorHeader({ privacy, setPrivacy, onPublish }: {
       </Pressable>
       <View className="flex-grow"></View>
       <Pressable
+        disabled={!canPublish}
         onPress={onPublish}
-        className="px-4 py-2 my-2 rounded-full bg-cyan-500/25 active:bg-cyan-500/50 flex-row items-center gap-2"
+        className={clsx(
+          'px-4 py-2 my-2 rounded-full flex-row items-center gap-2',
+          {
+            'bg-cyan-800 active:bg-cyan-700': canPublish,
+            'bg-gray-400/25 opacity-50': !canPublish,
+          }
+        )}
       >
         <MaterialCommunityIcons name='send' color='white' size={20} />
         <Text className="font-medium text-white">Publish</Text>

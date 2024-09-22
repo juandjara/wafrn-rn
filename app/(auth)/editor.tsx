@@ -20,6 +20,7 @@ import ImageList, { EditorImage } from "@/components/editor/EditorImages"
 import Editor, { EditorFormState } from "@/components/editor/Editor"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl } from "@/lib/formatters"
+import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
@@ -140,6 +141,13 @@ export default function EditorView() {
   const { data: reply } = usePostDetail(replyId)
   const { data: quote } = usePostDetail(quoteId)
   const { data: asks } = useAsks()
+  const { data: settings } = useSettings()
+  const disableForceAltText = useMemo(() => {
+    if (!settings?.options) {
+      return false
+    }
+    return !!getWafrnOptionValue(settings.options, WafrnOptionNames.DisableForceAltText)
+  }, [settings?.options])
 
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.asks.find(a => a.id === Number(askId))
@@ -149,6 +157,10 @@ export default function EditorView() {
   }, [reply, quote, asks, askId])
 
   const uploadMutation = useMediaUploadMutation()
+  const canPublish = useMemo(() => {
+    const validMedias = form.medias.filter((m) => !!m.id && (disableForceAltText ? true : !!m.description))
+    return form.content.length > 0 || validMedias.length > 0 || form.tags.length > 0
+  }, [form, disableForceAltText])
 
   type FormKey = keyof typeof form
   type FormValue = typeof form[FormKey]
@@ -279,6 +291,7 @@ export default function EditorView() {
           <EditorHeader
             privacy={form.privacy}
             setPrivacy={(privacy) => update('privacy', privacy)}
+            canPublish={canPublish}
             onPublish={onPublish}
           />
           <ScrollView id="editor-scroll" keyboardShouldPersistTaps="always">
@@ -318,6 +331,7 @@ export default function EditorView() {
             <ImageList
               images={form.medias}
               setImages={(images) => update('medias', images)}
+              disableForceAltText={disableForceAltText}
             />
           </ScrollView>
           <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />

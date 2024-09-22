@@ -17,9 +17,10 @@ export type EditorImage = {
   id?: string
 }
 
-export default function ImageList({ images, setImages }: {
+export default function ImageList({ images, setImages, disableForceAltText }: {
   images: EditorImage[]
   setImages: (images: EditorImage[]) => void
+  disableForceAltText: boolean
 }) {
   const uploadMutation = useMediaUploadMutation()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -80,7 +81,7 @@ export default function ImageList({ images, setImages }: {
               placeholder="Please enter a brief description"
               className={clsx(
                 'color-white border bg-white/5 p-2 mt-1 rounded-md',
-                selectedImage.description
+                (selectedImage.description || disableForceAltText)
                   ? 'border-transparent placeholder:text-gray-500'
                   : 'border-red-500 placeholder:text-red-300/50'
               )}
@@ -125,7 +126,7 @@ export default function ImageList({ images, setImages }: {
             >
               <MaterialIcons name="close" color='black' size={20} />
             </Pressable>
-            {img.description ? null : (
+            {(img.description || disableForceAltText) ? null : (
               <View
                 className={clsx(
                   'absolute bottom-0 right-0 p-1.5 rounded-full bg-red-700',
@@ -138,7 +139,7 @@ export default function ImageList({ images, setImages }: {
             {isLoading(img) ? (
               <View
                 style={StyleSheet.absoluteFill}
-                className="items-center justify-center bg-black/50"
+                className="z-10 items-center justify-center bg-black/50"
               >
                 <ActivityIndicator size="small" color="white" />
               </View>

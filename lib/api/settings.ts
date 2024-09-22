@@ -41,6 +41,20 @@ export type WafrnOption = Omit<SettingsOption, 'public'> & {
   optionName: WafrnOptionNames
 }
 
+export function getWafrnOptionValue<T extends WafrnOptionNames = WafrnOptionNames>(
+  options: WafrnOption[], key: T
+) {
+  const option = options.find((o) => o.optionName === key)
+  const json = option?.optionValue
+  if (!json) return null
+  try {
+    return JSON.parse(json) as WafrnOptionTypeMap[typeof key]
+  } catch (e) {
+    console.error(`Failed to parse public option value "${json}"`, e)
+    return null
+  }
+}
+
 type Settings = {
   blockedUsers: string[] // ids of people you've blocked
   followedUsers: string[] // ids of people you follow
