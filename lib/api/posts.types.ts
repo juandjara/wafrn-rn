@@ -53,7 +53,7 @@ export type PostMedia = {
   external: boolean
   description: string
   NSFW: boolean
-  posts: { id: string }[]
+  postId: string
   aspectRatio?: number
 }
 

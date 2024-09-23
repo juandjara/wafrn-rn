@@ -119,7 +119,7 @@ export default function PostFragment({
 
   const medias = useMemo(() => {
     return context.medias
-      .filter((m) => m.posts.some(({ id }) => id === post.id))
+      .filter((m) => m.postId === post.id)
       .sort((a, b) => a.order - b.order)
   }, [post, context])
 

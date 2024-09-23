@@ -9,7 +9,7 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
     return false
   }
 
-  const hasMedias = context.medias.some((m) => m.posts.some(({ id }) => id === post.id))
+  const hasMedias = context.medias.some((m) => m.postId === post.id)
   const hasTags = context.tags.some((t) => t.postId === post.id)
   return !hasMedias && !hasTags
 }
