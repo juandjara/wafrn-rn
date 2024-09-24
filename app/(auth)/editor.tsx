@@ -19,10 +19,11 @@ import EditorActions, { EditorActionProps } from "@/components/editor/EditorActi
 import ImageList, { EditorImage } from "@/components/editor/EditorImages"
 import Editor, { EditorFormState } from "@/components/editor/Editor"
 import { useMediaUploadMutation } from "@/lib/api/media"
-import { formatMediaUrl } from "@/lib/formatters"
+import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
 import { clearSelectionRangeFormat } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
+import { useParsedToken } from "@/lib/contexts/AuthContext"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
@@ -140,6 +141,7 @@ export default function EditorView() {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const { replyId, askId, quoteId } = useLocalSearchParams<EditorSearchParams>()
 
+  const me = useParsedToken()
   const { data: reply } = usePostDetail(replyId)
   const { data: quote } = usePostDetail(quoteId)
   const { data: asks } = useAsks()
@@ -156,17 +158,22 @@ export default function EditorView() {
       return ''
     }
     const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
-    const mentions = reply.mentions.map((m) => userMap[m.userMentioned])
     const userId = reply.posts[0].userId
-    if (!mentions.some((m) => m.id === userId)) {
-      mentions.push(userMap[userId])
+    const ids = new Set<string>()
+    if (userId !== me?.userId) {
+      ids.add(userId)
     }
-
-    return mentions.map((m) => {
+    for (const mention of reply.mentions) {
+      if (mention.userMentioned !== me?.userId) {
+        ids.add(mention.userMentioned)
+      }
+    }
+    const mentionUsers = Array.from(ids).map((id) => userMap[id])
+    return mentionUsers.map((m) => {
       const remoteId = m.remoteId || `${BASE_URL}/blog/${m.url}`
-      return `[${m.url}](${remoteId}?id=${m.id}) `
+      return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
     }).join('')
-  }, [reply])
+  }, [reply, me])
   
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.asks.find(a => a.id === Number(askId))
@@ -217,7 +224,6 @@ export default function EditorView() {
     triggersConfig,
     onSelectionChange: setSelection,
   })
-
 
   function onPublish() {
     if (!canPublish) {
