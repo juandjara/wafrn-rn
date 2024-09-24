@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -22,6 +22,7 @@ import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
 import { clearSelectionRangeFormat } from "@/lib/api/content"
+import { BASE_URL } from "@/lib/config"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
@@ -150,6 +151,23 @@ export default function EditorView() {
     return !!getWafrnOptionValue(settings.options, WafrnOptionNames.DisableForceAltText)
   }, [settings?.options])
 
+  const mentionsPrefix = useMemo(() => {
+    if (!reply) {
+      return ''
+    }
+    const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
+    const mentions = reply.mentions.map((m) => userMap[m.userMentioned])
+    const userId = reply.posts[0].userId
+    if (!mentions.some((m) => m.id === userId)) {
+      mentions.push(userMap[userId])
+    }
+
+    return mentions.map((m) => {
+      const remoteId = m.remoteId || `${BASE_URL}/blog/${m.url}`
+      return `[${m.url}](${remoteId}?id=${m.id}) `
+    }).join('')
+  }, [reply])
+  
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.asks.find(a => a.id === Number(askId))
     const askUser = asks?.users.find(u => u.id === ask?.userAsker)
@@ -185,6 +203,13 @@ export default function EditorView() {
       return { ...prev, [key]: newValue }
     })
   }
+
+  useEffect(() => {
+    if (mentionsPrefix) {
+      update('content', (prev) => `${mentionsPrefix}${prev}`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mentionsPrefix])
 
   const mentionApi = useMentions({
     value: form.content,
