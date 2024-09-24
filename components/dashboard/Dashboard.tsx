@@ -50,7 +50,7 @@ export default function Dashboard({
         refreshing={isFetching}
         onRefresh={refresh}
         data={deduped}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={2}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Thread thread={item} />}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}

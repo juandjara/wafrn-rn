@@ -83,7 +83,7 @@ export default function NotificationList() {
         getItemType={(item) => item.type}
         refreshing={isFetching}
         onRefresh={refresh}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={2}
         keyExtractor={(item) => `${item.user.url}-${item.createdAt}`}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}

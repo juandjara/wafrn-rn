@@ -171,7 +171,7 @@ export default function SearchResults() {
                   refreshing={isFetching}
                   onRefresh={refresh}
                   data={deduped}
-                  onEndReachedThreshold={0.5}
+                  onEndReachedThreshold={2}
                   keyExtractor={(item) => item.id}
                   renderItem={({ item }) => <Thread thread={item} />}
                   onEndReached={() => (
@@ -197,7 +197,7 @@ export default function SearchResults() {
                   refreshing={isFetching}
                   onRefresh={refresh}
                   data={users}
-                  onEndReachedThreshold={0.5}
+                  onEndReachedThreshold={2}
                   keyExtractor={(item) => item.user.id}
                   renderItem={({ item }) => (
                     <View className="px-2 pb-1 bg-indigo-950 border-b border-gray-500">
