@@ -66,7 +66,6 @@ export default function Editor({
   }, [debouncedText, debouncedSelectionStart])
 
   function selectMentionUser(data: Suggestion) {
-    console.log(JSON.stringify(mentionState, null, 2))
     const id = (data as PostUser).id
     const remoteId = (data as PostUser).remoteId || `${BASE_URL}/blog/${(data as PostUser).url}`
     const newText = mentionState.plainText.replace(
