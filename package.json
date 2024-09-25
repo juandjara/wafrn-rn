@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive",
     "update:preview": "npx eas-cli update --channel preview --auto",
     "build:preview": "npx eas-cli build --profile preview",
     "start": "expo start",
