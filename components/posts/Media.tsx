@@ -4,7 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { isAudio, isImage, isNotAV, isVideo, useAspectRatio } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ErrorBoundary, Link } from "expo-router";
+import { Link } from "expo-router";
 import { ResizeMode } from "expo-av";
 import MediaCloak from "./MediaCloak";
 import VideoPlayer from "expo-video-player";
