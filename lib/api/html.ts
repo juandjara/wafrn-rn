@@ -50,12 +50,12 @@ export const HTML_INLINE_STYLES = {
   a: {
     color: colors.cyan[400],
   },
-  h1: {fontWeight: 'bold', fontSize: 36},
-  h2: {fontWeight: 'bold', fontSize: 30},
-  h3: {fontWeight: 'bold', fontSize: 24},
-  h4: {fontWeight: 'bold', fontSize: 18},
-  h5: {fontWeight: 'bold', fontSize: 14},
-  h6: {fontWeight: 'bold', fontSize: 12},
+  h1: {fontWeight: 'bold', fontSize: 56, lineHeight: 64, },
+  h2: {fontWeight: 'bold', fontSize: 44, lineHeight: 52, },
+  h3: {fontWeight: 'bold', fontSize: 36, lineHeight: 44, },
+  h4: {fontWeight: 'bold', fontSize: 32, lineHeight: 40, },
+  h5: {fontWeight: 'bold', fontSize: 28, lineHeight: 36, },
+  h6: {fontWeight: 'bold', fontSize: 24, lineHeight: 32, },
   text: {
     color: 'white',
     fontSize: 16,
