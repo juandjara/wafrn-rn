@@ -198,7 +198,10 @@ export default function EditorView() {
     if (invalidMedias) {
       return false
     }
-    return form.content.length > 0 || form.tags.length > 0 || form.medias.length > 0
+    return form.content.length > 0
+      || form.tags.length > 0
+      || form.medias.length > 0
+      || form.contentWarning.length > 0
   }, [form, disableForceAltText, createMutation, uploadMutation])
 
   type FormKey = keyof typeof form
