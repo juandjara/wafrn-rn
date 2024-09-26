@@ -233,10 +233,6 @@ export default function EditorView() {
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
-      if (!trigger) {
-        text += part.text
-        continue
-      }
       if (trigger === '@') {
         const remoteId = part.data?.id
         const url = part.data?.name
@@ -251,6 +247,7 @@ export default function EditorView() {
         text += `<span style="color: ${part.data?.id}">${part.text}</span>`
         continue
       }
+      text += part.text
     }
 
     createMutation.mutate({
