@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "wafrn-rn",
+    "name": "Wafrn",
     "slug": "wafrn-rn",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo_w.png",
     "scheme": "wafrn",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/wafrn-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo_w.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
