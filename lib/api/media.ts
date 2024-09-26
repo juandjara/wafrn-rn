@@ -33,7 +33,8 @@ const IMG_EXTENSIONS = [
   'svg',
   'webp',
   'avif',
-  'blob' // weird ¿misskey? thing
+  'blob', // weird ¿misskey? thing
+  'jfif' // I dont know what this is but it's in the wild
 ]
 
 export function isVideo(url: string) {
