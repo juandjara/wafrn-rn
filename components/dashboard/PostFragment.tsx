@@ -4,7 +4,7 @@ import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
-import { AVATAR_SIZE, POST_MARGIN } from "@/lib/api/posts"
+import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import { EmojiGroup, getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
@@ -174,8 +174,13 @@ export default function PostFragment({
   // edition is considered if the post was updated more than 1 minute after it was created
   const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
 
+  const voteMutation = useVoteMutation(poll?.id || null, post)
+
   function onPollVote(indexes: number[]) {
-    // TODO: implement
+    if (!poll) {
+      return
+    }
+    voteMutation.mutate(indexes)
   }
 
   const { postid } = useLocalSearchParams()
@@ -304,7 +309,11 @@ export default function PostFragment({
                 </View>
               )}
               {poll && (
-                <Poll poll={poll} onVote={onPollVote} />
+                <Poll
+                  poll={poll}
+                  isLoading={voteMutation.isPending}
+                  onVote={onPollVote}
+                />
               )}
               {tags.length > 0 && (
                 <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">

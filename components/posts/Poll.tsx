@@ -6,10 +6,18 @@ import { useMemo, useState } from "react"
 import { View, Text, Pressable } from "react-native"
 import colors from "tailwindcss/colors"
 
-export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexes: number[]) => void }) {
+export default function Poll({ poll, isLoading, onVote }: {
+  poll: PostPoll
+  isLoading?: boolean
+  onVote: (indexes: number[]) => void
+}) {
   const me = useParsedToken()
   const totalVotes = useMemo(() => poll.questionPollQuestions.reduce((acc, q) => acc + q.remoteReplies, 0), [poll])
-  const haveIVoted = useMemo(() => poll.questionPollQuestions.some((q) => q.questionPollAnswers.some((a) => a.userId === me?.userId)), [poll, me])
+  const haveIVoted = useMemo(() => (
+    isLoading || poll.questionPollQuestions.some((q) => (
+      q.questionPollAnswers.some((a) => a.userId === me?.userId)
+    ))
+  ), [isLoading, poll, me])
   const [localVote, setLocalVote] = useState<number[]>([])
   const isEnded = new Date(poll.endDate) < new Date()
   
@@ -47,6 +55,10 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
     return ((question.remoteReplies || 0) / (totalVotes || 1))
   }
 
+  function sendVotes() {
+    onVote(localVote.map((i) => poll.questionPollQuestions[i].id))
+  }
+
   return (
     <View className="my-2">
       {poll.questionPollQuestions.map((q, i) => (
@@ -80,8 +92,8 @@ export default function Poll({ poll, onVote }: { poll: PostPoll; onVote: (indexe
         </Pressable>
       ))}
       <Pressable
-        onPress={() => onVote(localVote)}
-        disabled={localVote.length === 0}
+        onPress={sendVotes}
+        disabled={haveIVoted || localVote.length === 0}
         className="mt-1 mb-2 p-2 bg-blue-500/75 active:bg-blue-600/50 disabled:bg-white/20 rounded-full"
       >
         <Text className="text-white text-center text-lg">

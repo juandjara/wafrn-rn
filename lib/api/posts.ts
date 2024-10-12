@@ -282,3 +282,37 @@ export function useDeleteMutation(post: Post) {
     onSettled: () => invalidatePostQueries(qc, post)
   })
 }
+
+export async function voteOnPoll(token: string, pollId: number, votes: number[]) {
+  await getJSON(`${API_URL}/v2/pollVote/${pollId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ votes })
+  })
+}
+
+export function useVoteMutation(pollId: number | null, post: Post) {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationKey: ['votePoll', pollId],
+    mutationFn: async (votes: number[]) => {
+      if (pollId) {
+        await voteOnPoll(token!, pollId, votes)
+      }
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToast(`Failed to vote`, colors.red[100], colors.red[900])
+    },
+    onSuccess: (data, variables) => {
+      showToast(`Voted. It may take some time to display`, colors.green[100], colors.green[900])
+    },
+    // after either error or success, refetch the queries to make sure cache and server are in sync
+    onSettled: () => invalidatePostQueries(qc, post)
+  })
+}
