@@ -158,7 +158,7 @@ export async function arbitraryWaitPostQueue() {
 }
 
 export async function createPost(token: string, payload: CreatePostPayload) {
-  const data = await getJSON(`${API_URL}/v2/createPost`, {
+  const data = await getJSON(`${API_URL}/v3/createPost`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
