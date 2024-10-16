@@ -1,4 +1,4 @@
-import { PRIVACY_ICONS, PRIVACY_LABELS, PrivacyLevel } from "@/lib/api/privacy"
+import { PRIVACY_DESCRIPTIONS, PRIVACY_ICONS, PRIVACY_LABELS, PRIVACY_ORDER, PrivacyLevel } from "@/lib/api/privacy"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import { Link } from "expo-router"
@@ -49,9 +49,9 @@ export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublis
         transparent
       >
         <Pressable className="bg-black/50 flex-grow" onPress={() => setModalOpen(false)}></Pressable>
-        <View className="bg-white">
+        <View className="bg-white pb-2">
           <Text className="p-4 text-lg font-medium">Select privacy level</Text>
-          {Object.keys(PRIVACY_LABELS).map(p => (
+          {PRIVACY_ORDER.map(p => (
             <Pressable
               key={p}
               className={clsx(
@@ -59,16 +59,19 @@ export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublis
                 { 'bg-gray-100': privacy === Number(p) },
               )}
               onPress={() => {
-                setPrivacy(Number(p) as PrivacyLevel)
+                setPrivacy(p)
                 setModalOpen(false)
               }}
             >
               <MaterialCommunityIcons 
-                name={PRIVACY_ICONS[Number(p) as PrivacyLevel]}
+                name={PRIVACY_ICONS[p]}
                 color='black'
                 size={24}
               />
-              <Text className="flex-grow">{PRIVACY_LABELS[Number(p) as PrivacyLevel]}</Text>
+              <View className="flex-grow flex-shrink mr-2">
+                <Text className="font-bold mb-1">{PRIVACY_LABELS[p]}</Text>
+                <Text>{PRIVACY_DESCRIPTIONS[p]}</Text>
+              </View>
               {privacy === Number(p) && <Ionicons name='checkmark' color='black' size={24} />}
             </Pressable>
           ))}

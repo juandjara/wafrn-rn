@@ -14,6 +14,14 @@ export const PRIVACY_LABELS = {
   [PrivacyLevel.DIRECT_MESSAGE]: 'Direct message',
 } as const
 
+export const PRIVACY_DESCRIPTIONS = {
+  [PrivacyLevel.PUBLIC]: 'Visible to everyone',
+  [PrivacyLevel.FOLLOWERS_ONLY]: 'Visible to yours followers only',
+  [PrivacyLevel.INSTANCE_ONLY]: 'Visible to users on this instance only',
+  [PrivacyLevel.UNLISTED]: 'Visible to everyone but does not appear in searches',
+  [PrivacyLevel.DIRECT_MESSAGE]: 'Visible to mentioned users only',
+}
+
 // names for MaterialCommunityIcons
 export const PRIVACY_ICONS = {
   [PrivacyLevel.PUBLIC]: 'earth',
@@ -22,3 +30,11 @@ export const PRIVACY_ICONS = {
   [PrivacyLevel.UNLISTED]: 'lock',
   [PrivacyLevel.DIRECT_MESSAGE]: 'email',
 } as const
+
+export const PRIVACY_ORDER = [
+  PrivacyLevel.PUBLIC,
+  PrivacyLevel.UNLISTED,
+  PrivacyLevel.FOLLOWERS_ONLY,
+  PrivacyLevel.INSTANCE_ONLY,
+  PrivacyLevel.DIRECT_MESSAGE,
+]
