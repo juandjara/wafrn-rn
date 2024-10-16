@@ -146,7 +146,7 @@ export type CreatePostPayload = {
   editingPostId?: string
   joinedTags?: string // comma separated tags
   privacy: PrivacyLevel
-  medias: Required<EditorImage>[]
+  medias: Required<Omit<EditorImage, 'fileName' | 'mimeType'>>[]
 }
 
 export async function wait(ms: number) {

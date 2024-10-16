@@ -3,12 +3,14 @@ import { useState } from "react"
 import { Pressable, ScrollView } from "react-native"
 import colors from "tailwindcss/colors"
 import ColorPicker from "./ColorPicker"
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker"
+import { EditorImage } from "./EditorImages"
 
 export type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
     wrapSelection: (start: string, end?: string) => void
-    pickImage: () => Promise<void>
+    addImages: (images: EditorImage[]) => void
     toggleCW: () => void
   }
   cwOpen: boolean
@@ -19,6 +21,19 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
+  }
+
+  async function pickImages() {
+    const result = await launchImageLibraryAsync({
+      mediaTypes: MediaTypeOptions.Images,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
+      selectionLimit: 4,
+      quality: 0.5,
+    })
+    if (!result.canceled) {
+      actions.addImages(result.assets)
+    }
   }
 
   return (
@@ -53,7 +68,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           <MaterialCommunityIcons name="message-alert" size={24} color={cwOpen ? colors.yellow[500] : 'white'} />
         </Pressable>
         <Pressable
-          onPress={actions.pickImage}
+          onPress={pickImages}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
           <MaterialCommunityIcons name='image' color='white' size={24} />

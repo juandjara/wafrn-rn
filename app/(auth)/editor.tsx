@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
 import { DarkTheme } from "@react-navigation/native"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { useCreatePostMutation, usePostDetail } from "@/lib/api/posts"
@@ -307,45 +306,36 @@ export default function EditorView() {
         )
       )
     },
-    pickImage: async () => {
-      const result = await launchImageLibraryAsync({
-        mediaTypes: MediaTypeOptions.Images,
-        allowsEditing: false,
-        allowsMultipleSelection: true,
-        selectionLimit: 4,
-        quality: 0.5,
+    addImages: (images: EditorImage[]) => {
+      update('medias', images)
+      uploadMutation.mutate(images.map((a) => ({
+        uri: a.uri,
+        type: a.mimeType!,
+        name: a.fileName!,
+      })), {
+        onSuccess(data, variables) {
+          // on success, update the images with the new data
+          update('medias', (prevMedias) => {
+            return (prevMedias as EditorImage[]).map((m) => {
+              const dataIndex = variables.findIndex((v) => v.uri === m.uri)
+              if (dataIndex === -1) {
+                return m
+              }
+              return {
+                ...m,
+                uri: formatMediaUrl(data[dataIndex].url || ''),
+                id: data[dataIndex].id,
+              }
+            })
+          })
+        },
+        onError: () => {
+          // on error, remove from the list the images that we were trying to upload
+          update('medias', (prevMedias) => {
+            return (prevMedias as EditorImage[]).filter((m) => !images.find((a) => a.uri === m.uri))
+          })
+        }
       })
-      if (!result.canceled) {
-        update('medias', result.assets)
-        uploadMutation.mutate(result.assets.map((a) => ({
-          uri: a.uri,
-          type: a.mimeType!,
-          name: a.fileName!,
-        })), {
-          onSuccess(data, variables) {
-            // on success, update the images with the new data
-            update('medias', (prevMedias) => {
-              return (prevMedias as EditorImage[]).map((m) => {
-                const dataIndex = variables.findIndex((v) => v.uri === m.uri)
-                if (dataIndex === -1) {
-                  return m
-                }
-                return {
-                  ...m,
-                  uri: formatMediaUrl(data[dataIndex].url || ''),
-                  id: data[dataIndex].id,
-                }
-              })
-            })
-          },
-          onError: () => {
-            // on error, remove from the list the images that we were trying to upload
-            update('medias', (prevMedias) => {
-              return (prevMedias as EditorImage[]).filter((m) => !result.assets.find((a) => a.uri === m.uri))
-            })
-          }
-        })
-      }
     },
     toggleCW: () => {
       update('contentWarningOpen', !form.contentWarningOpen)

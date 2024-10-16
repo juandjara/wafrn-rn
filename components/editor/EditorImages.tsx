@@ -15,6 +15,8 @@ export type EditorImage = {
   description?: string
   NSFW?: boolean
   id?: string
+  fileName?: string | null
+  mimeType?: string
 }
 
 export default function ImageList({ images, setImages, disableForceAltText }: {
