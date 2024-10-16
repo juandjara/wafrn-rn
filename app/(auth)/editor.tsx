@@ -17,7 +17,7 @@ import { formatMentionHTML } from "@/lib/api/html"
 import EditorHeader from "@/components/editor/EditorHeader"
 import EditorActions, { EditorActionProps } from "@/components/editor/EditorActions"
 import ImageList, { EditorImage } from "@/components/editor/EditorImages"
-import Editor, { EditorFormState } from "@/components/editor/Editor"
+import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
@@ -397,7 +397,7 @@ export default function EditorView() {
                 <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
               </View>
             )}
-            <Editor
+            <EditorInput
               {...mentionApi}
               inputRef={inputRef}
               formState={form}

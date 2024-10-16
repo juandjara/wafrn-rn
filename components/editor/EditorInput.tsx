@@ -32,7 +32,7 @@ type EditorProps = MentionApi & {
   mentionState: MentionApi['mentionState']
 }
 
-export default function Editor({
+export default function EditorInput({
   textInputProps,
   triggers,
   inputRef,
