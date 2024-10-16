@@ -30,6 +30,7 @@ const COLORS = [
 ] as const
 
 const INTENSITIES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
+const EXTRA_COLORS = ['#FFFFFF', '#000000']
 
 export default function ColorPicker({ open, setOpen, selectColor }: {
   open: boolean,
@@ -74,6 +75,19 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
           keyboardShouldPersistTaps="always"
           horizontal
         >
+          {EXTRA_COLORS.map((color) => (
+            <Pressable
+              key={color}
+              style={{ backgroundColor: color }}
+              className={`p-2 rounded-full`}
+              onPress={() => {
+                selectColor(color)
+                setOpen(false)
+              }}
+            >
+              <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+            </Pressable>
+          ))}
           {COLORS.map((color) => (
             <Pressable
               key={color}
