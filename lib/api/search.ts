@@ -37,6 +37,9 @@ export async function search({
   page: number
   token: string
 }) {
+  if (term.startsWith('#')) {
+    term = term.slice(1)
+  }
   const json = await getJSON(`${API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}`, {
     headers: {
       Authorization: `Bearer ${token}`
