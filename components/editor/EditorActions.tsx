@@ -5,6 +5,7 @@ import colors from "tailwindcss/colors"
 import ColorPicker from "./ColorPicker"
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker"
 import { EditorImage } from "./EditorImages"
+import EditorCanvas from "./EditorCanvas"
 
 export type EditorActionProps = {
   actions: {
@@ -18,6 +19,7 @@ export type EditorActionProps = {
 
 export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
   const [showColorPicker, setShowColorPicker] = useState(false)
+  const [showCanvas, setShowCanvas] = useState(false)
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -38,6 +40,11 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
 
   return (
     <>
+      <EditorCanvas
+        open={showCanvas}
+        setOpen={setShowCanvas}
+        addImage={(image) => actions.addImages([image])}
+      />
       <ColorPicker
         open={showColorPicker}
         setOpen={setShowColorPicker}
@@ -78,6 +85,12 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
           <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+        </Pressable>
+        <Pressable
+          onPress={() => setShowCanvas(true)}
+          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+        >
+          <MaterialCommunityIcons name='brush' color='white' size={24} />
         </Pressable>
       </ScrollView>
     </>

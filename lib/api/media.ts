@@ -101,7 +101,7 @@ type UploadPayload = {
 export async function uploadMedia(token: string, payload: UploadPayload) {
   const formData = new FormData()
   // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
-  formData.append('image', { ...payload } as any)
+  formData.append('image', payload as any)
   const response = await getJSON(`${BASE_URL}/api/uploadMedia`, {
     method: 'POST',
     body: formData,
@@ -127,28 +127,6 @@ export function useMediaUploadMutation() {
     }
   })
 }
-
-// code from here: https://github.com/expo/examples/blob/master/with-firebase-storage-upload/App.js#L193
-// async function getBlobFromUri(uri: string) {
-//   // Why are we using XMLHttpRequest? See:
-//   // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-//   const blob = await new Promise((resolve, reject) => {
-//     const xhr = new XMLHttpRequest()
-//     xhr.onload = function () {
-//       resolve(xhr.response)
-//     }
-//     xhr.onerror = function (e) {
-//       console.log(e)
-//       reject(new TypeError("XMLHttpRequest failed"))
-//     }
-//     xhr.responseType = "blob"
-//     xhr.open("GET", uri, true)
-//     xhr.send(null)
-//   })
-
-//   return blob as any
-// }
-
 
 export type MediaUploadResponse = Timestamps
   & Omit<PostMedia, 'posts' | 'description' | 'aspectRatio'>
