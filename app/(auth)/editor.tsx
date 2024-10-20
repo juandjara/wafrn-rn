@@ -24,10 +24,14 @@ import { clearSelectionRangeFormat } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
 
+export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
+export const MENTION_LINK_REGEX = /(\[@[\w-\.]+@?[\w-\.]*\]\([^(^)]+\))/gi
+export const COLOR_REGEX = /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi
+
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {
     trigger: '@',
-    pattern: /(\[@\w+@?[\w-\.]*\]\([^(^)]+\))/gi,
+    pattern: MENTION_LINK_REGEX,
     isInsertSpaceAfterMention: true,
     textStyle: {
       fontWeight: 'bold',
@@ -94,7 +98,7 @@ const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   },
   color: {
     trigger: '#?',
-    pattern: /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi,
+    pattern: COLOR_REGEX,
     textStyle: (data) => ({
       color: data?.id,
     }),

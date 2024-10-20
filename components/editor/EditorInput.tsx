@@ -11,6 +11,7 @@ import colors from "tailwindcss/colors"
 import EditorSuggestions from "./EditorSuggestions"
 import { EditorImage } from "./EditorImages"
 import { clearSelectionRangeFormat } from "@/lib/api/content"
+import { MENTION_REGEX } from "@/app/(auth)/editor"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -60,7 +61,8 @@ export default function EditorInput({
       Math.max(0, debouncedSelectionStart - MAX_CHARACTER_LOOKUP),
       debouncedSelectionStart
     )
-    const match = textBeforeCursor.match(/@\w+@?[\w-\.]*$/)
+    const regex = new RegExp(MENTION_REGEX.source + '$', 'gi')
+    const match = textBeforeCursor.match(regex)
     const lastMention = match && match[0]?.substring(1)
     return lastMention || undefined
   }, [debouncedText, debouncedSelectionStart])
