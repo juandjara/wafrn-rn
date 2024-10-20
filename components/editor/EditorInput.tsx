@@ -10,8 +10,7 @@ import { generateValueFromMentionStateAndChangedText, Suggestion, useMentions } 
 import colors from "tailwindcss/colors"
 import EditorSuggestions from "./EditorSuggestions"
 import { EditorImage } from "./EditorImages"
-import { clearSelectionRangeFormat } from "@/lib/api/content"
-import { MENTION_REGEX } from "@/app/(auth)/editor"
+import { clearSelectionRangeFormat, MENTION_REGEX } from "@/lib/api/content"
 
 type MentionApi = ReturnType<typeof useMentions>
 

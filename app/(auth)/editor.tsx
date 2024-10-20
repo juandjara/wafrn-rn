@@ -20,13 +20,9 @@ import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
-import { clearSelectionRangeFormat } from "@/lib/api/content"
+import { clearSelectionRangeFormat, COLOR_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
-
-export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
-export const MENTION_LINK_REGEX = /(\[@[\w-\.]+@?[\w-\.]*\]\([^(^)]+\))/gi
-export const COLOR_REGEX = /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
   mention: {

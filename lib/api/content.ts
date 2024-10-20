@@ -4,6 +4,12 @@ import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { useMentions } from "react-native-more-controlled-mentions"
 
+export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
+export const MENTION_LINK_REGEX = /(\[@[\w-\.]+@?[\w-\.]*\]\([^(^)]+\))/gi
+export const COLOR_REGEX = /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi
+export const WAFRNMEDIA_REGEX =
+  /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
+
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content) {
     return false
@@ -26,11 +32,12 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
 }
 
 export function processPostContent(post: Post, context: DashboardContextData) {
+  const content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
   const ids = context.emojiRelations.postEmojiRelation
     .filter((e) => e.postId === post.id)
     .map((e) => e.emojiId) ?? []
   const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
-  return replaceEmojis(post.content, emojis)
+  return replaceEmojis(content, emojis)
 }
 
 export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
