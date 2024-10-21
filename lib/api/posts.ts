@@ -147,6 +147,7 @@ export type CreatePostPayload = {
   joinedTags?: string // comma separated tags
   privacy: PrivacyLevel
   medias: Required<Omit<EditorImage, 'fileName' | 'mimeType'>>[]
+  mentionedUserIds: string[]
 }
 
 export async function wait(ms: number) {
@@ -216,6 +217,7 @@ export async function rewoot(token: string, postId: string) {
     parentId: postId,
     privacy: 0,
     medias: [],
+    mentionedUserIds: [],
   })
 }
 

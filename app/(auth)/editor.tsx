@@ -252,6 +252,10 @@ export default function EditorView() {
       text += part.text
     }
 
+    const mentionedUserIds = mentionApi.mentionState.parts
+      .map((p) => p.data?.id)
+      .filter((id) => !!id) as string[]
+
     createMutation.mutate({
       content: text.replace(/\n/g, '<br>'),
       parentId: replyId,
@@ -268,6 +272,7 @@ export default function EditorView() {
         description: m.description || '',
         NSFW: m.NSFW || false,
       })),
+      mentionedUserIds,
     }, {
       onSuccess(data) {
         router.replace(`/post/${data}`)
