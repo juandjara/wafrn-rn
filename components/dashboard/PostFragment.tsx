@@ -316,14 +316,17 @@ export default function PostFragment({
                 />
               )}
               {tags.length > 0 && (
-                <View className="flex-row flex-wrap gap-2 py-2 border-t border-cyan-700">
+                <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-8 border-t border-cyan-700">
                   {tags.map((tag, index) => (
                     <Link
                       key={`${tag}-${index}`}
                       href={`/search/${tag}`}
-                      className="text-cyan-200 bg-cyan-600/20 text-sm py-0.5 px-1.5 rounded-md"
+                      className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
+                      asChild
                     >
-                      #{tag}
+                      <Pressable>
+                        <Text className="text-cyan-200 text-sm">#{tag}</Text>
+                      </Pressable>
                     </Link>
                   ))}
                 </View>
