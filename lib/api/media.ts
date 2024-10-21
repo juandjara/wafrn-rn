@@ -37,23 +37,30 @@ const IMG_EXTENSIONS = [
   'jfif' // I dont know what this is but it's in the wild
 ]
 
-export function isVideo(url: string) {
+export function isVideo(mime: string | undefined, url: string) {
   if (!isValidURL(url)) return false
-  return VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  return mime?.startsWith('video') || VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
-export function isAudio(url: string) {
+export function isAudio(mime: string | undefined, url: string) {
   if (!isValidURL(url)) return false
-  return AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  return mime?.startsWith('audio') || AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
 }
-export function isNotAV(url: string) {
-  return !isVideo(url) && !isAudio(url) && !isImage(url)
+export function isNotAV(mime: string | undefined, url: string) {
+  return !isVideo(mime, url) && !isAudio(mime, url) && !isImage(mime, url)
 }
 export function isSVG(url: string) {
   if (!isValidURL(url)) return false
   return url.endsWith('svg')
 } 
-export function isImage(url: string) {
-  if (!isValidURL(url)) return false
+export function isImage(mime: string | undefined, url: string) {
+  if (!isValidURL(url)) {
+    return false
+  }
+
+  if (mime?.startsWith('image')) {
+    return true
+  }
+
   let fullUrl = new URL(url)
   const isCDN = fullUrl.host === CACHE_HOST
   if (isCDN) {
@@ -70,7 +77,7 @@ export function useAspectRatio(media: PostMedia) {
   const { data } = useQuery({
     queryKey: ['aspectRatio', media.url],
     queryFn: () => getRemoteAspectRatio(url),
-    enabled: isImage(url)
+    enabled: isImage(media.mediaType, url)
   })
   return data || 1
 }

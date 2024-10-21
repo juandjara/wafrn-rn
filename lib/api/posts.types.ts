@@ -54,7 +54,11 @@ export type PostMedia = {
   description: string
   NSFW: boolean
   postId: string
+  blurhash?: string | null
   aspectRatio?: number
+  height?: number
+  width?: number
+  mediaType?: string
 }
 
 export type PostMention = {

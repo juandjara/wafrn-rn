@@ -16,6 +16,7 @@ export default function Media({ media, contentWidth, hidden }: {
   contentWidth: number
   hidden?: boolean
 }) {
+  const mime = media.mediaType
   const src = formatCachedUrl(formatMediaUrl(media.url))
   const aspectRatio = useAspectRatio(media)
   const mediaWidth = contentWidth - MEDIA_MARGIN
@@ -26,6 +27,7 @@ export default function Media({ media, contentWidth, hidden }: {
       style={{ opacity: hidden ? 0 : 1 }}
     >
       <MediaCloak
+        blurHash={media.blurhash}
         isNSFW={media.NSFW}
         backgroundImage={{
           src,
@@ -33,7 +35,7 @@ export default function Media({ media, contentWidth, hidden }: {
           aspectRatio
         }}
       >
-        {isVideo(src) && (
+        {isVideo(mime, src) && (
           <>
             <Pressable>
               <VideoPlayer
@@ -48,7 +50,7 @@ export default function Media({ media, contentWidth, hidden }: {
             </Pressable>
           </>
         )}
-        {isAudio(src) && (
+        {isAudio(mime, src) && (
           <View className="p-1 bg-black">
             <VideoPlayer
               style={{ width: mediaWidth, height: 80 }}
@@ -62,7 +64,7 @@ export default function Media({ media, contentWidth, hidden }: {
             />
           </View>
         )}
-        {isImage(src) && (
+        {isImage(mime, src) && (
           <ZoomableImage
             id={media.id}
             src={src}
@@ -74,7 +76,7 @@ export default function Media({ media, contentWidth, hidden }: {
             imgClassName="rounded-t-md"
           />
         )}
-        {isNotAV(src) && (
+        {isNotAV(mime, src) && (
           <View className="flex-row gap-2">
             <MaterialCommunityIcons
               name="link-variant"
