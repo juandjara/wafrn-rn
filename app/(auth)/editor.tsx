@@ -12,7 +12,7 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import PostFragment from "@/components/dashboard/PostFragment"
 import GenericRibbon from "@/components/GenericRibbon"
-import { formatMentionHTML } from "@/lib/api/html"
+// import { formatMentionHTML } from "@/lib/api/html"
 import EditorHeader from "@/components/editor/EditorHeader"
 import EditorActions, { EditorActionProps } from "@/components/editor/EditorActions"
 import ImageList, { EditorImage } from "@/components/editor/EditorImages"
@@ -236,9 +236,10 @@ export default function EditorView() {
     for (const part of mentionApi.mentionState.parts) {
       const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
       if (trigger === '@') {
-        const remoteId = part.data?.id
-        const url = part.data?.name
-        text += url ? formatMentionHTML(url, remoteId) : part.text
+        text += part.data?.name || part.text
+        // const url = part.data?.name
+        // const remoteId = part.data?.id
+        // text += url ? formatMentionHTML(url, remoteId) : part.text
         continue
       }
       if (trigger === '**') {
