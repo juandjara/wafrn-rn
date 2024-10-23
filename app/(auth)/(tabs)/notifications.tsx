@@ -108,7 +108,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <GenericRibbon
         user={user}
         userNameHTML={userName}
-        link={`/user/${notification.user.id}`}
+        link={`/user/${notification.user.url}`}
         label='qouted your post'
         icon={
           <MaterialCommunityIcons name="format-quote-close" size={20} color="white" className="mx-1" />
@@ -121,7 +121,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <GenericRibbon
         user={user}
         userNameHTML={userName}
-        link={`/user/${notification.user.id}`}
+        link={`/user/${notification.user.url}`}
         label='liked your post'
         icon={
           <MaterialCommunityIcons name="heart" size={20} color="white" className="mx-1" />
@@ -139,7 +139,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <GenericRibbon
         user={user}
         userNameHTML={userName}
-        link={`/user/${notification.user.id}`}
+        link={`/user/${notification.user.url}`}
         label='reacted to your post'
         icon={
           typeof emoji === 'string' ? (
@@ -160,7 +160,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <GenericRibbon
         user={user}
         userNameHTML={userName}
-        link={`/user/${notification.user.id}`}
+        link={`/user/${notification.user.url}`}
         label='now follows you'
         icon={
           <MaterialCommunityIcons name="account-plus" size={20} color="white" className="mx-1" />
@@ -174,7 +174,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <GenericRibbon
         user={user}
         userNameHTML={userName}
-        link={`/user/${notification.user.id}`}
+        link={`/user/${notification.user.url}`}
         label={isReply ? 'replied' : 'mentioned you'}
         icon={
           <MaterialCommunityIcons name={isReply ? 'reply' : 'at'} size={20} color="white" className="mx-1" />
