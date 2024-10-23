@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
-import { invalidatePostQueries, invalidateUserQueries, showToast } from "../interaction"
+import { invalidateUserQueries, showToast } from "../interaction"
 import { Post, PostUser } from "./posts.types"
 import colors from "tailwindcss/colors"
 
@@ -93,7 +93,7 @@ export async function toggleSilencePost({
   postId: string
   isSilenced: boolean
 }) {
-  await getJSON(`${API_URL}/${isSilenced ? 'unsilencePost' : 'silencePost'}`, {
+  await getJSON(`${API_URL}/v2/${isSilenced ? 'unsilencePost' : 'silencePost'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -106,7 +106,6 @@ export async function toggleSilencePost({
   })
 }
 
-// TODO: implement in InteractionRibbon
 export function useSilenceMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
@@ -125,6 +124,8 @@ export function useSilenceMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToast(`Woot ${variables ? 'un' : ''}silenced`, colors.green[100], colors.green[900])
     },
-    onSettled: () => invalidatePostQueries(qc, post)
+    onSettled: async () => {
+      await qc.invalidateQueries({ queryKey: ['settings'] })
+    }
   })
 }

@@ -16,6 +16,8 @@ import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
 import { useEmojiReactMutation } from "@/lib/api/emojis";
 import { useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
+import { useSilenceMutation } from "@/lib/api/blocks";
+import { useSettings } from "@/lib/api/settings";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -25,6 +27,8 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   const me = useParsedToken()
   const context = useDashboardContext()
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+  const { data: settings } = useSettings()
+  const isSilenced = !!settings?.silencedPosts.includes(post.id)
 
   const isLiked = context.likes.some((like) => like.postId === post.id && like.userId === me?.userId)
   const liked = useSharedValue(isLiked ? 1 : 0)
@@ -42,6 +46,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   const rewootMutation = useRewootMutation(post)
   const emojiReactMutation = useEmojiReactMutation(post)
   const deleteMutation = useDeleteMutation(post)
+  const silenceMutation = useSilenceMutation(post)
 
   const { mainOptions, secondaryOptions } = useMemo(() => {
     const createdByMe = post.userId === me?.userId
@@ -178,20 +183,24 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       },
       {
         action: () => {
-          // TODO launch confirmation dialog and run mute mutation
+          Alert.alert('Silence post', 'Are you sure you want to silence all notifications for this post?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Silence', style: 'destructive', onPress: () => silenceMutation.mutate(isSilenced) }
+          ], { cancelable: true })
         },
-        icon: <MaterialCommunityIcons name='bell-off' size={20} />,
-        label: 'Silence post',
+        icon: <MaterialCommunityIcons name={isSilenced ? 'bell-outline' : 'bell-off'} size={20} />,
+        label: `${isSilenced ? 'Uns' : 'S'}ilence post`,
         enabled: createdByMe,
+        disabled: silenceMutation.isPending
       },
-      {
-        action: () => {
-          // TODO open editor with context
-        },
-        icon: <MaterialCommunityIcons name='pencil' size={20} />,
-        label: 'Edit',
-        enabled: createdByMe && post.privacy === PrivacyLevel.INSTANCE_ONLY,
-      },
+      // {
+      //   action: () => {
+      //     // TODO open editor with context
+      //   },
+      //   icon: <MaterialCommunityIcons name='pencil' size={20} />,
+      //   label: 'Edit',
+      //   enabled: createdByMe && post.privacy === PrivacyLevel.INSTANCE_ONLY,
+      // },
     ]
       .filter((opt) => opt.enabled)
       .map((opt) => ({
@@ -217,10 +226,12 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     me,
     isRewooted,
     isLiked,
+    isSilenced,
     likeMutation,
     rewootMutation,
     emojiReactMutation,
     deleteMutation,
+    silenceMutation,
   ])
 
   function onPickEmoji(emoji: Emoji) {
