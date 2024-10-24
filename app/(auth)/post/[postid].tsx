@@ -189,7 +189,7 @@ export default function PostDetail() {
       <FlashList
         ref={listRef}
         data={listData}
-        estimatedItemSize={300}
+        estimatedItemSize={400}
         removeClippedSubviews
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {

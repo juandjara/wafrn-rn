@@ -79,7 +79,7 @@ export default function NotificationList() {
       <FlashList
         ref={listRef}
         data={notifications}
-        estimatedItemSize={200}
+        estimatedItemSize={300}
         getItemType={(item) => item.type}
         refreshing={isFetching}
         onRefresh={refresh}
