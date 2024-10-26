@@ -18,6 +18,11 @@ export default function UserMenu() {
       action: () => router.push(`/user/${user?.url}`)
     },
     {
+      icon: 'account-clock-outline',
+      label: 'Follow requests',
+      action: () => router.push('/user/awaiting-follows')
+    },
+    {
       icon: 'cog-outline',
       label: 'Settings',
       action: () => router.push('/settings')

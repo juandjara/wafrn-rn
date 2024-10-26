@@ -12,11 +12,6 @@ export default function Settings() {
 
   const options = [
     {
-      icon: 'account-clock-outline',
-      label: 'Awaiting follows',
-      link: '/user/awaiting-follows'
-    },
-    {
       icon: 'account-multiple-plus-outline',
       label: 'Import follows',
       link: '/user/import-follows'
@@ -27,24 +22,34 @@ export default function Settings() {
       link: '/user/edit-profile'
     },
     {
-      icon: 'account-eye-outline',
-      label: 'Manage muted users',
-      link: '/manage/muted-users'
+      icon: 'palette',
+      label: 'Options & Customizations',
+      link: '/user/customizations'
     },
-    {
-      icon: 'file-eye-outline',
-      label: 'Manage muted posts',
-      link: '/manage/muted-posts'
-    },
-    {
-      icon: 'account-cancel-outline',
-      label: 'Manage blocked users',
-      link: '/manage/blocked-users'
-    },
+    // {
+    //   icon: 'account-eye-outline',
+    //   label: 'Manage muted users',
+    //   link: '/manage/muted-users'
+    // },
+    // {
+    //   icon: 'file-eye-outline',
+    //   label: 'Manage muted posts',
+    //   link: '/manage/muted-posts'
+    // },
+    // {
+    //   icon: 'account-cancel-outline',
+    //   label: 'Manage blocked users',
+    //   link: '/manage/blocked-users'
+    // },
+    // {
+    //   icon: 'server-off',
+    //   label: 'Manage blocked servers',
+    //   link: '/manage/blocked-servers'
+    // },
     {
       icon: 'server-off',
-      label: 'Manage blocked servers',
-      link: '/manage/blocked-servers'
+      label: 'Mutes & Blocks',
+      link: '/mutes-and-blocks'
     },
     {
       icon: 'shield-account-outline',
