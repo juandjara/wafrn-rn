@@ -1,3 +1,25 @@
+import { router } from "expo-router"
+import { BASE_URL } from "./config"
+import { parse, useURL } from "expo-linking"
+import { useEffect } from "react"
+
+export function useWebLinkDetector() {
+  const url = useURL()
+
+  useEffect(() => {
+    if (!url) {
+      return
+    }
+
+    const { hostname, path } = parse(url)
+    const isWafrnWeb = BASE_URL.includes(hostname || '')
+    const mappedPath = isWafrnWeb && path && webPathToAppPath(path)
+
+    if (mappedPath) {
+      router.replace(mappedPath)
+    }
+  }, [url])
+}
 
 // transform a web url to a native url
 export default function webPathToAppPath(webPath: string) {

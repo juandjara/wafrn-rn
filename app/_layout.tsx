@@ -13,6 +13,7 @@ import { RootSiblingParent } from 'react-native-root-siblings'
 import * as Clipboard from 'expo-clipboard'
 import { showToast } from "@/lib/interaction"
 import colors from "tailwindcss/colors"
+import { useWebLinkDetector } from "@/lib/weblinks"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,6 +73,9 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme()
+
+  useWebLinkDetector()
+
   return (
     <SafeAreaProvider>
       <RootSiblingParent>
