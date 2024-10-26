@@ -33,8 +33,7 @@
           "data": [
             {
               "scheme": "https",
-              "host": "app.wafrn.net",
-              "pathPrefix": "/.*"
+              "host": "app.wafrn.net"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
