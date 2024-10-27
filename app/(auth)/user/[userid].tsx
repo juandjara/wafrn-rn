@@ -5,13 +5,14 @@ import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
 import { useUser } from "@/lib/api/user"
+import { BASE_URL } from "@/lib/config"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { buttonCN, optionStyle } from "@/lib/styles"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
-import { FlatList, Pressable, Text, View } from "react-native"
+import { FlatList, Pressable, Share, Text, View } from "react-native"
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu"
 import colors from "tailwindcss/colors"
 
@@ -42,6 +43,26 @@ export default function UserFeed() {
     [feed?.pages]
   )
   const deduped = useMemo(() => dedupePosts(feed?.pages || []), [feed?.pages])
+
+  const userActions = useMemo(() => [
+    {
+      name: 'Share user',
+      icon: 'share-variant' as const,
+      action: () => user && Share.share({ message: user.remoteId ?? `${BASE_URL}/blog/${user.url}` }),
+    },
+    {
+      name: 'Mute user',
+      icon: 'volume-off' as const,
+    },
+    {
+      name: 'Block user',
+      icon: 'account-cancel-outline' as const,
+    },
+    {
+      name: 'Block server',
+      icon: 'server-off' as const,
+    },
+  ], [user])
 
   if (userError) {
     return (
@@ -100,18 +121,16 @@ export default function UserFeed() {
                   borderRadius: 8,
                 },
               }}>
-                <MenuOption style={optionStyle(0)}>
-                  <MaterialCommunityIcons name='volume-off' size={20} color={colors.gray[600]} />
-                  <Text className="text-sm flex-grow">Mute user</Text>
-                </MenuOption>
-                <MenuOption style={optionStyle(1)}>
-                  <MaterialCommunityIcons name='account-cancel-outline' size={20} color={colors.gray[600]} />
-                  <Text className="text-sm flex-grow">Block user</Text>
-                </MenuOption>
-                <MenuOption style={optionStyle(2)}>
-                  <MaterialCommunityIcons name='server-off' size={20} color={colors.gray[600]} />
-                  <Text className="text-sm flex-grow">Block server</Text>
-                </MenuOption>
+                {userActions.map((action, i) => (
+                  <MenuOption key={i} style={optionStyle(i)} onSelect={action.action}>
+                    <MaterialCommunityIcons
+                      name={action.icon}
+                      size={20}
+                      color={colors.gray[600]}
+                    />
+                    <Text className="text-sm flex-grow">{action.name}</Text>
+                  </MenuOption>
+                ))}
               </MenuOptions>
             </Menu>
           ),
