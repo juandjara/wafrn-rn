@@ -2,14 +2,17 @@ import { Link, router, Stack, usePathname } from 'expo-router'
 import { StyleSheet } from 'react-native'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
+import { useURL } from 'expo-linking'
 
 export default function NotFoundScreen() {
+  const url = useURL()
   console.log(`not found: ${usePathname()}`)
 
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <ThemedView style={styles.container}>
+        <ThemedText type="defaultSemiBold" className='mb-2'>{url}</ThemedText>
         <ThemedText type="title">
           This screen doesn't exist
         </ThemedText>
