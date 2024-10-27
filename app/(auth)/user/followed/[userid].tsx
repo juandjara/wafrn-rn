@@ -27,8 +27,8 @@ export default function Followed() {
                 userName=""
                 showUnfollowButton
               />
-              <View className="absolute top-1 right-2">
-                <Text className="text-gray-300 text-xs">{timeAgo(item.follows.createdAt)}</Text>
+              <View className="absolute top-2 right-3">
+                <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
               </View>
             </View>
           )
