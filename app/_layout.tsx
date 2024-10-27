@@ -5,7 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import "../styles.css"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import { AuthProvider } from "@/lib/contexts/AuthContext"
-import { ErrorBoundaryProps, Slot } from "expo-router"
+import { ErrorBoundaryProps, Redirect, Slot } from "expo-router"
 import { MenuProvider } from "react-native-popup-menu"
 import { cssInterop } from "nativewind"
 import { Image } from "expo-image"
@@ -71,11 +71,8 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   )
 }
 
-export default function RootLayout() {
+function App() {
   const colorScheme = useColorScheme()
-
-  useWebLinkDetector()
-
   return (
     <SafeAreaProvider>
       <RootSiblingParent>
@@ -92,5 +89,14 @@ export default function RootLayout() {
         </ActionSheetProvider>
       </RootSiblingParent>
     </SafeAreaProvider>
-  );
+  )
+}
+
+export default function RootLayout() {
+  const weblink = useWebLinkDetector()
+  if (weblink) {
+    return <Redirect href={weblink} />
+  }
+
+  return <App />
 }

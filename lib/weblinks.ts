@@ -1,23 +1,19 @@
-import { router } from "expo-router"
 import { BASE_URL } from "./config"
 import { parse, useURL } from "expo-linking"
-import { useEffect } from "react"
+import { useMemo } from "react"
 
 export function useWebLinkDetector() {
   const url = useURL()
-
-  useEffect(() => {
+  return useMemo(() => {
     if (!url) {
-      return
+      return null
     }
 
     const { hostname, path } = parse(url)
     const isWafrnWeb = BASE_URL.includes(hostname || '')
     const mappedPath = isWafrnWeb && path && webPathToAppPath(path)
 
-    if (mappedPath) {
-      router.replace(mappedPath)
-    }
+    return mappedPath || null
   }, [url])
 }
 
