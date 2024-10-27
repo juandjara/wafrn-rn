@@ -41,7 +41,7 @@ function _PostHtmlRenderer({
   const renderContext = useRef({} as Record<string, any>)
 
   const { dom, ytLinks } = useMemo(() => {
-    const miniHtml = crush(html, {
+    const miniHtml = crush(html || '', {
       removeLineBreaks: true,
       lineLengthLimit: Infinity,
     })
