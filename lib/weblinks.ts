@@ -31,18 +31,22 @@ export default function webUrlToAppUrl(webUrl: string | null) {
 
   const { hostname, path } = parse(webUrl)
   const isWafrnWeb = BASE_URL.includes(hostname || '')
-  const webPath = isWafrnWeb && path
+  let webPath = isWafrnWeb && path
 
   if (!webPath) {
     return null
+  }
+
+  if (webPath.startsWith('fediverse/')) {
+    webPath = webPath.replace('fediverse/', '')
   }
 
   if (webPath.startsWith('blog/')) {
     const user = webPath.replace('blog/', '')
     return `/user/${user}`
   }
-  if (webPath.startsWith('post/') || webPath.startsWith('fediverse/post/')) {
-    const postId = webPath.replace('fediverse/post/', '').replace('post/', '')
+  if (webPath.startsWith('post/')) {
+    const postId = webPath.replace('post/', '')
     return `/post/${postId}`
   }
   if (webPath.startsWith('dashboard/search/')) {
