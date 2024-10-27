@@ -5,7 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import "../styles.css"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import { AuthProvider } from "@/lib/contexts/AuthContext"
-import { ErrorBoundaryProps, Redirect, Slot } from "expo-router"
+import { ErrorBoundaryProps, router, Slot } from "expo-router"
 import { MenuProvider } from "react-native-popup-menu"
 import { cssInterop } from "nativewind"
 import { Image } from "expo-image"
@@ -95,7 +95,7 @@ function App() {
 export default function RootLayout() {
   const weblink = useWebLinkDetector()
   if (weblink) {
-    return <Redirect href={weblink} />
+    router.navigate(weblink)
   }
 
   return <App />

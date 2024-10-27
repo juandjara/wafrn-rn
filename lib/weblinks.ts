@@ -1,24 +1,42 @@
 import { BASE_URL } from "./config"
-import { parse, useURL } from "expo-linking"
-import { useMemo } from "react"
+import { getInitialURL, parse } from "expo-linking"
+import { useEffect, useState } from "react"
 
 export function useWebLinkDetector() {
-  const url = useURL()
-  return useMemo(() => {
-    if (!url) {
-      return null
+  const [url, setUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+    const handleUrl = async () => {
+      const initialUrl = await getInitialURL()
+      if (isMounted) {
+        setUrl(webUrlToAppUrl(initialUrl))
+      }
     }
+    handleUrl()
 
-    const { hostname, path } = parse(url)
-    const isWafrnWeb = BASE_URL.includes(hostname || '')
-    const mappedPath = isWafrnWeb && path && webPathToAppPath(path)
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
-    return mappedPath || null
-  }, [url])
+  return url
 }
 
 // transform a web url to a native url
-export default function webPathToAppPath(webPath: string) {
+export default function webUrlToAppUrl(webUrl: string | null) {
+  if (!webUrl) {
+    return null
+  }
+
+  const { hostname, path } = parse(webUrl)
+  const isWafrnWeb = BASE_URL.includes(hostname || '')
+  const webPath = isWafrnWeb && path
+
+  if (!webPath) {
+    return null
+  }
+
   if (webPath.startsWith('blog/')) {
     const user = webPath.replace('blog/', '')
     return `/user/${user}`
