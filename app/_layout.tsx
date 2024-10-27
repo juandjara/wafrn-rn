@@ -1,11 +1,11 @@
+import "../styles.css"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Platform, Pressable, ScrollView, Text, UIManager, useColorScheme, View } from "react-native"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
-import "../styles.css"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import { AuthProvider } from "@/lib/contexts/AuthContext"
-import { ErrorBoundaryProps, router, Slot } from "expo-router"
+import { ErrorBoundaryProps, Slot } from "expo-router"
 import { MenuProvider } from "react-native-popup-menu"
 import { cssInterop } from "nativewind"
 import { Image } from "expo-image"
@@ -13,7 +13,6 @@ import { RootSiblingParent } from 'react-native-root-siblings'
 import * as Clipboard from 'expo-clipboard'
 import { showToast } from "@/lib/interaction"
 import colors from "tailwindcss/colors"
-import { useWebLinkDetector } from "@/lib/weblinks"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,7 +70,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   )
 }
 
-function App() {
+export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
     <SafeAreaProvider>
@@ -90,13 +89,4 @@ function App() {
       </RootSiblingParent>
     </SafeAreaProvider>
   )
-}
-
-export default function RootLayout() {
-  const weblink = useWebLinkDetector()
-  if (weblink) {
-    router.navigate(weblink)
-  }
-
-  return <App />
 }

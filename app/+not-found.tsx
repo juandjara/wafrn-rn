@@ -1,18 +1,25 @@
-import { Link, router, Stack, usePathname } from 'expo-router'
+import { Link, router, Stack, useFocusEffect, useUnstableGlobalHref } from 'expo-router'
 import { StyleSheet } from 'react-native'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
-import { useURL } from 'expo-linking'
+import { useWebLinkDetector } from '@/lib/weblinks'
 
 export default function NotFoundScreen() {
-  const url = useURL()
-  console.log(`not found: ${usePathname()}`)
+  const href = useUnstableGlobalHref()
+  console.log(`not found: ${href}`)
+
+  const weblink = useWebLinkDetector()
+  useFocusEffect(() => {
+    if (weblink) {
+      router.replace(weblink)
+    }
+  })
 
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <ThemedView style={styles.container}>
-        <ThemedText type="defaultSemiBold" className='mb-2'>{url}</ThemedText>
+        <ThemedText type="defaultSemiBold" className='mb-2'>{href}</ThemedText>
         <ThemedText type="title">
           This screen doesn't exist
         </ThemedText>
