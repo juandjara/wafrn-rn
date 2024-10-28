@@ -4,6 +4,7 @@ import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { DashboardMode } from "@/lib/api/dashboard"
 import colors from "tailwindcss/colors"
+import { BASE_URL } from "@/lib/config"
 
 const MODES = [
   DashboardMode.FEED,
@@ -37,7 +38,7 @@ export default function DashboardModeMenu({
           <Image
             className="ml-1 mr-3"
             style={{ width: 32, height: 32 }}
-            source={{ uri: 'https://app.wafrn.net/assets/logo_w.png' }}
+            source={{ uri: `${BASE_URL}/assets/logo_w.png` }}
           />
           <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
             <MaterialCommunityIcons name={MODE_ICONS[mode]} size={20} color='white' />

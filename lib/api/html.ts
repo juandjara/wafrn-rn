@@ -198,11 +198,7 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
     if (node.children.length === 1) {
       const child = node.children[0]
       if (child.type === 'text') {
-        let handle = child.data || ''
-        if (handle.lastIndexOf('@') === 0) {
-          const host = new URL(link).host
-          handle = `${handle}@${host}`
-        }
+        const handle = buildFullHandle(child.data || '', new URL(link).host)
         const user = context.users.find((u) => u.url === handle)
         if (user) {
           node.attribs['href'] = `wafrn:///user/${user.url}`
@@ -216,9 +212,7 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
       if (firstPartIsAt && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {
-          const username = spanText.data
-          const host = new URL(link).host
-          const handle = `@${username}@${host}`
+          const handle = buildFullHandle(`@${spanText.data}`, new URL(link).host)
           const user = context.users.find((u) => u.url === handle)
           if (user) {
             node.attribs['href'] = `wafrn:///user/${user.url}`
@@ -227,6 +221,16 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
       }
     }
   }
+}
+
+function buildFullHandle(handle: string, host: string) {
+  if (handle.lastIndexOf('@') === 0) {
+    if (host === new URL(BASE_URL).host) {
+      return handle.replace('@', '')
+    }
+    return `${handle}@${host}`
+  }
+  return handle
 }
 
 export function replaceHashtagLink(node: Element, context: DashboardContextData) {

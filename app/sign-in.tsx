@@ -8,6 +8,7 @@ import { ThemedView as View } from '@/components/ThemedView'
 import { TextInput, Button } from "react-native"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { useThemeColor } from "@/hooks/useThemeColor"
+import { BASE_URL } from "@/lib/config"
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -62,7 +63,7 @@ export default function SignIn() {
       <Text className="p-3">
         Don't have an account?{' '}
         <Link
-          href={'https://app.wafrn.net/register'}
+          href={`${BASE_URL}/register`}
           className="text-blue-500"
         >
           Register here

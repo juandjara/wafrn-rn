@@ -37,6 +37,10 @@ export default function webUrlToAppUrl(webUrl: string | null) {
     return null
   }
 
+  if (webPath.startsWith('/')) {
+    webPath = webPath.replace('/', '')
+  }
+
   if (webPath.startsWith('fediverse/')) {
     webPath = webPath.replace('fediverse/', '')
   }

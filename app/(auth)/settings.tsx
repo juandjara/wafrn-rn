@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/lib/config";
 import { useAuth, useParsedToken, UserRoles } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -60,7 +61,7 @@ export default function Settings() {
     {
       icon: 'eye-off-outline',
       label: 'Privacy policy',
-      link: 'https://app.wafrn.net/privacy'
+      link: `${BASE_URL}/privacy`
     },
     {
       icon: 'code-braces',
