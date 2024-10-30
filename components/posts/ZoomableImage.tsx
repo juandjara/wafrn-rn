@@ -1,6 +1,6 @@
 import { Image, ImageStyle } from 'expo-image'
 import { useState } from "react"
-import { Modal, Pressable, useWindowDimensions } from "react-native"
+import { Modal, Pressable, useWindowDimensions, View } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
 import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view"
 import { isSVG } from "@/lib/api/media"
@@ -35,38 +35,36 @@ export default function ZoomableImage({
 
   return (
     <>
-      {modalOpen && (
-        <Modal
-          visible={modalOpen}
-          animationType="slide"
-          onRequestClose={() => setModalOpen(false)}
-        >
-          <SafeAreaView className="flex-1 relative" style={{ backgroundColor }}>
-            <Pressable onPress={() => setModalOpen(false)} className="p-3">
-              <MaterialIcons name="close" size={24} color='white' />
-            </Pressable>
-            <ReactNativeZoomableView
-              minZoom={1}
-              maxZoom={30}
-              contentWidth={deviceWidth}
-            >
-              {isSVG(src) ? (
-                <SvgUri
-                  width={deviceWidth}
-                  height='100%'
-                  uri={src}
-                />
-              ) : (
-                <Image
-                  source={src}
-                  cachePolicy={'memory-disk'}
-                  style={{ resizeMode: 'contain', width: deviceWidth, height: '100%' }}
-                />
-              )}
-            </ReactNativeZoomableView>
-          </SafeAreaView>
-        </Modal>
-      )}
+      <Modal
+        visible={modalOpen}
+        animationType="slide"
+        onRequestClose={() => setModalOpen(false)}
+      >
+        <SafeAreaView className="flex-1 relative" style={{ backgroundColor }}>
+          <Pressable onPress={() => setModalOpen(false)} className="p-3">
+            <MaterialIcons name="close" size={24} color='white' />
+          </Pressable>
+          <ReactNativeZoomableView
+            minZoom={1}
+            maxZoom={30}
+            contentWidth={deviceWidth}
+          >
+            {isSVG(src) ? (
+              <SvgUri
+                width={deviceWidth}
+                height='100%'
+                uri={src}
+              />
+            ) : (
+              <Image
+                source={src}
+                cachePolicy={'memory-disk'}
+                style={{ resizeMode: 'contain', width: deviceWidth, height: '100%' }}
+              />
+            )}
+          </ReactNativeZoomableView>
+        </SafeAreaView>
+      </Modal>
       <Pressable className={className} onPress={() => !hidden && setModalOpen(true)}>
         {isSVG(src) ? (
           <SvgUri

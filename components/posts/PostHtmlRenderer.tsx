@@ -18,7 +18,6 @@ import { Text, TouchableOpacity, View } from "react-native";
 import colors from "tailwindcss/colors";
 import { decodeHTML } from 'entities';
 import { crush } from 'html-crush'
-import Media from "./Media";
 import { PostMedia } from "@/lib/api/posts.types";
 
 function onLinkPress(url: string) {
@@ -45,14 +44,14 @@ function _PostHtmlRenderer({
   const context = useDashboardContext()
   const renderContext = useRef({} as Record<string, any>)
 
-  const { dom, ytLinks } = useMemo(() => {
+  const { renderedHtml, ytLinks } = useMemo(() => {
     const miniHtml = crush(html || '', {
       removeLineBreaks: true,
       lineLengthLimit: Infinity,
     }).result
 
     const withInlineImages = inlineMedias?.length
-      ? replaceInlineImages(miniHtml, inlineMedias)
+      ? replaceInlineImages(miniHtml, inlineMedias, contentWidth)
       : miniHtml
 
     const dom = parseDocument(withInlineImages)
@@ -65,33 +64,38 @@ function _PostHtmlRenderer({
       return false
     }, dom.children)
 
+    const renderedHtml = renderDom(dom.children)
+    renderContext.current = {}
+
     return {
+      renderedHtml,
       ytLinks: links.map((node) => ({
         href: node.attribs.href,
         image: getYoutubeImage(node.attribs.href),
       })).filter((link) => link.image),
-      dom,
     }
-  }, [html, inlineMedias])
+    // ignore dependency on 'renderDom' function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [html, contentWidth, inlineMedias])
 
-  function renderDom(nodes: ChildNode[], parent?: ChildNode): React.ReactNode[] {
+  function renderDom(nodes: ChildNode[]): React.ReactNode[] {
     let orderedListCounter = 1
     return nodes.map((node, index) => {
       const currentIsBlock = node.type === 'tag' && isDisplayBlock(node as any)
 
       if (currentIsBlock) {
-        if (node.name === 'li' && parent?.type === 'tag') {
+        if (node.name === 'li' && node.parent?.type === 'tag') {
           let listItemPrefix = null;
           const defaultStyle = HTML_INLINE_STYLES.text
           const customStyle = inheritedStyle(node as any);
 
-          if (parent.name === 'ol') {
+          if (node?.parent.name === 'ol') {
             listItemPrefix = (
               <Text testID="ol-marker" style={[defaultStyle, customStyle]}>
                 {`${orderedListCounter++}. `}
               </Text>
             );
-          } else if (parent.name === 'ul') {
+          } else if (node?.parent.name === 'ul') {
             listItemPrefix = (
               <Text testID="ul-marker" style={[defaultStyle, customStyle]}>{'· '}</Text>
             );
@@ -99,14 +103,14 @@ function _PostHtmlRenderer({
           return (
             <Text key={index} testID="child-text">
               {listItemPrefix}
-              {renderDom(node.children, node)}
+              {renderDom(node.children)}
             </Text>
           )
         }
 
         return (
           <View testID={node.name} key={index} style={HTML_BLOCK_STYLES[node.name]}>
-            {renderDom(node.children, node)}
+            {renderDom(node.children)}
           </View>
         )
       }
@@ -130,7 +134,7 @@ function _PostHtmlRenderer({
             const nodes = [...ctx.nodes, node]
             ctx.completed = true
             return (
-              <Text testID="inline-fragment" key={index}>{renderDom(nodes, dom)}</Text>
+              <Text testID="inline-fragment" key={index}>{renderDom(nodes)}</Text>
             )
           }          
         }
@@ -157,7 +161,7 @@ function _PostHtmlRenderer({
           replaceHref(node as any, context)
           return (
             <Text testID="a" key={index} onPress={() => onLinkPress(decodeHTML(node.attribs.href))}>
-              {renderDom(node.children, node)}
+              {renderDom(node.children)}
             </Text>
           )
         }
@@ -166,27 +170,15 @@ function _PostHtmlRenderer({
           const width = Number(node.attribs['width'])
           const height = Number(node.attribs['height'])
           const src = node.attribs['src']
-          const index = node.attribs['data-index']
-          const media = index && inlineMedias?.[Number(index)]
           if (!src || !width || !height) {
             return null
-          }
-
-          if (media) {
-            return (
-              <Media
-                key={index}
-                media={media}
-                contentWidth={contentWidth}
-              />
-            )
           }
 
           return (
             <Image
               key={index}
               source={{ uri: node.attribs.src }}
-              style={{ width, height }}
+              style={{ width, height, resizeMode: 'cover' }}
             />
           )
         }
@@ -195,7 +187,7 @@ function _PostHtmlRenderer({
           return <Text testID="br" key={index}>{BR}</Text>
         }
 
-        return renderDom(node.children, node)
+        return renderDom(node.children)
       }
 
       return null
@@ -204,7 +196,7 @@ function _PostHtmlRenderer({
 
   return (
     <>
-      <View id='html-content'>{renderDom(dom.children)}</View>
+      <View id='html-content'>{renderedHtml}</View>
       <View id='yt-link-cards'>
         {ytLinks.map(({ href, image }) => (
           <Link key={href} href={href} asChild>

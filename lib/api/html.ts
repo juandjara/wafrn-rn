@@ -30,6 +30,17 @@ export const HTML_BLOCK_STYLES = {
   p: {
     marginBottom: 16,
   },
+  figure: {
+    backgroundColor: colors.blue[950],
+    padding: 8,
+    marginTop: 8,
+  },
+  figcaption: {
+    backgroundColor: colors.blue[950],
+    padding: 8,
+    paddingTop: 0,
+    marginBottom: 8,
+  }
 } satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
 const boldStyle = {fontWeight: 'bold' as const};
@@ -58,6 +69,7 @@ export const HTML_INLINE_STYLES = {
   h4: {fontWeight: 'bold', fontSize: 32, lineHeight: 40, },
   h5: {fontWeight: 'bold', fontSize: 28, lineHeight: 36, },
   h6: {fontWeight: 'bold', fontSize: 24, lineHeight: 32, },
+  small: { fontSize: 12, lineHeight: 18 },
   text: {
     color: 'white',
     fontSize: 16,
@@ -288,12 +300,13 @@ export function formatMentionHTML(mention: string, remoteId?: string) {
 
 export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
-export function replaceInlineImages(html: string, medias: PostMedia[]) {
+export function replaceInlineImages(html: string, medias: PostMedia[], contentWidth: number) {
   medias.forEach((media, index) => {
+    const ratio = (media.height || 1) / (media.width || 1)
     const src = formatCachedUrl(formatMediaUrl(media.url))
     html = html.replace(
       `![media-${index + 1}]`,
-      `<br /><p><img data-index="${index}" src="${src}" alt="${media.description}" width="${media.width}" height="${media.height}" /></p>`
+      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" /></figure><figcaption><small>${media.description}</small></figcaption>`
     )
   })
   return html
