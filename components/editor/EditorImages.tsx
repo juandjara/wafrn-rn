@@ -104,7 +104,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 value={selectedImage.NSFW}
                 onValueChange={NSFW => updateOpenImage({ NSFW })}
               />
-              <Text className="text-white">NSFW</Text>
+              <Text className="text-white">Mark media as sensitive</Text>
             </View>
             <Pressable
               onPress={() => setOpenIndex(null)}
