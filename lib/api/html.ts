@@ -4,6 +4,8 @@ import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
 import { BASE_URL } from "../config";
 import { isValidURL } from "./content";
+import { formatCachedUrl, formatMediaUrl } from "../formatters";
+import { PostMedia } from "./posts.types";
 
 export const BR = '\n'
 
@@ -282,4 +284,17 @@ export function formatMentionHTML(mention: string, remoteId?: string) {
   }
   const attr = id ? `data-id="${id}"` : ''
   return `<span class="h-card" translate="no"><a ${attr} href="${href}" class="u-url mention">@<span>${user}</span></a></span>`
+}
+
+export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
+
+export function replaceInlineImages(html: string, medias: PostMedia[]) {
+  medias.forEach((media, index) => {
+    const src = formatCachedUrl(formatMediaUrl(media.url))
+    html = html.replace(
+      `![media-${index + 1}]`,
+      `<br /><p><img data-index="${index}" src="${src}" alt="${media.description}" width="${media.width}" height="${media.height}" /></p>`
+    )
+  })
+  return html
 }

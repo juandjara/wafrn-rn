@@ -5,6 +5,7 @@ import {
   replaceHref,
   inheritedStyle,
   HTML_BLOCK_STYLES,
+  replaceInlineImages,
 } from "@/lib/api/html";
 import { isValidYTLink, getYoutubeImage } from '@/lib/api/content'
 import { useDashboardContext } from "@/lib/contexts/DashboardContext";
@@ -17,6 +18,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import colors from "tailwindcss/colors";
 import { decodeHTML } from 'entities';
 import { crush } from 'html-crush'
+import Media from "./Media";
+import { PostMedia } from "@/lib/api/posts.types";
 
 function onLinkPress(url: string) {
   if (url.startsWith('wafrn://')) {
@@ -28,11 +31,13 @@ function onLinkPress(url: string) {
 
 function _PostHtmlRenderer({
   html,
+  inlineMedias,
   contentWidth,
   hidden,
   disableWhitespaceCollapsing = false,
 }: {
   html: string;
+  inlineMedias?: PostMedia[];
   contentWidth: number;
   hidden?: boolean;
   disableWhitespaceCollapsing?: boolean;
@@ -44,8 +49,13 @@ function _PostHtmlRenderer({
     const miniHtml = crush(html || '', {
       removeLineBreaks: true,
       lineLengthLimit: Infinity,
-    })
-    const dom = parseDocument(miniHtml.result)
+    }).result
+
+    const withInlineImages = inlineMedias?.length
+      ? replaceInlineImages(miniHtml, inlineMedias)
+      : miniHtml
+
+    const dom = parseDocument(withInlineImages)
 
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
@@ -62,7 +72,7 @@ function _PostHtmlRenderer({
       })).filter((link) => link.image),
       dom,
     }
-  }, [html])
+  }, [html, inlineMedias])
 
   function renderDom(nodes: ChildNode[], parent?: ChildNode): React.ReactNode[] {
     let orderedListCounter = 1
@@ -156,8 +166,20 @@ function _PostHtmlRenderer({
           const width = Number(node.attribs['width'])
           const height = Number(node.attribs['height'])
           const src = node.attribs['src']
+          const index = node.attribs['data-index']
+          const media = index && inlineMedias?.[Number(index)]
           if (!src || !width || !height) {
             return null
+          }
+
+          if (media) {
+            return (
+              <Media
+                key={index}
+                media={media}
+                contentWidth={contentWidth}
+              />
+            )
           }
 
           return (

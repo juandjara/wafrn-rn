@@ -19,6 +19,7 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
+import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
 
 const HEIGHT_LIMIT = 462
 const EXPANDER_MARGIN = 42
@@ -117,10 +118,16 @@ export default function PostFragment({
     return tags
   }, [post, context])
 
-  const medias = useMemo(() => {
-    return context.medias
+  const { medias, inlineMedias } = useMemo(() => {
+    const medias = context.medias
       .filter((m) => m.postId === post.id)
       .sort((a, b) => a.order - b.order)
+
+    const inlineMediaMatches = post.content.match(INLINE_MEDIA_REGEX) || []
+    return {
+      medias: medias.slice(inlineMediaMatches.length),
+      inlineMedias: medias.slice(0, inlineMediaMatches.length),
+    }
   }, [post, context])
 
   const quotedPost = useMemo(() => {
@@ -290,6 +297,7 @@ export default function PostFragment({
               <View className="py-2">
                 <PostHtmlRenderer
                   html={postContent}
+                  inlineMedias={inlineMedias}
                   contentWidth={contentWidth}
                   disableWhitespaceCollapsing
                 />
