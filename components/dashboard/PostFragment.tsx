@@ -324,7 +324,7 @@ export default function PostFragment({
                 />
               )}
               {tags.length > 0 && (
-                <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-8 border-t border-cyan-700">
+                <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
                   {tags.map((tag, index) => (
                     <Link
                       key={`${tag}-${index}`}
@@ -354,7 +354,7 @@ export default function PostFragment({
                   colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
                   style={{
                     width: '100%',
-                    paddingTop: 40,
+                    paddingTop: 12,
                     paddingBottom: 8,
                     paddingHorizontal: 8,
                     borderRadius: post.content_warning ? 12 : 0
