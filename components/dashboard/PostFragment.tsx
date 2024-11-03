@@ -251,10 +251,10 @@ export default function PostFragment({
                 <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
                 <TouchableOpacity
                   id='content-warning-toggle'
-                  className="mr-auto px-2 py-1 bg-indigo-500/20 rounded-full"
+                  className="px-3 py-2 mt-1 bg-indigo-500/20 rounded-full"
                   onPress={toggleCWOpen}
                 >
-                  <Text className='text-indigo-500 text-sm'>
+                  <Text className='text-indigo-500 text-center text-sm'>
                     {CWOpen ? 'Hide' : 'Show'} content
                   </Text>
                 </TouchableOpacity>
