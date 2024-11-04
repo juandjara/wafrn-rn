@@ -4,6 +4,7 @@ import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { useMentions } from "react-native-more-controlled-mentions"
 
+export const HTTP_LINK_REGEX = /(https?:\/\/[^\s$.?#].[^\s]*)/gi
 export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
 export const MENTION_LINK_REGEX = /(\[@[\w-\.]+@?[\w-\.]*\]\([^(^)]+\))/gi
 export const COLOR_REGEX = /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi

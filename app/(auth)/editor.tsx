@@ -20,11 +20,11 @@ import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
-import { clearSelectionRangeFormat, COLOR_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
+import { clearSelectionRangeFormat, COLOR_REGEX, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
 
-const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
+const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color' | 'link'> = {
   mention: {
     trigger: '@',
     pattern: MENTION_LINK_REGEX,
@@ -115,6 +115,24 @@ const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color'> = {
     getTriggerValue: (suggestion) => `[fg=${suggestion.id}](${suggestion.name})`,
 
     // How the highlighted mention will appear in TextInput for user
+    getPlainString: (triggerData) => triggerData.name,
+  },
+  link: {
+    trigger: 'http',
+    pattern: HTTP_LINK_REGEX,
+    textStyle: {
+      color: 'deepskyblue',
+      fontWeight: 'medium'
+    },
+    getTriggerData: (match) => {
+      return ({
+        trigger: 'http',
+        original: match,
+        name: match,
+        id: match,
+      });
+    },
+    getTriggerValue: (suggestion) => suggestion.name,
     getPlainString: (triggerData) => triggerData.name,
   },
 }
@@ -247,18 +265,22 @@ export default function EditorView() {
         continue
       }
       if (trigger === '#?') {
-        text += `<span style="color: ${part.data?.id}">${part.text}</span>`
+        text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
         continue
+      }
+      if (trigger === 'http') {
+        text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
       }
       text += part.text
     }
+    text = text.replace(/\n/g, '<br>')
 
     const mentionedUserIds = mentionApi.mentionState.parts
-      .map((p) => p.data?.id)
-      .filter((id) => !!id) as string[]
+      .filter((p) => p.data?.id && p.config && isTriggerConfig(p.config) && p.config.trigger === '@')
+      .map((p) => p.data?.id) as string[]
 
     createMutation.mutate({
-      content: text.replace(/\n/g, '<br>'),
+      content: text,
       parentId: replyId,
       askId,
       quotedPostId: quoteId,
