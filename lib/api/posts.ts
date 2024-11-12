@@ -196,10 +196,10 @@ export function useCreatePostMutation() {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast('Failed to create woot', colors.red[100], colors.red[900])
+      showToast(`Failed to ${variables.editingPostId ? 'edit' : 'create'} woot`, colors.red[100], colors.red[900])
     },
     onSuccess: (data, variables) => {
-      showToast('Woot Created', colors.green[100], colors.green[900])
+      showToast(`Woot ${variables.editingPostId ? 'edited' : 'created'}`, colors.green[100], colors.green[900])
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async (data, error, variables) => {

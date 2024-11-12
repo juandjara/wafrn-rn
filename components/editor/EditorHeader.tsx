@@ -1,17 +1,20 @@
 import { PRIVACY_DESCRIPTIONS, PRIVACY_ICONS, PRIVACY_LABELS, PRIVACY_ORDER, PrivacyLevel } from "@/lib/api/privacy"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
-import { Link } from "expo-router"
+import { Link, useLocalSearchParams } from "expo-router"
 import { useState } from "react"
-import { Modal, Pressable, Text, View } from "react-native"
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
 import colors from "tailwindcss/colors"
 
-export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublish }: {
+export default function EditorHeader({ loading, privacy, setPrivacy, canPublish, onPublish }: {
+  loading: boolean
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
   canPublish: boolean
   onPublish: () => void
 }) {
+  const { editId } = useLocalSearchParams<{ editId: string }>()
+  const isEdit = !!editId
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -39,8 +42,14 @@ export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublis
           }
         )}
       >
-        <MaterialCommunityIcons name='send' color='white' size={20} />
-        <Text className="font-medium text-white">Publish</Text>
+        {loading ? (
+          <ActivityIndicator color='white' size={20} />
+        ) : (
+          <MaterialCommunityIcons name={isEdit ? 'pencil' : 'send'} color='white' size={20} />
+        )}
+        <Text className="font-medium text-white">
+          {isEdit ? 'Edit' : 'Publish'}
+        </Text>
       </Pressable>
       <Modal
         visible={modalOpen}

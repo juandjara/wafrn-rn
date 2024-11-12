@@ -2,7 +2,7 @@ import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
-import { useMentions } from "react-native-more-controlled-mentions"
+import { isTriggerConfig, useMentions } from "react-native-more-controlled-mentions"
 
 export const HTTP_LINK_REGEX = /(https?:\/\/[^\s$.?#].[^\s]*)/gi
 export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
@@ -150,4 +150,32 @@ export function clearSelectionRangeFormat(
       return part
     })
   }
+}
+
+export function getTextFromEditorState(state: MentionApi['mentionState']) {
+  let text = ''
+  for (const part of state.parts) {
+    const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
+    if (trigger === '@') {
+      text += part.data?.name || part.text
+      // const url = part.data?.name
+      // const remoteId = part.data?.id
+      // text += url ? formatMentionHTML(url, remoteId) : part.text
+      continue
+    }
+    if (trigger === '**') {
+      text += `<strong>${part.text}</strong>`
+      continue
+    }
+    if (trigger === '#?') {
+      text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
+      continue
+    }
+    // if (trigger === 'http') {
+    //   text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
+    // }
+    text += part.text
+  }
+  // text = text.replace(/\n/g, '<br>')
+  return text
 }

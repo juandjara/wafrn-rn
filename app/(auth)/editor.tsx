@@ -18,11 +18,12 @@ import EditorActions, { EditorActionProps } from "@/components/editor/EditorActi
 import ImageList, { EditorImage } from "@/components/editor/EditorImages"
 import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
-import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
+import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
-import { clearSelectionRangeFormat, COLOR_REGEX, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
+import { clearSelectionRangeFormat, COLOR_REGEX, getTextFromEditorState, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
+import { DomUtils, parseDocument } from "htmlparser2"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color' | 'link'> = {
   mention: {
@@ -141,7 +142,8 @@ type EditorSearchParams = {
   replyId: string
   askId: string
   quoteId: string
-  type: 'reply' | 'ask' | 'quote'
+  editId: string
+  type: 'reply' | 'ask' | 'quote' | 'edit'
 }
 
 export default function EditorView() {
@@ -156,9 +158,10 @@ export default function EditorView() {
 
   const inputRef = useRef<TextInput>(null)
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const { replyId, askId, quoteId } = useLocalSearchParams<EditorSearchParams>()
+  const { replyId, askId, quoteId, editId } = useLocalSearchParams<EditorSearchParams>()
 
   const me = useParsedToken()
+  const { data: editContext } = usePostDetail(editId)
   const { data: reply } = usePostDetail(replyId)
   const { data: quote } = usePostDetail(quoteId)
   const { data: asks } = useAsks()
@@ -171,7 +174,7 @@ export default function EditorView() {
   }, [settings?.options])
 
   const mentionsPrefix = useMemo(() => {
-    if (!reply) {
+    if (editContext || !reply) {
       return ''
     }
     const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
@@ -190,7 +193,7 @@ export default function EditorView() {
       const remoteId = m.remoteId || `${BASE_URL}/blog/${m.url}`
       return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
     }).join('')
-  }, [reply, me])
+  }, [editContext, reply, me])
   
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.asks.find(a => a.id === Number(askId))
@@ -238,6 +241,27 @@ export default function EditorView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mentionsPrefix])
 
+  useEffect(() => {
+    if (editContext) {
+      const editPost = editContext.posts[0]!
+      const tags = editContext.tags.filter((t) => t.postId === editPost.id).map((t) => t.tagName)
+      const medias = editContext.medias.filter((m) => m.postId === editPost.id)
+      update('contentWarning', editPost.content_warning)
+      update('content', DomUtils.textContent(parseDocument(editPost.content)))
+      update('privacy', editPost.privacy)
+      update('tags', tags.join(', '))
+      update('medias', medias.map((m) => ({
+        id: m.id,
+        uri: formatCachedUrl(formatMediaUrl(m.url)),
+        width: m.width!,
+        height: m.height!,
+        description: m.description,
+        NSFW: m.NSFW,
+      })))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editContext])
+
   const mentionApi = useMentions({
     value: form.content,
     onChange: (value) => update('content', value),
@@ -250,31 +274,7 @@ export default function EditorView() {
       return
     }
 
-    let text = ''
-    for (const part of mentionApi.mentionState.parts) {
-      const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
-      if (trigger === '@') {
-        text += part.data?.name || part.text
-        // const url = part.data?.name
-        // const remoteId = part.data?.id
-        // text += url ? formatMentionHTML(url, remoteId) : part.text
-        continue
-      }
-      if (trigger === '**') {
-        text += `<strong>${part.text}</strong>`
-        continue
-      }
-      if (trigger === '#?') {
-        text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
-        continue
-      }
-      if (trigger === 'http') {
-        text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
-      }
-      text += part.text
-    }
-    text = text.replace(/\n/g, '<br>')
-
+    const text = getTextFromEditorState(mentionApi.mentionState)
     const mentionedUserIds = mentionApi.mentionState.parts
       .filter((p) => p.data?.id && p.config && isTriggerConfig(p.config) && p.config.trigger === '@')
       .map((p) => p.data?.id) as string[]
@@ -287,6 +287,7 @@ export default function EditorView() {
       contentWarning: form.contentWarning,
       privacy: form.privacy,
       joinedTags: form.tags,
+      editingPostId: editId,
       medias: form.medias.map((m) => ({
         id: m.id!,
         uri: m.uri,
@@ -384,6 +385,7 @@ export default function EditorView() {
             }}
           />
           <EditorHeader
+            loading={createMutation.isPending}
             privacy={form.privacy}
             setPrivacy={(privacy) => update('privacy', privacy)}
             canPublish={canPublish}

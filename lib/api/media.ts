@@ -105,26 +105,38 @@ type UploadPayload = {
   name: string
 }
 
-export async function uploadMedia(token: string, payload: UploadPayload) {
+export async function uploadMedia(token: string, payload: UploadPayload[]) {
+
   const formData = new FormData()
-  // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
-  formData.append('image', payload as any)
+  for (const file of payload) {
+    const res = await fetch(file.uri)
+    const blob = await res.blob()
+    formData.append('image', new File([blob], file.name, { type: file.type }))
+    // turns out that the React Native implementation of FormData can read local files if given a file URI inside an object
+    // formData.append('image', {
+    //   uri: file.uri,
+    //   type: file.type,
+    //   name: file.name
+    // } as any) // but typescript doesn't know that
+  }
+
   const response = await getJSON(`${BASE_URL}/api/uploadMedia`, {
     method: 'POST',
     body: formData,
     headers: {
+      // 'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
     }
   })
   const data = response as MediaUploadResponse[]
-  return Array.isArray(data) ? data[0] : data
+  return data
 }
 
 export function useMediaUploadMutation() {
   const { token } = useAuth()
   return useMutation({
     mutationKey: ['mediaUpload'],
-    mutationFn: (medias: UploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
+    mutationFn: (medias: UploadPayload[]) => uploadMedia(token!, medias),
     onSuccess: () => {
       showToast('Media uploaded', colors.green[100], colors.green[900])
     },
