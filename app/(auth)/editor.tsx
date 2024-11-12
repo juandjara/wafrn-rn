@@ -268,12 +268,12 @@ export default function EditorView() {
         text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
         continue
       }
-      if (trigger === 'http') {
-        text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
-      }
+      // if (trigger === 'http') {
+      //   text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
+      // }
       text += part.text
     }
-    text = text.replace(/\n/g, '<br>')
+    // text = text.replace(/\n/g, '<br>')
 
     const mentionedUserIds = mentionApi.mentionState.parts
       .filter((p) => p.data?.id && p.config && isTriggerConfig(p.config) && p.config.trigger === '@')
