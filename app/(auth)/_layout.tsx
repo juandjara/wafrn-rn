@@ -1,10 +1,13 @@
 // from here: https://docs.expo.dev/router/reference/authentication/
 import SplashScreen from "@/components/SplashScreen"
+import { getRootStyles } from "@/constants/Colors";
 import { useAuth } from "@/lib/contexts/AuthContext"
+import { useTheme } from "@react-navigation/native";
 import { Redirect, Stack } from "expo-router";
 
 export default function ProtectedLayout() {
   const { token, isLoading } = useAuth()
+  const rootStyles = getRootStyles(useTheme())
 
   if (isLoading) {
     return <SplashScreen />
@@ -20,7 +23,9 @@ export default function ProtectedLayout() {
 
   // This layout can be deferred because it's not the root layout.
   return (
-    <Stack>
+    <Stack screenOptions={{
+      ...rootStyles,
+    }}>
       <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
     </Stack>
   )
