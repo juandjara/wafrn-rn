@@ -53,7 +53,8 @@
       "expo-router",
       "expo-secure-store",
       "expo-av",
-      "expo-font"
+      "expo-font",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": false

@@ -7,7 +7,6 @@
     "update:preview": "npx eas-cli update --channel preview --auto",
     "build:preview": "npx eas-cli build --profile preview",
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -71,7 +70,8 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.13",
     "reanimated-color-picker": "^3.0.4",
-    "tailwindcss": "^3.4.5"
+    "tailwindcss": "^3.4.5",
+    "expo-video": "~2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
