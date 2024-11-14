@@ -3,8 +3,6 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import type { Theme } from "@react-navigation/native"
-
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
@@ -27,18 +25,19 @@ export const Colors = {
   },
 };
 
-export const getRootStyles = (theme: Theme) => {
+export const getRootStyles = (themeName: 'light' | 'dark') => {
+  const colors = Colors[themeName]
   return {
     sceneStyle: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: colors.background,
     },
     contentStyle: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: colors.background,
     },
     headerStyle: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: colors.background,
     },
-    headerTintColor: theme.colors.text,
-    navigationBarColor: theme.colors.background,
+    headerTintColor: colors.text,
+    navigationBarColor: colors.background,
   }
 }

@@ -1,9 +1,9 @@
 import { getRootStyles } from "@/constants/Colors"
 import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
-import { useTheme } from "@react-navigation/native"
 import { Tabs } from "expo-router"
 import { useMemo } from "react"
+import { useColorScheme } from "react-native"
 import colors from "tailwindcss/colors"
 
 export default function TabsLayout() {
@@ -14,7 +14,7 @@ export default function TabsLayout() {
     return notifications + asks
   }, [data])
 
-  const rootStyles = getRootStyles(useTheme())
+  const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
   
   return (
     <Tabs screenOptions={{

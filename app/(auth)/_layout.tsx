@@ -1,13 +1,13 @@
 // from here: https://docs.expo.dev/router/reference/authentication/
 import SplashScreen from "@/components/SplashScreen"
-import { getRootStyles } from "@/constants/Colors";
+import { getRootStyles } from "@/constants/Colors"
 import { useAuth } from "@/lib/contexts/AuthContext"
-import { useTheme } from "@react-navigation/native";
-import { Redirect, Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router"
+import { useColorScheme } from "react-native"
 
 export default function ProtectedLayout() {
   const { token, isLoading } = useAuth()
-  const rootStyles = getRootStyles(useTheme())
+  const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 
   if (isLoading) {
     return <SplashScreen />
