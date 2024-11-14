@@ -12,7 +12,7 @@ export const WAFRNMEDIA_REGEX =
   /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
-  if (!!post.content) {
+  if (!!post.content || !!post.content_warning) {
     return false
   }
 
