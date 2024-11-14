@@ -11,18 +11,21 @@
     "splash": {
       "image": "./assets/images/wafrn-logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#151718"
     },
     "ios": {
-      "userInterfaceStyle": "dark",
       "supportsTablet": true,
       "bundleIdentifier": "dev.djara.wafrn-rn"
     },
     "android": {
-      "userInterfaceStyle": "dark",
+      "androidStatusBar": {
+        "translucent": false,
+        "backgroundColor": "#151718",
+        "barStyle": "light-content"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_w.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#151718"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",

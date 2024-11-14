@@ -38,6 +38,7 @@ export const getRootStyles = (theme: Theme) => {
     headerStyle: {
       backgroundColor: theme.colors.background,
     },
-    headerTintColor: theme.colors.text
+    headerTintColor: theme.colors.text,
+    navigationBarColor: theme.colors.background,
   }
 }
