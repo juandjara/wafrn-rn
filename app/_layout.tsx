@@ -13,6 +13,16 @@ import { RootSiblingParent } from 'react-native-root-siblings'
 import * as Clipboard from 'expo-clipboard'
 import { showToast } from "@/lib/interaction"
 import colors from "tailwindcss/colors"
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated'
+
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false
+})
 
 const queryClient = new QueryClient({
   defaultOptions: {
