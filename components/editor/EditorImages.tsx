@@ -88,11 +88,13 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
             <View className="px-1 py-3">
               <Text className="text-gray-300">Description</Text>
               <TextInput
+                multiline
+                numberOfLines={4}
                 value={selectedImage.description}
                 onChangeText={description => updateOpenImage({ description })}
                 placeholder="Please enter a brief description"
                 className={clsx(
-                  'color-white border bg-white/5 p-2 mt-1 rounded-md',
+                  'color-white w-full border bg-white/5 p-2 mt-1 rounded-md',
                   (selectedImage.description || disableForceAltText)
                     ? 'border-transparent placeholder:text-gray-500'
                     : 'border-red-500 placeholder:text-red-300/50'
