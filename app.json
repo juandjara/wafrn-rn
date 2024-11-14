@@ -10,7 +10,7 @@
     "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/wafrn-logo.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
