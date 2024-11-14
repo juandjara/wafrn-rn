@@ -13,6 +13,7 @@ export const MEDIA_MARGIN = -2
 function Video({ src, width, height }: { src: string, width: number, height: number }) {
   const videoPlayer = useVideoPlayer(src, (player) => {
     player.loop = true
+    player.muted = true
     player.play()
   })
 
