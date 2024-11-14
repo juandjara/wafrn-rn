@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Pressable, ScrollView } from "react-native"
 import colors from "tailwindcss/colors"
 import ColorPicker from "./ColorPicker"
-import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker"
+import { launchImageLibraryAsync } from "expo-image-picker"
 import { EditorImage } from "./EditorImages"
 import EditorCanvas from "./EditorCanvas"
 
@@ -27,7 +27,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
 
   async function pickImages() {
     const result = await launchImageLibraryAsync({
-      mediaTypes: MediaTypeOptions.Images,
+      mediaTypes: 'images',
       allowsEditing: false,
       allowsMultipleSelection: true,
       selectionLimit: 4,
