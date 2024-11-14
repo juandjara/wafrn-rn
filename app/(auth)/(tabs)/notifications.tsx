@@ -10,7 +10,7 @@ import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/Da
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
 import { getNotificationList, notificationPageToDashboardPage, useNotificationBadges, useNotifications, type Notification } from "@/lib/notifications"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useScrollToTop } from "@react-navigation/native"
+// import { useScrollToTop } from "@react-navigation/native"
 import { FlashList } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { Image } from "expo-image"
@@ -43,7 +43,7 @@ export default function NotificationList() {
 
   const listRef = useRef<FlashList<Notification>>(null)
 
-  useScrollToTop(listRef as any)
+  // useScrollToTop(listRef as any)
 
   const qc = useQueryClient()
   const refresh = async () => {

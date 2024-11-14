@@ -5,11 +5,25 @@ import { isAudio, isImage, isNotAV, isVideo, useAspectRatio } from "@/lib/api/me
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { ResizeMode } from "expo-av";
 import MediaCloak from "./MediaCloak";
-import VideoPlayer from "expo-video-player";
+import { useVideoPlayer, VideoView } from "expo-video";
 
 export const MEDIA_MARGIN = -2
+
+function Video({ src, width, height }: { src: string, width: number, height: number }) {
+  const videoPlayer = useVideoPlayer(src, (player) => {
+    player.loop = true
+    player.play()
+  })
+
+  return (
+    <VideoView
+      style={{ width, height }}
+      player={videoPlayer}
+      allowsFullscreen
+    />
+  )
+}
 
 export default function Media({ media, contentWidth, hidden }: {
   media: PostMedia
@@ -38,21 +52,14 @@ export default function Media({ media, contentWidth, hidden }: {
         {isVideo(mime, src) && (
           <>
             <Pressable>
-              <VideoPlayer
-                style={{ width: mediaWidth, height: mediaWidth }}
-                videoProps={{
-                  source: { uri: src },
-                  resizeMode: ResizeMode.CONTAIN,
-                  isLooping: true,
-                  usePoster: true,
-                }}
-              />
+              <Video src={src} width={media.width || mediaWidth} height={media.height || mediaWidth} />
             </Pressable>
           </>
         )}
         {isAudio(mime, src) && (
           <View className="p-1 bg-black">
-            <VideoPlayer
+            <Video src={src} width={mediaWidth} height={80} />
+            {/* <VideoPlayer
               style={{ width: mediaWidth, height: 80 }}
               fullscreen={{ visible: false }}
               autoHidePlayer={false}
@@ -61,7 +68,7 @@ export default function Media({ media, contentWidth, hidden }: {
                 source: { uri: src },
                 isLooping: true,
               }}
-            />
+            /> */}
           </View>
         )}
         {isImage(mime, src) && (

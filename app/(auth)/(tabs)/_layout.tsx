@@ -1,5 +1,7 @@
+import { getRootStyles } from "@/constants/Colors"
 import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
+import { useTheme } from "@react-navigation/native"
 import { Tabs } from "expo-router"
 import { useMemo } from "react"
 import colors from "tailwindcss/colors"
@@ -11,19 +13,21 @@ export default function TabsLayout() {
     const asks = data?.asks || 0
     return notifications + asks
   }, [data])
+
+  const rootStyles = getRootStyles(useTheme())
   
   return (
     <Tabs screenOptions={{
+      ...rootStyles,
+      tabBarStyle: {
+        height: 52,
+        borderTopWidth: 1,
+        borderColor: colors.blue[900],
+      },
       tabBarInactiveTintColor: colors.indigo[300],
       tabBarActiveTintColor: colors.gray[200],
       tabBarInactiveBackgroundColor: colors.blue[950],
       tabBarActiveBackgroundColor: colors.blue[950],
-      tabBarItemStyle: {
-        backgroundColor: colors.blue[950],
-        borderTopWidth: 1,
-        borderTopColor: colors.blue[900],
-        paddingVertical: 4,
-      },
       tabBarLabelStyle: {
         fontWeight: 'bold',
       }

@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "Wafrn",
     "slug": "wafrn-rn",
     "version": "1.0.1",
@@ -36,7 +37,10 @@
               "host": "app.wafrn.net"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -48,7 +52,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-av"
+      "expo-font",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": false

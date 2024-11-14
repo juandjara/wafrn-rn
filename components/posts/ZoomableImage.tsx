@@ -1,6 +1,6 @@
 import { Image, ImageStyle } from 'expo-image'
 import { useState } from "react"
-import { Modal, Pressable, useWindowDimensions, View } from "react-native"
+import { Modal, Pressable, useWindowDimensions, ViewStyle } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
 import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view"
 import { isSVG } from "@/lib/api/media"
@@ -21,7 +21,7 @@ export default function ZoomableImage({
 }: {
   id: string
   src: string
-  style?: ImageStyle
+  style?: ImageStyle | ViewStyle
   hidden?: boolean
   contentFit?: ImageStyle["resizeMode"]
   width: number
@@ -71,7 +71,7 @@ export default function ZoomableImage({
             width={width}
             height={width * aspectRatio}
             uri={src}
-            style={style}
+            style={style as ViewStyle}
           />
         ) : (
           <Image
@@ -79,7 +79,7 @@ export default function ZoomableImage({
             recyclingKey={id}
             source={src}
             className={imgClassName}
-            style={[style, {
+            style={[style as ImageStyle, {
               width,
               height: width * aspectRatio,
               resizeMode: contentFit
