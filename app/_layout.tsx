@@ -17,6 +17,7 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated'
+import { StatusBar } from "expo-status-bar"
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -89,6 +90,7 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <StatusBar style={colorScheme || 'dark'} />
                 <MenuProvider>
                   <Slot />
                 </MenuProvider>

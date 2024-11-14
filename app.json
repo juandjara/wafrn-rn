@@ -3,7 +3,7 @@
     "newArchEnabled": true,
     "name": "Wafrn",
     "slug": "wafrn-rn",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo_w.png",
     "scheme": "wafrn",
@@ -14,10 +14,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "userInterfaceStyle": "dark",
       "supportsTablet": true,
       "bundleIdentifier": "dev.djara.wafrn-rn"
     },
     "android": {
+      "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_w.png",
         "backgroundColor": "#ffffff"
