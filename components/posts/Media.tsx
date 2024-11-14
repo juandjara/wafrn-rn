@@ -1,7 +1,7 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
 import { Pressable, Text, View } from "react-native";
-import { isAudio, isImage, isNotAV, isVideo, useAspectRatio } from "@/lib/api/media";
+import { getAspectRatio, isAudio, isImage, isNotAV, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
@@ -10,11 +10,18 @@ import { useVideoPlayer, VideoView } from "expo-video";
 
 export const MEDIA_MARGIN = -2
 
-function Video({ src, width, height }: { src: string, width: number, height: number }) {
+function Video({ isAudioOnly = false, src, width, height }: {
+  isAudioOnly?: boolean
+  src: string
+  width: number
+  height: number
+}) {
   const videoPlayer = useVideoPlayer(src, (player) => {
-    player.loop = true
-    player.muted = true
-    player.play()
+    if (!isAudioOnly) {
+      player.loop = true
+      player.muted = true
+      player.play()
+    }
   })
 
   return (
@@ -33,8 +40,9 @@ export default function Media({ media, contentWidth, hidden }: {
 }) {
   const mime = media.mediaType
   const src = formatCachedUrl(formatMediaUrl(media.url))
-  const aspectRatio = useAspectRatio(media)
+  const aspectRatio = getAspectRatio(media)
   const mediaWidth = contentWidth - MEDIA_MARGIN
+  const mediaHeight = mediaWidth * aspectRatio
 
   return (
     <View
@@ -53,23 +61,22 @@ export default function Media({ media, contentWidth, hidden }: {
         {isVideo(mime, src) && (
           <>
             <Pressable>
-              <Video src={src} width={media.width || mediaWidth} height={media.height || mediaWidth} />
+              <Video
+                src={src}
+                width={mediaWidth}
+                height={mediaHeight}
+              />
             </Pressable>
           </>
         )}
         {isAudio(mime, src) && (
           <View className="p-1 bg-black">
-            <Video src={src} width={mediaWidth} height={80} />
-            {/* <VideoPlayer
-              style={{ width: mediaWidth, height: 80 }}
-              fullscreen={{ visible: false }}
-              autoHidePlayer={false}
-              defaultControlsVisible
-              videoProps={{
-                source: { uri: src },
-                isLooping: true,
-              }}
-            /> */}
+            <Video
+              src={src}
+              width={mediaWidth}
+              height={80}
+              isAudioOnly
+            />
           </View>
         )}
         {isImage(mime, src) && (

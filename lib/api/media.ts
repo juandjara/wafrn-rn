@@ -1,7 +1,6 @@
-import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { PostMedia } from "./posts.types"
 import { BASE_URL, CACHE_HOST } from "../config"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { isValidURL } from "./content"
 import { Timestamps } from "./types"
 import { useAuth } from "../contexts/AuthContext"
@@ -72,31 +71,8 @@ export function isImage(mime: string | undefined, url: string) {
   return !hasExtension || IMG_EXTENSIONS.some((ext) => fullUrl.pathname.endsWith(ext))
 }
 
-export function useAspectRatio(media: PostMedia) {
-  const url = formatCachedUrl(formatMediaUrl(media.url))
-  const { data } = useQuery({
-    queryKey: ['aspectRatio', media.url],
-    queryFn: () => getRemoteAspectRatio(url),
-    enabled: isImage(media.mediaType, url)
-  })
-  return data || 1
-}
-
-export async function getRemoteAspectRatio(url: string) {
-  return 1
-  // try {
-  //   const res = await fetch(url)
-  //   const abuf = await res.arrayBuffer()
-  //   const meta = probe.sync(Buffer.from(abuf))
-  //   if (!meta) {
-  //     console.error(`Error getting aspect ratio for image ${url}: probe.sync returned null`)
-  //     return 1
-  //   }
-  //   return meta.height / meta.width
-  // } catch (error) {
-  //   console.error(`Error getting aspect ratio for image ${url}`, error)
-  //   return 1
-  // }
+export function getAspectRatio(media: PostMedia) {
+  return media.width && media.height ? media.width / media.height : 1
 }
 
 type UploadPayload = {
