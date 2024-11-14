@@ -6,7 +6,6 @@ import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import MediaCloak from "./MediaCloak";
-import VideoPlayer from "expo-video-player";
 import { useVideoPlayer, VideoView } from "expo-video";
 
 export const MEDIA_MARGIN = -2
@@ -59,7 +58,8 @@ export default function Media({ media, contentWidth, hidden }: {
         )}
         {isAudio(mime, src) && (
           <View className="p-1 bg-black">
-            <VideoPlayer
+            <Video src={src} width={mediaWidth} height={80} />
+            {/* <VideoPlayer
               style={{ width: mediaWidth, height: 80 }}
               fullscreen={{ visible: false }}
               autoHidePlayer={false}
@@ -68,7 +68,7 @@ export default function Media({ media, contentWidth, hidden }: {
                 source: { uri: src },
                 isLooping: true,
               }}
-            />
+            /> */}
           </View>
         )}
         {isImage(mime, src) && (
