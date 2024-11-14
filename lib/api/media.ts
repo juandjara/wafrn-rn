@@ -72,7 +72,7 @@ export function isImage(mime: string | undefined, url: string) {
 }
 
 export function getAspectRatio(media: PostMedia) {
-  return media.width && media.height ? media.width / media.height : 1
+  return media.width && media.height ? media.height / media.width : 1
 }
 
 type UploadPayload = {
