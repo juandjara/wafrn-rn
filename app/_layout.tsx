@@ -90,7 +90,7 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <StatusBar style={colorScheme || 'dark'} />
+                <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
                 <MenuProvider>
                   <Slot />
                 </MenuProvider>

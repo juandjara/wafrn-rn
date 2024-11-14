@@ -92,8 +92,8 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
       visible={open}
       onRequestClose={close}
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
           <View style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
             <View collapsable={false} className="m-4 rounded-md bg-white flex-1">
               <Canvas ref={canvasRef} style={{ flex: 1 }}>
