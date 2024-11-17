@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
-import { ImageStyle, Pressable, Text, View, ViewStyle } from "react-native"
+import { Pressable, Text, View, ViewStyle } from "react-native"
 import { ImageBackground } from 'expo-image'
 
 const CLOAK_MIN_HEIGHT = 100
@@ -14,7 +14,7 @@ export default function MediaCloak({
   children
 }: {
   blurHash?: string | null
-  style?: ImageStyle | ViewStyle
+  style?: ViewStyle
   className?: string
   backgroundImage?: {
     src: string
