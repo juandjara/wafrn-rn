@@ -22,7 +22,6 @@ import InteractionRibbon from "../posts/InteractionRibbon"
 import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
 
 const HEIGHT_LIMIT = 462
-const EXPANDER_MARGIN = 42
 
 export default function PostFragment({
   post: _post,
@@ -38,7 +37,7 @@ export default function PostFragment({
   const [CWOpen, setCWOpen] = useState(!post.content_warning)
   const [collapsed, setCollapsed] = useState(true)
   const [fullHeight, setFullHeight] = useState(0)
-  const showExpander = fullHeight >= HEIGHT_LIMIT
+  const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
 
   const maxHeightRef = useRef(new Animated.Value(CWOpen ? HEIGHT_LIMIT : 0))
   const maxHeight = maxHeightRef.current
@@ -84,12 +83,14 @@ export default function PostFragment({
       setCollapsed(true)
     }
     setCWOpen((o) => !o)
-    Animated.timing(maxHeight, {
-      toValue: CWOpen ? 0 : HEIGHT_LIMIT,
-      duration: 300,
-      easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease),
-      useNativeDriver: false,
-    }).start()
+    requestAnimationFrame(() => {
+      Animated.timing(maxHeight, {
+        toValue: CWOpen ? 0 : HEIGHT_LIMIT,
+        duration: 300,
+        easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease),
+        useNativeDriver: false,
+      }).start()
+    })
   }
 
   function toggleShowMore() {
@@ -218,8 +219,9 @@ export default function PostFragment({
           <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
           <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
-        <View id='content' className={clsx({
+        <View id='content' className={clsx('relative', {
           'border border-yellow-500 rounded-xl my-4': !!post.content_warning,
+          'pb-10': showExpander && !collapsed // EXPANDER_MARGIN
         })}>
           {post.content_warning && (
             <View
@@ -254,7 +256,7 @@ export default function PostFragment({
                   className="px-3 py-2 mt-1 bg-indigo-500/20 rounded-full"
                   onPress={toggleCWOpen}
                 >
-                  <Text className='text-indigo-500 text-center text-sm'>
+                  <Text className='text-indigo-500 text-center text-base'>
                     {CWOpen ? 'Hide' : 'Show'} content
                   </Text>
                 </TouchableOpacity>
@@ -263,13 +265,14 @@ export default function PostFragment({
           )}
           <Animated.View
             id='show-more-container'
-            className={clsx('relative mb-1', { 'px-3': !!post.content_warning })}
-            style={collapsed ? {
-              maxHeight,
-              overflow: 'hidden',
-            } : {
-              paddingBottom: EXPANDER_MARGIN,
-            }}
+            style={[
+              { maxHeight: collapsed ? maxHeight : undefined },
+              { paddingHorizontal: post.content_warning ? 12 : 0 },
+              {
+                overflow: 'hidden',
+                marginBottom: 4,
+              },
+            ]}
           >
             <View
               id='show-more-content'
@@ -294,7 +297,7 @@ export default function PostFragment({
                   <Text className="text-white my-1">{ask.question}</Text>
                 </View>
               )}
-              <View className="py-2">
+              <View collapsable={false} className="py-2">
                 <PostHtmlRenderer
                   html={postContent}
                   inlineMedias={inlineMedias}
@@ -345,34 +348,34 @@ export default function PostFragment({
                 </View>
               )}
             </View>
-            {showExpander && (
-              <View
-                id='show-more-backdrop'
-                className='absolute bottom-0 left-0 right-0'
-              >
-                <LinearGradient
-                  colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
-                  style={{
-                    width: '100%',
-                    paddingTop: 12,
-                    paddingBottom: 8,
-                    paddingHorizontal: 8,
-                    borderRadius: post.content_warning ? 12 : 0
-                  }}
-                >
-                  <Pressable
-                    id='show-more-toggle'
-                    className="active:bg-indigo-900/40 bg-indigo-950/75 px-3 py-1.5 rounded-full border border-indigo-500"
-                    onPress={toggleShowMore}
-                  >
-                    <Text className='text-indigo-500 text-center text-base uppercase'>
-                      {collapsed ? 'Show more' : 'Show less'}
-                    </Text>
-                  </Pressable>
-                </LinearGradient>
-              </View>
-            )}
           </Animated.View>
+          {showExpander && (
+            <View
+              id='show-more-backdrop'
+              className='absolute bottom-0 left-0 right-0'
+            >
+              <LinearGradient
+                colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
+                style={{
+                  width: '100%',
+                  paddingTop: 12,
+                  paddingBottom: 8,
+                  paddingHorizontal: 8,
+                  borderRadius: post.content_warning ? 12 : 0
+                }}
+              >
+                <Pressable
+                  id='show-more-toggle'
+                  className="active:bg-indigo-900/40 bg-indigo-950/75 px-3 py-1.5 rounded-full border border-indigo-500"
+                  onPress={toggleShowMore}
+                >
+                  <Text className='text-indigo-500 text-center text-base uppercase'>
+                    {collapsed ? 'Show more' : 'Show less'}
+                  </Text>
+                </Pressable>
+              </LinearGradient>
+            </View>
+          )}
         </View>
         {reactions.length > 0 && (
           <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
