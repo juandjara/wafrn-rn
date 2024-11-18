@@ -1,5 +1,5 @@
 import { Post } from "@/lib/api/posts.types"
-import { Animated, Easing, LayoutChangeEvent, Pressable, Text, TouchableOpacity, useWindowDimensions, View } from "react-native"
+import { LayoutChangeEvent, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useRef, useState } from "react"
@@ -20,6 +20,7 @@ import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
+import Reanimated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 
 const HEIGHT_LIMIT = 462
 
@@ -37,12 +38,20 @@ export default function PostFragment({
   const [CWOpen, setCWOpen] = useState(!post.content_warning)
   const [collapsed, setCollapsed] = useState(true)
   const [fullHeight, setFullHeight] = useState(0)
-  const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
-
-  const maxHeightRef = useRef(new Animated.Value(CWOpen ? HEIGHT_LIMIT : 0))
-  const maxHeight = maxHeightRef.current
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
+  const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
+
+  const animationRef = useSharedValue(post.content_warning ? 0 : 1)
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(animationRef.value, [0, 1], [(HEIGHT_LIMIT * -1) / 2, 0], {
+      extrapolateRight: 'clamp'
+    })
+    return {
+      opacity: animationRef.value,
+      transform: [{ translateY }]
+    }
+  })
 
   // recommended way of updating react hooks state when props change
   // taken from the old `getDerivedStateFromProps` lifecycle method
@@ -55,7 +64,7 @@ export default function PostFragment({
     postRef.current = post
     setCWOpen(!post.content_warning)
     setCollapsed(true)
-    maxHeightRef.current.setValue(post.content_warning ? 0 : HEIGHT_LIMIT)
+    animationRef.value = post.content_warning ? 0 : 1
     if (measured.current) {
       setFullHeight(0)
       requestAnimationFrame(() => {
@@ -84,12 +93,13 @@ export default function PostFragment({
     }
     setCWOpen((o) => !o)
     requestAnimationFrame(() => {
-      Animated.timing(maxHeight, {
-        toValue: CWOpen ? 0 : HEIGHT_LIMIT,
-        duration: 300,
-        easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease),
-        useNativeDriver: false,
-      }).start()
+      animationRef.value = withTiming(
+        CWOpen ? 0 : 1,
+        {
+          duration: 300,
+          easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease)
+        }
+      )
     })
   }
 
@@ -251,22 +261,24 @@ export default function PostFragment({
               </View>
               <View className="flex-shrink flex-grow gap-2">
                 <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
-                <TouchableOpacity
+                <Pressable
                   id='content-warning-toggle'
-                  className="px-3 py-2 mt-1 bg-indigo-500/20 rounded-full"
+                  className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
                   onPress={toggleCWOpen}
                 >
                   <Text className='text-indigo-500 text-center text-base'>
                     {CWOpen ? 'Hide' : 'Show'} content
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
           )}
-          <Animated.View
+          <Reanimated.View
             id='show-more-container'
             style={[
-              { maxHeight: collapsed ? maxHeight : undefined },
+              animatedStyle,
+              { height: CWOpen ? 'auto' : 0 },
+              { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
               { paddingHorizontal: post.content_warning ? 12 : 0 },
               {
                 overflow: 'hidden',
@@ -348,7 +360,7 @@ export default function PostFragment({
                 </View>
               )}
             </View>
-          </Animated.View>
+          </Reanimated.View>
           {showExpander && (
             <View
               id='show-more-backdrop'
