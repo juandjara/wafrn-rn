@@ -130,7 +130,17 @@ export default function SearchResults() {
   const screenTitle = (
     <Stack.Screen options={{
       title: 'Search results',
-      headerBackTitle: 'Back'
+      headerBackTitle: 'Back',
+      headerTitle: ({ children }) => (
+        <View className="py-3">
+          <Text className="text-white text-2xl font-semibold">
+            {children}
+          </Text>
+          <Text numberOfLines={1} className="text-gray-200 text-base">
+            {query}
+          </Text>
+        </View>
+      )
     }} /> 
   )
 

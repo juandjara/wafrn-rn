@@ -62,6 +62,7 @@ export default function PostDetail() {
 
   const {
     mainPost,
+    mainUser,
     listData,
     context,
   } = useMemo(() => {
@@ -85,6 +86,7 @@ export default function PostDetail() {
     }
 
     const mainPost = postData?.posts?.[0]
+    const mainUser = mainPost && userMap[mainPost.userId]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
       .sort(sortPosts)  
@@ -127,7 +129,7 @@ export default function PostDetail() {
       { type: 'error' as const, data: repliesError },
     ]
 
-    return { mainPost, listData, context, userMap, userNames }
+    return { mainPost, mainUser, listData, context }
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
@@ -184,7 +186,17 @@ export default function PostDetail() {
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{
         headerBackTitle: 'Back',
-        title: 'Woot Detail'
+        title: 'Woot Detail',
+        headerTitle: ({ children }) => (
+          <View className="py-3">
+            <Text className="text-white text-2xl font-semibold">
+              {children}
+            </Text>
+            <Text numberOfLines={1} className="text-gray-200 text-base flex-1">
+              {mainUser?.url}
+            </Text>
+          </View>
+        )
       }} />
       <FlashList
         ref={listRef}
