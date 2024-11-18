@@ -201,7 +201,8 @@ export default function PostDetail() {
       <FlashList
         ref={listRef}
         data={listData}
-        estimatedItemSize={400}
+        contentContainerStyle={{ paddingBottom: 120 }}
+        estimatedItemSize={300}
         removeClippedSubviews
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {
@@ -221,7 +222,7 @@ export default function PostDetail() {
           cornerButtonRef.current?.scroll(ev.nativeEvent.contentOffset.y)
         }}
         ListFooterComponent={(
-          <View className="my-8">
+          <View collapsable={false} className="my-8">
             {mainPost?.remotePostId && (
               <>
                 {remoteRepliesMutation.isPending && <Loading />}
