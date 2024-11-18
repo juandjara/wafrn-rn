@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { router, Stack } from "expo-router"
 import { useState } from "react"
 import { Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import colors from "tailwindcss/colors"
 
 const HISTORY_LIMIT = 10
@@ -16,10 +17,12 @@ export default function Search() {
   const { value: recent, setValue: setRecent } = useAsyncStorage<string[]>('searchHistory', [])
 
   function setQuery(term: string) {
-    router.navigate({
-      pathname: '/search/[q]',
-      params: { q: term },
-    })
+    if (term) {
+      router.navigate({
+        pathname: '/search/[q]',
+        params: { q: term },
+      })
+    }
   }
 
   function onSubmit() {
@@ -44,37 +47,33 @@ export default function Search() {
   }
 
   return (
-    <View>
+    <SafeAreaView className="flex-1">
       <Stack.Screen
         options={{
+          headerShown: false,
           title: 'Search',
-          headerLeft: () => (
-            <MaterialCommunityIcons className="pl-4" name="magnify" size={24} color="white" />
-          ),
-          headerTitle: () => (
-            <TextInput
-              placeholder="Search text or enter URL"
-              className="text-white placeholder:text-gray-300"
-              value={searchTerm}
-              onChangeText={setSearchTerm}
-              inputMode="search"
-              onSubmitEditing={onSubmit}
-            />
-          ),
-          headerRight: () => (
-            searchTerm ? (
-              <TouchableOpacity onPress={() => search('')}>
-                <MaterialCommunityIcons className="px-3" name="close" size={24} color="white" />
-              </TouchableOpacity>
-            ) : null
-          ),
         }}
       />
-      <ScrollView keyboardShouldPersistTaps='always'>
-        <View className="p-3">
-          <View id='search-tips' className="mb-3">
+      <View className="flex-row items-center py-2 border-b border-gray-700">
+        <MaterialCommunityIcons className="pl-4 pr-1" name="magnify" size={24} color="white" />
+        <TextInput
+          placeholder="Search text or enter URL"
+          className="text-white placeholder:text-gray-300 flex-grow"
+          onChangeText={setSearchTerm}
+          inputMode="search"
+          onSubmitEditing={onSubmit}
+        />
+        {searchTerm ? (
+          <TouchableOpacity onPress={() => setSearchTerm('')}>
+            <MaterialCommunityIcons className="px-3" name="close" size={24} color="white" />
+          </TouchableOpacity>
+        ) : <View style={{ width: 24 }} collapsable={false} />}
+      </View>
+      <ScrollView className="flex-shrink-0 flex-grow-0" keyboardShouldPersistTaps='always'>
+        <View>
+          <View id='search-tips' className="mb-4 p-3">
             <View className="flex-row items-center mb-2">
-              <Text className="text-gray-300 flex-grow">Search tips</Text>
+              <Text className="text-gray-300 font-medium text-sm flex-grow">Search tips</Text>
               <Pressable onPress={toggleTips} className="rounded-full">
                 <Text className={buttonCN}>{showTips ? 'Hide' : 'Show'}</Text>
               </Pressable>
@@ -100,8 +99,8 @@ export default function Search() {
               </View>
             ) : null}
           </View>
-          <View id='search-history' className="my-3">
-            <Text className="text-gray-300 mb-2">Search history</Text>
+          <View id='search-history' className="p-3">
+            <Text className="text-gray-300 font-medium mb-2 text-sm">Search history</Text>
             {recent?.length === 0 ? (
               <Text className="text-white text-sm">No recent searches</Text>
             ) : (
@@ -121,6 +120,6 @@ export default function Search() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   )
 }
