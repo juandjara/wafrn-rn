@@ -38,6 +38,5 @@ export const getRootStyles = (themeName: 'light' | 'dark') => {
       backgroundColor: colors.background,
     },
     headerTintColor: colors.text,
-    navigationBarColor: colors.background,
   }
 }

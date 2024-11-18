@@ -15,14 +15,15 @@ export default function TabsLayout() {
   }, [data])
 
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
-  
+
   return (
     <Tabs screenOptions={{
       ...rootStyles,
+      animation: 'shift',
       tabBarStyle: {
-        height: 52,
         borderTopWidth: 1,
         borderColor: colors.blue[900],
+        backgroundColor: colors.blue[950],
       },
       tabBarInactiveTintColor: colors.indigo[300],
       tabBarActiveTintColor: colors.gray[200],

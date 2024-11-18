@@ -25,6 +25,9 @@ export default function ProtectedLayout() {
   return (
     <Stack screenOptions={{
       ...rootStyles,
+      navigationBarTranslucent: true,
+      navigationBarHidden: false,
+      navigationBarColor: 'rgba(0, 0, 0, 0)',
     }}>
       <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
     </Stack>
