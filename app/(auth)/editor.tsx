@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { DarkTheme } from "@react-navigation/native"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { useCreatePostMutation, usePostDetail } from "@/lib/api/posts"
 import { useAsks } from "@/lib/asks"
@@ -207,9 +206,9 @@ export default function EditorView() {
       return false
     }
     const invalidMedias = form.medias.some((m) => {
-      if (m.id) {
-        return false
-      }
+      // if (m.id) {
+      //   return false
+      // }
       return disableForceAltText ? false : !m.description
     })
     if (invalidMedias) {
@@ -372,11 +371,11 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <Stack.Screen
             options={{
               animation: 'slide_from_bottom',
@@ -389,7 +388,7 @@ export default function EditorView() {
             canPublish={canPublish}
             onPublish={onPublish}
           />
-          <ScrollView id="editor-scroll" keyboardShouldPersistTaps="always">
+          <ScrollView className="flex-grow-0 pb-1" id="editor-scroll" keyboardShouldPersistTaps="always">
             {reply && (
               <View className="m-2 mb-4 rounded-lg">
                 <Text className="text-white mb-2">Replying to:</Text>
@@ -430,8 +429,8 @@ export default function EditorView() {
             />
           </ScrollView>
           <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </DashboardContextProvider>
   )
 }
