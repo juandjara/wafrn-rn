@@ -62,7 +62,6 @@ export default function PostDetail() {
 
   const {
     mainPost,
-    mainUser,
     listData,
     context,
   } = useMemo(() => {
@@ -86,7 +85,6 @@ export default function PostDetail() {
     }
 
     const mainPost = postData?.posts?.[0]
-    const mainUser = mainPost && userMap[mainPost.userId]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
       .sort(sortPosts)  
@@ -129,7 +127,7 @@ export default function PostDetail() {
       { type: 'error' as const, data: repliesError },
     ]
 
-    return { mainPost, mainUser, listData, context }
+    return { mainPost, listData, context }
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
@@ -186,24 +184,13 @@ export default function PostDetail() {
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{
         headerBackTitle: 'Back',
-        title: 'Woot Detail',
-        headerTitle: ({ children }) => (
-          <View className="py-3">
-            <Text className="text-white text-2xl font-semibold">
-              {children}
-            </Text>
-            <Text numberOfLines={1} className="text-gray-200 text-base flex-1">
-              {mainUser?.url}
-            </Text>
-          </View>
-        )
+        title: 'Woot'
       }} />
       <FlashList
         ref={listRef}
         data={listData}
         contentContainerStyle={{ paddingBottom: 120 }}
         estimatedItemSize={300}
-        removeClippedSubviews
         keyExtractor={(item) => {
           if (item.type === 'posts' || item.type === 'replies') {
             return item.data.post.id
@@ -214,6 +201,7 @@ export default function PostDetail() {
         //   minIndexForVisible: 0,
         //   // autoscrollToTopThreshold: 10,
         // }}
+        getItemType={(item) => item.type}
         renderItem={renderItem}
         refreshing={postFetching || repliesFetching}
         onRefresh={refresh}
