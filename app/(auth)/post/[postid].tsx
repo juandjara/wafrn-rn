@@ -160,10 +160,28 @@ export default function PostDetail() {
     )
   }, [mainPost])
 
+  const headerConfig = (
+    <Stack.Screen options={{
+      headerBackTitle: 'Back',
+      title: 'Woot',
+      headerShown: true,
+      // headerTitle: ({ children }) => (
+      //   <View className="py-3">
+      //     <Text className="text-white text-2xl font-semibold">
+      //       {children}
+      //     </Text>
+      //     <Text numberOfLines={1} className="text-gray-200 text-base">
+      //       user url
+      //     </Text>
+      //   </View>
+      // )
+    }} />
+  )
+
   if (postError) {
     return (
       <ThemedView className="p-3 flex-1 justify-center items-center">
-        <Stack.Screen options={{ headerBackTitle: 'Dashboard', title: 'Woot Detail' }} />
+        {headerConfig}
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{postError?.message}</ThemedText>
@@ -182,10 +200,7 @@ export default function PostDetail() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{
-        headerBackTitle: 'Back',
-        title: 'Woot'
-      }} />
+      {headerConfig}
       <FlashList
         ref={listRef}
         data={listData}
