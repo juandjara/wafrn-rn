@@ -20,7 +20,7 @@ import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
-import Reanimated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 
 const HEIGHT_LIMIT = 462
 
@@ -44,12 +44,9 @@ export default function PostFragment({
 
   const animationRef = useSharedValue(post.content_warning ? 0 : 1)
   const animatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(animationRef.value, [0, 1], [(HEIGHT_LIMIT * -1) / 2, 0], {
-      extrapolateRight: 'clamp'
-    })
     return {
       opacity: animationRef.value,
-      transform: [{ translateY }]
+      transform: [{ scaleY: animationRef.value }]
     }
   })
 
@@ -281,6 +278,7 @@ export default function PostFragment({
               { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
               { paddingHorizontal: post.content_warning ? 12 : 0 },
               {
+                transformOrigin: 'top center',
                 overflow: 'hidden',
                 marginBottom: 4,
               },
