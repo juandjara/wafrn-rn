@@ -93,7 +93,7 @@ export default function PostFragment({
       animationRef.value = withTiming(
         CWOpen ? 0 : 1,
         {
-          duration: 300,
+          duration: 200,
           easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease)
         }
       )
