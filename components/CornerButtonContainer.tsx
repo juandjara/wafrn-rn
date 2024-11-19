@@ -17,7 +17,7 @@ function _CornerButtonContainer({ children }: { children: React.ReactNode }, ref
 
   return (
     <Animated.View
-      className="absolute bottom-2 right-2"
+      className="absolute bottom-3 right-3"
       style={{
         opacity: diffClamp.interpolate({
           inputRange: [0, 100],
