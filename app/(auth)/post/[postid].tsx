@@ -20,28 +20,34 @@ import { memo, useCallback, useMemo, useRef } from "react"
 import { Pressable, Text, View } from "react-native"
 
 type PostDetailItemData = {
-  type: 'posts'
+  type: 'go-to-bottom'
+  data: null
+} | {
+  type: 'post'
   data: {
     post: Post
     className: string
   } 
 } | {
-  type: 'replies'
+  type: 'stats'
+  data: string
+} | {
+  type: 'interaction-ribbon'
+  data: PostThread
+} | {
+  type: 'rewoot'
   data: {
-    isRewoot: boolean
     user: PostUser
     userName: string
-    post: Post
   }
 } | {
-  type: 'separator'
-  data: string
+  type: 'reply'
+  data: {
+    post: PostThread
+  }
 } | {
   type: 'error'
   data: Error | null
-} | {
-  type: 'go-to-bottom'
-  data: null
 }
 
 export default function PostDetail() {
@@ -62,6 +68,7 @@ export default function PostDetail() {
 
   const {
     mainPost,
+    postCount,
     listData,
     context,
   } = useMemo(() => {
@@ -73,16 +80,17 @@ export default function PostDetail() {
     const replies = repliesData?.posts || []
     const numRewoots = replies.filter((p) => isEmptyRewoot(p, context) && p.parentId === postid).length
     const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length
-    let separatorText = ''
-    if (numReplies > 0) {
-      separatorText += `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}`
-    }
-    if (numReplies > 0 && numRewoots > 0) {
-      separatorText += ', '
-    }
-    if (numRewoots > 0) {
-      separatorText += `${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
-    }
+    const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
+    // let statsText = ''
+    // if (numReplies > 0) {
+    //   statsText += `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}`
+    // }
+    // if (numReplies > 0 && numRewoots > 0) {
+    //   statsText += ', '
+    // }
+    // if (numRewoots > 0) {
+    //   statsText += `${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
+    // }
 
     const mainPost = postData?.posts?.[0]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
@@ -110,24 +118,35 @@ export default function PostDetail() {
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
       .sort(sortPosts)
-      .map((p, i) => ({
-        isRewoot: isEmptyRewoot(p, context),
-        user: userMap[p.userId],
-        userName: userNames[p.userId],
-        post: p,
-      })) || []
+      .map((p, i) => {
+        if (isEmptyRewoot(p, context)) {
+          return {
+            type: 'rewoot' as const,
+            data: {
+              user: userMap[p.userId],
+              userName: userNames[p.userId],
+            },
+          }
+        } else {
+          return {
+            type: 'reply' as const,
+            data: { post: p },
+          }
+        }
+      }) || []
+
+    const postCount = mainPost?.ancestors.length || 0
 
     const listData = [
-      { type: 'go-to-bottom' as const, data: null },
-      // { type: 'posts', data: thread },
-      ...thread.map((post) => ({ type: 'posts' as const, data: post })),
-      { type: 'separator' as const, data: separatorText },
-      // { type: 'replies', data: fullReplies },
-      ...fullReplies.map((post) => ({ type: 'replies' as const, data: post })),
-      { type: 'error' as const, data: repliesError },
-    ]
+      postCount > 0 && { type: 'go-to-bottom' as const, data: null },
+      ...thread.map((post) => ({ type: 'post' as const, data: post })),
+      mainPost && { type: 'interaction-ribbon' as const, data: mainPost },
+      mainPost && { type: 'stats' as const, data: statsText },
+      ...fullReplies, //.map((post) => ({ type: 'replies' as const, data: post })),
+      repliesError && { type: 'error' as const, data: repliesError },
+    ].filter(l => !!l)
 
-    return { mainPost, listData, context }
+    return { mainPost, postCount, listData, context }
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
@@ -147,18 +166,17 @@ export default function PostDetail() {
   const renderItem = useCallback(({ item, index }: { item: PostDetailItemData, index: number }) => {
     function scrollToEnd(animated?: boolean) {
       requestAnimationFrame(() => {
-        const postCount = mainPost?.ancestors.length || 0
         listRef.current?.scrollToIndex({ index: postCount + 1, animated: false })
       })
     }
     return (
       <PostDetailItem
         item={item}
-        mainPost={mainPost}
+        postCount={postCount}
         onScrollEnd={scrollToEnd}
       />
     )
-  }, [mainPost])
+  }, [postCount])
 
   const headerConfig = (
     <Stack.Screen options={{
@@ -207,8 +225,14 @@ export default function PostDetail() {
         contentContainerStyle={{ paddingBottom: 120 }}
         estimatedItemSize={300}
         keyExtractor={(item) => {
-          if (item.type === 'posts' || item.type === 'replies') {
+          if (item.type === 'post' || item.type === 'reply') {
             return item.data.post.id
+          }
+          if (item.type === 'rewoot') {
+            return item.data.user.id
+          }
+          if (item.type === 'stats') {
+            return item.data
           }
           return item.type
         }}
@@ -256,13 +280,12 @@ export default function PostDetail() {
   )
 }
 
-function _PostDetailItem({ item, mainPost, onScrollEnd }: {
-  item: PostDetailItemData;
-  mainPost?: PostThread;
+function _PostDetailItem({ item, postCount, onScrollEnd }: {
+  item: PostDetailItemData
+  postCount: number
   onScrollEnd: (animmted: boolean) => void
 }) {
-  const postCount = mainPost?.ancestors.length || 0
-  if (item.type === 'go-to-bottom' && postCount > 0) {
+  if (item.type === 'go-to-bottom') {
     return (
       <View className="p-2">
         <Pressable
@@ -280,41 +303,49 @@ function _PostDetailItem({ item, mainPost, onScrollEnd }: {
       </View>
     )
   }
-  if (item.type === 'replies') {
-    const post = item.data.post
-    if (item.data.isRewoot) {
-      return (
-        <RewootRibbon
-          key={post.userId}
-          user={item.data.user}
-          userNameHTML={item.data.userName}
-          className="my-2"
-        />
-      )
-    } else {
-      return (
-        <View key={post.id} className="my-2 relative bg-blue-950">
-          <PostFragment post={post} />
-          <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
-            <MaterialCommunityIcons
-              name="reply"
-              size={16}
-              color="white"
-            />
-          </View>
-        </View>
-      )
-    }
-  }
-  if (item.type === 'posts') {
+  if (item.type === 'post') {
     const post = item.data.post
     return (
-      <View key={post.id} className={item.data.className}>
+      <View className={item.data.className}>
         <PostFragment post={post} />
       </View>
     )
   }
-  if (item.type === 'error' && item.data) {
+  if (item.type === 'interaction-ribbon') {
+    return (
+      <View className="bg-indigo-900/50">
+        <InteractionRibbon post={item.data} />
+      </View>
+    )
+  }
+  if (item.type === 'stats') {
+    return <Text className="text-gray-300 mt-4 px-3 py-1">{item.data}</Text>
+  }
+  if (item.type === 'rewoot') {
+    return (
+      <RewootRibbon
+        user={item.data.user}
+        userNameHTML={item.data.userName}
+        className="my-2"
+      />
+    )
+  }
+  if (item.type === 'reply') {
+    const post = item.data.post
+    return (
+      <View className="my-2 relative bg-blue-950">
+        <PostFragment post={post} />
+        <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
+          <MaterialCommunityIcons
+            name="reply"
+            size={16}
+            color="white"
+          />
+        </View>
+      </View>
+    )
+  }
+  if (item.type === 'error') {
     const error = item.data
     return (
       <View className="m-1 p-2 bg-red-500/30 rounded-md">
@@ -324,20 +355,6 @@ function _PostDetailItem({ item, mainPost, onScrollEnd }: {
         <Text className="text-gray-200">
           {error?.message}
         </Text>
-      </View>
-    )
-  }
-  if (item.type === 'separator') {
-    return (
-      <View>
-        {mainPost && (
-          <View className="bg-indigo-900/50">
-            <InteractionRibbon post={mainPost} />
-          </View>
-        )}
-        {item.data && (
-          <Text className="text-gray-300 mt-4 px-3 py-1">{item.data}</Text>
-        )}
       </View>
     )
   }
