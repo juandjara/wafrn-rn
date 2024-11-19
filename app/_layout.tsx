@@ -16,6 +16,7 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated'
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -83,17 +84,19 @@ export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
     <SafeAreaProvider>
-      <RootSiblingParent>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <MenuProvider>
-                <Slot />
-              </MenuProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </RootSiblingParent>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <RootSiblingParent>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <MenuProvider>
+                  <Slot />
+                </MenuProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </RootSiblingParent>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   )
 }

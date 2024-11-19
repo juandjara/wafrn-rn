@@ -1,4 +1,3 @@
-import CornerButtonContainer, { CornerButtonContainerRef } from "@/components/CornerButtonContainer"
 import PostFragment from "@/components/dashboard/PostFragment"
 import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
@@ -13,11 +12,12 @@ import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import pluralize from "@/lib/pluralize"
 import { buttonCN } from "@/lib/styles"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import { FlashList } from "@shopify/flash-list"
+import { FlashList, FlashListProps } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { memo, useCallback, useMemo, useRef } from "react"
 import { Pressable, Text, View } from "react-native"
+import Reanimated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 
 type PostDetailItemData = {
   type: 'go-to-bottom'
@@ -50,6 +50,8 @@ type PostDetailItemData = {
   data: Error | null
 }
 
+const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<PostDetailItemData>>(FlashList)
+
 export default function PostDetail() {
   const { postid } = useLocalSearchParams()
   const {
@@ -65,6 +67,7 @@ export default function PostDetail() {
     error: repliesError,
   } = usePostReplies(postid as string)
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
+  const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
 
   const {
     mainPost,
@@ -150,7 +153,6 @@ export default function PostDetail() {
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
-  const cornerButtonRef = useRef<CornerButtonContainerRef>(null)
 
   function scrollToTop() {
     requestAnimationFrame(() => {
@@ -219,7 +221,7 @@ export default function PostDetail() {
   return (
     <DashboardContextProvider data={context}>
       {headerConfig}
-      <FlashList
+      <AnimatedFlashList
         ref={listRef}
         data={listData}
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -244,10 +246,8 @@ export default function PostDetail() {
         renderItem={renderItem}
         refreshing={postFetching || repliesFetching}
         onRefresh={refresh}
-        scrollEventThrottle={100}
-        onScroll={(ev) => {
-          cornerButtonRef.current?.scroll(ev.nativeEvent.contentOffset.y)
-        }}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         ListFooterComponent={(
           <View collapsable={false} className="my-8">
             {mainPost?.remotePostId && (
@@ -268,14 +268,18 @@ export default function PostDetail() {
           </View>
         )}
       />
-      <CornerButtonContainer ref={cornerButtonRef}>
-        <Pressable
+      <Reanimated.View
+        style={[
+          buttonStyle,
+          { position: 'absolute', bottom: 12, right: 12 }
+        ]}>
+      <Pressable
           className="p-3 rounded-full bg-white border border-gray-300"
           onPress={scrollToTop}
         >
           <MaterialIcons name="arrow-upward" size={24} />
         </Pressable>
-      </CornerButtonContainer>
+      </Reanimated.View>
     </DashboardContextProvider>
   )
 }
@@ -361,3 +365,40 @@ function _PostDetailItem({ item, postCount, onScrollEnd }: {
   return null
 }
 const PostDetailItem = memo(_PostDetailItem)
+
+function useCornerButtonAnimation() {
+  const lastContentOffset = useSharedValue(0)
+  const isScrolling = useSharedValue(false)
+  const translateY = useSharedValue(0)
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (ev) => {
+      if (isScrolling.value) {
+        if (lastContentOffset.value > ev.contentOffset.y) {
+          translateY.value = 0 // scrolling up
+        } else if (lastContentOffset.value < ev.contentOffset.y) {
+          translateY.value = 100 // scrolling down
+        }
+      }
+      lastContentOffset.value = ev.contentOffset.y
+    },
+    onBeginDrag: () => {
+      isScrolling.value = true
+    },
+    onEndDrag: () => {
+      isScrolling.value = false
+    }
+  })
+
+  const buttonStyle = useAnimatedStyle(() => ({
+    transform: [{
+      translateY: withTiming(translateY.value, {
+        duration: 300,
+        easing: Easing.inOut(Easing.ease),
+      })
+    }],
+  }))
+
+  return { scrollHandler, buttonStyle }
+}
+
