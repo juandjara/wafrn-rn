@@ -113,6 +113,7 @@ export default function UserFeed() {
           headerBackTitle: 'Back',
           headerTransparent: true,
           statusBarTranslucent: true,
+          statusBarBackgroundColor: 'transparent',
           headerBackground: () => (
             <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
           ),
