@@ -6,7 +6,7 @@ import { useMemo, useRef } from "react"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import Loading from "../Loading"
-// import { useScrollToTop } from "@react-navigation/native"
+import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
 
 export default function Dashboard({
@@ -24,7 +24,7 @@ export default function Dashboard({
     hasNextPage,
   } = useDashboard(mode)
 
-  // useScrollToTop(listRef)
+  useScrollToTop(listRef)
 
   const qc = useQueryClient()
   const refresh = async () => {
