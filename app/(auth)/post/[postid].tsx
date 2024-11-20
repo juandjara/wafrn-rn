@@ -273,7 +273,7 @@ export default function PostDetail() {
           buttonStyle,
           { position: 'absolute', bottom: 12, right: 12 }
         ]}>
-      <Pressable
+        <Pressable
           className="p-3 rounded-full bg-white border border-gray-300"
           onPress={scrollToTop}
         >
