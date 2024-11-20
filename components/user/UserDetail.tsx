@@ -66,6 +66,7 @@ export default function UserDetail({ user }: { user: User }) {
 
   const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
   const hasAsks = !user.remoteId && askFlag !== AskOptionValue.AllowNoAsks
+  const aspectRatio = 0.5
 
   function toggleFollow() {
     if (!followMutation.isPending) {
@@ -80,14 +81,16 @@ export default function UserDetail({ user }: { user: User }) {
           id="header"
           src={formatCachedUrl(formatMediaUrl(user.headerImage))}
           width={width}
-          aspectRatio={0.5}
+          aspectRatio={aspectRatio}
           className="border-b border-gray-500"
         />
-      ) : null}
-      <View className={clsx(
-        'flex-row justify-center items-center my-4 rounded-md',
-        { '-mt-12': !!user.headerImage }
-      )}>
+      ) : (
+        <View
+          collapsable={false}
+          style={{ minHeight: width * aspectRatio, width: '100%', backgroundColor: colors.gray[800] }}
+        />
+      )}
+      <View className='flex-row justify-center items-center my-4 rounded-md -mt-12'>
         <ZoomableImage
           id="avatar"
           src={url}
@@ -97,11 +100,11 @@ export default function UserDetail({ user }: { user: User }) {
           imgClassName="rounded-lg"
         />
       </View>
-      <View className="items-center justify-center">
+      <View className="items-center justify-center mx-4">
         <View className="flex-row">
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
-        <ThemedText className="text-xs">{formatUserUrl(user)}</ThemedText>
+        <ThemedText className="text-xs text-center">{formatUserUrl(user)}</ThemedText>
         {isMe ? (
           <Pressable>
             <Text className="text-indigo-400 bg-indigo-950 py-2 mt-6 px-5 text-lg rounded-full">

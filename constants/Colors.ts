@@ -34,9 +34,9 @@ export const getRootStyles = (themeName: 'light' | 'dark') => {
     contentStyle: {
       backgroundColor: colors.background,
     },
-    headerStyle: {
-      backgroundColor: colors.background,
-    },
+    // headerStyle: {
+    //   backgroundColor: colors.background,
+    // },
     headerTintColor: colors.text,
   }
 }
