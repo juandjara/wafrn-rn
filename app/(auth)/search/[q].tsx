@@ -1,10 +1,10 @@
-import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
 import UserRibbon from "@/components/user/UserRibbon"
 import { dedupeById, dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
 import { SearchView, useSearch } from "@/lib/api/search"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import { Stack, useLocalSearchParams } from "expo-router"
@@ -127,10 +127,13 @@ export default function SearchResults() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching, deduped, users])
 
+  const sx = useSafeAreaPadding()
+
   const screenTitle = (
     <Stack.Screen options={{
       title: 'Search results',
       headerBackTitle: 'Back',
+      headerTransparent: true,
       headerTitle: ({ children }) => (
         <View className="py-3">
           <Text className="text-white text-2xl font-semibold">
@@ -144,19 +147,10 @@ export default function SearchResults() {
     }} /> 
   )
 
-  if (!data) {
-    return (
-      <>
-        <Loading />
-        {screenTitle}
-      </>
-    )
-  }
-
   return (
     <DashboardContextProvider data={context}>
       {screenTitle}
-      <View className="h-full">
+      <View className="h-full" style={{ marginTop: sx.paddingTop + 72 }}>
         <TabView
           renderTabBar={(props) => (
             <SearchViewSelect
@@ -188,15 +182,11 @@ export default function SearchResults() {
                     view === SearchView.Posts && hasNextPage && !isFetching && fetchNextPage()
                   )}
                   ListFooterComponent={
-                    isFetching
-                      ? <Loading />
-                      : (
-                        <View>
-                          {deduped.length === 0 && (
-                            <Text className="text-white text-center py-4">No posts found</Text>
-                          )}
-                        </View>
-                      )
+                    <View>
+                      {!isFetching && deduped.length === 0 && (
+                        <Text className="text-white text-center py-4">No posts found</Text>
+                      )}
+                    </View>
                   }
                 />
               )
@@ -218,15 +208,11 @@ export default function SearchResults() {
                     view === SearchView.Users && hasNextPage && !isFetching && fetchNextPage()
                   )}
                   ListFooterComponent={
-                    isFetching
-                      ? <Loading />
-                      : (
-                        <View>
-                          {users.length === 0 && (
-                            <Text className="text-white text-center py-4">No users found</Text>
-                          )}
-                        </View>
-                      )
+                    <View>
+                      {!isFetching && users.length === 0 && (
+                        <Text className="text-white text-center py-4">No users found</Text>
+                      )}
+                    </View>
                   }
                 />
               )
