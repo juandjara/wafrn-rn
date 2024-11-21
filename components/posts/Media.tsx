@@ -16,14 +16,7 @@ function Video({ isAudioOnly = false, src, width, height }: {
   width: number
   height: number
 }) {
-  const videoPlayer = useVideoPlayer(src, (player) => {
-    if (!isAudioOnly) {
-      player.loop = true
-      player.muted = true
-      player.play()
-    }
-  })
-
+  const videoPlayer = useVideoPlayer(src)
   return (
     <VideoView
       style={{ width, height }}
