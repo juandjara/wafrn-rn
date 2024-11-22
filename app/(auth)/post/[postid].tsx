@@ -9,8 +9,10 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { sortPosts, usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
 import { DashboardData, Post, PostThread, PostUser } from "@/lib/api/posts.types"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
+import { formatUserUrl } from "@/lib/formatters"
 import pluralize from "@/lib/pluralize"
 import { buttonCN } from "@/lib/styles"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { FlashList, FlashListProps } from "@shopify/flash-list"
 import clsx from "clsx"
@@ -71,6 +73,7 @@ export default function PostDetail() {
 
   const {
     mainPost,
+    mainUser,
     postCount,
     listData,
     context,
@@ -84,18 +87,9 @@ export default function PostDetail() {
     const numRewoots = replies.filter((p) => isEmptyRewoot(p, context) && p.parentId === postid).length
     const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length
     const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
-    // let statsText = ''
-    // if (numReplies > 0) {
-    //   statsText += `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}`
-    // }
-    // if (numReplies > 0 && numRewoots > 0) {
-    //   statsText += ', '
-    // }
-    // if (numRewoots > 0) {
-    //   statsText += `${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
-    // }
 
     const mainPost = postData?.posts?.[0]
+    const mainUser = mainPost && userMap[mainPost.userId]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
       .sort(sortPosts)  
@@ -149,7 +143,7 @@ export default function PostDetail() {
       repliesError && { type: 'error' as const, data: repliesError },
     ].filter(l => !!l)
 
-    return { mainPost, postCount, listData, context }
+    return { mainPost, mainUser, postCount, listData, context }
   }, [postData, repliesData, postid, repliesError])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
@@ -182,21 +176,23 @@ export default function PostDetail() {
 
   const headerConfig = (
     <Stack.Screen options={{
-      headerBackTitle: 'Back',
       title: 'Woot',
-      headerShown: true,
-      // headerTitle: ({ children }) => (
-      //   <View className="py-3">
-      //     <Text className="text-white text-2xl font-semibold">
-      //       {children}
-      //     </Text>
-      //     <Text numberOfLines={1} className="text-gray-200 text-base">
-      //       user url
-      //     </Text>
-      //   </View>
-      // )
+      headerBackTitle: 'Back',
+      headerTransparent: true,
+      headerTitle: ({ children }) => (
+        <View className="py-3">
+          <Text className="text-white text-2xl font-semibold">
+            {children}
+          </Text>
+          <Text numberOfLines={1} className="text-gray-200 text-base">
+            {formatUserUrl(mainUser)}
+          </Text>
+        </View>
+      )
     }} />
   )
+
+  const sx = useSafeAreaPadding()
 
   if (postError) {
     return (
@@ -221,53 +217,58 @@ export default function PostDetail() {
   return (
     <DashboardContextProvider data={context}>
       {headerConfig}
-      <AnimatedFlashList
-        ref={listRef}
-        data={listData}
-        contentContainerStyle={{ paddingBottom: 120 }}
-        estimatedItemSize={300}
-        keyExtractor={(item) => {
-          if (item.type === 'post' || item.type === 'reply') {
-            return item.data.post.id
-          }
-          if (item.type === 'rewoot') {
-            return item.data.user.id
-          }
-          if (item.type === 'stats') {
-            return item.data
-          }
-          return item.type
-        }}
-        // maintainVisibleContentPosition={{
-        //   minIndexForVisible: 0,
-        //   // autoscrollToTopThreshold: 10,
-        // }}
-        getItemType={(item) => item.type}
-        renderItem={renderItem}
-        refreshing={postFetching || repliesFetching}
-        onRefresh={refresh}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        ListFooterComponent={(
-          <View collapsable={false} className="my-8">
-            {mainPost?.remotePostId && (
-              <>
-                {remoteRepliesMutation.isPending && <Loading />}
-                <Text
-                  onPress={() => remoteRepliesMutation.mutate()}
-                  className={clsx(
-                    'text-center items-center mx-4 py-3 rounded-full',
-                    { 'opacity-50 text-gray-300 bg-gray-600/50': remoteRepliesMutation.isPending },
-                    { 'text-indigo-400 bg-indigo-950 active:bg-indigo-900': remoteRepliesMutation.isIdle }
-                  )}
-                >
-                  Fetch more replies from remote instance
-                </Text>
-              </>
-            )}
-          </View>
-        )}
-      />
+      <View style={{ marginTop: sx.paddingTop + 72, flex: 1 }}>
+        <AnimatedFlashList
+          ref={listRef}
+          data={listData}
+          className="flex-1"
+          contentContainerStyle={{
+            paddingBottom: 120
+          }}
+          estimatedItemSize={300}
+          keyExtractor={(item) => {
+            if (item.type === 'post' || item.type === 'reply') {
+              return item.data.post.id
+            }
+            if (item.type === 'rewoot') {
+              return item.data.user.id
+            }
+            if (item.type === 'stats') {
+              return item.data
+            }
+            return item.type
+          }}
+          // maintainVisibleContentPosition={{
+          //   minIndexForVisible: 0,
+          //   // autoscrollToTopThreshold: 10,
+          // }}
+          getItemType={(item) => item.type}
+          renderItem={renderItem}
+          refreshing={postFetching || repliesFetching}
+          onRefresh={refresh}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          ListFooterComponent={(
+            <View collapsable={false} className="my-8">
+              {mainPost?.remotePostId && (
+                <>
+                  {remoteRepliesMutation.isPending && <Loading />}
+                  <Text
+                    onPress={() => remoteRepliesMutation.mutate()}
+                    className={clsx(
+                      'text-center items-center mx-4 py-3 rounded-full',
+                      { 'opacity-50 text-gray-300 bg-gray-600/50': remoteRepliesMutation.isPending },
+                      { 'text-indigo-400 bg-indigo-950 active:bg-indigo-900': remoteRepliesMutation.isIdle }
+                    )}
+                  >
+                    Fetch more replies from remote instance
+                  </Text>
+                </>
+              )}
+            </View>
+          )}
+        />
+      </View>
       <Reanimated.View
         style={[
           buttonStyle,

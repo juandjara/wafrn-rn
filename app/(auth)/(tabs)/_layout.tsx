@@ -1,4 +1,4 @@
-import { getRootStyles } from "@/constants/Colors"
+import { Colors, getRootStyles } from "@/constants/Colors"
 import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Tabs } from "expo-router"
@@ -19,6 +19,9 @@ export default function TabsLayout() {
   return (
     <Tabs screenOptions={{
       ...rootStyles,
+      headerStyle: {
+        backgroundColor: Colors.dark.background,
+      },
       animation: 'shift',
       tabBarStyle: {
         borderTopWidth: 1,
