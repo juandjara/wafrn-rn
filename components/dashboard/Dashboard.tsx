@@ -39,8 +39,23 @@ export default function Dashboard({
   )
   const deduped = useMemo(() => dedupePosts(data?.pages || []), [data?.pages])
 
+  const cornerButton = (
+    <View key='editor-link' className="absolute bottom-3 right-3">
+      <Link href='/editor' asChild>
+        <Pressable className="p-3 rounded-full bg-white">
+          <MaterialIcons name="edit-square" size={24} />
+        </Pressable>
+      </Link>
+    </View>
+  )
+
   if (!data) {
-    return <Loading />
+    return (
+      <>
+        <Loading />
+        {cornerButton}
+      </>
+    )
   }
 
   return (
@@ -57,13 +72,7 @@ export default function Dashboard({
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
       />
-      <View key='editor-link' className="absolute bottom-3 right-3">
-        <Link href='/editor' asChild>
-          <Pressable className="p-3 rounded-full bg-white">
-            <MaterialIcons name="edit-square" size={24} />
-          </Pressable>
-        </Link>
-      </View>
+      {cornerButton}
     </DashboardContextProvider>
   );
 }
