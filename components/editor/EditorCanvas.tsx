@@ -7,7 +7,7 @@ import { useMemo, useState } from "react"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import ColorPicker from "./ColorPicker"
 import clsx from "clsx"
-import Animated from "react-native-reanimated"
+import Animated, { useSharedValue } from "react-native-reanimated"
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler"
 
 type EditorCanvasProps = {
@@ -35,6 +35,7 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [paths, setPaths] = useState<PathData[]>([])
   const canvasRef = useCanvasRef()
+  const currentPath = useSharedValue<SkPath>(Skia.Path.Make().moveTo(0, 0))
 
   async function confirmDrawing() {
     const image = await canvasRef.current?.makeImageSnapshotAsync()
@@ -56,34 +57,40 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
     .minDistance(1)
     .maxPointers(1)
     .onStart((ev) => {
-      setPaths((prevPaths) => {
-        const newPath = Skia.Path.Make().moveTo(ev.x, ev.y)
-        return [
-          ...prevPaths,
-          { path: newPath, mode, color }
-        ]
-      })
+      currentPath.value = Skia.Path.Make().moveTo(ev.x, ev.y)
     })
     .onUpdate((ev) => {
-      setPaths((prevPaths) => {
-        const lastPath = prevPaths[prevPaths.length - 1]
-        const lastPoint = lastPath.path.getLastPt()
+      currentPath.modify((lastPath) => {
+        'worklet';
+        const lastPoint = lastPath.getLastPt()
         const xHalf = (ev.x + lastPoint.x) / 2
         const yHalf = (ev.y + lastPoint.y) / 2
-  
-        lastPath.path.quadTo(lastPoint.x, lastPoint.y, xHalf, yHalf)
-        return [
-          ...prevPaths.slice(0, prevPaths.length - 1),
-          lastPath
-        ]
+        lastPath.quadTo(lastPoint.x, lastPoint.y, xHalf, yHalf)
+        return lastPath
+      }, true)
+    })
+    .onEnd(() => {
+      setPaths((prevPaths) => [...prevPaths, { path: currentPath.value, mode, color }])
+      setTimeout(() => {
+        currentPath.value = Skia.Path.Make().moveTo(0, 0)
       })
     })
     .runOnJS(true)
-  ), [mode, color])
+  ), [currentPath, mode, color])
 
   function close() {
     setOpen(false)
     setPaths([])
+    clearCurrentPath()
+  }
+
+  function clearCurrentPath() {
+    currentPath.value = Skia.Path.Make().moveTo(0, 0)
+  }
+
+  function undo() {
+    setPaths((paths) => paths.slice(0, -1))
+    clearCurrentPath()
   }
 
   return (
@@ -107,6 +114,13 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
                     blendMode={p.mode}
                   />
                 ))}
+                <Path
+                  path={currentPath}
+                  strokeWidth={mode === EditModes.CLEAR ? 25 : 5}
+                  style="stroke"
+                  color={color}
+                  blendMode={mode}
+                />
               </Canvas>
             </View>
             <GestureDetector gesture={gesture}>
@@ -145,7 +159,7 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
                 />
               </Pressable>
               <Pressable
-                onPress={() => setPaths((paths) => paths.slice(0, -1))}
+                onPress={undo}
                 className="p-2 rounded-full active:bg-white/50 bg-white/15"
               >
                 <MaterialCommunityIcons name='undo' color='white' size={20} />
