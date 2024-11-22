@@ -371,11 +371,11 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
           <Stack.Screen
             options={{
               animation: 'slide_from_bottom',
@@ -429,8 +429,8 @@ export default function EditorView() {
             />
           </ScrollView>
           <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </DashboardContextProvider>
   )
 }
