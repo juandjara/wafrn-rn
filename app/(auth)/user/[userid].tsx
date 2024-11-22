@@ -7,16 +7,13 @@ import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboa
 import { useUser } from "@/lib/api/user"
 import { BASE_URL } from "@/lib/config"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
-import { buttonCN, optionStyle } from "@/lib/styles"
+import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { Pressable, Share, Text, View } from "react-native"
-import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu"
-import Reanimated, { interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
-import colors from "tailwindcss/colors"
+import Reanimated, { interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
 
 export default function UserFeed() {
   const { userid } = useLocalSearchParams()
@@ -81,6 +78,13 @@ export default function UserFeed() {
       ['transparent', headerColor],
     )
   }))
+  const headerTitleStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [0, 500],
+      [0, 1],
+    )
+  }))
 
   if (userError) {
     return (
@@ -112,48 +116,16 @@ export default function UserFeed() {
           title: String(userid),
           headerBackTitle: 'Back',
           headerTransparent: true,
-          statusBarTranslucent: true,
-          statusBarBackgroundColor: 'transparent',
+          headerTitle: ({ children, tintColor }) => (
+            <Reanimated.Text
+              numberOfLines={1}
+              style={[headerTitleStyle, { color: tintColor, fontWeight: 'medium', fontSize: 18 }]}
+            >
+              {children}
+            </Reanimated.Text>
+          ),
           headerBackground: () => (
             <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
-          ),
-          headerRight: () => (
-            <Menu 
-              renderer={renderers.SlideInMenu}
-              rendererProps={{
-                placement: 'auto',
-                preferredPlacement: 'bottom',
-                anchorStyle: {
-                  backgroundColor: colors.gray[900],
-                }
-              }}
-            >
-              <MenuTrigger onPress={() => console.log('open user menu')} style={{ padding: 6 }}>
-                <MaterialCommunityIcons
-                  size={24}
-                  name={`dots-vertical`}
-                  color={colors.gray[300]}
-                />
-              </MenuTrigger>
-              <MenuOptions customStyles={{
-                optionsContainer: {
-                  transformOrigin: 'top right',
-                  marginTop: 40,
-                  borderRadius: 8,
-                },
-              }}>
-                {userActions.map((action, i) => (
-                  <MenuOption key={i} style={optionStyle(i)} onSelect={action.action}>
-                    <MaterialCommunityIcons
-                      name={action.icon}
-                      size={20}
-                      color={colors.gray[600]}
-                    />
-                    <Text className="text-sm flex-grow">{action.name}</Text>
-                  </MenuOption>
-                ))}
-              </MenuOptions>
-            </Menu>
           ),
         }} />
         <Reanimated.FlatList
