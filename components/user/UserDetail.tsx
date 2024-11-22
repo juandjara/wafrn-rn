@@ -1,5 +1,5 @@
 import { AskOptionValue, getPublicOptionValue, PublicOptionNames, useFollowers, User } from "@/lib/api/user";
-import { Pressable, Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Share, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
@@ -15,6 +15,11 @@ import clsx from "clsx";
 import colors from "tailwindcss/colors";
 import AskModal from "./AskModal";
 import { useFollowMutation } from "@/lib/interaction";
+import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { optionStyle } from "@/lib/styles";
+import { BASE_URL } from "@/lib/config";
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -68,6 +73,28 @@ export default function UserDetail({ user }: { user: User }) {
   const hasAsks = !user.remoteId && askFlag !== AskOptionValue.AllowNoAsks
   const aspectRatio = 0.5
 
+  const userActions = useMemo(() => [
+    {
+      name: 'Share user',
+      icon: 'share-variant' as const,
+      action: () => user && Share.share({ message: user.remoteId ?? `${BASE_URL}/blog/${user.url}` }),
+    },
+    {
+      name: 'Mute user',
+      icon: 'volume-off' as const,
+    },
+    {
+      name: 'Block user',
+      icon: 'account-cancel-outline' as const,
+    },
+    {
+      name: 'Block server',
+      icon: 'server-off' as const,
+    },
+  ], [user])
+
+  const sx = useSafeAreaPadding()
+
   function toggleFollow() {
     if (!followMutation.isPending) {
       followMutation.mutate(!!amIFollowing)
@@ -105,43 +132,77 @@ export default function UserDetail({ user }: { user: User }) {
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
         <ThemedText className="text-xs text-center">{formatUserUrl(user)}</ThemedText>
-        {isMe ? (
-          <Pressable>
-            <Text className="text-indigo-400 bg-indigo-950 py-2 mt-6 px-5 text-lg rounded-full">
-              Edit profile
-            </Text>
-          </Pressable>
-        ) : (
-          <>
-            {amIFollowing && (
-              <Pressable
-                className={clsx({ 'opacity-50': followMutation.isPending })}
-                onPress={toggleFollow}
-              >
-                <Text className="text-red-500 bg-red-500/20 py-2 mt-6 px-5 text-lg rounded-full">
-                  Unfollow
-                </Text>
-              </Pressable>
-            )}
-            {amIAwaitingApproval && (
-              <Pressable>
-                <Text className="text-gray-400 bg-gray-500/50 py-2 mt-6 px-5 text-lg rounded-full">
-                  Awaiting approval
-                </Text>
-              </Pressable>
-            )}
-            {!amIFollowing && !amIAwaitingApproval && (
-              <Pressable
-                className={clsx({ 'opacity-50': followMutation.isPending })}
-                onPress={toggleFollow}
-              >
-                <Text className="text-indigo-500 bg-indigo-500/20 py-2 mt-6 px-5 text-lg rounded-full">
-                  Follow
-                </Text>
-              </Pressable>
-            )}
-          </>
-        )}
+        <View className="flex-row items-center gap-2 mt-6">
+          {isMe ? (
+            <Pressable>
+              <Text className="text-indigo-400 bg-indigo-950 py-2 px-5 text-lg rounded-full">
+                Edit profile
+              </Text>
+            </Pressable>
+          ) : (
+            <View>
+              {amIFollowing && (
+                <Pressable
+                  className={clsx({ 'opacity-50': followMutation.isPending })}
+                  onPress={toggleFollow}
+                >
+                  <Text className="text-red-500 bg-red-500/20 py-2 px-5 text-lg rounded-full">
+                    Unfollow
+                  </Text>
+                </Pressable>
+              )}
+              {amIAwaitingApproval && (
+                <Pressable>
+                  <Text className="text-gray-400 bg-gray-500/50 py-2 px-5 text-lg rounded-full">
+                    Awaiting approval
+                  </Text>
+                </Pressable>
+              )}
+              {!amIFollowing && !amIAwaitingApproval && (
+                <Pressable
+                  className={clsx({ 'opacity-50': followMutation.isPending })}
+                  onPress={toggleFollow}
+                >
+                  <Text className="text-indigo-500 bg-indigo-500/20 py-2 px-5 text-lg rounded-full">
+                    Follow
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+          <Menu renderer={renderers.SlideInMenu}>
+            <MenuTrigger
+              onPress={() => console.log('open user menu')}
+              style={{ padding: 6, backgroundColor: `${colors.gray[500]}20`, borderRadius: 40 }}
+            >
+              <MaterialCommunityIcons
+                size={24}
+                name={`dots-vertical`}
+                color={colors.gray[400]}
+              />
+            </MenuTrigger>
+            <MenuOptions customStyles={{
+              optionsContainer: {
+                paddingBottom: sx.paddingBottom,
+              },
+            }}>
+              {userActions.map((action, i) => (
+                <MenuOption
+                  key={i}
+                  style={{ ...optionStyle(i), padding: 16, gap: 16 }}
+                  onSelect={action.action}
+                >
+                  <MaterialCommunityIcons
+                    name={action.icon}
+                    size={20}
+                    color={colors.gray[600]}
+                  />
+                  <Text className="text-sm flex-grow">{action.name}</Text>
+                </MenuOption>
+              ))}
+            </MenuOptions>
+          </Menu>
+        </View>
         {!isMe && commonFollows.length > 0 && (
           <>
             <Text className="text-white text-sm mt-6">
