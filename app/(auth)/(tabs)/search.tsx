@@ -1,23 +1,26 @@
 import { buttonCN } from "@/lib/styles"
 import useLayoutAnimation from "@/lib/useLayoutAnimation"
 import useAsyncStorage from "@/lib/useLocalStorage"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { router, Stack } from "expo-router"
 import { useState } from "react"
-import { Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { Keyboard, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 
 const HISTORY_LIMIT = 10
+const HEADER_HEIGHT = 64
 
 export default function Search() {
   const animate = useLayoutAnimation()
   const [showTips, setShowTips] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const { value: recent, setValue: setRecent } = useAsyncStorage<string[]>('searchHistory', [])
+  const sx = useSafeAreaPadding()
 
   function setQuery(term: string) {
     if (term) {
+      Keyboard.dismiss()
       router.navigate({
         pathname: '/search/[q]',
         params: { q: term },
@@ -47,30 +50,46 @@ export default function Search() {
   }
 
   return (
-    <SafeAreaView className="flex-1">
+    <>
       <Stack.Screen
         options={{
           headerShown: false,
           title: 'Search',
         }}
       />
-      <View className="flex-row items-center py-2 border-b border-gray-700">
-        <MaterialCommunityIcons className="pl-4 pr-1" name="magnify" size={24} color="white" />
+      <View
+        style={{ marginTop: sx.paddingTop, height: HEADER_HEIGHT }}
+        className="absolute top-0 right-0 left-0 flex-row items-center border-b border-gray-600 h-16"
+      >
+        <MaterialCommunityIcons
+          className="pl-4 pr-1"
+          name="magnify"
+          size={24}
+          color={colors.gray[300]}
+        />
         <TextInput
+          autoFocus
+          placeholderTextColor={colors.gray[300]}
           placeholder="Search text or enter URL"
-          className="text-white placeholder:text-gray-300 flex-grow"
+          className="text-white flex-grow"
           onChangeText={setSearchTerm}
           inputMode="search"
           onSubmitEditing={onSubmit}
         />
-        {searchTerm ? (
-          <TouchableOpacity onPress={() => setSearchTerm('')}>
-            <MaterialCommunityIcons className="px-3" name="close" size={24} color="white" />
-          </TouchableOpacity>
-        ) : <View style={{ width: 24 }} collapsable={false} />}
+        <TouchableOpacity
+          style={{ display: searchTerm ? 'flex' : 'none' }}
+          onPress={() => setSearchTerm('')}
+        >
+          <MaterialCommunityIcons
+            className="px-3"
+            name="close"
+            size={24}
+            color={colors.gray[300]}
+          />
+        </TouchableOpacity>
       </View>
-      <ScrollView className="flex-shrink-0 flex-grow-0" keyboardShouldPersistTaps='always'>
-        <View>
+      <View style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }} className="flex-1">
+        <ScrollView className="flex-1" keyboardShouldPersistTaps='always'>
           <View id='search-tips' className="mb-4 p-3">
             <View className="flex-row items-center mb-2">
               <Text className="text-gray-300 font-medium text-sm flex-grow">Search tips</Text>
@@ -118,8 +137,8 @@ export default function Search() {
               ))
             )}
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </View>
+    </>
   )
 }
