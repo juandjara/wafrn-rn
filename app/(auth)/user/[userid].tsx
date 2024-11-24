@@ -89,26 +89,26 @@ export default function UserFeed() {
   }
 
   return (
-    <ThemedView className="flex-1">
-      <DashboardContextProvider data={context}>
-        <Stack.Screen options={{
-          title: String(userid),
-          headerBackTitle: 'Back',
-          headerTransparent: true,
-          headerTitle: ({ children, tintColor }) => (
-            <Reanimated.Text
-              numberOfLines={1}
-              style={[headerTitleStyle, { color: tintColor, fontWeight: 'medium', fontSize: 18, height: 36 }]}
-            >
-              {children}
-            </Reanimated.Text>
-          ),
-          headerBackground: () => (
-            <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
-          ),
-        }} />
+    <DashboardContextProvider data={context}>
+      <Stack.Screen options={{
+        title: String(userid),
+        headerBackTitle: 'Back',
+        headerTransparent: true,
+        headerTitle: ({ children, tintColor }) => (
+          <Reanimated.Text
+            numberOfLines={1}
+            style={[headerTitleStyle, { color: tintColor, fontWeight: 'medium', fontSize: 18, height: 36 }]}
+          >
+            {children}
+          </Reanimated.Text>
+        ),
+        headerBackground: () => (
+          <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
+        ),
+      }} />
+      <View style={{ marginTop: sx.paddingTop, flex: 1 }}>
         <Reanimated.FlatList
-          style={{ marginTop: sx.paddingTop }}
+          style={{ flex: 1 }}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           data={deduped}
@@ -132,9 +132,8 @@ export default function UserFeed() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <Thread thread={item} />}
           onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-          // ListFooterComponent={feedFetching ? <Loading /> : null}
         />
-      </DashboardContextProvider>
-    </ThemedView>
+      </View>
+    </DashboardContextProvider>
   );
 }
