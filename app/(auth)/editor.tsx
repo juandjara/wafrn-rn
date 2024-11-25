@@ -242,10 +242,10 @@ export default function EditorView() {
     if (replyPost) {
       const replyCw = replyPost.content_warning || ''
       if (replyCw) {
+        const cw = replyCw.toLowerCase().startsWith('re:') ? replyCw : `re: ${replyCw}`
+        update('contentWarning', cw)
         update('contentWarningOpen', true)
       }
-      const cw = replyCw.toLowerCase().startsWith('re:') ? replyCw : `re: ${replyCw}`
-      update('contentWarning', cw)
       update('privacy', replyPost.privacy)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
