@@ -5,7 +5,7 @@ import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { router, Stack } from "expo-router"
 import { useState } from "react"
-import { Keyboard, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 
 const HISTORY_LIMIT = 10
@@ -88,7 +88,10 @@ export default function Search() {
           />
         </TouchableOpacity>
       </View>
-      <View style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }} className="flex-1">
+      <KeyboardAvoidingView
+        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT, flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <ScrollView className="flex-1" keyboardShouldPersistTaps='always'>
           <View id='search-tips' className="mb-4 p-3">
             <View className="flex-row items-center mb-2">
@@ -138,7 +141,7 @@ export default function Search() {
             )}
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </>
   )
 }
