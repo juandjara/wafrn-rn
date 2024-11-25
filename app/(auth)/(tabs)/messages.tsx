@@ -5,7 +5,7 @@ import { Text, View } from "react-native";
 
 export default function Messages() {
   return (
-    <View>
+    <View className="flex-1">
       <Stack.Screen
         options={{
           headerTitle: 'Direct Messages'
