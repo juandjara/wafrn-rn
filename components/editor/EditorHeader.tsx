@@ -3,10 +3,11 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-ic
 import clsx from "clsx"
 import { Link } from "expo-router"
 import { useState } from "react"
-import { Modal, Pressable, Text, View } from "react-native"
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native"
 import colors from "tailwindcss/colors"
 
-export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublish }: {
+export default function EditorHeader({ isLoading, privacy, setPrivacy, canPublish, onPublish }: {
+  isLoading: boolean
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
   canPublish: boolean
@@ -39,7 +40,11 @@ export default function EditorHeader({ privacy, setPrivacy, canPublish, onPublis
           }
         )}
       >
-        <MaterialCommunityIcons name='send' color='white' size={20} />
+        {isLoading ? (
+          <ActivityIndicator size="small" color="white" />
+        ) : (
+          <MaterialCommunityIcons name='send' color='white' size={20} />
+        )}
         <Text className="font-medium text-white">Publish</Text>
       </Pressable>
       <Modal
