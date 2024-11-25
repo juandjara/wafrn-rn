@@ -1,3 +1,4 @@
+import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
@@ -132,6 +133,14 @@ export default function UserFeed() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <Thread thread={item} />}
           onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+          ListFooterComponent={
+            <View className="py-4">
+              {feedFetching ? <Loading /> : null}
+              {!feedFetching && deduped.length === 0 && (
+                <Text className="text-white text-center">No posts found</Text>
+              )}
+            </View>
+          }
         />
       </View>
     </DashboardContextProvider>
