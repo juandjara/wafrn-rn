@@ -89,10 +89,12 @@ export default function UserFeed() {
     )
   }
 
+  const headerTitle = String(userid).startsWith('@') ? String(userid) : `@${userid}`
+
   return (
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{
-        title: String(userid),
+        title: headerTitle,
         headerBackTitle: 'Back',
         headerTransparent: true,
         headerTitle: ({ children, tintColor }) => (
@@ -116,7 +118,7 @@ export default function UserFeed() {
           refreshing={feedFetching || userFetching}
           onRefresh={refresh}
           ListHeaderComponent={
-            <View className="flex-1 min-h-screen">
+            <>
               {user && <UserDetail user={user} />}
               {feedError ? (
                 <View className="m-1 p-2 bg-red-500/30 rounded-md">
@@ -128,15 +130,16 @@ export default function UserFeed() {
                   </Text>
                 </View>
               ) : null}
-            </View>
+            </>
           }
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <Thread thread={item} />}
           onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-          ListFooterComponent={
+          ListEmptyComponent={
             <View className="py-4">
-              {feedFetching ? <Loading /> : null}
-              {!feedFetching && deduped.length === 0 && (
+              {feedFetching ? (
+                <Loading />
+              ) : (
                 <Text className="text-white text-center">No posts found</Text>
               )}
             </View>

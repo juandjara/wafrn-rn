@@ -102,7 +102,7 @@ export default function UserDetail({ user }: { user: User }) {
   }
 
   return (
-    <View className="mb-2 flex-1">
+    <View className="mb-2">
       {user.headerImage ? (
         <ZoomableImage
           id="header"
