@@ -116,7 +116,7 @@ export default function UserFeed() {
           refreshing={feedFetching || userFetching}
           onRefresh={refresh}
           ListHeaderComponent={
-            <View>
+            <View className="flex-1 min-h-screen">
               {user && <UserDetail user={user} />}
               {feedError ? (
                 <View className="m-1 p-2 bg-red-500/30 rounded-md">
