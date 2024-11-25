@@ -161,6 +161,7 @@ export default function EditorView() {
   const { data: quote } = usePostDetail(quoteId)
   const { data: asks } = useAsks()
   const { data: settings } = useSettings()
+
   const disableForceAltText = useMemo(() => {
     if (!settings?.options) {
       return false
@@ -235,6 +236,20 @@ export default function EditorView() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mentionsPrefix])
+
+  useEffect(() => {
+    const replyPost = reply?.posts[0]
+    if (replyPost) {
+      const replyCw = replyPost.content_warning || ''
+      if (replyCw) {
+        update('contentWarningOpen', true)
+      }
+      const cw = replyCw.toLowerCase().startsWith('re:') ? replyCw : `re: ${replyCw}`
+      update('contentWarning', cw)
+      update('privacy', replyPost.privacy)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reply])
 
   const mentionApi = useMentions({
     value: form.content,
