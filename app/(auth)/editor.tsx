@@ -1,9 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
+import { useEffect, useMemo, useState } from "react"
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
-import { SafeAreaView } from "react-native-safe-area-context"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { useCreatePostMutation, usePostDetail } from "@/lib/api/posts"
 import { useAsks } from "@/lib/asks"
@@ -22,6 +21,7 @@ import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/se
 import { clearSelectionRangeFormat, COLOR_REGEX, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 
 const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color' | 'link'> = {
   mention: {
@@ -153,7 +153,6 @@ export default function EditorView() {
     medias: [] as EditorImage[],
   })
 
-  const inputRef = useRef<TextInput>(null)
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const { replyId, askId, quoteId } = useLocalSearchParams<EditorSearchParams>()
 
@@ -248,6 +247,8 @@ export default function EditorView() {
     if (!canPublish) {
       return
     }
+
+    Keyboard.dismiss()
 
     let text = ''
     for (const part of mentionApi.mentionState.parts) {
@@ -369,67 +370,68 @@ export default function EditorView() {
     },
   }
 
+  const sx = useSafeAreaPadding()
+
   return (
     <DashboardContextProvider data={context}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1, marginTop: sx.paddingTop }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <SafeAreaView style={{ flex: 1 }}>
-          <Stack.Screen
-            options={{
-              animation: 'slide_from_bottom',
-              headerShown: false,
-            }}
+        <Stack.Screen
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+            headerShown: false,
+          }}
+        />
+        <EditorHeader
+          privacy={form.privacy}
+          setPrivacy={(privacy) => update('privacy', privacy)}
+          isLoading={createMutation.isPending}
+          canPublish={canPublish}
+          onPublish={onPublish}
+        />
+        <ScrollView className="flex-grow-0 pb-1" id="editor-scroll" keyboardShouldPersistTaps="handled">
+          {reply && (
+            <View className="m-2 mb-4 rounded-lg">
+              <Text className="text-white mb-2">Replying to:</Text>
+              <PostFragment post={reply.posts[0]} />
+            </View>
+          )}
+          {quote && (
+            <View className="m-2 mb-4 rounded-lg">
+              <Text className="text-white mb-2">Quoting:</Text>
+              <PostFragment post={quote.posts[0]} />
+            </View>
+          )}
+          {ask && askUser && (
+            <View className="m-2 mb-4 rounded-lg bg-indigo-950">
+              <GenericRibbon
+                user={askUser}
+                userNameHTML={askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`}
+                label="asked"
+                link={`/user/${askUser.url}`}
+                icon={<MaterialIcons name="question-mark" size={24} color="white" />}
+                className="border-b border-slate-600"
+              />
+              <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
+            </View>
+          )}
+          <EditorInput
+            {...mentionApi}
+            formState={form}
+            updateFormState={update}
+            selection={selection}
+            mentionState={mentionApi.mentionState}
           />
-          <EditorHeader
-            privacy={form.privacy}
-            setPrivacy={(privacy) => update('privacy', privacy)}
-            canPublish={canPublish}
-            onPublish={onPublish}
+          <ImageList
+            images={form.medias}
+            setImages={(images) => update('medias', images)}
+            disableForceAltText={disableForceAltText}
           />
-          <ScrollView className="flex-grow-0 pb-1" id="editor-scroll" keyboardShouldPersistTaps="always">
-            {reply && (
-              <View className="m-2 mb-4 rounded-lg">
-                <Text className="text-white mb-2">Replying to:</Text>
-                <PostFragment post={reply.posts[0]} />
-              </View>
-            )}
-            {quote && (
-              <View className="m-2 mb-4 rounded-lg">
-                <Text className="text-white mb-2">Quoting:</Text>
-                <PostFragment post={quote.posts[0]} />
-              </View>
-            )}
-            {ask && askUser && (
-              <View className="m-2 mb-4 rounded-lg bg-indigo-950">
-                <GenericRibbon
-                  user={askUser}
-                  userNameHTML={askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`}
-                  label="asked"
-                  link={`/user/${askUser.url}`}
-                  icon={<MaterialIcons name="question-mark" size={24} color="white" />}
-                  className="border-b border-slate-600"
-                />
-                <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
-              </View>
-            )}
-            <EditorInput
-              {...mentionApi}
-              inputRef={inputRef}
-              formState={form}
-              updateFormState={update}
-              selection={selection}
-              mentionState={mentionApi.mentionState}
-            />
-            <ImageList
-              images={form.medias}
-              setImages={(images) => update('medias', images)}
-              disableForceAltText={disableForceAltText}
-            />
-          </ScrollView>
-          <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
-        </SafeAreaView>
+        </ScrollView>
+        <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
       </KeyboardAvoidingView>
     </DashboardContextProvider>
   )
