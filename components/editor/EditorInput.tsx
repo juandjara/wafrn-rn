@@ -25,7 +25,6 @@ export type EditorFormState = {
 
 type Selection = { start: number; end: number }
 type EditorProps = MentionApi & {
-  inputRef: React.RefObject<TextInput>
   formState: EditorFormState
   updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
   selection: Selection
@@ -35,7 +34,6 @@ type EditorProps = MentionApi & {
 export default function EditorInput({
   textInputProps,
   triggers,
-  inputRef,
   formState,
   updateFormState,
   selection,
@@ -88,10 +86,18 @@ export default function EditorInput({
       className="border border-gray-600 rounded-lg mx-2"
     >
       {formState.contentWarningOpen && (
-        <View className="border border-yellow-500 flex-row items-center pl-2 rounded-lg overflow-hidden">
-          <MaterialIcons name='warning-amber' color={colors.yellow[500]} size={24} />
+        <View className="border border-yellow-500 pl-8 rounded-md m-0.5">
+          <MaterialIcons
+            className="absolute left-2 top-2"
+            name='warning-amber'
+            color={colors.yellow[500]}
+            size={24}
+          />
           <TextInput
-            className="placeholder:text-gray-500 text-white py-2 px-3"
+            autoFocus
+            numberOfLines={1}
+            placeholderTextColor={colors.gray[500]}
+            className="text-white py-2 px-3"
             placeholder="Content warning"
             value={formState.contentWarning}
             onChangeText={(text) => updateFormState('contentWarning', text)}
@@ -100,12 +106,12 @@ export default function EditorInput({
       )}
       <View className="flex-1">
         <TextInput
-          ref={inputRef}
           autoFocus
           multiline
           numberOfLines={10}
           textAlignVertical="top"
-          className="placeholder:text-gray-500 text-white py-2 px-3 min-h-[200px]"
+          placeholderTextColor={colors.gray[500]}
+          className="text-white py-2 px-3 min-h-[200px]"
           placeholder={placeholder}
           {...textInputProps}
         />
@@ -118,13 +124,15 @@ export default function EditorInput({
       <EditorSuggestions {...triggers.emoji} type='emoji' />
       <View className="overflow-hidden border-t border-gray-600">
         <TextInput
-          className="placeholder:text-gray-500 text-white py-2 px-3"
+          numberOfLines={1}
+          placeholderTextColor={colors.gray[500]}
+          className="text-white py-2 px-3"
           placeholder="Tags"
           value={tagsLine}
           onChangeText={(text) => updateFormState('tags', text)}
         />
         {parsedTags.length > 0 && (
-          <View className="flex-row items-center gap-2 p-2">
+          <View className="flex-row flex-wrap items-center gap-2 p-2">
             {parsedTags.map((tag) => (
               <Text key={tag} className="bg-gray-600 px-1 rounded-lg text-white">#{tag}</Text>
             ))}
