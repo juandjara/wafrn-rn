@@ -18,26 +18,23 @@ export default function Search() {
   const { value: recent, setValue: setRecent } = useAsyncStorage<string[]>('searchHistory', [])
   const sx = useSafeAreaPadding()
 
-  function setQuery(term: string) {
+  function goToResults(term: string) {
     if (term) {
       Keyboard.dismiss()
-      router.navigate({
-        pathname: '/search/[q]',
-        params: { q: term },
-      })
+      router.push(`/search-results/${term}`)
     }
   }
 
   function onSubmit() {
-    setQuery(searchTerm)
     const prev = (recent || []).filter((item) => item !== searchTerm)
     const next = [searchTerm, ...prev].slice(0, HISTORY_LIMIT)
     setRecent(next)
+    goToResults(searchTerm)
   }
 
   function search(term: string) {
     setSearchTerm(term)
-    setQuery(term)
+    goToResults(term)
   }
 
   function removeRecent(item: string) {
