@@ -1,3 +1,4 @@
+import Loading from "@/components/Loading"
 import { buttonCN } from "@/lib/styles"
 import useLayoutAnimation from "@/lib/useLayoutAnimation"
 import useAsyncStorage from "@/lib/useLocalStorage"
@@ -8,20 +9,19 @@ import { useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 
-const HISTORY_LIMIT = 10
-const HEADER_HEIGHT = 64
+const HISTORY_LIMIT = 20
 
 export default function Search() {
   const animate = useLayoutAnimation()
   const [showTips, setShowTips] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const { value: recent, setValue: setRecent } = useAsyncStorage<string[]>('searchHistory', [])
+  const { value: recent, setValue: setRecent, loading } = useAsyncStorage<string[]>('searchHistory', [])
   const sx = useSafeAreaPadding()
 
   function goToResults(term: string) {
     if (term) {
       Keyboard.dismiss()
-      router.push(`/search-results/${term}`)
+      router.push(`/search-results?q=${term}`)
     }
   }
 
@@ -54,42 +54,40 @@ export default function Search() {
           title: 'Search',
         }}
       />
-      <View
-        style={{ marginTop: sx.paddingTop, height: HEADER_HEIGHT }}
-        className="absolute top-0 right-0 left-0 flex-row items-center border-b border-gray-600 h-16"
-      >
-        <MaterialCommunityIcons
-          className="pl-4 pr-1"
-          name="magnify"
-          size={24}
-          color={colors.gray[300]}
-        />
-        <TextInput
-          autoFocus
-          placeholderTextColor={colors.gray[300]}
-          placeholder="Search text or enter URL"
-          className="text-white flex-grow"
-          onChangeText={setSearchTerm}
-          inputMode="search"
-          onSubmitEditing={onSubmit}
-        />
-        <TouchableOpacity
-          style={{ display: searchTerm ? 'flex' : 'none' }}
-          onPress={() => setSearchTerm('')}
-        >
-          <MaterialCommunityIcons
-            className="px-3"
-            name="close"
-            size={24}
-            color={colors.gray[300]}
-          />
-        </TouchableOpacity>
-      </View>
+
       <KeyboardAvoidingView
-        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT, flex: 1 }}
+        style={{ marginTop: sx.paddingTop, flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView className="flex-1" keyboardShouldPersistTaps='always'>
+          <View className="flex-row items-center border-b border-gray-600 h-16">
+            <MaterialCommunityIcons
+              className="pl-4 pr-1"
+              name="magnify"
+              size={24}
+              color={colors.gray[300]}
+            />
+            <TextInput
+              autoFocus
+              placeholderTextColor={colors.gray[300]}
+              placeholder="Search text or enter URL"
+              className="text-white flex-grow"
+              onChangeText={setSearchTerm}
+              inputMode="search"
+              onSubmitEditing={onSubmit}
+            />
+            <TouchableOpacity
+              style={{ display: searchTerm ? 'flex' : 'none' }}
+              onPress={() => setSearchTerm('')}
+            >
+              <MaterialCommunityIcons
+                className="px-3"
+                name="close"
+                size={24}
+                color={colors.gray[300]}
+              />
+            </TouchableOpacity>
+          </View>
           <View id='search-tips' className="mb-4 p-3">
             <View className="flex-row items-center mb-2">
               <Text className="text-gray-300 font-medium text-sm flex-grow">Search tips</Text>
@@ -120,6 +118,7 @@ export default function Search() {
           </View>
           <View id='search-history' className="p-3">
             <Text className="text-gray-300 font-medium mb-2 text-sm">Search history</Text>
+            {loading && <Loading />}
             {recent?.length === 0 ? (
               <Text className="text-white text-sm">No recent searches</Text>
             ) : (
