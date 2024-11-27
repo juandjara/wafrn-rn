@@ -21,7 +21,7 @@ export default function Search() {
   function goToResults(term: string) {
     if (term) {
       Keyboard.dismiss()
-      router.push(`/search-results/${term}`)
+      router.push(`/search-results?q=${term}`)
     }
   }
 
