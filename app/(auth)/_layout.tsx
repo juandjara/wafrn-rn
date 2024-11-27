@@ -23,12 +23,14 @@ export default function ProtectedLayout() {
 
   // This layout can be deferred because it's not the root layout.
   return (
-    <Stack screenOptions={{
-      ...rootStyles,
-      navigationBarTranslucent: true,
-      navigationBarHidden: false,
-      navigationBarColor: 'rgba(0, 0, 0, 0)',
-    }}>
+    <Stack
+      initialRouteName="(tabs)"
+      screenOptions={{
+        ...rootStyles,
+        navigationBarTranslucent: true,
+        navigationBarColor: 'rgba(0, 0, 0, 0)',
+      }}
+    >
       <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
     </Stack>
   )

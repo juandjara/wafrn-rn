@@ -17,7 +17,7 @@ export default function TabsLayout() {
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 
   return (
-    <Tabs screenOptions={{
+    <Tabs initialRouteName="index" screenOptions={{
       ...rootStyles,
       headerStyle: {
         backgroundColor: Colors.dark.background,
