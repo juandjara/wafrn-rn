@@ -39,6 +39,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          href: '/',
           title: 'Dashboard',
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="home-variant" size={24} color={color} />
         }}
@@ -46,6 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
+          href: '/notifications',
           title: 'Notifications',
           tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
@@ -58,6 +60,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="search"
         options={{
+          href: '/search',
           title: 'Search',
           tabBarIcon: ({ color }) => <MaterialCommunityIcons name="magnify" size={24} color={color} />
         }}
@@ -65,6 +68,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="messages"
         options={{
+          href: '/messages',
           title: 'Messages',
           tabBarIcon: ({ color }) => <FontAwesome name="envelope-o" size={24} color={color} />
         }}
