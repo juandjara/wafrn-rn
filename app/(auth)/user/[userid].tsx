@@ -150,6 +150,7 @@ export default function UserFeed() {
       }} />
       <View style={{ height }}>
         <AnimatedFlashList
+          contentInsetAdjustmentBehavior={'never'}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           estimatedItemSize={800}
