@@ -45,6 +45,14 @@ export default function ProtectedLayout() {
       }}
     >
       <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+      <Stack.Screen name='post/[postid]' />
+      <Stack.Screen name='user/[userid]' />
+      <Stack.Screen name='user/followed/[userid]/' />
+      <Stack.Screen name='user/followers/[userid]/' />
+      <Stack.Screen name='asks' />
+      <Stack.Screen name='editor' />
+      <Stack.Screen name='search-results' />
+      <Stack.Screen name='settings' />
     </Stack>
   )
 }
