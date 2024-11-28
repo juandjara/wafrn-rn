@@ -38,7 +38,7 @@ export default function ProtectedLayout() {
   // This layout can be deferred because it's not the root layout.
   return (
     <Stack
-      initialRouteName="(tabs)/index"
+      initialRouteName="(tabs)"
       screenOptions={{
         ...rootStyles,
         navigationBarTranslucent: true,
