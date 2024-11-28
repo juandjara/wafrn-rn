@@ -6,7 +6,7 @@
     "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive",
     "update:preview": "npx eas-cli update --channel preview --auto",
     "build:preview": "npx eas-cli build --profile preview",
-    "start": "expo start",
+    "start": "expo start --go",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
