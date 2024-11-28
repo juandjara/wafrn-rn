@@ -34,12 +34,12 @@ const queryClient = new QueryClient({
 });
 
 // magic automatic transitions
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+// if (
+//   Platform.OS === 'android' &&
+//   UIManager.setLayoutAnimationEnabledExperimental
+// ) {
+//   UIManager.setLayoutAnimationEnabledExperimental(true);
+// }
 
 cssInterop(Image, { className: "style" })
 cssInterop(SafeAreaView, { className: 'style' })

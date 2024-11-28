@@ -1,6 +1,5 @@
 import Loading from "@/components/Loading"
 import { buttonCN } from "@/lib/styles"
-import useLayoutAnimation from "@/lib/useLayoutAnimation"
 import useAsyncStorage from "@/lib/useLocalStorage"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -12,7 +11,6 @@ import colors from "tailwindcss/colors"
 const HISTORY_LIMIT = 20
 
 export default function Search() {
-  const animate = useLayoutAnimation()
   const [showTips, setShowTips] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const { value: recent, setValue: setRecent, loading } = useAsyncStorage<string[]>('searchHistory', [])
@@ -42,7 +40,6 @@ export default function Search() {
   }
 
   function toggleTips() {
-    animate()
     setShowTips((f) => !f)
   }
 
