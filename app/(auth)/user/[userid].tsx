@@ -136,6 +136,8 @@ export default function UserFeed() {
         title: headerTitle,
         headerBackTitle: 'Back',
         headerTransparent: true,
+        presentation: 'fullScreenModal',
+        animation: 'fade',
         headerTitle: ({ children, tintColor }) => (
           <Reanimated.Text
             numberOfLines={1}
