@@ -1,5 +1,5 @@
 import { DashboardMode, dedupePosts, getDashboardContext, useDashboard } from "@/lib/api/dashboard"
-import { FlatList, Pressable, View } from "react-native"
+import { Pressable, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
 import { useMemo, useRef } from "react"
@@ -8,6 +8,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import Loading from "../Loading"
 import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
+import { FlashList } from "@shopify/flash-list"
+import { PostThread } from "@/lib/api/posts.types"
 
 export default function Dashboard({
   mode = DashboardMode.FEED,
@@ -16,7 +18,7 @@ export default function Dashboard({
   mode: DashboardMode
   header?: React.ReactElement
 }) {
-  const listRef = useRef<FlatList>(null)
+  const listRef = useRef<FlashList<PostThread>>(null)
   const {
     data,
     isFetching,
@@ -60,11 +62,12 @@ export default function Dashboard({
 
   return (
     <DashboardContextProvider data={context}>
-      <FlatList
+      <FlashList
         ref={listRef}
         refreshing={isFetching}
         onRefresh={refresh}
         data={deduped}
+        estimatedItemSize={800}
         onEndReachedThreshold={2}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Thread thread={item} />}

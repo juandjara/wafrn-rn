@@ -5,15 +5,19 @@ import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
 import { Colors } from "@/constants/Colors"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
+import { PostThread } from "@/lib/api/posts.types"
 import { useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import Reanimated, { interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
+
+const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<PostThread>>(FlashList)
 
 export default function UserFeed() {
   const { userid } = useLocalSearchParams()
@@ -110,10 +114,11 @@ export default function UserFeed() {
         ),
       }} />
       <View style={{ marginTop: sx.paddingTop, flex: 1 }}>
-        <Reanimated.FlatList
+        <AnimatedFlashList
           style={{ flex: 1 }}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
+          estimatedItemSize={800}
           data={deduped}
           refreshing={feedFetching || userFetching}
           onRefresh={refresh}
