@@ -113,44 +113,42 @@ export default function UserFeed() {
           <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
         ),
       }} />
-      <View style={{ marginTop: sx.paddingTop, flex: 1 }}>
-        <AnimatedFlashList
-          style={{ flex: 1 }}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          estimatedItemSize={800}
-          data={deduped}
-          refreshing={feedFetching || userFetching}
-          onRefresh={refresh}
-          ListHeaderComponent={
-            <>
-              {user && <UserDetail user={user} />}
-              {feedError ? (
-                <View className="m-1 p-2 bg-red-500/30 rounded-md">
-                  <Text className="text-white mb-2 font-bold">
-                    Error fetching user posts:
-                  </Text>
-                  <Text className="text-gray-200">
-                    {feedError.message}
-                  </Text>
-                </View>
-              ) : null}
-            </>
-          }
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <Thread thread={item} />}
-          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-          ListEmptyComponent={
-            <View className="py-4">
-              {feedFetching ? (
-                <Loading />
-              ) : (
-                <Text className="text-white text-center">No posts found</Text>
-              )}
-            </View>
-          }
-        />
-      </View>
+      <AnimatedFlashList
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        estimatedItemSize={800}
+        contentContainerStyle={{ paddingTop: sx.paddingTop }}
+        data={deduped}
+        refreshing={feedFetching || userFetching}
+        onRefresh={refresh}
+        ListHeaderComponent={
+          <>
+            {user && <UserDetail user={user} />}
+            {feedError ? (
+              <View className="m-1 p-2 bg-red-500/30 rounded-md">
+                <Text className="text-white mb-2 font-bold">
+                  Error fetching user posts:
+                </Text>
+                <Text className="text-gray-200">
+                  {feedError.message}
+                </Text>
+              </View>
+            ) : null}
+          </>
+        }
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <Thread thread={item} />}
+        onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+        ListEmptyComponent={
+          <View className="py-4">
+            {feedFetching ? (
+              <Loading />
+            ) : (
+              <Text className="text-white text-center">No posts found</Text>
+            )}
+          </View>
+        }
+      />
     </DashboardContextProvider>
   );
 }
