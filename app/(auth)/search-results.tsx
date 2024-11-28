@@ -10,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
-import { Pressable, Text, useWindowDimensions, View } from "react-native"
+import { Dimensions, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { TabView } from "react-native-tab-view"
 
 const TABS = [
@@ -129,6 +129,7 @@ export default function SearchResults() {
   }, [isFetching, deduped, users])
 
   const sx = useSafeAreaPadding()
+  const { height } = Dimensions.get('screen')
 
   const screenTitle = (
     <Stack.Screen options={{
@@ -151,7 +152,7 @@ export default function SearchResults() {
   return (
     <DashboardContextProvider data={context}>
       {screenTitle}
-      <View className="h-full" style={{ marginTop: sx.paddingTop + 72 }}>
+      <View style={{ height, marginTop: sx.paddingTop + 72 }}>
         <TabView
           renderTabBar={(props) => (
             <SearchViewSelect

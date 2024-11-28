@@ -14,7 +14,7 @@ import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo } from "react"
-import { Pressable, Text, View } from "react-native"
+import { Dimensions, Pressable, Text, View } from "react-native"
 import Reanimated, { interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
 
 type UserListItem =
@@ -104,6 +104,7 @@ export default function UserFeed() {
     )
   }))
 
+  const { height } = Dimensions.get('screen')
   const headerTitle = String(userid).startsWith('@') ? String(userid) : `@${userid}`
 
   if (userError) {
@@ -147,28 +148,30 @@ export default function UserFeed() {
           <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
         ),
       }} />
-      <AnimatedFlashList
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        estimatedItemSize={800}
-        contentContainerStyle={{ paddingTop: sx.paddingTop }}
-        data={listData}
-        refreshing={feedFetching || userFetching}
-        onRefresh={refresh}
-        getItemType={(item) => item.type}
-        keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
-        renderItem={renderListItem}
-        onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-        ListEmptyComponent={
-          <View className="py-4">
-            {feedFetching ? (
-              <Loading />
-            ) : (
-              <Text className="text-white text-center">No posts found</Text>
-            )}
-          </View>
-        }
-      />
+      <View style={{ height }}>
+        <AnimatedFlashList
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          estimatedItemSize={800}
+          contentContainerStyle={{ paddingTop: sx.paddingTop }}
+          data={listData}
+          refreshing={feedFetching || userFetching}
+          onRefresh={refresh}
+          getItemType={(item) => item.type}
+          keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
+          renderItem={renderListItem}
+          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+          ListEmptyComponent={
+            <View className="py-4">
+              {feedFetching ? (
+                <Loading />
+              ) : (
+                <Text className="text-white text-center">No posts found</Text>
+              )}
+            </View>
+          }
+        />
+      </View>
     </DashboardContextProvider>
   );
 }
