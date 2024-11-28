@@ -44,6 +44,27 @@ if (
 cssInterop(Image, { className: "style" })
 cssInterop(SafeAreaView, { className: 'style' })
 
+export default function RootLayout() {
+  const colorScheme = useColorScheme()
+  return (
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <RootSiblingParent>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <MenuProvider>
+                  <Slot />
+                </MenuProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </RootSiblingParent>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
+  )
+}
+
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
     <SafeAreaProvider>
@@ -76,27 +97,6 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
           </ScrollView>
         </SafeAreaView>
       </RootSiblingParent>
-    </SafeAreaProvider>
-  )
-}
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme()
-  return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <RootSiblingParent>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <MenuProvider>
-                  <Slot />
-                </MenuProvider>
-              </ThemeProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        </RootSiblingParent>
-      </GestureHandlerRootView>
     </SafeAreaProvider>
   )
 }
