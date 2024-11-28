@@ -6,6 +6,10 @@ import { useMemo } from "react"
 import { useColorScheme } from "react-native"
 import colors from "tailwindcss/colors"
 
+export const unstable_settings = {
+  initialRouteName: 'index',
+}
+
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = useMemo(() => {
@@ -17,7 +21,7 @@ export default function TabsLayout() {
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 
   return (
-    <Tabs initialRouteName="index" screenOptions={{
+    <Tabs screenOptions={{
       ...rootStyles,
       headerStyle: {
         backgroundColor: Colors.dark.background,

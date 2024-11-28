@@ -7,6 +7,10 @@ import { Redirect, Stack, useNavigation } from "expo-router"
 import { useEffect } from "react"
 import { useColorScheme } from "react-native"
 
+export const unstable_settings = {
+  initialRouteName: '(tabs)',
+}
+
 export default function ProtectedLayout() {
   const { token, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
@@ -38,7 +42,6 @@ export default function ProtectedLayout() {
   // This layout can be deferred because it's not the root layout.
   return (
     <Stack
-      initialRouteName="(tabs)"
       screenOptions={{
         ...rootStyles,
         navigationBarTranslucent: true,
