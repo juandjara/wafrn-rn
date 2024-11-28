@@ -22,10 +22,7 @@ export default function TabsLayout() {
       headerStyle: {
         backgroundColor: Colors.dark.background,
       },
-      animation: 'fade',
       tabBarStyle: {
-        borderTopWidth: 1,
-        borderColor: colors.blue[900],
         backgroundColor: colors.blue[950],
       },
       tabBarInactiveTintColor: colors.indigo[300],
@@ -41,7 +38,7 @@ export default function TabsLayout() {
         options={{
           href: '/',
           title: 'Dashboard',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="home-variant" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home-variant" size={size} color={color} />
         }}
       />
       <Tabs.Screen
@@ -54,7 +51,7 @@ export default function TabsLayout() {
             backgroundColor: colors.cyan[600],
             color: colors.white,
           },
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="bell-outline" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
         }}
       />
       <Tabs.Screen
@@ -62,7 +59,7 @@ export default function TabsLayout() {
         options={{
           href: '/search',
           title: 'Search',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="magnify" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="magnify" size={size} color={color} />
         }}
       />
       <Tabs.Screen
@@ -70,7 +67,7 @@ export default function TabsLayout() {
         options={{
           href: '/messages',
           title: 'Messages',
-          tabBarIcon: ({ color }) => <FontAwesome name="envelope-o" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => <FontAwesome name="envelope-o" size={size} color={color} />
         }}
       />
     </Tabs>
