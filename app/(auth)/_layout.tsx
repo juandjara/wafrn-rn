@@ -2,12 +2,26 @@
 import SplashScreen from "@/components/SplashScreen"
 import { getRootStyles } from "@/constants/Colors"
 import { useAuth } from "@/lib/contexts/AuthContext"
-import { Redirect, Stack } from "expo-router"
+import { useQueryClient } from "@tanstack/react-query"
+import { Redirect, Stack, useNavigation } from "expo-router"
+import { useEffect } from "react"
 import { useColorScheme } from "react-native"
 
 export default function ProtectedLayout() {
   const { token, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+  const nav = useNavigation()
+  const qc = useQueryClient()
+
+  // cancel ALL queries when exiting a route
+  useEffect(() => {
+    const unsubscribe = nav.addListener('blur', () => {
+      qc.cancelQueries({
+        predicate: () => true
+      })
+    })
+    return unsubscribe
+  }, [nav, qc])
 
   if (isLoading) {
     return <SplashScreen />
