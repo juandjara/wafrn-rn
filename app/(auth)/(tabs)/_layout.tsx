@@ -22,7 +22,7 @@ export default function TabsLayout() {
       headerStyle: {
         backgroundColor: Colors.dark.background,
       },
-      animation: 'shift',
+      animation: 'fade',
       tabBarStyle: {
         borderTopWidth: 1,
         borderColor: colors.blue[900],
