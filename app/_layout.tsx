@@ -1,7 +1,7 @@
 import "../styles.css"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { Platform, Pressable, ScrollView, Text, UIManager, useColorScheme, View } from "react-native"
+import { Platform, Pressable, ScrollView, Text, useColorScheme, View } from "react-native"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import { AuthProvider } from "@/lib/contexts/AuthContext"
 import { ErrorBoundaryProps, Slot } from "expo-router"
@@ -47,21 +47,19 @@ cssInterop(SafeAreaView, { className: 'style' })
 export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <RootSiblingParent>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <MenuProvider>
-                  <Slot />
-                </MenuProvider>
-              </ThemeProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        </RootSiblingParent>
-      </GestureHandlerRootView>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <RootSiblingParent>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <MenuProvider>
+                <Slot />
+              </MenuProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </RootSiblingParent>
+    </GestureHandlerRootView>
   )
 }
 
