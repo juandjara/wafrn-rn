@@ -3,19 +3,19 @@ import Thread from "@/components/posts/Thread"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
-import { Colors } from "@/constants/Colors"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
 import { PostThread } from "@/lib/api/posts.types"
 import { User, useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { Link, router, Stack, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo } from "react"
-import { Dimensions, Pressable, Text, View } from "react-native"
-import Reanimated, { interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
+import { Pressable, Text, View } from "react-native"
+import Reanimated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated"
 
 type UserListItem =
   | { type: 'user', user: User }
@@ -88,23 +88,22 @@ export default function UserFeed() {
     scrollY.value = ev.contentOffset.y
   })
 
-  const headerColor = Colors.dark.background
-  const scrollStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      scrollY.value,
-      [0, 500],
-      ['transparent', headerColor],
-    )
-  }))
-  const headerTitleStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.value,
-      [0, 500],
-      [0, 1],
-    )
-  }))
+  // const headerColor = Colors.dark.background
+  // const scrollStyle = useAnimatedStyle(() => ({
+  //   backgroundColor: interpolateColor(
+  //     scrollY.value,
+  //     [0, 500],
+  //     ['transparent', headerColor],
+  //   )
+  // }))
+  // const headerTitleStyle = useAnimatedStyle(() => ({
+  //   opacity: interpolate(
+  //     scrollY.value,
+  //     [0, 500],
+  //     [0, 1],
+  //   )
+  // }))
 
-  const { height } = Dimensions.get('screen')
   const headerTitle = String(userid).startsWith('@') ? String(userid) : `@${userid}`
 
   if (userError) {
@@ -133,46 +132,43 @@ export default function UserFeed() {
   return (
     <DashboardContextProvider data={context}>
       <Stack.Screen options={{
+        headerShown: false,
         title: headerTitle,
-        headerBackTitle: 'Back',
-        headerTransparent: true,
-        headerTitle: ({ children, tintColor }) => (
-          <Reanimated.Text
-            numberOfLines={1}
-            style={[headerTitleStyle, { color: tintColor, fontWeight: 'medium', fontSize: 18, height: 36 }]}
-          >
-            {children}
-          </Reanimated.Text>
-        ),
-        headerBackground: () => (
-          <Reanimated.View collapsable={false} style={[scrollStyle, { flex: 1 }]} />
-        ),
       }} />
-      <View style={{ height }}>
-        <AnimatedFlashList
-          contentInsetAdjustmentBehavior={'never'}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          estimatedItemSize={800}
-          contentContainerStyle={{ paddingTop: sx.paddingTop }}
-          data={listData}
-          refreshing={feedFetching || userFetching}
-          onRefresh={refresh}
-          getItemType={(item) => item.type}
-          keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
-          renderItem={renderListItem}
-          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-          ListEmptyComponent={
-            <View className="py-4">
-              {feedFetching ? (
-                <Loading />
-              ) : (
-                <Text className="text-white text-center">No posts found</Text>
-              )}
-            </View>
-          }
-        />
-      </View>
+      <Link href='../' asChild>
+        <Pressable style={{
+          marginTop: sx.paddingTop,
+        }} className="bg-black/30 rounded-full absolute top-2 left-2 z-10 p-2">
+          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
+        </Pressable>
+      </Link>
+      <AnimatedFlashList
+        contentInsetAdjustmentBehavior={'never'}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        estimatedItemSize={800}
+        contentInset={{
+          top: sx.paddingTop,
+          bottom: sx.paddingBottom
+        }}
+        contentContainerStyle={{ ...sx }}
+        data={listData}
+        refreshing={feedFetching || userFetching}
+        onRefresh={refresh}
+        getItemType={(item) => item.type}
+        keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
+        renderItem={renderListItem}
+        onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+        ListEmptyComponent={
+          <View className="py-4">
+            {feedFetching ? (
+              <Loading />
+            ) : (
+              <Text className="text-white text-center">No posts found</Text>
+            )}
+          </View>
+        }
+      />
     </DashboardContextProvider>
   );
 }
