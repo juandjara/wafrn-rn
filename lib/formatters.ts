@@ -13,6 +13,9 @@ export function formatMediaUrl(url: string) {
   if (url.startsWith("http")) {
     return url
   }
+  if (url.startsWith("?")) {
+    return url
+  }
   return `${MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
