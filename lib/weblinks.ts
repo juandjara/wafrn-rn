@@ -55,7 +55,7 @@ export default function webUrlToAppUrl(webUrl: string | null) {
   }
   if (webPath.startsWith('dashboard/search/')) {
     const q = webPath.replace('dashboard/search/', '')
-    return `/search/${q}`
+    return `/search?q=${q}`
   }
   return '/'
 }

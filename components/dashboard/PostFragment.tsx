@@ -341,7 +341,7 @@ export default function PostFragment({
                   {tags.map((tag, index) => (
                     <Link
                       key={`${tag}-${index}`}
-                      href={`/search/${tag}`}
+                      href={`/search?q=${tag}`}
                       className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
                       asChild
                     >

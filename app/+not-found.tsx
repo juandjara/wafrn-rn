@@ -15,7 +15,7 @@ export default function NotFoundScreen() {
     if (initialLink) {
       router.replace(initialLink)
     }
-    if (pathname.startsWith('/fediverse/') || pathname.startsWith('/dashboard/search')) {
+    if (pathname.startsWith('/blog') || pathname.startsWith('/fediverse/') || pathname.startsWith('/dashboard/search')) {
       const link = webUrlToAppUrl(`${BASE_URL}${pathname}`)
       if (link) {
         router.replace(link)
