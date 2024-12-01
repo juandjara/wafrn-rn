@@ -31,7 +31,6 @@
     "dayjs": "^1.11.13",
     "emoji-datasource": "^15.1.2",
     "expo": "~52.0.11",
-    "expo-checkbox": "~4.0.0",
     "expo-clipboard": "~7.0.0",
     "expo-constants": "~17.0.3",
     "expo-dev-client": "~5.0.4",
