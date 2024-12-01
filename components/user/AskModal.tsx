@@ -2,13 +2,14 @@ import { PostUser } from "@/lib/api/posts.types"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useState } from "react"
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
 import HtmlRenderer from "../HtmlRenderer"
 import colors from "tailwindcss/colors"
 import { Collapsible } from "../Collapsible"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 
 export default function AskModal({ user, userName }: { user: PostUser; userName: string }) {
   const [open, setOpen] = useState(false)
+  const sx = useSafeAreaPadding()
 
   return (
     <>
@@ -19,7 +20,7 @@ export default function AskModal({ user, userName }: { user: PostUser; userName:
         onRequestClose={() => setOpen(false)}
       >
         <Pressable className="bg-black/50 flex-grow" onPress={() => setOpen(false)}></Pressable>
-        <SafeAreaView className="bg-indigo-950">
+        <View style={sx} className="bg-indigo-950">
           <ScrollView>
             <View className='p-4 pb-0 flex-row items-center justify-between'>
               <View className="flex-row flex-wrap flex-grow flex-shrink">
@@ -56,7 +57,7 @@ export default function AskModal({ user, userName }: { user: PostUser; userName:
               </Text>
             </Collapsible>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </Modal>
       <Pressable
         onPress={() => setOpen(true)}

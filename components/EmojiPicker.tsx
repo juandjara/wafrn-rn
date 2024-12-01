@@ -9,7 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import colors from 'tailwindcss/colors'
 import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 
 export type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -32,6 +32,7 @@ export default function EmojiPicker({
   const listRef = useRef<FlashList<Emoji>>(null)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
+  const sx = useSafeAreaPadding()
 
   const { data: settings } = useSettings()
   const emojiList = useMemo(() => {
@@ -76,7 +77,7 @@ export default function EmojiPicker({
       animationType="slide"
       onRequestClose={() => setOpen(false)}
     >
-      <SafeAreaView className='bg-indigo-950 flex-1'>
+      <View style={sx} className='bg-indigo-950 flex-1'>
         <View className='p-4 flex-row items-center justify-between'>
           <Text className='text-white text-lg font-medium'>React with an emoji</Text>
           <Pressable onPress={() => setOpen(false)}>
@@ -90,7 +91,8 @@ export default function EmojiPicker({
             onChangeText={setSearch}
             placeholder='Search emoji'
             inputMode='search'
-            className='text-white placeholder:text-gray-400 p-2 flex-1'
+            placeholderTextColor={colors.gray[400]}
+            className='text-white p-2 flex-1'
           />
         </View>
         <FlatList
@@ -145,7 +147,7 @@ export default function EmojiPicker({
             )
           }}
         />
-      </SafeAreaView>
+      </View>
     </Modal>
   )
 }

@@ -2,7 +2,7 @@ import "../styles.css"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Platform, Pressable, ScrollView, Text, useColorScheme, View } from "react-native"
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
+import { SafeAreaProvider } from "react-native-safe-area-context"
 import { AuthProvider } from "@/lib/contexts/AuthContext"
 import { ErrorBoundaryProps, Slot } from "expo-router"
 import { MenuProvider } from "react-native-popup-menu"
@@ -17,6 +17,7 @@ import {
   ReanimatedLogLevel,
 } from 'react-native-reanimated'
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -42,7 +43,6 @@ const queryClient = new QueryClient({
 // }
 
 cssInterop(Image, { className: "style" })
-cssInterop(SafeAreaView, { className: 'style' })
 
 export default function RootLayout() {
   const colorScheme = useColorScheme()
@@ -64,10 +64,11 @@ export default function RootLayout() {
 }
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const sx = useSafeAreaPadding()
   return (
     <SafeAreaProvider>
       <RootSiblingParent>
-        <SafeAreaView className="flex-1 bg-red-800 p-4">
+        <View style={sx} className="flex-1 bg-red-800 p-4">
           <ScrollView className="flex-1">
             <Text className="text-white text-xl font-medium mb-4">Something went wrong, sorry :c</Text>
             <Text
@@ -93,7 +94,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
               </Pressable>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </RootSiblingParent>
     </SafeAreaProvider>
   )
