@@ -1,11 +1,22 @@
+import { Colors } from "@/constants/Colors"
 import { MaterialIcons } from "@expo/vector-icons"
-import { DarkTheme } from "@react-navigation/native"
+import { useTheme } from "@react-navigation/native"
 import { useMutationState } from "@tanstack/react-query"
 import clsx from "clsx"
-import Checkbox from "expo-checkbox"
 import { Image } from "expo-image"
 import { useState } from "react"
-import { Modal, Pressable, ScrollView, Text, useWindowDimensions, View, TextInput, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View
+} from "react-native"
 import colors from "tailwindcss/colors"
 
 export type EditorImage = {
@@ -31,6 +42,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
     select: m => m.state.variables as { uri: string }[]
   }).at(-1)
 
+  const theme = useTheme()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
   const { width } = useWindowDimensions()
@@ -55,68 +67,78 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
   return (
     <>
       <Modal
+        animationType="slide"
         visible={openIndex !== null}
         onRequestClose={() => setOpenIndex(null)}
       >
-        <KeyboardAvoidingView
-          style={{ flex: 1, backgroundColor: DarkTheme.colors.card }}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="p-3 py-8 justify-center"
+          style={{ backgroundColor: Colors.dark.background }}
         >
-          <ScrollView
-            contentContainerClassName="p-2 flex-1 justify-center"
-            style={{ backgroundColor: DarkTheme.colors.card }}
-          >
-            <View className="flex-row justify-between">
-              <Text className="text-white text-lg mb-2">Editing image</Text>
-              <Pressable
-                className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
-                onPress={() => {
-                  setOpenIndex(null)
-                  removeImage(openIndex!)
-                }}
-              >
-                <Text className="text-sm text-red-700">Delete image</Text>
-                <MaterialIcons name="delete" color={colors.red[700]} size={20} />
-              </Pressable>
-            </View>
-            <View className="border border-gray-600 rounded-lg">
-              <Image
-                source={selectedImage}
-                style={{ width: size, height: size, resizeMode: 'contain' }}
-              />
-            </View>
-            <View className="px-1 py-3">
-              <Text className="text-gray-300">Description</Text>
-              <TextInput
-                multiline
-                numberOfLines={4}
-                value={selectedImage.description}
-                onChangeText={description => updateOpenImage({ description })}
-                placeholder="Please enter a brief description"
-                className={clsx(
-                  'color-white w-full border bg-white/5 p-2 mt-1 rounded-md',
-                  (selectedImage.description || disableForceAltText)
-                    ? 'border-transparent placeholder:text-gray-500'
-                    : 'border-red-500 placeholder:text-red-300/50'
-                )}
-              />
-            </View>
-            <View className="flex-row items-center gap-4 pt-2 p-3">
-              <Checkbox
-                value={selectedImage.NSFW}
-                onValueChange={NSFW => updateOpenImage({ NSFW })}
-              />
-              <Text className="text-white">Mark media as sensitive</Text>
-            </View>
+          <View className="flex-row items-center pb-3">
             <Pressable
+              className="p-1 bg-white/10 rounded-full mr-3"
               onPress={() => setOpenIndex(null)}
-              className="bg-cyan-800 active:bg-cyan-700 flex-row gap-2 justify-center items-center p-2 m-2 rounded-md"
             >
-              <MaterialIcons name="done" color='white' size={24} />
-              <Text className="text-white text-lg">Done</Text>
+              <MaterialIcons name="arrow-back" color={theme.colors.text} size={24} />
             </Pressable>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            <Text className="text-white flex-grow text-lg">Editing image</Text>
+            <Pressable
+              className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
+              onPress={() => {
+                setOpenIndex(null)
+                removeImage(openIndex!)
+              }}
+            >
+              <Text className="text-sm text-red-700">Delete image</Text>
+              <MaterialIcons name="delete" color={colors.red[700]} size={20} />
+            </Pressable>
+          </View>
+          <View className="border border-gray-600 rounded-lg">
+            <Image
+              source={selectedImage}
+              style={{ width: size, height: size, resizeMode: 'contain' }}
+            />
+          </View>
+          <Pressable
+            onPress={() => updateOpenImage({ NSFW: !selectedImage.NSFW })}
+            className="flex-row items-center gap-4 mt-3"
+          >
+            <Text className="text-white flex-grow">
+              Mark media as sensitive
+            </Text>
+            <Switch
+              value={selectedImage.NSFW}
+              onValueChange={NSFW => updateOpenImage({ NSFW })}
+              trackColor={{ false: colors.gray[600], true: colors.cyan[200] }}
+              thumbColor={selectedImage.NSFW ? colors.cyan[600] : colors.gray[300]}
+            />
+          </Pressable>
+          <View className="mt-3">
+            <Text className="text-gray-300">Description</Text>
+            <TextInput
+              multiline
+              numberOfLines={4}
+              value={selectedImage.description}
+              onChangeText={description => updateOpenImage({ description })}
+              placeholder="Please enter a brief description"
+              className={clsx(
+                'color-white w-full border bg-white/5 p-2 mt-1 rounded-md',
+                (selectedImage.description || disableForceAltText)
+                  ? 'border-transparent placeholder:text-gray-500'
+                  : 'border-red-500 placeholder:text-red-300/50'
+              )}
+            />
+          </View>
+          <Pressable
+            onPress={() => setOpenIndex(null)}
+            className="bg-cyan-800 active:bg-cyan-700 flex-row gap-2 justify-center items-center p-2 mt-4 rounded-md"
+          >
+            <MaterialIcons name="done" color='white' size={24} />
+            <Text className="text-white text-lg">Done</Text>
+          </Pressable>
+        </ScrollView>
       </Modal>
       <ScrollView horizontal style={{ flex: 0 }} contentContainerStyle={{ flex: 0 }}>
         {images.map((img, index) => (
