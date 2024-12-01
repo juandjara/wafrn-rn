@@ -65,7 +65,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
   }
 
   return (
-    <>
+    <View>
       <Modal
         animationType="slide"
         visible={openIndex !== null}
@@ -184,6 +184,6 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
           </View>
         ))}
       </ScrollView>
-    </>
+    </View>
   )
 }
