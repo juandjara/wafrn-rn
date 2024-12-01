@@ -55,7 +55,6 @@ export default function ProtectedLayout() {
       <Stack.Screen name='user/followers/[userid]' />
       <Stack.Screen name='asks' />
       <Stack.Screen name='editor' />
-      <Stack.Screen name='search-results' />
       <Stack.Screen name='settings' />
     </Stack>
   )
