@@ -77,6 +77,7 @@ export default function Media({ media, contentWidth }: {
             contentFit="cover"
             className="rounded-t-md max-w-full"
             imgClassName="rounded-t-md"
+            alt={media.description}
           />
         )}
         {isNotAV(mime, src) && (
