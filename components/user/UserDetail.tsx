@@ -255,8 +255,8 @@ export default function UserDetail({ user }: { user: User }) {
             />
           </View>
           <View id='custom-fields'>
-            {customFields.map((field) => (
-              <View key={field.name} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
+            {customFields.map((field, i) => (
+              <View key={i} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
                 <View className="flex-row">
                   <HtmlRenderer
                     html={field.name}
