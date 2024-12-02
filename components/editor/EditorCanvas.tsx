@@ -1,5 +1,5 @@
 import { EditorImage } from "./EditorImages"
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native"
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native"
 import { Canvas, Path, Skia, SkPath, useCanvasRef } from "@shopify/react-native-skia"
 import { useMemo, useState } from "react"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -8,6 +8,7 @@ import clsx from "clsx"
 import Animated, { useSharedValue } from "react-native-reanimated"
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler"
 import { Colors } from "@/constants/Colors"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 
 type EditorCanvasProps = {
   open: boolean
@@ -35,6 +36,7 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
   const [paths, setPaths] = useState<PathData[]>([])
   const canvasRef = useCanvasRef()
   const currentPath = useSharedValue<SkPath>(Skia.Path.Make().moveTo(0, 0))
+  const sx = useSafeAreaPadding()
 
   async function confirmDrawing() {
     const image = await canvasRef.current?.makeImageSnapshotAsync()
@@ -92,6 +94,9 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
     clearCurrentPath()
   }
 
+  const style = { flex: 1, backgroundColor: Colors.dark.background }
+  const rootStyle = Platform.OS === 'ios' ? { ...sx, ...style } : style
+  
   return (
     <Modal
       animationType="slide"
@@ -99,7 +104,7 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
       onRequestClose={close}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: Colors.dark.background }}>
+        <View style={rootStyle}>
           <View collapsable={false} className="m-4 rounded-md bg-white flex-1">
             <Canvas ref={canvasRef} style={{ flex: 1 }}>
               {paths.map((p, index) => (

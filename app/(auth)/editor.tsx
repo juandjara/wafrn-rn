@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons"
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native"
 import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
@@ -393,13 +393,6 @@ export default function EditorView() {
         style={{ flex: 1, marginTop: sx.paddingTop }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Stack.Screen
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-            headerShown: false,
-          }}
-        />
         <EditorHeader
           privacy={form.privacy}
           setPrivacy={(privacy) => update('privacy', privacy)}
@@ -407,7 +400,11 @@ export default function EditorView() {
           canPublish={canPublish}
           onPublish={onPublish}
         />
-        <ScrollView className="flex-grow-0 pb-1" id="editor-scroll" keyboardShouldPersistTaps="handled">
+        <ScrollView
+          id="editor-scroll"
+          className="flex-grow-0 pb-1"
+          keyboardShouldPersistTaps="handled"
+        >
           {reply && (
             <View className="m-2 mb-4 rounded-lg">
               <Text className="text-white mb-2">Replying to:</Text>

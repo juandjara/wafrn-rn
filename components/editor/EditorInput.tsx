@@ -111,7 +111,7 @@ export default function EditorInput({
           numberOfLines={10}
           textAlignVertical="top"
           placeholderTextColor={colors.gray[500]}
-          className="text-white py-2 px-3 min-h-[200px]"
+          className="text-white py-2 px-3 min-h-[140px]"
           placeholder={placeholder}
           {...textInputProps}
         />

@@ -73,7 +73,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerClassName="p-3 py-8 justify-center"
+          contentContainerClassName="p-3 py-8"
           style={{ backgroundColor: Colors.dark.background }}
         >
           <View className="flex-row items-center pb-3">
