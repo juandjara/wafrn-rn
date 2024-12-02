@@ -26,10 +26,9 @@ function Video({ isAudioOnly = false, src, width, height }: {
   )
 }
 
-export default function Media({ media, contentWidth, hidden }: {
+export default function Media({ media, contentWidth }: {
   media: PostMedia
   contentWidth: number
-  hidden?: boolean
 }) {
   const mime = media.mediaType
   const src = formatCachedUrl(formatMediaUrl(media.url))
@@ -38,10 +37,7 @@ export default function Media({ media, contentWidth, hidden }: {
   const mediaHeight = mediaWidth * aspectRatio
 
   return (
-    <View
-      className="overflow-hidden mb-2 border border-gray-300 rounded-lg"
-      style={{ opacity: hidden ? 0 : 1 }}
-    >
+    <View className="overflow-hidden mb-2 border border-gray-300 rounded-lg">
       <MediaCloak
         blurHash={media.blurhash}
         isNSFW={media.NSFW}
@@ -76,7 +72,6 @@ export default function Media({ media, contentWidth, hidden }: {
           <ZoomableImage
             id={media.id}
             src={src}
-            hidden={hidden}
             width={mediaWidth}
             aspectRatio={aspectRatio}
             contentFit="cover"

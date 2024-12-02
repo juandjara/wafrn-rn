@@ -12,7 +12,6 @@ export default function ZoomableImage({
   id,
   src,
   style,
-  hidden = false,
   contentFit,
   width,
   aspectRatio,
@@ -22,7 +21,6 @@ export default function ZoomableImage({
   id: string
   src: string
   style?: ImageStyle | ViewStyle
-  hidden?: boolean
   contentFit?: ImageStyle["resizeMode"]
   width: number
   aspectRatio: number
@@ -66,7 +64,7 @@ export default function ZoomableImage({
           </ReactNativeZoomableView>
         </View>
       </Modal>
-      <Pressable className={className} onPress={() => !hidden && setModalOpen(true)}>
+      <Pressable className={className} onPress={() => setModalOpen(true)}>
         {isSVG(src) ? (
           <SvgUri
             width={width}
