@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { ThemedView } from '@/components/ThemedView'
 import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardMode } from "@/lib/api/dashboard";
 import { useMemo, useRef, useState } from "react";
@@ -32,7 +31,7 @@ export default function Index() {
   }, [])
 
   return (
-    <ThemedView className="flex-1">
+    <>
       <Stack.Screen
         options={{
           headerTitle: () => null,
@@ -50,9 +49,10 @@ export default function Index() {
         }}
         initialPage={MODES.indexOf(mode)}
         style={{ flex: 1 }}
+        useNext
       >
         {pages}
       </PagerView>
-    </ThemedView>
+    </>
   )
 }
