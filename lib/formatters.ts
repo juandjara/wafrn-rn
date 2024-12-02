@@ -5,6 +5,10 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
+export function unfurlCacheUrl(url: string) {
+  return decodeURIComponent(url.replace(CACHE_URL, ''))
+}
+
 export function formatCachedUrl(url: string) {
   return `${CACHE_URL}${encodeURIComponent(url)}`
 }

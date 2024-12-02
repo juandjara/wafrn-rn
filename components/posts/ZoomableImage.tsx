@@ -4,12 +4,9 @@ import { Modal, Platform, Pressable, StyleSheet, Text, View, ViewStyle } from "r
 import { MaterialIcons } from "@expo/vector-icons"
 import { isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
-// import ImageView from 'react-native-image-viewing'
-// import { showToast } from "@/lib/interaction"
-// import colors from "tailwindcss/colors"
-// import RNFB from 'react-native-blob-util'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { downloadFile } from "@/lib/downloads"
 
 const imageRenderer = ({
   item,
@@ -53,22 +50,6 @@ export default function ZoomableImage({
   const [modalOpen, setModalOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(true)
 
-  function downloadImage() {
-    // RNFB
-    //   .config({
-    //     addAndroidDownloads: {
-    //       useDownloadManager: true,
-    //       notification: true,
-    //       description: 'Downloading image...',
-    //     },
-    //   })
-    //   .fetch('GET', src)
-    //   .then((res) => {
-    //     console.log('The file saved to ', res.path())
-    //     showToast('Image downloaded', colors.green[100], colors.green[900])
-    //   })
-  }
-
   const pt = Platform.select({
     ios: sx.paddingTop + 8,
   })
@@ -81,7 +62,7 @@ export default function ZoomableImage({
             style={{ paddingTop: pt || 8, backgroundColor: 'rgba(0,0,0,0.5)' }}
             className='absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end'
           >
-            <Pressable className='p-2 rounded-full active:bg-white/20' onPress={downloadImage}>
+            <Pressable className='p-2 rounded-full active:bg-white/20' onPress={() => downloadFile(src)}>
               <MaterialIcons name="download" size={24} color='white' />
             </Pressable>
             <Pressable className='p-2 rounded-full active:bg-white/20' onPress={() => setModalOpen(false)}>
