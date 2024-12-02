@@ -14,7 +14,7 @@ import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, router, Stack, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo } from "react"
-import { Pressable, Text, View } from "react-native"
+import { Platform, Pressable, Text, View } from "react-native"
 import Reanimated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated"
 
 type UserListItem =
@@ -143,12 +143,11 @@ export default function UserFeed() {
         </Pressable>
       </Link>
       <AnimatedFlashList
-        contentInsetAdjustmentBehavior={'never'}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         estimatedItemSize={800}
         contentInset={{
-          top: sx.paddingTop,
+          top: Platform.select({ android: sx.paddingTop }),
           bottom: sx.paddingBottom
         }}
         contentContainerStyle={{ ...sx }}
