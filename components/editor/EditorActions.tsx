@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { useState } from "react"
-import { Pressable, ScrollView } from "react-native"
+import { Pressable, ScrollView, View } from "react-native"
 import colors from "tailwindcss/colors"
 import ColorPicker from "./ColorPicker"
 import { launchImageLibraryAsync } from "expo-image-picker"
@@ -39,7 +39,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
   }
 
   return (
-    <>
+    <View>
       <EditorCanvas
         open={showCanvas}
         setOpen={setShowCanvas}
@@ -93,6 +93,6 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           <MaterialCommunityIcons name='brush' color='white' size={24} />
         </Pressable>
       </ScrollView>
-    </>
+    </View>
   )
 }
