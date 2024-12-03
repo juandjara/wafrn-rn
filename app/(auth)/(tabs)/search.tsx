@@ -34,14 +34,16 @@ export default function Search() {
           />
           <TextInput
             autoFocus
+            style={{ marginRight: 48 }}
             placeholderTextColor={colors.gray[300]}
             placeholder="Search text or enter URL"
             className="text-white flex-grow"
+            value={searchTerm}
             onChangeText={setSearchTerm}
             inputMode="search"
-            // onSubmitEditing={onSubmit}
           />
           <TouchableOpacity
+            className="absolute top-4 right-0 z-10"
             style={{ display: searchTerm ? 'flex' : 'none' }}
             onPress={() => setSearchTerm('')}
           >
