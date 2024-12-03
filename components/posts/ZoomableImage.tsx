@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Image, ImageStyle } from 'expo-image'
-import { Modal, Platform, Pressable, StyleSheet, Text, View, ViewStyle } from "react-native"
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
 import { isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
@@ -79,10 +79,12 @@ export default function ZoomableImage({
         />
         {showOverlay && (
           <View
-            style={{ paddingBottom: sx.paddingBottom + 4, backgroundColor: 'rgba(0,0,0,0.5)' }}
+            style={{ maxHeight: '50%', paddingBottom: sx.paddingBottom + 4, backgroundColor: 'rgba(0,0,0,0.5)' }}
             className="absolute z-10 bottom-0 left-0 right-0 pt-2 px-3"
           >
-            <Text className="text-white text-center">{alt}</Text>
+            <ScrollView>
+              <Text className="text-white text-center">{alt}</Text>
+            </ScrollView>
           </View>
         )}
       </Modal>
