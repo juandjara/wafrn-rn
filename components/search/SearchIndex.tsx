@@ -6,25 +6,12 @@ import { useState } from "react"
 import { Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 
-const HISTORY_LIMIT = 20
-
 export default function SearchIndex({ onSearch }: { onSearch: (term: string) => void }) {
   const [showTips, setShowTips] = useState(false)
   const { value: recent, setValue: setRecent, loading } = useAsyncStorage<string[]>('searchHistory', [])
 
   function toggleTips() {
     setShowTips((f) => !f)
-  }
-
-  function handleSearch(term: string) {
-    updateRecent(term)
-    onSearch(term)
-  }
-
-  function updateRecent(searchTerm: string) {
-    const prev = (recent || []).filter((item) => item !== searchTerm)
-    const next = [searchTerm, ...prev].slice(0, HISTORY_LIMIT)
-    setRecent(next)
   }
 
   function removeRecent(item: string) {
@@ -71,7 +58,7 @@ export default function SearchIndex({ onSearch }: { onSearch: (term: string) => 
             <TouchableOpacity
               key={index}
               className="flex-row items-center gap-2"
-              onPress={() => handleSearch(item)}
+              onPress={() => onSearch(item)}
             >
               <Text className="text-white py-2 flex-grow">{item}</Text>
               <Pressable onPress={() => removeRecent(item)} className="p-2">
