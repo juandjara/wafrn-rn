@@ -98,7 +98,8 @@ export function getDashboardContext(data: DashboardData[]) {
       context.emojiRelations.postEmojiRelation.push(postEmojiRelation)
     }
     for (const postEmojiReaction of page.emojiRelations.postEmojiReactions) {
-      const key = `postEmojiReactions-${postEmojiReaction.postId}-${postEmojiReaction.userId}`
+      const innerKey = postEmojiReaction.emojiId || postEmojiReaction.content
+      const key = `postEmojiReactions-${innerKey}-${postEmojiReaction.postId}-${postEmojiReaction.userId}`
       if (!seen.has(key)) {
         seen.add(key)
         context.emojiRelations.postEmojiReactions.push(postEmojiReaction)
@@ -120,15 +121,15 @@ export function getDashboardContext(data: DashboardData[]) {
     for (const mention of page.mentions) {
       context.mentions.push(mention)
     }
-    // TODO: dedupe polls when UI is implemented
+    // duplication is fine here, only one poll per post
     for (const poll of page.polls) {
       context.polls.push(poll)
     }
-    // duplication is fine here
+    // duplication is fine here, only one quote per post
     for (const quotedPost of page.quotedPosts) {
       context.quotedPosts.push(quotedPost)
     }
-    // duplication is fine here
+    // duplication is fine here, only one quote per post
     for (const quote of page.quotes) {
       context.quotes.push(quote)
     }
