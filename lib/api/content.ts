@@ -54,6 +54,13 @@ export type EmojiGroup = {
   id: string
 }
 
+export function isUnicodeHeart(emoji: unknown) {
+  if (!emoji || typeof emoji !== 'string') {
+    return false
+  }
+  return emoji === '❤️' || emoji === '❤' || emoji === '♥️' || emoji === '♥'
+}
+
 export function getReactions(post: Post, context: DashboardContextData) {
   const emojis = Object.fromEntries(
     context.emojiRelations.emojis.map((e) => [e.id, e])
@@ -66,7 +73,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
       emoji: e.emojiId ? emojis[e.emojiId] : e.content
     }))
     .filter((r) => r.user)
-  const grouped = new Map<string,EmojiGroup >()
+  const grouped = new Map<string, EmojiGroup>()
   for (const r of reactions) {
     const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
     if (!grouped.has(key)) {
@@ -78,7 +85,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
     }
     grouped.get(key)!.users.push(r.user!)
   }
-  return [...grouped.values()]
+  return [...grouped.values()].sort((a, b) => a.id.localeCompare(b.id))
 }
 
 export function isValidURL(str: string) {

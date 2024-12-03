@@ -7,7 +7,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
-import { EmojiGroup, getReactions, isEmptyRewoot, processPostContent, replaceEmojis } from "@/lib/api/content"
+import { EmojiGroup, getReactions, isEmptyRewoot, isUnicodeHeart, processPostContent, replaceEmojis } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
@@ -165,14 +165,14 @@ export default function PostFragment({
 
   const reactions = useMemo(() => {
     const reactions = getReactions(post, context)
-    const likeReactions = reactions.filter((r) => r.emoji === '❤️' || r.emoji === '♥️')
+    const likeReactions = reactions.filter((r) => isUnicodeHeart(r.emoji))
     const likeUsers = context.likes
       .filter((l) => l.postId === post.id)
       .map((l) => context.users.find((u) => u.id === l.userId))
       .filter((u) => !!u)
       .concat(likeReactions?.flatMap((l) => l.users) || [])
 
-    const fullReactions = reactions.filter((r) => r.emoji !== '❤️' && r.emoji !== '♥️')
+    const fullReactions = reactions.filter((r) => !isUnicodeHeart(r.emoji))
     if (likeUsers.length) {
       return [{
         id: `${post.id}-likes`,
