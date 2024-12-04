@@ -6,7 +6,7 @@ import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
-import { SettingsOption } from "./settings";
+import { PublicOption } from "./settings";
 
 export type User = {
   createdAt: string // iso date
@@ -42,43 +42,6 @@ export type User = {
 export type UserEmoji = EmojiBase & Timestamps & {
   emojiCollectionId: string | null
   userEmojiRelations: Timestamps & UserEmojiRelation
-}
-
-export enum PublicOptionNames {
-  CustomFields = 'fediverse.public.attachment',
-  Asks = 'wafrn.public.asks'
-}
-export enum AskOptionValue {
-  AllowAnonAsks = 1,
-  AllowIdentifiedAsks = 2,
-  AllowNoAsks = 3
-}
-
-export type PublicOption = SettingsOption & {
-  public: true
-  optionName: PublicOptionNames
-}
-
-// types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
-export type PublicOptionTypeMap = {
-  [PublicOptionNames.CustomFields]: {
-    type: string
-    name: string // HTML (with emojis)
-    value: string // HTML (with emojis)
-  }[]
-  [PublicOptionNames.Asks]: AskOptionValue
-}
-
-export function getPublicOptionValue<T extends PublicOptionNames = PublicOptionNames>(options: PublicOption[], key: T) {
-  const option = options.find((o) => o.optionName === key)
-  const json = option?.optionValue
-  if (!json) return null
-  try {
-    return JSON.parse(json) as PublicOptionTypeMap[typeof key]
-  } catch (e) {
-    console.error(`Failed to parse public option value "${json}"`, e)
-    return null
-  }
 }
 
 export async function getUser(token: string, handle?: string) {

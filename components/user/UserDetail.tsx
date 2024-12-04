@@ -1,4 +1,5 @@
-import { AskOptionValue, getPublicOptionValue, PublicOptionNames, useFollowers, User } from "@/lib/api/user";
+import { useFollowers, User } from "@/lib/api/user";
+import { useSettings, AskOptionValue, getPublicOptionValue, PublicOptionNames } from "@/lib/api/settings";
 import { Pressable, Share, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
@@ -6,7 +7,6 @@ import { useMemo } from "react";
 import { getUserNameHTML, isValidURL, replaceEmojis } from "@/lib/api/content";
 import HtmlRenderer from "../HtmlRenderer";
 import ZoomableImage from "../posts/ZoomableImage";
-import { useSettings } from "@/lib/api/settings";
 import { useParsedToken } from "@/lib/contexts/AuthContext";
 import PostHtmlRenderer from "../posts/PostHtmlRenderer";
 import { Image } from "expo-image";
