@@ -22,7 +22,7 @@ export type SettingsOption = Timestamps & {
   public: boolean
 }
 
-export enum WafrnOptionNames {
+export enum PrivateOptionNames {
   DefaultPostPrivacy = 'wafrn.defaultPostEditorPrivacy',
   DisableForceAltText = 'wafrn.disableForceAltText',
   FederateWithThreads = 'wafrn.federateWithThreads',
@@ -31,26 +31,27 @@ export enum WafrnOptionNames {
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
-export type WafrnOptionTypeMap = {
-  [WafrnOptionNames.DefaultPostPrivacy]: PrivacyLevel
-  [WafrnOptionNames.DisableForceAltText]: boolean
-  [WafrnOptionNames.FederateWithThreads]: boolean
-  [WafrnOptionNames.ForceClassicLogo]: boolean
-  [WafrnOptionNames.MutedWords]: string
+export type PrivateOptionTypeMap = {
+  [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel
+  [PrivateOptionNames.DisableForceAltText]: boolean
+  [PrivateOptionNames.FederateWithThreads]: boolean
+  [PrivateOptionNames.ForceClassicLogo]: boolean
+  [PrivateOptionNames.MutedWords]: string
 }
 
-export type WafrnOption = Omit<SettingsOption, 'public'> & {
-  optionName: WafrnOptionNames
+export type PrivateOption = SettingsOption & {
+  public: false
+  optionName: PrivateOptionNames
 }
 
-export function getWafrnOptionValue<T extends WafrnOptionNames = WafrnOptionNames>(
-  options: WafrnOption[], key: T
+export function getPrivateOptionValue<T extends PrivateOptionNames = PrivateOptionNames>(
+  options: PrivateOption[], key: T
 ) {
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
   if (!json) return null
   try {
-    return JSON.parse(json) as WafrnOptionTypeMap[typeof key]
+    return JSON.parse(json) as PrivateOptionTypeMap[typeof key]
   } catch (e) {
     console.error(`Failed to parse wafrn option value "${json}"`, e)
     return null
@@ -64,7 +65,7 @@ type Settings = {
   mutedUsers: string[] // ids of people you've muted
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
-  options: WafrnOption[] // the actual values of the settings for the user
+  options: PrivateOption[] // the actual values of the settings for the user
 }
 
 export async function getSettings(token: string) {

@@ -21,7 +21,7 @@ import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
-import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
+import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/api/settings"
 
 const HEIGHT_LIMIT = 462
 
@@ -41,7 +41,7 @@ export default function PostFragment({
 
   const { data: settings } = useSettings()
   const mutedWordsLine = useMemo(() => (
-    settings?.options && getWafrnOptionValue(settings.options, WafrnOptionNames.MutedWords) || ''
+    settings?.options && getPrivateOptionValue(settings.options, PrivateOptionNames.MutedWords) || ''
   ), [settings])
 
   const initialCW = useMemo(() => getInitialContentWarning({

@@ -17,7 +17,7 @@ import ImageList, { EditorImage } from "@/components/editor/EditorImages"
 import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
-import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
+import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/api/settings"
 import { clearSelectionRangeFormat, COLOR_REGEX, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
@@ -166,7 +166,7 @@ export default function EditorView() {
     if (!settings?.options) {
       return false
     }
-    return !!getWafrnOptionValue(settings.options, WafrnOptionNames.DisableForceAltText)
+    return !!getPrivateOptionValue(settings.options, PrivateOptionNames.DisableForceAltText)
   }, [settings?.options])
 
   const mentionsPrefix = useMemo(() => {
