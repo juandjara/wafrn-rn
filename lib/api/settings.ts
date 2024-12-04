@@ -27,6 +27,7 @@ export enum WafrnOptionNames {
   DisableForceAltText = 'wafrn.disableForceAltText',
   FederateWithThreads = 'wafrn.federateWithThreads',
   ForceClassicLogo = 'wafrn.forceClassicLogo',
+  MutedWords = 'wafrn.mutedWords'
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -35,6 +36,7 @@ export type WafrnOptionTypeMap = {
   [WafrnOptionNames.DisableForceAltText]: boolean
   [WafrnOptionNames.FederateWithThreads]: boolean
   [WafrnOptionNames.ForceClassicLogo]: boolean
+  [WafrnOptionNames.MutedWords]: string
 }
 
 export type WafrnOption = Omit<SettingsOption, 'public'> & {
@@ -50,7 +52,7 @@ export function getWafrnOptionValue<T extends WafrnOptionNames = WafrnOptionName
   try {
     return JSON.parse(json) as WafrnOptionTypeMap[typeof key]
   } catch (e) {
-    console.error(`Failed to parse public option value "${json}"`, e)
+    console.error(`Failed to parse wafrn option value "${json}"`, e)
     return null
   }
 }

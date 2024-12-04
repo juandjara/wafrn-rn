@@ -158,3 +158,36 @@ export function clearSelectionRangeFormat(
     })
   }
 }
+
+export function getInitialContentWarning({ mutedWordsLine, post, context } : {
+  mutedWordsLine: string
+  post: Post
+  context: DashboardContextData
+}) {
+  const medias = context.medias.filter((m) => m.postId === post.id)
+  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+  const mutedWords = mutedWordsLine.split(',')
+    .map((w) => w.trim().toLocaleLowerCase())
+    .filter((w) => w.length > 0)
+
+  const contentCheck = mutedWords.filter((m) => post.content?.toLocaleLowerCase().includes(m))
+  const tagsCheck = mutedWords.filter((m) => tags.some((t) => t.toLocaleLowerCase().includes(m)))
+  const mediaCheck = mutedWords.filter((m) => medias.some((media) => media.description?.toLocaleLowerCase().includes(m)))
+  const presentWords = Array.from(new Set([...contentCheck, ...tagsCheck, ...mediaCheck]))
+  const isMuted = presentWords.length > 0
+  const formattedWords = presentWords.map((w) => `"${w}"`).join(', ')
+  const separator = post.content_warning ? ' - ' : ''
+
+  return isMuted
+    ? `${post.content_warning || ''}${separator}Contains muted words: ${formattedWords}`
+    : post.content_warning
+}
+
+// export function getInitialContentWarning(mutedWordsLine: string, post: {
+//   tags: string[]
+//   medias: PostMedia[]
+//   content: string
+//   contentWarning?: string
+// }) {
+
+// }

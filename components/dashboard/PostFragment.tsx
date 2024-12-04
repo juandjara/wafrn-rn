@@ -7,7 +7,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
-import { EmojiGroup, getReactions, isEmptyRewoot, isUnicodeHeart, processPostContent, replaceEmojis } from "@/lib/api/content"
+import { EmojiGroup, getInitialContentWarning, getReactions, isEmptyRewoot, isUnicodeHeart, processPostContent, replaceEmojis } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
@@ -21,6 +21,7 @@ import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import { getWafrnOptionValue, useSettings, WafrnOptionNames } from "@/lib/api/settings"
 
 const HEIGHT_LIMIT = 462
 
@@ -33,16 +34,30 @@ export default function PostFragment({
   isQuote?: boolean
   hasCornerMenu?: boolean
 }) {
+  const { width } = useWindowDimensions()
+  const context = useDashboardContext()
   const postRef = useRef(_post)
   const post = postRef.current
-  const [CWOpen, setCWOpen] = useState(!post.content_warning)
+
+  const { data: settings } = useSettings()
+  const mutedWordsLine = useMemo(() => (
+    settings?.options && getWafrnOptionValue(settings.options, WafrnOptionNames.MutedWords) || ''
+  ), [settings])
+
+  const initialCW = useMemo(() => getInitialContentWarning({
+    mutedWordsLine,
+    context,
+    post,
+  }), [mutedWordsLine, context, post])
+
+  const [CWOpen, setCWOpen] = useState(!initialCW)
   const [collapsed, setCollapsed] = useState(true)
   const [fullHeight, setFullHeight] = useState(0)
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
   const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
 
-  const animationRef = useSharedValue(post.content_warning ? 0 : 1)
+  const animationRef = useSharedValue(initialCW ? 0 : 1)
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: animationRef.value,
@@ -59,9 +74,15 @@ export default function PostFragment({
   function recycleState(post: Post) {
     console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
     postRef.current = post
-    setCWOpen(!post.content_warning)
+    const initialCW = getInitialContentWarning({
+      mutedWordsLine,
+      context,
+      post,
+    })
+
+    setCWOpen(!initialCW)
     setCollapsed(true)
-    animationRef.value = post.content_warning ? 0 : 1
+    animationRef.value = initialCW ? 0 : 1
     if (measured.current) {
       setFullHeight(0)
       requestAnimationFrame(() => {
@@ -103,9 +124,6 @@ export default function PostFragment({
   function toggleShowMore() {
     setCollapsed((c) => !c)
   }
-
-  const { width } = useWindowDimensions()
-  const context = useDashboardContext()
 
   const user = useMemo(
     () => context.users.find((u) => u.id === post.userId),
@@ -227,10 +245,10 @@ export default function PostFragment({
           <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
         <View id='content' className={clsx('relative', {
-          'border border-yellow-500 rounded-xl my-4': !!post.content_warning,
+          'border border-yellow-500 rounded-xl my-4': !!initialCW,
           'pb-10': showExpander && !collapsed // EXPANDER_MARGIN
         })}>
-          {post.content_warning && (
+          {initialCW && (
             <View
               id='content-warning-indicator'
               className='flex-row items-start gap-3 p-2'
@@ -257,7 +275,7 @@ export default function PostFragment({
                 )}
               </View>
               <View className="flex-shrink flex-grow gap-2">
-                <Text className="text-yellow-100 leading-5">{post.content_warning}</Text>
+                <Text className="text-yellow-100 leading-5">{initialCW}</Text>
                 <Pressable
                   id='content-warning-toggle'
                   className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
@@ -276,7 +294,7 @@ export default function PostFragment({
               animatedStyle,
               { height: CWOpen ? 'auto' : 0 },
               { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
-              { paddingHorizontal: post.content_warning ? 12 : 0 },
+              { paddingHorizontal: initialCW ? 12 : 0 },
               {
                 transformOrigin: 'top center',
                 overflow: 'hidden',
@@ -371,7 +389,7 @@ export default function PostFragment({
                   paddingTop: 12,
                   paddingBottom: 8,
                   paddingHorizontal: 8,
-                  borderRadius: post.content_warning ? 12 : 0
+                  borderRadius: initialCW ? 12 : 0
                 }}
               >
                 <Pressable
