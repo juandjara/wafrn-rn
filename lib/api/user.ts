@@ -7,6 +7,7 @@ import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
 import { PublicOption } from "./settings";
+import { BSKY_URL } from "./content";
 
 export type User = {
   createdAt: string // iso date
@@ -138,7 +139,7 @@ export function getRemoteInfo(user: User) {
   }
   if (user.bskyDid && user.url.startsWith('@')) {
     return {
-      href: `https://bsky.app/profile/${user.bskyDid}`,
+      href: `${BSKY_URL}/profile/${user.bskyDid}`,
       name: 'bsky.app'
     }
   }
