@@ -140,7 +140,8 @@ type EditorSearchParams = {
   replyId: string
   askId: string
   quoteId: string
-  type: 'reply' | 'ask' | 'quote'
+  editId: string
+  type: 'reply' | 'ask' | 'quote' | 'edit'
 }
 
 export default function EditorView() {
@@ -154,11 +155,12 @@ export default function EditorView() {
   })
 
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const { replyId, askId, quoteId } = useLocalSearchParams<EditorSearchParams>()
+  const { replyId, askId, quoteId, editId } = useLocalSearchParams<EditorSearchParams>()
 
   const me = useParsedToken()
   const { data: reply } = usePostDetail(replyId)
   const { data: quote } = usePostDetail(quoteId)
+  const { data: editingPost } = usePostDetail(editId)
   const { data: asks } = useAsks()
   const { data: settings } = useSettings()
 
@@ -238,8 +240,44 @@ export default function EditorView() {
     if (mentionsPrefix) {
       update('content', (prev) => `${mentionsPrefix}${prev}`)
     }
+    // NOTE: not including 'update' here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mentionsPrefix])
+
+  useEffect(() => {
+    if (editingPost) {
+      const post = editingPost.posts[0]
+      const tags = editingPost.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+      const medias = editingPost.medias.filter((m) => m.postId === post.id).map((m) => ({
+        ...m,
+        uri: formatMediaUrl(m.url),
+        width: m.width || 0,
+        height: m.height || 0,
+      }))
+
+      let content = post.markdownContent || ''
+      const mentions = editingPost.mentions.filter((m) => m.post === post.id)
+      const userMap = Object.fromEntries(editingPost.users.map((u) => [u.id, u]))
+      for (const mention of mentions) {
+        const user = userMap[mention.userMentioned]
+        if (!user) {
+          continue
+        }
+        const remoteId = user.remoteId || `${BASE_URL}/blog/${user.url}`
+        const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${user.id})`
+        content = content.replace(user.url, mentionText)
+      }
+
+      update('content', content)
+      update('tags', tags.join(', '))
+      update('privacy', post.privacy)
+      update('contentWarning', post.content_warning)
+      update('contentWarningOpen', !!post.content_warning)
+      update('medias', medias)
+    }
+    // NOTE: not including 'update' here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingPost])
 
   useEffect(() => {
     const replyPost = reply?.posts[0]
@@ -252,6 +290,7 @@ export default function EditorView() {
       }
       update('privacy', replyPost.privacy)
     }
+    // NOTE: not including 'update' here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reply])
 
@@ -303,6 +342,7 @@ export default function EditorView() {
       parentId: replyId,
       askId,
       quotedPostId: quoteId,
+      editingPostId: editId,
       contentWarning: form.contentWarning,
       privacy: form.privacy,
       joinedTags: form.tags,

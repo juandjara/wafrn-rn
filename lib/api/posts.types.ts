@@ -6,6 +6,7 @@ export type Post = {
   id: string
   content_warning: string
   content: string
+  markdownContent?: string
   remotePostId: string | null
   privacy: PrivacyLevel
   featured: boolean

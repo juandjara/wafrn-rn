@@ -194,14 +194,14 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         enabled: createdByMe,
         disabled: silenceMutation.isPending
       },
-      // {
-      //   action: () => {
-      //     // TODO open editor with context
-      //   },
-      //   icon: <MaterialCommunityIcons name='pencil' size={20} />,
-      //   label: 'Edit',
-      //   enabled: createdByMe && post.privacy === PrivacyLevel.INSTANCE_ONLY,
-      // },
+      {
+        action: () => {
+          router.navigate(`/editor?type=edit&editId=${post.id}`)
+        },
+        icon: <MaterialCommunityIcons name='pencil' size={20} />,
+        label: 'Edit',
+        enabled: createdByMe,
+      },
     ]
       .filter((opt) => opt.enabled)
       .map((opt) => ({
