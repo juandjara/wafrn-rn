@@ -173,6 +173,10 @@ export default function EditorView() {
     if (!reply) {
       return ''
     }
+    if (reply.posts[0].bskyUri) {
+      return ''
+    }
+
     const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
     const userId = reply.posts[0].userId
     const ids = new Set<string>()
