@@ -102,7 +102,7 @@ type Settings = {
   mutedUsers: string[] // ids of people you've muted
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
-  options: PrivateOption[] // the actual values of the settings for the user
+  options: PrivateOption[] & PublicOption[] // the actual values of the settings for the user
 }
 
 export async function getSettings(token: string) {
