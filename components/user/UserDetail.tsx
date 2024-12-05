@@ -1,4 +1,4 @@
-import { useFollowers, User } from "@/lib/api/user";
+import { getRemoteInfo, useFollowers, User } from "@/lib/api/user";
 import { useSettings, AskOptionValue, getPublicOptionValue, PublicOptionNames } from "@/lib/api/settings";
 import { Pressable, Share, Text, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "../ThemedText";
@@ -69,8 +69,10 @@ export default function UserDetail({ user }: { user: User }) {
     }))
   }, [user])
 
+  const remoteInfo = getRemoteInfo(user)
+
   const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
-  const hasAsks = !user.remoteId && askFlag !== AskOptionValue.AllowNoAsks
+  const hasAsks = !remoteInfo && askFlag !== AskOptionValue.AllowNoAsks
   const aspectRatio = 0.5
 
   const userActions = useMemo(() => [
@@ -283,12 +285,12 @@ export default function UserDetail({ user }: { user: User }) {
             <AskModal user={user} userName={userName} />
           )}
           <Text className="text-white text-sm text-center mt-2">
-            Joined {new Date(user.createdAt).toLocaleDateString()}
+            First seen {new Date(user.createdAt).toLocaleDateString()}
           </Text>
-          {user.remoteId && (
-            <Link href={user.remoteId} className="my-2 text-center">
+          {remoteInfo && (
+            <Link href={remoteInfo.href} className="my-2 text-center">
               <Text className="text-cyan-500 text-sm">
-                See complete profile on {user.federatedHost?.displayName}
+                See complete profile on {remoteInfo.name}
               </Text>
             </Link>
           )}

@@ -128,3 +128,19 @@ export function useFollowed(handle?: string) {
     enabled: !!token && !!handle
   })
 }
+
+export function getRemoteInfo(user: User) {
+  if (user.remoteId) {
+    return {
+      href: user.remoteId,
+      name: user.federatedHost?.displayName
+    }
+  }
+  if (user.bskyDid && user.url.startsWith('@')) {
+    return {
+      href: `https://bsky.app/profile/${user.bskyDid}`,
+      name: 'bsky.app'
+    }
+  }
+  return null
+}
