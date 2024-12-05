@@ -284,6 +284,7 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
   }
 }
 
+/** @deprecated this function is not being used and might be removed soon */
 export function formatMentionHTML(mention: string, remoteId?: string) {
   const user = remoteId ? mention.split('@')[1] : mention
   let href = remoteId || `${BASE_URL}/blog/${mention}`
