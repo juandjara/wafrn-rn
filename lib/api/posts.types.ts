@@ -15,6 +15,8 @@ export type Post = {
   hierarchyLevel: number
   parentId: string | null
   notes: number
+  bskyCid?: string
+  bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>
 }
 export type PostThread = Post & {
   ancestors: Post[]

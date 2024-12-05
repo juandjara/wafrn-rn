@@ -38,6 +38,7 @@ export type User = {
   }
   emojis: UserEmoji[]
   publicOptions: PublicOption[]
+  bskyDid?: string
 }
 export type UserEmoji = EmojiBase & Timestamps & {
   emojiCollectionId: string | null
