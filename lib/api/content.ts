@@ -178,16 +178,9 @@ export function getInitialContentWarning({ mutedWordsLine, post, context } : {
   const formattedWords = presentWords.map((w) => `"${w}"`).join(', ')
   const separator = post.content_warning ? ' - ' : ''
 
-  return isMuted
+  const initialCW = isMuted
     ? `${post.content_warning || ''}${separator}Contains muted words: ${formattedWords}`
     : post.content_warning
+
+  return { initialCW, isMuted }
 }
-
-// export function getInitialContentWarning(mutedWordsLine: string, post: {
-//   tags: string[]
-//   medias: PostMedia[]
-//   content: string
-//   contentWarning?: string
-// }) {
-
-// }

@@ -27,7 +27,8 @@ export enum PrivateOptionNames {
   DisableForceAltText = 'wafrn.disableForceAltText',
   FederateWithThreads = 'wafrn.federateWithThreads',
   ForceClassicLogo = 'wafrn.forceClassicLogo',
-  MutedWords = 'wafrn.mutedWords'
+  MutedWords = 'wafrn.mutedWords',
+  DisableCW = 'wafrn.disableCW',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -37,6 +38,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.FederateWithThreads]: boolean
   [PrivateOptionNames.ForceClassicLogo]: boolean
   [PrivateOptionNames.MutedWords]: string
+  [PrivateOptionNames.DisableCW]: boolean
 }
 
 export type PrivateOption = SettingsOption & {

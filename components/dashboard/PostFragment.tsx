@@ -44,20 +44,26 @@ export default function PostFragment({
     settings?.options && getPrivateOptionValue(settings.options, PrivateOptionNames.MutedWords) || ''
   ), [settings])
 
-  const initialCW = useMemo(() => getInitialContentWarning({
+  const { initialCW, isMuted } = useMemo(() => getInitialContentWarning({
     mutedWordsLine,
     context,
     post,
   }), [mutedWordsLine, context, post])
 
-  const [CWOpen, setCWOpen] = useState(!initialCW)
+  const disableCW = useMemo(() => (
+    settings?.options && getPrivateOptionValue(settings.options, PrivateOptionNames.DisableCW) || false
+  ), [settings])
+
+  const initialCWOpen = disableCW && !isMuted ? true : !initialCW
+
+  const [CWOpen, setCWOpen] = useState(initialCWOpen)
   const [collapsed, setCollapsed] = useState(true)
   const [fullHeight, setFullHeight] = useState(0)
   const layoutRef = useRef<View>(null)
   const measured = useRef(false)
   const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
 
-  const animationRef = useSharedValue(initialCW ? 0 : 1)
+  const animationRef = useSharedValue(initialCWOpen ? 1 : 0)
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: animationRef.value,
@@ -74,15 +80,16 @@ export default function PostFragment({
   function recycleState(post: Post) {
     console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
     postRef.current = post
-    const initialCW = getInitialContentWarning({
+    const { initialCW, isMuted } = getInitialContentWarning({
       mutedWordsLine,
       context,
       post,
     })
+    const initialCWOpen = disableCW && !isMuted ? true : !initialCW
 
-    setCWOpen(!initialCW)
+    setCWOpen(initialCWOpen)
     setCollapsed(true)
-    animationRef.value = initialCW ? 0 : 1
+    animationRef.value = initialCWOpen ? 1 : 0
     if (measured.current) {
       setFullHeight(0)
       requestAnimationFrame(() => {
