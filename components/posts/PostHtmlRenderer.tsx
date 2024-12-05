@@ -12,7 +12,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext";
 import { Image, ImageBackground } from "expo-image";
 import { Link, router } from "expo-router";
 import { parseDocument, DomUtils } from "htmlparser2";
-import { ChildNode } from 'domhandler'
+import { ChildNode, Text as DOMText } from 'domhandler'
 import { memo, useMemo, useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import colors from "tailwindcss/colors";
@@ -86,26 +86,15 @@ function _PostHtmlRenderer({
       if (currentIsBlock) {
         if (node.name === 'li' && node.parent?.type === 'tag') {
           let listItemPrefix = null;
-          const defaultStyle = HTML_INLINE_STYLES.text
-          const customStyle = inheritedStyle(node as any);
 
           if (node?.parent.name === 'ol') {
-            listItemPrefix = (
-              <Text testID="ol-marker" style={[defaultStyle, customStyle]}>
-                {`${orderedListCounter++}. `}
-              </Text>
-            );
+            listItemPrefix = `${orderedListCounter++}. `
           } else if (node?.parent.name === 'ul') {
-            listItemPrefix = (
-              <Text testID="ul-marker" style={[defaultStyle, customStyle]}>{'· '}</Text>
-            );
+            listItemPrefix = '• '
           }
-          return (
-            <Text key={index} testID="child-text">
-              {listItemPrefix}
-              {renderDom(node.children)}
-            </Text>
-          )
+          if (listItemPrefix) {
+            DomUtils.prependChild(node, new DOMText(listItemPrefix))
+          }
         }
 
         return (
