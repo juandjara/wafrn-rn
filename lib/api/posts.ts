@@ -8,6 +8,7 @@ import { PrivacyLevel } from "./privacy"
 import { invalidatePostQueries, showToast } from "../interaction"
 import colors from "tailwindcss/colors"
 import { EditorImage } from "@/components/editor/EditorImages"
+import { BSKY_URL } from "./content"
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -319,4 +320,17 @@ export function useVoteMutation(pollId: number | null, post: Post) {
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)
   })
+}
+
+export function getRemotePostUrl(post: Post) {
+  if (post.remotePostId) {
+    return post.remotePostId
+  }
+  if (post.bskyUri) {
+    const parts = post.bskyUri.replace('at://', '').split('/')
+    const did = parts[0]
+    const postId = parts[2]
+    return `${BSKY_URL}/profile/${did}/post/${postId}`
+  }
+  return null
 }

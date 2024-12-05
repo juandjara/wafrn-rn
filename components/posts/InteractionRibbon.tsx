@@ -15,7 +15,7 @@ import AnimatedIcon from "./AnimatedIcon";
 import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
 import { useEmojiReactMutation } from "@/lib/api/emojis";
-import { useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
+import { getRemotePostUrl, useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
 import { useSilenceMutation } from "@/lib/api/blocks";
 import { useSettings } from "@/lib/api/settings";
 
@@ -143,6 +143,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
         disabled: opt.disabled || deleteMutation.isPending,
       }))
 
+    const remoteUrl = getRemotePostUrl(post)
     const secondaryOptions = [
       {
         action: () => {
@@ -158,20 +159,20 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       {
         action: () => {
           Share.share({
-            message: post.remotePostId!,
+            message: remoteUrl!,
           })
         },
         icon: <MaterialCommunityIcons name='share-variant-outline' size={20} />,
         label: 'Share remote link',
-        enabled: !!post.remotePostId
+        enabled: !!remoteUrl
       },
       {
         action: () => {
-          router.navigate(post.remotePostId!)
+          router.navigate(remoteUrl!)
         },
         icon: <MaterialCommunityIcons name='open-in-new' size={20} />,
         label: 'Open remote post',
-        enabled: !!post.remotePostId
+        enabled: !!remoteUrl
       },
       {
         action: () => {
