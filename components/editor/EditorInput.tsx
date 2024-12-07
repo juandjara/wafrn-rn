@@ -29,6 +29,7 @@ type EditorProps = MentionApi & {
   updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
   selection: Selection
   mentionState: MentionApi['mentionState']
+  showTags?: boolean
 }
 
 export default function EditorInput({
@@ -37,7 +38,8 @@ export default function EditorInput({
   formState,
   updateFormState,
   selection,
-  mentionState
+  mentionState,
+  showTags = true,
 }: EditorProps) {
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
@@ -122,23 +124,25 @@ export default function EditorInput({
         type='mention'
       />
       <EditorSuggestions {...triggers.emoji} type='emoji' />
-      <View className="overflow-hidden border-t border-gray-600">
-        <TextInput
-          numberOfLines={1}
-          placeholderTextColor={colors.gray[500]}
-          className="text-white py-2 px-3"
-          placeholder="Tags"
-          value={tagsLine}
-          onChangeText={(text) => updateFormState('tags', text)}
-        />
-        {parsedTags.length > 0 && (
-          <View className="flex-row flex-wrap items-center gap-2 p-2">
-            {parsedTags.map((tag) => (
-              <Text key={tag} className="bg-gray-600 px-1 rounded-lg text-white">#{tag}</Text>
-            ))}
-          </View>
-        )}
-      </View>
+      {showTags && (
+        <View className="overflow-hidden border-t border-gray-600">
+          <TextInput
+            numberOfLines={1}
+            placeholderTextColor={colors.gray[500]}
+            className="text-white py-2 px-3"
+            placeholder="Tags"
+            value={tagsLine}
+            onChangeText={(text) => updateFormState('tags', text)}
+          />
+          {parsedTags.length > 0 && (
+            <View className="flex-row flex-wrap items-center gap-2 p-2">
+              {parsedTags.map((tag) => (
+                <Text key={tag} className="bg-gray-600 px-1 rounded-lg text-white">#{tag}</Text>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
     </View>
   )
 }
