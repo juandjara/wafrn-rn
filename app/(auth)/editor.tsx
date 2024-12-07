@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons"
 import { router, useLocalSearchParams } from "expo-router"
 import { useEffect, useMemo, useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native"
-import { generateValueFromMentionStateAndChangedText, isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
+import { generateValueFromMentionStateAndChangedText, isTriggerConfig, useMentions } from "react-native-more-controlled-mentions"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { useCreatePostMutation, usePostDetail } from "@/lib/api/posts"
 import { useAsks } from "@/lib/asks"
@@ -10,7 +10,6 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import PostFragment from "@/components/dashboard/PostFragment"
 import GenericRibbon from "@/components/GenericRibbon"
-// import { formatMentionHTML } from "@/lib/api/html"
 import EditorHeader from "@/components/editor/EditorHeader"
 import EditorActions, { EditorActionProps } from "@/components/editor/EditorActions"
 import ImageList, { EditorImage } from "@/components/editor/EditorImages"
@@ -18,123 +17,10 @@ import EditorInput, { EditorFormState } from "@/components/editor/EditorInput"
 import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/api/settings"
-import { clearSelectionRangeFormat, COLOR_REGEX, HTTP_LINK_REGEX, MENTION_LINK_REGEX } from "@/lib/api/content"
+import { clearSelectionRangeFormat, EDITOR_TRIGGERS_CONFIG, getTextFromMentionState } from "@/lib/api/content"
 import { BASE_URL } from "@/lib/config"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-
-const triggersConfig: TriggersConfig<'mention' | 'emoji' | 'bold' | 'color' | 'link'> = {
-  mention: {
-    trigger: '@',
-    pattern: MENTION_LINK_REGEX,
-    isInsertSpaceAfterMention: true,
-    textStyle: {
-      fontWeight: 'bold',
-      color: 'deepskyblue',
-    },
-    getTriggerData: (match) => {
-      const [first, last] = match.split('](')
-      if (!first || !last) {
-        return { trigger: '@', original: match, name: match, id: match }
-      }
-      const name = first.replace('[', '')
-      const id = last.replace(')', '')
-      return ({
-        trigger: '@',
-        original: match,
-        name,
-        id,
-      });
-    },
-    getTriggerValue: (suggestion) => `[${suggestion.name}](${suggestion.id})`,
-    getPlainString: (triggerData) => triggerData.name,
-  },
-  emoji: {
-    trigger: ':',
-    pattern: /(:\w+:)/gi,
-    isInsertSpaceAfterMention: true,
-    textStyle: {
-      fontWeight: 'bold',
-      color: 'deepskyblue',
-    },
-    getTriggerData: (match) => {
-      return ({
-        trigger: ':',
-        original: match,
-        name: match,
-        id: match,
-      });
-    },
-    getTriggerValue: (suggestion) => suggestion.name,
-    getPlainString: (triggerData) => triggerData.name,
-  },
-  bold: {
-    trigger: '**',
-    pattern: /(\*\*.*?\*\*)/gi,
-    textStyle: {
-      fontWeight: 'bold',
-    },
-    // How to parse regex match and get required for data for internal logic
-    getTriggerData: (match) => {
-      const text = match.replace(/\*\*/g, '');
-      return ({
-        original: match,
-        trigger: '**',
-        name: text,
-        id: text,
-      });
-    },
-
-    // How to generate internal mention value from selected suggestion
-    getTriggerValue: (suggestion) => `**${suggestion.name}**`,
-
-    // How the highlighted mention will appear in TextInput for user
-    getPlainString: (triggerData) => triggerData.name,
-  },
-  color: {
-    trigger: '#?',
-    pattern: COLOR_REGEX,
-    textStyle: (data) => ({
-      color: data?.id,
-    }),
-    // How to parse regex match and get required for data for internal logic
-    getTriggerData: (match) => {
-      const [first, last] = match.split('](')
-      const color = first.replace('[fg=', '')
-      const text = last.replace(')', '');
-      return ({
-        original: match,
-        trigger: '#?',
-        name: text,
-        id: color,
-      });
-    },
-
-    // How to generate internal mention value from selected suggestion
-    getTriggerValue: (suggestion) => `[fg=${suggestion.id}](${suggestion.name})`,
-
-    // How the highlighted mention will appear in TextInput for user
-    getPlainString: (triggerData) => triggerData.name,
-  },
-  link: {
-    trigger: 'http',
-    pattern: HTTP_LINK_REGEX,
-    textStyle: {
-      color: 'deepskyblue',
-      fontWeight: 'medium'
-    },
-    getTriggerData: (match) => {
-      return ({
-        trigger: 'http',
-        original: match,
-        name: match,
-        id: match,
-      });
-    },
-    getTriggerValue: (suggestion) => suggestion.name,
-    getPlainString: (triggerData) => triggerData.name,
-  },
-}
 
 type EditorSearchParams = {
   replyId: string
@@ -297,7 +183,7 @@ export default function EditorView() {
   const mentionApi = useMentions({
     value: form.content,
     onChange: (value) => update('content', value),
-    triggersConfig,
+    triggersConfig: EDITOR_TRIGGERS_CONFIG,
     onSelectionChange: setSelection,
   })
 
@@ -308,31 +194,7 @@ export default function EditorView() {
 
     Keyboard.dismiss()
 
-    let text = ''
-    for (const part of mentionApi.mentionState.parts) {
-      const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
-      if (trigger === '@') {
-        text += part.data?.name || part.text
-        // const url = part.data?.name
-        // const remoteId = part.data?.id
-        // text += url ? formatMentionHTML(url, remoteId) : part.text
-        continue
-      }
-      if (trigger === '**') {
-        text += `<strong>${part.text}</strong>`
-        continue
-      }
-      if (trigger === '#?') {
-        text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
-        continue
-      }
-      // if (trigger === 'http') {
-      //   text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
-      // }
-      text += part.text
-    }
-    // text = text.replace(/\n/g, '<br>')
-
+    const text = getTextFromMentionState(mentionApi.mentionState)
     const mentionedUserIds = mentionApi.mentionState.parts
       .filter((p) => p.data?.id && p.config && isTriggerConfig(p.config) && p.config.trigger === '@')
       .map((p) => p.data?.id) as string[]

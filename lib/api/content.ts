@@ -2,7 +2,7 @@ import { DashboardContextData } from "../contexts/DashboardContext"
 import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
-import { useMentions } from "react-native-more-controlled-mentions"
+import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -185,4 +185,147 @@ export function getInitialContentWarning({ mutedWordsLine, post, context } : {
     : post.content_warning
 
   return { initialCW, isMuted }
+}
+
+export function getTextFromMentionState(mentionState: MentionApi['mentionState']) {
+  let text = ''
+  for (const part of mentionState.parts) {
+    const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
+    if (trigger === '@') {
+      text += part.data?.name || part.text
+      // const url = part.data?.name
+      // const remoteId = part.data?.id
+      // text += url ? formatMentionHTML(url, remoteId) : part.text
+      continue
+    }
+    if (trigger === '**') {
+      text += `<strong>${part.text}</strong>`
+      continue
+    }
+    if (trigger === '#?') {
+      text += `<span class="wafrn-color" style="color: ${part.data?.id}">${part.text}</span>`
+      continue
+    }
+    // if (trigger === 'http') {
+    //   text += `<a href="${part.text}" target="_blank" rel="noopener noreferrer">${part.text}</a>`
+    // }
+    text += part.text
+  }
+  // text = text.replace(/\n/g, '<br>')
+  return text
+}
+
+export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
+  'mention' | 'emoji' | 'bold' | 'color' | 'link'
+> = {
+  mention: {
+    trigger: '@',
+    pattern: MENTION_LINK_REGEX,
+    isInsertSpaceAfterMention: true,
+    textStyle: {
+      fontWeight: 'bold',
+      color: 'deepskyblue',
+    },
+    getTriggerData: (match) => {
+      const [first, last] = match.split('](')
+      if (!first || !last) {
+        return { trigger: '@', original: match, name: match, id: match }
+      }
+      const name = first.replace('[', '')
+      const id = last.replace(')', '')
+      return ({
+        trigger: '@',
+        original: match,
+        name,
+        id,
+      });
+    },
+    getTriggerValue: (suggestion) => `[${suggestion.name}](${suggestion.id})`,
+    getPlainString: (triggerData) => triggerData.name,
+  },
+  emoji: {
+    trigger: ':',
+    pattern: /(:\w+:)/gi,
+    isInsertSpaceAfterMention: true,
+    textStyle: {
+      fontWeight: 'bold',
+      color: 'deepskyblue',
+    },
+    getTriggerData: (match) => {
+      return ({
+        trigger: ':',
+        original: match,
+        name: match,
+        id: match,
+      });
+    },
+    getTriggerValue: (suggestion) => suggestion.name,
+    getPlainString: (triggerData) => triggerData.name,
+  },
+  bold: {
+    trigger: '**',
+    pattern: /(\*\*.*?\*\*)/gi,
+    textStyle: {
+      fontWeight: 'bold',
+    },
+    // How to parse regex match and get required for data for internal logic
+    getTriggerData: (match) => {
+      const text = match.replace(/\*\*/g, '');
+      return ({
+        original: match,
+        trigger: '**',
+        name: text,
+        id: text,
+      });
+    },
+
+    // How to generate internal mention value from selected suggestion
+    getTriggerValue: (suggestion) => `**${suggestion.name}**`,
+
+    // How the highlighted mention will appear in TextInput for user
+    getPlainString: (triggerData) => triggerData.name,
+  },
+  color: {
+    trigger: '#?',
+    pattern: COLOR_REGEX,
+    textStyle: (data) => ({
+      color: data?.id,
+    }),
+    // How to parse regex match and get required for data for internal logic
+    getTriggerData: (match) => {
+      const [first, last] = match.split('](')
+      const color = first.replace('[fg=', '')
+      const text = last.replace(')', '');
+      return ({
+        original: match,
+        trigger: '#?',
+        name: text,
+        id: color,
+      });
+    },
+
+    // How to generate internal mention value from selected suggestion
+    getTriggerValue: (suggestion) => `[fg=${suggestion.id}](${suggestion.name})`,
+
+    // How the highlighted mention will appear in TextInput for user
+    getPlainString: (triggerData) => triggerData.name,
+  },
+  link: {
+    trigger: 'http',
+    pattern: HTTP_LINK_REGEX,
+    textStyle: {
+      color: 'deepskyblue',
+      fontWeight: 'medium'
+    },
+    getTriggerData: (match) => {
+      return ({
+        trigger: 'http',
+        original: match,
+        name: match,
+        id: match,
+      });
+    },
+    getTriggerValue: (suggestion) => suggestion.name,
+    getPlainString: (triggerData) => triggerData.name,
+  },
 }
