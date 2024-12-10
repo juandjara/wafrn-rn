@@ -1,27 +1,3 @@
-import { BASE_URL } from "./config"
-import { getInitialURL, parse } from "expo-linking"
-import { useEffect, useState } from "react"
-
-// export function useWebLinkDetector() {
-//   const [url, setUrl] = useState<string | null>(null)
-
-//   useEffect(() => {
-//     let isMounted = true
-//     const handleUrl = async () => {
-//       const initialUrl = await getInitialURL()
-//       if (isMounted) {
-//         setUrl(webUrlToAppUrl(initialUrl))
-//       }
-//     }
-//     handleUrl()
-
-//     return () => {
-//       isMounted = false
-//     }
-//   }, [])
-
-//   return url
-// }
 
 /** transform a web pathname to a native pathname */
 export default function webPathToAppPath(webPath: string) {
