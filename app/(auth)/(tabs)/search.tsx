@@ -1,8 +1,7 @@
-import useDebounce from "@/lib/useDebounce"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { Stack } from "expo-router"
-import { useEffect, useState } from "react"
+import { router, Stack, useLocalSearchParams } from "expo-router"
+import { useState } from "react"
 import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 import SearchResults from "@/components/search/SearchResults"
@@ -12,18 +11,23 @@ import useAsyncStorage from "@/lib/useLocalStorage"
 const HISTORY_LIMIT = 20
 
 export default function Search() {
+  const { q } = useLocalSearchParams<{ q: string }>()
   const [searchTerm, setSearchTerm] = useState('')
-  const debouncedSearchTerm = useDebounce(searchTerm, 500)
   const sx = useSafeAreaPadding()
-  const { value: recent, setValue: setRecent, loading: loadingRecent } = useAsyncStorage<string[]>('searchHistory', [])
+  const {
+    value: recent,
+    setValue: setRecent,
+    loading: loadingRecent
+  } = useAsyncStorage<string[]>('searchHistory', [])
 
-  useEffect(() => {
-    if (!loadingRecent && debouncedSearchTerm) {
-      const prev = (recent || []).filter((item) => item !== debouncedSearchTerm)
-      const next = [debouncedSearchTerm, ...prev].slice(0, HISTORY_LIMIT)
+  function search(query: string) {
+    if (!loadingRecent && query) {
+      const prev = (recent || []).filter((item) => item !== query)
+      const next = [query, ...prev].slice(0, HISTORY_LIMIT)
       setRecent(next)
+      router.push(`/search?q=${query}`)
     }
-  }, [loadingRecent, recent, setRecent, debouncedSearchTerm])
+  }
 
   return (
     <>
@@ -53,6 +57,7 @@ export default function Search() {
             value={searchTerm}
             onChangeText={setSearchTerm}
             inputMode="search"
+            onSubmitEditing={(e) => search(e.nativeEvent.text)}
           />
           <TouchableOpacity
             className="absolute top-4 right-0 z-10"
@@ -68,10 +73,10 @@ export default function Search() {
           </TouchableOpacity>
         </View>
         <View className="flex-1">
-          {debouncedSearchTerm ? (
-            <SearchResults query={debouncedSearchTerm} />
+          {q ? (
+            <SearchResults query={q} />
           ) : (
-            <SearchIndex onSearch={setSearchTerm} />
+            <SearchIndex onSearch={search} />
           )}
         </View>
       </KeyboardAvoidingView>
