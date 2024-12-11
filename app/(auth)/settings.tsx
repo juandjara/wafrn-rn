@@ -2,9 +2,13 @@ import { BASE_URL } from "@/lib/config";
 import { useAuth, useParsedToken, UserRoles } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link, Stack } from "expo-router";
-import { Pressable, ScrollView, Text } from "react-native";
+import { router } from "expo-router";
+import { cssInterop } from "nativewind";
+import { ScrollView, Text, View } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import colors from "tailwindcss/colors";
+
+cssInterop(Pressable, { className: 'style' })
 
 export default function Settings() {
   const { setToken } = useAuth()
@@ -15,17 +19,17 @@ export default function Settings() {
     {
       icon: 'account-multiple-plus-outline',
       label: 'Import follows',
-      link: '/user/import-follows'
+      link: '/setting/import-follows'
     },
     {
       icon: 'account-edit-outline',
       label: 'Edit my profile',
-      link: '/user/edit-profile'
+      link: '/setting/edit-profile'
     },
     {
       icon: 'palette',
       label: 'Options & Customizations',
-      link: '/user/customizations'
+      link: '/setting/options'
     },
     // {
     //   icon: 'account-eye-outline',
@@ -50,12 +54,12 @@ export default function Settings() {
     {
       icon: 'server-off',
       label: 'Mutes & Blocks',
-      link: '/mutes-and-blocks'
+      link: '/setting/mutes-and-blocks'
     },
     {
       icon: 'shield-account-outline',
       label: 'Admin settings',
-      link: '/admin/settings',
+      link: '/setting/admin',
       hidden: !isAdmin
     },
     {
@@ -87,9 +91,8 @@ export default function Settings() {
   })
 
   return (
-    <>
-      <Stack.Screen options={{ title: 'Settings' }} />
-      <ScrollView className="flex-1 bg-cyan-500/20">
+    <View className="bg-gray-800">
+      <ScrollView>
         <Pressable
           onPress={() => setToken(null)}
           className="active:bg-white/10"
@@ -99,14 +102,17 @@ export default function Settings() {
           <Text className="text-red-400">Log out</Text>
         </Pressable>
         {filteredOptions.map((option, i) => (
-          <Link key={i} href={option.link} asChild>
-            <Pressable className="active:bg-white/10" style={optionStyleDark(i)}>
-              <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
-              <Text className="text-white">{option.label}</Text>
-            </Pressable>
-          </Link>
+          <Pressable
+            key={i}
+            onPress={() => router.navigate(option.link)}
+            className="active:bg-white/10"
+            style={optionStyleDark(i)}
+          >
+            <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
+            <Text className="text-white">{option.label}</Text>
+          </Pressable>
         ))}
       </ScrollView>
-    </>
+    </View>
   )
 }

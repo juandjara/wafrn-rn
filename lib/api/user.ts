@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../config";
 import { getJSON, statusError, StatusError } from "../http";
 import { parseToken } from "./auth";
@@ -6,8 +6,12 @@ import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
-import { PublicOption } from "./settings";
+import { PrivateOptionNames, PublicOption, SettingsOption } from "./settings";
 import { BSKY_URL } from "./content";
+import colors from "tailwindcss/colors";
+import { showToast } from "../interaction";
+import type { MediaUploadPayload } from "./media";
+import { markdownToHTML } from "../markdown";
 
 export type User = {
   createdAt: string // iso date
@@ -40,6 +44,7 @@ export type User = {
   emojis: UserEmoji[]
   publicOptions: PublicOption[]
   bskyDid?: string
+  manuallyAcceptsFollows: boolean
 }
 export type UserEmoji = EmojiBase & Timestamps & {
   emojiCollectionId: string | null
@@ -144,4 +149,77 @@ export function getRemoteInfo(user: User) {
     }
   }
   return null
+}
+
+export type EditProfilePayload = {
+  name: string
+  avatar?: MediaUploadPayload
+  description?: string
+  manuallyAcceptsFollows?: boolean
+  options?: SettingsOption[]
+}
+
+async function updateProfile(token: string, payload: EditProfilePayload) {
+  const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
+
+  let optionFound = false
+  const editOptions = (payload.options || []).map(o => {
+    if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
+      optionFound = true
+      return {
+        name: o.optionName,
+        value: JSON.stringify(payload.description || '')
+      }
+    }
+    return {
+      name: o.optionName,
+      value: JSON.stringify(o.optionValue)
+    }
+  })
+  if (!optionFound) {
+    editOptions.push({
+      name: PrivateOptionNames.OriginalMarkdownBio,
+      value: JSON.stringify(payload.description || '')
+    })
+  }
+
+  const formData = new FormData()
+  formData.append('name', payload.name)
+  formData.append('description', htmlDescription)
+  formData.append('manuallyAcceptsFollows', payload.manuallyAcceptsFollows ? 'true' : 'false')
+  formData.append('options', JSON.stringify(editOptions))
+  if (payload.avatar) {
+    formData.append('avatar', payload.avatar as any)
+  }
+
+  await getJSON(`${API_URL}/editProfile`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function useEditProfileMutation() {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['editProfile'],
+    mutationFn: (payload: EditProfilePayload) => updateProfile(token!, payload),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToast('Failed editing profile', colors.red[100], colors.red[900])
+    },
+    onSuccess: (data, variables) => {
+      showToast(`Profile edited`, colors.green[100], colors.green[900])
+    },
+    // after either error or success, refetch the settings to account for new options
+    onSettled: () => {
+      return qc.invalidateQueries({
+        queryKey: ['settings'],
+      })
+    }
+  })
 }

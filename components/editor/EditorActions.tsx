@@ -30,6 +30,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
       mediaTypes: 'images',
       allowsEditing: false,
       allowsMultipleSelection: true,
+      orderedSelection: true,
       selectionLimit: 4,
       quality: 0.5,
     })

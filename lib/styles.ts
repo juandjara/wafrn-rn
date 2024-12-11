@@ -6,6 +6,7 @@ export const optionStyle = (i: number) => ({
   borderTopWidth: i > 0 ? 1 : 0,
   borderTopColor: colors.gray[200],
   flexDirection: 'row' as const,
+  alignItems: 'center' as const,
   gap: 12,
 })
 

@@ -30,6 +30,7 @@ type EditorProps = MentionApi & {
   selection: Selection
   mentionState: MentionApi['mentionState']
   showTags?: boolean
+  autoFocus?: boolean
 }
 
 export default function EditorInput({
@@ -40,6 +41,7 @@ export default function EditorInput({
   selection,
   mentionState,
   showTags = true,
+  autoFocus = true,
 }: EditorProps) {
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
@@ -96,7 +98,7 @@ export default function EditorInput({
             size={24}
           />
           <TextInput
-            autoFocus
+            autoFocus={autoFocus}
             numberOfLines={1}
             placeholderTextColor={colors.gray[500]}
             className="text-white py-2 px-3"
@@ -108,7 +110,7 @@ export default function EditorInput({
       )}
       <View className="flex-1">
         <TextInput
-          autoFocus
+          autoFocus={autoFocus}
           multiline
           numberOfLines={10}
           textAlignVertical="top"

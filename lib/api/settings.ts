@@ -29,6 +29,7 @@ export enum PrivateOptionNames {
   ForceClassicLogo = 'wafrn.forceClassicLogo',
   MutedWords = 'wafrn.mutedWords',
   DisableCW = 'wafrn.disableCW',
+  OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -39,6 +40,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.ForceClassicLogo]: boolean
   [PrivateOptionNames.MutedWords]: string
   [PrivateOptionNames.DisableCW]: boolean
+  [PrivateOptionNames.OriginalMarkdownBio]: string
 }
 
 export type PrivateOption = SettingsOption & {

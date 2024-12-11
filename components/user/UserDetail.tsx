@@ -136,11 +136,9 @@ export default function UserDetail({ user }: { user: User }) {
         <ThemedText className="text-xs text-center">{formatUserUrl(user)}</ThemedText>
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (
-            <Pressable>
-              <Text className="text-indigo-400 bg-indigo-950 py-2 px-5 text-lg rounded-full">
-                Edit profile
-              </Text>
-            </Pressable>
+            <Link href='/setting/edit-profile' className="text-indigo-400 bg-indigo-950 py-2 px-5 text-lg rounded-full">
+              Edit profile
+            </Link>
           ) : (
             <View>
               {amIFollowing && (
@@ -173,10 +171,7 @@ export default function UserDetail({ user }: { user: User }) {
             </View>
           )}
           <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger
-              onPress={() => console.log('open user menu')}
-              style={{ padding: 6, backgroundColor: `${colors.gray[500]}20`, borderRadius: 40 }}
-            >
+            <MenuTrigger style={{ padding: 6, backgroundColor: `${colors.gray[500]}20`, borderRadius: 40 }}>
               <MaterialCommunityIcons
                 size={24}
                 name={`dots-vertical`}

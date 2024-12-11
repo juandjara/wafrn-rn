@@ -75,13 +75,13 @@ export function getAspectRatio(media: PostMedia) {
   return media.width && media.height ? media.height / media.width : 1
 }
 
-type UploadPayload = {
+export type MediaUploadPayload = {
   uri: string
   type: string
   name: string
 }
 
-export async function uploadMedia(token: string, payload: UploadPayload) {
+export async function uploadMedia(token: string, payload: MediaUploadPayload) {
   const formData = new FormData()
   // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
   formData.append('image', payload as any)
@@ -100,7 +100,7 @@ export function useMediaUploadMutation() {
   const { token } = useAuth()
   return useMutation({
     mutationKey: ['mediaUpload'],
-    mutationFn: (medias: UploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
+    mutationFn: (medias: MediaUploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
     onSuccess: () => {
       showToast('Media uploaded', colors.green[100], colors.green[900])
     },
