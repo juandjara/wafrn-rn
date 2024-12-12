@@ -430,9 +430,11 @@ function Reaction({ reaction }: { reaction: EmojiGroup }) {
         users={reaction.users}
         reaction={reaction.emoji}
       >
-        <Text className="text-gray-200 py-1 px-2 rounded-md border border-gray-500">
-          {reaction.emoji} {reaction.users.length}
-        </Text>
+        <View className="flex-row items-center py-1 px-2 rounded-md border border-gray-500">
+          <Text className="text-gray-200">
+            {reaction.emoji} {reaction.users.length}
+          </Text>
+        </View>
       </ReactionDetailsMenu>
     )
   } else {
