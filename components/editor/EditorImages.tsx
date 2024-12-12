@@ -30,6 +30,8 @@ export type EditorImage = {
   mimeType?: string
 }
 
+const COMMON_MEDIA_LIMIT = 4
+
 export default function ImageList({ images, setImages, disableForceAltText }: {
   images: EditorImage[]
   setImages: (images: EditorImage[]) => void
@@ -140,6 +142,11 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
           </Pressable>
         </ScrollView>
       </Modal>
+      {images.length > COMMON_MEDIA_LIMIT && (
+        <Text className="text-white text-sm p-3">
+          Note: Only the first {COMMON_MEDIA_LIMIT} images will be displayed in platforms like Mastodon
+        </Text>
+      )}
       <ScrollView horizontal style={{ flex: 0 }} contentContainerStyle={{ flex: 0 }}>
         {images.map((img, index) => (
           <View className="relative" key={img.uri}>
