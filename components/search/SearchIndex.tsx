@@ -49,7 +49,17 @@ export default function SearchIndex({ onSearch }: { onSearch: (term: string) => 
         ) : null}
       </View>
       <View id='search-history' className="p-3">
-        <Text className="text-gray-300 font-medium mb-2 text-sm">Search history</Text>
+        <View className="mb-2 flex-row">
+          <Text className="text-gray-300 font-medium text-sm flex-shrink">Search history</Text>
+          {(recent?.length || 0) > 0 && (
+            <Pressable
+              onPress={() => setRecent([])}
+              className="rounded-full active:bg-white/10 px-2 py-1 w-20"
+            >
+              <Text className="text-indigo-600 font-medium text-center text-sm">Clear all</Text>
+            </Pressable>
+          )}
+        </View>
         {loading && <Loading />}
         {recent?.length === 0 ? (
           <Text className="text-white text-sm">No recent searches</Text>
@@ -60,8 +70,8 @@ export default function SearchIndex({ onSearch }: { onSearch: (term: string) => 
               className="flex-row items-center gap-2"
               onPress={() => onSearch(item)}
             >
-              <Text className="text-white py-2 flex-grow">{item}</Text>
-              <Pressable onPress={() => removeRecent(item)} className="p-2">
+              <Text className="text-white py-2 flex-grow flex-shrink">{item}</Text>
+              <Pressable onPress={() => removeRecent(item)} className="p-2 flex-shrink-0">
                 <MaterialCommunityIcons name="close" size={16} color={colors.gray[300]} />
               </Pressable>
             </TouchableOpacity>

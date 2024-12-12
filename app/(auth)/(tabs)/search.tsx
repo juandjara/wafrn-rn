@@ -12,7 +12,7 @@ const HISTORY_LIMIT = 20
 
 export default function Search() {
   const { q } = useLocalSearchParams<{ q: string }>()
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(q)
   const sx = useSafeAreaPadding()
   const {
     value: recent,
@@ -25,8 +25,14 @@ export default function Search() {
       const prev = (recent || []).filter((item) => item !== query)
       const next = [query, ...prev].slice(0, HISTORY_LIMIT)
       setRecent(next)
+      setSearchTerm(query)
       router.push(`/search?q=${query}`)
     }
+  }
+
+  function clear() {
+    setSearchTerm('')
+    router.navigate('/search')
   }
 
   return (
@@ -62,7 +68,7 @@ export default function Search() {
           <TouchableOpacity
             className="absolute top-4 right-0 z-10"
             style={{ display: searchTerm ? 'flex' : 'none' }}
-            onPress={() => setSearchTerm('')}
+            onPress={clear}
           >
             <MaterialCommunityIcons
               className="px-3"
