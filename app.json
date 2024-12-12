@@ -3,7 +3,7 @@
     "newArchEnabled": true,
     "name": "Wafrn",
     "slug": "wafrn-rn",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo_w.png",
     "scheme": "wafrn",
