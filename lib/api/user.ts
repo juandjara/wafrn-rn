@@ -172,7 +172,7 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
     }
     return {
       name: o.optionName,
-      value: JSON.stringify(o.optionValue)
+      value: o.optionValue
     }
   })
   if (!optionFound) {
