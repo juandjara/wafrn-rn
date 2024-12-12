@@ -112,10 +112,10 @@ export default function EditorView() {
       || form.contentWarning.length > 0
   }, [form, disableForceAltText, createMutation, uploadMutation])
 
-  type FormKey = keyof typeof form
-  type FormValue = typeof form[FormKey]
-
-  function update(key: FormKey, value: FormValue | ((prev: FormValue) => FormValue)) {
+  function update<T extends keyof typeof form>(
+    key: T,
+    value: typeof form[T] | ((prev: typeof form[T]) => typeof form[T])
+  ) {
     setForm((prev) => {
       const newValue = typeof value === 'function' ? value(prev[key]) : value
       return { ...prev, [key]: newValue }
@@ -256,7 +256,7 @@ export default function EditorView() {
       )
     },
     addImages: (images: EditorImage[]) => {
-      update('medias', images)
+      update('medias', prev => prev.concat(images))
       uploadMutation.mutate(images.map((a) => ({
         uri: a.uri,
         type: a.mimeType!,
@@ -265,7 +265,7 @@ export default function EditorView() {
         onSuccess(data, variables) {
           // on success, update the images with the new data
           update('medias', (prevMedias) => {
-            return (prevMedias as EditorImage[]).map((m) => {
+            return prevMedias.map((m) => {
               const dataIndex = variables.findIndex((v) => v.uri === m.uri)
               if (dataIndex === -1) {
                 return m
