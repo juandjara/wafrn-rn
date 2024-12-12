@@ -2,9 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
-import { invalidateUserQueries, showToast } from "../interaction"
+import { invalidateUserQueries, showToastError, showToastSuccess } from "../interaction"
 import { Post, PostUser } from "./posts.types"
-import colors from "tailwindcss/colors"
 
 export async function toggleBlockUser({
   token, userId, isBlocked
@@ -37,10 +36,10 @@ export function useBlockMutation(user: PostUser) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}block user`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}block user`)
     },
     onSuccess: (data, variables) => {
-      showToast(`User ${variables ? 'un' : ''}blocked`, colors.green[100], colors.green[900])
+      showToastSuccess(`User ${variables ? 'un' : ''}blocked`)
     },
     onSettled: () => invalidateUserQueries(qc, user)
   })
@@ -77,10 +76,10 @@ export function useMuteMutation(user: PostUser) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}mute user`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}mute user`)
     },
     onSuccess: (data, variables) => {
-      showToast(`User ${variables ? 'un' : ''}muted`, colors.green[100], colors.green[900])
+      showToastSuccess(`User ${variables ? 'un' : ''}muted`)
     },
     onSettled: () => invalidateUserQueries(qc, user)
   })
@@ -119,10 +118,10 @@ export function useSilenceMutation(post: Post) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}silence woot`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}silence woot`)
     },
     onSuccess: (data, variables) => {
-      showToast(`Woot ${variables ? 'un' : ''}silenced`, colors.green[100], colors.green[900])
+      showToastSuccess(`Woot ${variables ? 'un' : ''}silenced`)
     },
     onSettled: async () => {
       await qc.invalidateQueries({ queryKey: ['settings'] })

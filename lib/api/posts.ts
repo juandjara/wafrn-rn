@@ -5,8 +5,7 @@ import { getJSON, statusError, StatusError } from "../http"
 import { DashboardData, Post, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
-import { invalidatePostQueries, showToast } from "../interaction"
-import colors from "tailwindcss/colors"
+import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
 import { EditorImage } from "@/components/editor/EditorImages"
 import { BSKY_URL } from "./content"
 
@@ -197,10 +196,10 @@ export function useCreatePostMutation() {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast('Failed to create woot', colors.red[100], colors.red[900])
+      showToastError('Failed to create woot')
     },
     onSuccess: (data, variables) => {
-      showToast('Woot Created', colors.green[100], colors.green[900])
+      showToastSuccess('Woot Created')
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async (data, error, variables) => {
@@ -248,10 +247,10 @@ export function useRewootMutation(post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}rewoot`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}rewoot`)
     },
     onSuccess: (data, variables) => {
-      showToast(`Woot ${variables ? 'un' : ''}rewooted`, colors.green[100], colors.green[900])
+      showToastSuccess(`Woot ${variables ? 'un' : ''}rewooted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)
@@ -278,10 +277,10 @@ export function useDeleteMutation(post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to delete woot`, colors.red[100], colors.red[900])
+      showToastError(`Failed to delete woot`)
     },
     onSuccess: (data, variables) => {
-      showToast(`Woot deleted`, colors.green[100], colors.green[900])
+      showToastSuccess(`Woot deleted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)
@@ -312,10 +311,10 @@ export function useVoteMutation(pollId: number | null, post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to vote`, colors.red[100], colors.red[900])
+      showToastError(`Failed to vote`)
     },
     onSuccess: (data, variables) => {
-      showToast(`Poll voted`, colors.green[100], colors.green[900])
+      showToastSuccess(`Poll voted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)

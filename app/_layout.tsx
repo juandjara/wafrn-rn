@@ -8,10 +8,8 @@ import { ErrorBoundaryProps, Slot } from "expo-router"
 import { MenuProvider } from "react-native-popup-menu"
 import { cssInterop } from "nativewind"
 import { Image } from "expo-image"
-import { RootSiblingParent } from 'react-native-root-siblings'
 import * as Clipboard from 'expo-clipboard'
-import { showToast } from "@/lib/interaction"
-import colors from "tailwindcss/colors"
+import { showToastSuccess } from "@/lib/interaction"
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -19,6 +17,7 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { enableFreeze } from 'react-native-screens';
+import { Toasts } from '@backpackapp-io/react-native-toast';
 
 enableFreeze(true);
 
@@ -43,17 +42,16 @@ export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <RootSiblingParent>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <MenuProvider>
-                <Slot />
-              </MenuProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </RootSiblingParent>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <MenuProvider>
+              <Slot />
+              <Toasts />
+            </MenuProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   )
 }
@@ -77,7 +75,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
               onPress={async () => {
                 if (error.stack) {
                   await Clipboard.setStringAsync(error.stack)
-                  showToast('Copied!', colors.green[100], colors.green[900])
+                  showToastSuccess('Copied!')
                 }
               }}
               className="bg-white mb-2 p-2 rounded"

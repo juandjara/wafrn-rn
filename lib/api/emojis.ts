@@ -2,8 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
-import { invalidatePostQueries, showToast } from "../interaction"
-import colors from "tailwindcss/colors"
+import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
 import { Post } from "./posts.types"
 
 export type EmojiBase = {
@@ -47,10 +46,10 @@ export function useEmojiReactMutation(post: Post) {
     mutationFn: (emojiName) => emojiReact(token!, { post, emojiName }),
     onError: (err) => {
       console.error(err)
-      showToast(`Failed to react to woot`, colors.red[100], colors.red[900])
+      showToastError(`Failed to react to woot`)
     },
     onSuccess: () => {
-      showToast(`Reaction sent`, colors.green[100], colors.green[900])
+      showToastSuccess(`Reaction sent`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)

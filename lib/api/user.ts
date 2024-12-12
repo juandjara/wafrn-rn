@@ -8,8 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
 import { PrivateOptionNames, PublicOption, SettingsOption } from "./settings";
 import { BSKY_URL } from "./content";
-import colors from "tailwindcss/colors";
-import { showToast } from "../interaction";
+import { showToastError, showToastSuccess } from "../interaction";
 import type { MediaUploadPayload } from "./media";
 import { markdownToHTML } from "../markdown";
 
@@ -210,10 +209,10 @@ export function useEditProfileMutation() {
     mutationFn: (payload: EditProfilePayload) => updateProfile(token!, payload),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast('Failed editing profile', colors.red[100], colors.red[900])
+      showToastError('Failed editing profile')
     },
     onSuccess: (data, variables) => {
-      showToast(`Profile edited`, colors.green[100], colors.green[900])
+      showToastSuccess(`Profile edited`)
     },
     // after either error or success, refetch the settings to account for new options
     onSettled: () => {

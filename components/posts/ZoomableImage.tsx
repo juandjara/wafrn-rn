@@ -7,6 +7,7 @@ import { SvgUri } from "react-native-svg"
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { downloadFile } from "@/lib/downloads"
+import { Toasts } from "@backpackapp-io/react-native-toast"
 
 const imageRenderer = ({
   item,
@@ -57,6 +58,7 @@ export default function ZoomableImage({
   return (
     <View>
       <Modal visible={modalOpen} onRequestClose={() => setModalOpen(false)}>
+        <Toasts />
         {showOverlay && (
           <View
             style={{ paddingTop: pt || 8, backgroundColor: 'rgba(0,0,0,0.5)' }}

@@ -2,9 +2,9 @@ import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Post, PostUser } from "./api/posts.types"
 import { useAuth } from "./contexts/AuthContext"
 import { getJSON } from "./http"
-import Toast from "react-native-root-toast"
-import colors from "tailwindcss/colors"
 import { API_URL } from "./config"
+import { toast } from "@backpackapp-io/react-native-toast"
+import colors from "tailwindcss/colors"
 
 export async function toggleLikePost({
   token, postId, isLiked
@@ -23,17 +23,49 @@ export async function toggleLikePost({
   })
 }
 
-export function showToast(message: string, backgroundColor: string, textColor: string) {
-  Toast.show(message, {
-    position: Toast.positions.TOP,
-    backgroundColor,
-    textColor,
-    containerStyle: {
-      marginTop: 72,
-      paddingHorizontal: 16,
+export function showToastSuccess(message: string) {
+  toast.success(message, {
+    styles: {
+      text: {
+        color: colors.green[900]
+      },
+      view: {
+        backgroundColor: colors.green[100],
+        borderRadius: 8
+      },
     }
   })
 }
+
+export function showToastError(message: string) {
+  toast.error(message, {
+    styles: {
+      text: {
+        color: colors.red[900]
+      },
+      view: {
+        backgroundColor: colors.red[100],
+        borderRadius: 8
+      },
+    }
+  })
+}
+
+// export function showToast(message: string, backgroundColor: string, textColor: string) {
+//   Toast.show({
+//     text1: message,
+//     type: 'info'
+//   })
+//   // Toast.show(message, {
+//   //   position: Toast.positions.TOP,
+//   //   backgroundColor,
+//   //   textColor,
+//   //   containerStyle: {
+//   //     marginTop: 72,
+//   //     paddingHorizontal: 16,
+//   //   }
+//   // })
+// }
 
 export function useLikeMutation(post: Post) {
   const qc = useQueryClient()
@@ -48,10 +80,10 @@ export function useLikeMutation(post: Post) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}like woot`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}like woot`)
     },
     onSuccess: (data, variables) => {
-      showToast(`Woot ${variables ? 'un' : ''}liked`, colors.green[100], colors.green[900])
+      showToastSuccess(`Woot ${variables ? 'un' : ''}liked`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post)
@@ -88,10 +120,10 @@ export function useFollowMutation(user: PostUser) {
     }),
     onError: (err, variables, context) => {
       console.error(err)
-      showToast(`Failed to ${variables ? 'un' : ''}follow user`, colors.red[100], colors.red[900])
+      showToastError(`Failed to ${variables ? 'un' : ''}follow user`)
     },
     onSuccess: (data, variables) => {
-      showToast(`User ${variables ? 'un' : ''}followed`, colors.green[100], colors.green[900])
+      showToastSuccess(`User ${variables ? 'un' : ''}followed`)
     },
     onSettled: () => invalidateUserQueries(qc, user)
   })

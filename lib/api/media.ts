@@ -4,8 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { isValidURL } from "./content"
 import { Timestamps } from "./types"
 import { useAuth } from "../contexts/AuthContext"
-import { showToast } from "../interaction"
-import colors from "tailwindcss/colors"
+import { showToastError, showToastSuccess } from "../interaction"
 import { getJSON } from "../http"
 
 const AUDIO_EXTENSIONS = [
@@ -102,11 +101,11 @@ export function useMediaUploadMutation() {
     mutationKey: ['mediaUpload'],
     mutationFn: (medias: MediaUploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
     onSuccess: () => {
-      showToast('Media uploaded', colors.green[100], colors.green[900])
+      showToastSuccess('Media uploaded')
     },
     onError: (err) => {
       console.error(err)
-      showToast('Failed to upload media', colors.red[100], colors.red[900])
+      showToastError('Failed to upload media')
     }
   })
 }

@@ -1,7 +1,6 @@
 import { cacheDirectory, makeDirectoryAsync, getInfoAsync, downloadAsync } from 'expo-file-system'
 import { unfurlCacheUrl } from './formatters'
-import { showToast } from './interaction'
-import colors from 'tailwindcss/colors'
+import { showToastError, showToastSuccess } from './interaction'
 import { saveToLibraryAsync } from 'expo-media-library'
 
 const CACHE_DIR = `${cacheDirectory}WAFRN/`
@@ -26,9 +25,9 @@ export async function downloadFile(url: string) {
     console.log('Downloaded file', file.uri)
     await saveFileToGallery(file.uri)
     console.log('Saved file to gallery')
-    showToast('Downloaded file', colors.green[100], colors.green[900])
+    showToastSuccess('Downloaded file')
   } catch (e) {
     console.error('Failed to download file', e)
-    showToast('Failed to download file', colors.red[100], colors.red[900])
+    showToastError('Failed to download file')
   }
 }
