@@ -49,8 +49,8 @@ export default function SearchIndex({ onSearch }: { onSearch: (term: string) => 
         ) : null}
       </View>
       <View id='search-history' className="p-3">
-        <View className="mb-2 flex-row">
-          <Text className="text-gray-300 font-medium text-sm flex-shrink">Search history</Text>
+        <View className="mb-2 flex-row items-center">
+          <Text className="text-gray-300 font-medium text-sm flex-shrink flex-grow">Search history</Text>
           {(recent?.length || 0) > 0 && (
             <Pressable
               onPress={() => setRecent([])}
