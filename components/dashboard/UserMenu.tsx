@@ -13,21 +13,22 @@ export default function UserMenu() {
 
   const options = [
     {
-      icon: 'account-outline',
+      icon: 'account-outline' as const,
       label: 'My profile',
       action: () => router.push(`/user/${user?.url}`)
     },
     {
-      icon: 'account-clock-outline',
+      icon: 'account-clock-outline' as const,
       label: 'Follow requests',
+      disabled: true,
       action: () => router.push('/user/awaiting-follows')
     },
     {
-      icon: 'cog-outline',
+      icon: 'cog-outline' as const,
       label: 'Settings',
       action: () => router.push('/settings')
     },
-  ] as const
+  ]
 
   if (!user) return undefined
   return (
@@ -50,7 +51,7 @@ export default function UserMenu() {
           <MenuOption
             key={i}
             onSelect={option.action}
-            style={optionStyle(i)}
+            style={{ ...optionStyle(i), opacity: option.disabled ? 0.5 : 1 }} 
           >
             <MaterialCommunityIcons name={option.icon} size={20} color={colors.gray[600]} />
             <Text className="text-sm flex-grow">{option.label}</Text>
