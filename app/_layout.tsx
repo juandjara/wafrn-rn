@@ -37,14 +37,6 @@ const queryClient = new QueryClient({
   }
 });
 
-// magic automatic transitions
-// if (
-//   Platform.OS === 'android' &&
-//   UIManager.setLayoutAnimationEnabledExperimental
-// ) {
-//   UIManager.setLayoutAnimationEnabledExperimental(true);
-// }
-
 cssInterop(Image, { className: "style" })
 
 export default function RootLayout() {
