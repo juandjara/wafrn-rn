@@ -6,14 +6,12 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { useSettings } from "@/lib/api/settings"
+import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
 import { sortPosts } from "@/lib/api/posts"
 import RewootRibbon from "./RewootRibbon"
 import InteractionRibbon from "./InteractionRibbon"
 import { Link } from "expo-router"
 import ReplyRibbon from "./ReplyRibbon"
-
-const ANCESTOR_LIMIT = 3
 
 export default function Thread({ thread }: { thread: PostThread }) {
   const { data: settings } = useSettings()
@@ -25,10 +23,11 @@ export default function Thread({ thread }: { thread: PostThread }) {
     const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
     return { isRewoot, isReply, postUser, postUserName }
   }, [thread, context])
+  const threadAncestorLimit = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ThreadAncestorLimit)
 
   const ancestors = useMemo(() => {
     const sorted = thread.ancestors.sort(sortPosts)
-    if (sorted.length < ANCESTOR_LIMIT) {
+    if (sorted.length < threadAncestorLimit) {
       return sorted
     }
 
@@ -36,7 +35,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
       sorted[0],
       sorted[sorted.length - 1]
     ].filter(Boolean)
-  }, [thread.ancestors])
+  }, [threadAncestorLimit, thread.ancestors])
 
   const interactionPost = useMemo(() => {
     const rewootAncestor = thread.ancestors.find((a) => a.id === thread.parentId)
@@ -81,7 +80,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
           )}
         </>
       ) : null}
-      {thread.ancestors.length >= ANCESTOR_LIMIT ? (
+      {thread.ancestors.length >= threadAncestorLimit ? (
         <>
           <PostFragment post={ancestors[0]} />
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">

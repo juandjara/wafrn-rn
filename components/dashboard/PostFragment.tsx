@@ -41,7 +41,7 @@ export default function PostFragment({
 
   const { data: settings } = useSettings()
   const mutedWordsLine = useMemo(() => (
-    settings?.options && getPrivateOptionValue(settings.options, PrivateOptionNames.MutedWords) || ''
+    getPrivateOptionValue(settings?.options || [], PrivateOptionNames.MutedWords)
   ), [settings])
 
   const { initialCW, isMuted } = useMemo(() => getInitialContentWarning({
@@ -51,7 +51,7 @@ export default function PostFragment({
   }), [mutedWordsLine, context, post])
 
   const disableCW = useMemo(() => (
-    settings?.options && getPrivateOptionValue(settings.options, PrivateOptionNames.DisableCW) || false
+    getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableCW)
   ), [settings])
 
   const initialCWOpen = disableCW && !isMuted ? true : !initialCW

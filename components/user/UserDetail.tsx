@@ -62,7 +62,7 @@ export default function UserDetail({ user }: { user: User }) {
   }, [user])
 
   const customFields = useMemo(() => {
-    const fields = getPublicOptionValue(user.publicOptions, PublicOptionNames.CustomFields) || []
+    const fields = getPublicOptionValue(user.publicOptions, PublicOptionNames.CustomFields)
     return fields.map((f) => ({
       name: replaceEmojis(f.name, user.emojis),
       value: replaceEmojis(f.value, user.emojis)
@@ -71,7 +71,7 @@ export default function UserDetail({ user }: { user: User }) {
 
   const remoteInfo = getRemoteInfo(user)
 
-  const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks) || AskOptionValue.AllowIdentifiedAsks
+  const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks)
   const hasAsks = !remoteInfo && askFlag !== AskOptionValue.AllowNoAsks
   const aspectRatio = 0.5
 

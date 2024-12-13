@@ -1,6 +1,6 @@
 import PrivacySelect from "@/components/PrivacySelect"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { AskOptionValue, ASKS_LABELS, getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
+import { AskOptionValue, ASKS_LABELS, DEFAULT_PRIVATE_OPTIONS, getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
 import { useCurrentUser, useEditProfileMutation } from "@/lib/api/user"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -16,6 +16,7 @@ type FormState = {
   defaultPostEditorPrivacy: PrivacyLevel
   disableCW: boolean
   disableNSFWCloak: boolean
+  threadAncestorLimit: string
   disableForceAltText: boolean
   federateWithThreads: boolean
   forceClassicLogo: boolean
@@ -30,39 +31,23 @@ export default function Options() {
   const { data: me } = useCurrentUser()
   const [form, setForm] = useState<FormState>(() => {
     const opts = settings?.options || []
-    const defaultPostEditorPrivacy = getPrivateOptionValue(
-      opts, PrivateOptionNames.DefaultPostPrivacy
-    ) || PrivacyLevel.PUBLIC
-    const disableCW = getPrivateOptionValue(
-      opts, PrivateOptionNames.DisableCW
-    ) || false
-    const disableNSFWCloak = getPrivateOptionValue(
-      opts, PrivateOptionNames.DisableNSFWCloak
-    ) || false
-    const disableForceAltText = getPrivateOptionValue(
-      opts, PrivateOptionNames.DisableForceAltText
-    ) || false
-    const federateWithThreads = getPrivateOptionValue(
-      opts, PrivateOptionNames.FederateWithThreads
-    ) || false
-    const forceClassicLogo = getPrivateOptionValue(
-      opts, PrivateOptionNames.ForceClassicLogo
-    ) || false
-    const forceOldEditor = getPrivateOptionValue(
-      opts, PrivateOptionNames.ForceOldEditor
-    ) || false
-    const mutedWords = getPrivateOptionValue(
-      opts, PrivateOptionNames.MutedWords
-    ) || ''
-    const asks = getPublicOptionValue(
-      opts, PublicOptionNames.Asks
-    ) || AskOptionValue.AllowIdentifiedAsks
+    const defaultPostEditorPrivacy = getPrivateOptionValue(opts, PrivateOptionNames.DefaultPostPrivacy)
+    const disableCW = getPrivateOptionValue(opts, PrivateOptionNames.DisableCW)
+    const disableNSFWCloak = getPrivateOptionValue(opts, PrivateOptionNames.DisableNSFWCloak)
+    const threadAncestorLimit = getPrivateOptionValue(opts, PrivateOptionNames.ThreadAncestorLimit)
+    const disableForceAltText = getPrivateOptionValue(opts, PrivateOptionNames.DisableForceAltText)
+    const federateWithThreads = getPrivateOptionValue(opts, PrivateOptionNames.FederateWithThreads)
+    const forceClassicLogo = getPrivateOptionValue(opts, PrivateOptionNames.ForceClassicLogo)
+    const forceOldEditor = getPrivateOptionValue(opts, PrivateOptionNames.ForceOldEditor)
+    const mutedWords = getPrivateOptionValue(opts, PrivateOptionNames.MutedWords)
+    const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
 
     return {
       manuallyAcceptsFollows: me?.manuallyAcceptsFollows || false,
       defaultPostEditorPrivacy,
       disableCW,
       disableNSFWCloak,
+      threadAncestorLimit: String(threadAncestorLimit),
       disableForceAltText,
       federateWithThreads,
       forceClassicLogo,
@@ -72,11 +57,15 @@ export default function Options() {
     }
   })
   const parsedMutedWords = form.mutedWords.split(',').map(tag => tag.trim()).filter(Boolean)
+  const minThreadLimit = DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
+  const validThreadAncestorLimit = Number.isFinite(Number(form.threadAncestorLimit)) && (
+    Number(form.threadAncestorLimit) >= minThreadLimit
+  )
 
   const [modalOpen, setModalOpen] = useState(false)
 
   const editMutation = useEditProfileMutation()
-  const canPublish = !editMutation.isPending
+  const canPublish = validThreadAncestorLimit && !editMutation.isPending
 
   function update<T extends keyof typeof form>(
     key: T,
@@ -93,12 +82,20 @@ export default function Options() {
       { name: PrivateOptionNames.DefaultPostPrivacy, value: JSON.stringify(form.defaultPostEditorPrivacy) },
       { name: PrivateOptionNames.DisableCW, value: JSON.stringify(form.disableCW) },
       { name: PrivateOptionNames.DisableNSFWCloak, value: JSON.stringify(form.disableNSFWCloak) },
+      { 
+        name: PrivateOptionNames.ThreadAncestorLimit,
+        value: JSON.stringify(
+          validThreadAncestorLimit
+            ? Number(form.threadAncestorLimit)
+            : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
+          )
+      },
       { name: PrivateOptionNames.DisableForceAltText, value: JSON.stringify(form.disableForceAltText) },
       { name: PrivateOptionNames.FederateWithThreads, value: JSON.stringify(form.federateWithThreads) },
       { name: PrivateOptionNames.ForceClassicLogo, value: JSON.stringify(form.forceClassicLogo) },
       { name: PrivateOptionNames.ForceOldEditor, value: JSON.stringify(form.forceOldEditor) },
       { name: PrivateOptionNames.MutedWords, value: JSON.stringify(form.mutedWords) },
-      { name: PublicOptionNames.Asks, value: JSON.stringify(form.asks) }
+      { name: PublicOptionNames.Asks, value: JSON.stringify(form.asks) },
     ]
     editMutation.mutate({
       options,
@@ -199,7 +196,7 @@ export default function Options() {
             ]}
           />
         </View>
-        <View className="p-4 pb-0">
+        <View className="p-4">
           <Text className="text-white mb-2">
             Muted words <Text className="text-gray-200 text-sm">(comma-separated)</Text>
           </Text>
@@ -219,9 +216,29 @@ export default function Options() {
             </View>
           )}
         </View>
+        <View className="p-4">
+          <Text className="text-white mb-2">
+            Thread collapse limit <Text className="text-gray-200 text-sm">(minimum is {minThreadLimit})</Text>
+          </Text>
+          <TextInput
+            value={form.threadAncestorLimit}
+            keyboardType="numeric"
+            onChangeText={text => update('threadAncestorLimit', text)}
+            className={clsx('p-3 rounded-lg text-white border', {
+              'border-gray-600': validThreadAncestorLimit,
+              'border-red-200': !validThreadAncestorLimit,
+            })}
+            placeholder="Limit"
+            placeholderTextColor={colors.gray[400]}
+            numberOfLines={1}
+          />
+          {!validThreadAncestorLimit && (
+            <Text className="text-red-200 text-sm mt-2">Invalid number</Text>
+          )}
+        </View>
         <Pressable
           onPress={() => update('manuallyAcceptsFollows', prev => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          className="flex-row items-center gap-4 my-2 pt-0 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
             Manually accept follow requests

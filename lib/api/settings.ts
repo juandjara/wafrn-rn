@@ -31,7 +31,8 @@ export enum PrivateOptionNames {
   MutedWords = 'wafrn.mutedWords',
   DisableCW = 'wafrn.disableCW',
   OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
-  DisableNSFWCloak = 'wafrn.disableNSFWCloak'
+  DisableNSFWCloak = 'wafrn.disableNSFWCloak',
+  ThreadAncestorLimit = 'wafrn.threadAncestorLimit'
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -45,6 +46,20 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisableCW]: boolean
   [PrivateOptionNames.OriginalMarkdownBio]: string
   [PrivateOptionNames.DisableNSFWCloak]: boolean
+  [PrivateOptionNames.ThreadAncestorLimit]: number
+}
+
+export const DEFAULT_PRIVATE_OPTIONS = {
+  [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel.PUBLIC,
+  [PrivateOptionNames.DisableForceAltText]: false,
+  [PrivateOptionNames.FederateWithThreads]: true,
+  [PrivateOptionNames.ForceClassicLogo]: false,
+  [PrivateOptionNames.ForceOldEditor]: false,
+  [PrivateOptionNames.MutedWords]: '',
+  [PrivateOptionNames.DisableCW]: false,
+  [PrivateOptionNames.OriginalMarkdownBio]: '',
+  [PrivateOptionNames.DisableNSFWCloak]: false,
+  [PrivateOptionNames.ThreadAncestorLimit]: 3
 }
 
 export type PrivateOption = SettingsOption & {
@@ -55,14 +70,15 @@ export type PrivateOption = SettingsOption & {
 export function getPrivateOptionValue<T extends PrivateOptionNames = PrivateOptionNames>(
   options: PrivateOption[], key: T
 ) {
+  const defaultValue = DEFAULT_PRIVATE_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
-  if (!json) return null
+  if (!json) return defaultValue
   try {
     return JSON.parse(json) as PrivateOptionTypeMap[typeof key]
   } catch (e) {
     console.error(`Failed to parse wafrn option value "${json}"`, e)
-    return null
+    return defaultValue
   }
 }
 
@@ -96,15 +112,21 @@ export type PublicOptionTypeMap = {
   [PublicOptionNames.Asks]: AskOptionValue
 }
 
+export const DEFAULT_PUBLIC_OPTIONS = {
+  [PublicOptionNames.CustomFields]: [],
+  [PublicOptionNames.Asks]: AskOptionValue.AllowIdentifiedAsks
+}
+
 export function getPublicOptionValue<T extends PublicOptionNames = PublicOptionNames>(options: PublicOption[], key: T) {
+  const defaultValue = DEFAULT_PUBLIC_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
-  if (!json) return null
+  if (!json) return defaultValue
   try {
     return JSON.parse(json) as PublicOptionTypeMap[typeof key]
   } catch (e) {
     console.error(`Failed to parse public option value "${json}"`, e)
-    return null
+    return defaultValue
   }
 }
 

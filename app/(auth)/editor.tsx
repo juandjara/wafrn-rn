@@ -51,10 +51,7 @@ export default function EditorView() {
   const { data: settings } = useSettings()
 
   const disableForceAltText = useMemo(() => {
-    if (!settings?.options) {
-      return false
-    }
-    return !!getPrivateOptionValue(settings.options, PrivateOptionNames.DisableForceAltText)
+    return getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableForceAltText)
   }, [settings?.options])
 
   const mentionsPrefix = useMemo(() => {
