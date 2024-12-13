@@ -260,7 +260,7 @@ export default function Options() {
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Force Classic WAFRN Logo
+            Use Classic WAFRN Logo
           </Text>
           <Switch
             value={form.forceClassicLogo}

@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { DashboardMode } from "@/lib/api/dashboard"
 import colors from "tailwindcss/colors"
 import { BASE_URL } from "@/lib/config"
+import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
 
 const MODES = [
   DashboardMode.FEED,
@@ -31,14 +32,18 @@ export default function DashboardModeMenu({
   mode: PublicDashboardMode
   setMode: (mode: PublicDashboardMode) => void
 }) {
+  const { data: settings } = useSettings()
+  const forceClassicLogo = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ForceClassicLogo)
+  const logoUrl = forceClassicLogo ? `${BASE_URL}/assets/classicLogo.png` : `${BASE_URL}/assets/logo_w.png`
+
   return (
     <Menu onSelect={setMode}>
       <MenuTrigger style={{ marginLeft: 8 }}>
         <View className="flex-row items-center">
           <Image
             className="ml-1 mr-3"
-            style={{ width: 32, height: 32 }}
-            source={{ uri: `${BASE_URL}/assets/logo_w.png` }}
+            style={{ width: forceClassicLogo ? 64 : 32, height: 32 }}
+            source={{ uri: logoUrl }}
           />
           <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
             <MaterialCommunityIcons name={MODE_ICONS[mode]} size={20} color='white' />
