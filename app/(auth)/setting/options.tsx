@@ -15,6 +15,7 @@ type FormState = {
   manuallyAcceptsFollows: boolean
   defaultPostEditorPrivacy: PrivacyLevel
   disableCW: boolean
+  disableNSFWCloak: boolean
   disableForceAltText: boolean
   federateWithThreads: boolean
   forceClassicLogo: boolean
@@ -34,6 +35,9 @@ export default function Options() {
     ) || PrivacyLevel.PUBLIC
     const disableCW = getPrivateOptionValue(
       opts, PrivateOptionNames.DisableCW
+    ) || false
+    const disableNSFWCloak = getPrivateOptionValue(
+      opts, PrivateOptionNames.DisableNSFWCloak
     ) || false
     const disableForceAltText = getPrivateOptionValue(
       opts, PrivateOptionNames.DisableForceAltText
@@ -58,6 +62,7 @@ export default function Options() {
       manuallyAcceptsFollows: me?.manuallyAcceptsFollows || false,
       defaultPostEditorPrivacy,
       disableCW,
+      disableNSFWCloak,
       disableForceAltText,
       federateWithThreads,
       forceClassicLogo,
@@ -87,6 +92,7 @@ export default function Options() {
     const options = [
       { name: PrivateOptionNames.DefaultPostPrivacy, value: JSON.stringify(form.defaultPostEditorPrivacy) },
       { name: PrivateOptionNames.DisableCW, value: JSON.stringify(form.disableCW) },
+      { name: PrivateOptionNames.DisableNSFWCloak, value: JSON.stringify(form.disableNSFWCloak) },
       { name: PrivateOptionNames.DisableForceAltText, value: JSON.stringify(form.disableForceAltText) },
       { name: PrivateOptionNames.FederateWithThreads, value: JSON.stringify(form.federateWithThreads) },
       { name: PrivateOptionNames.ForceClassicLogo, value: JSON.stringify(form.forceClassicLogo) },
@@ -241,6 +247,21 @@ export default function Options() {
             thumbColor={form.disableCW ? colors.cyan[600] : colors.gray[300]}
           />
         </Pressable>
+        <Pressable
+          onPress={() => update('disableNSFWCloak', prev => !prev)}
+          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+        >
+          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            Disable hiding sensitive media behind a cloak for all posts
+          </Text>
+          <Switch
+            value={form.disableNSFWCloak}
+            onValueChange={flag => update('disableNSFWCloak', flag)}
+            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+            thumbColor={form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]}
+          />
+        </Pressable>
+        
         {/* <Pressable
           onPress={() => update('forceOldEditor', prev => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
@@ -306,7 +327,7 @@ export default function Options() {
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
             thumbColor={form.federateWithThreads ? colors.cyan[600] : colors.gray[300]}
           />
-        </Pressable>      
+        </Pressable>
       </ScrollView>
     </View>
   )

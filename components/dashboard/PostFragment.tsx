@@ -152,8 +152,13 @@ export default function PostFragment({
   }, [post, context])
 
   const { medias, inlineMedias } = useMemo(() => {
+    const disableNSFWCloak = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableNSFWCloak)
     const medias = context.medias
       .filter((m) => m.postId === post.id)
+      .map((m) => ({
+        ...m,
+        NSFW: disableNSFWCloak ? false : m.NSFW,
+      }))
       .sort((a, b) => a.order - b.order)
 
     const inlineMediaMatches = post.content.match(INLINE_MEDIA_REGEX) || []
@@ -161,7 +166,7 @@ export default function PostFragment({
       medias: medias.slice(inlineMediaMatches.length),
       inlineMedias: medias.slice(0, inlineMediaMatches.length),
     }
-  }, [post, context])
+  }, [post, context, settings])
 
   const quotedPost = useMemo(() => {
     if (isQuote) {

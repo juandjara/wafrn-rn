@@ -31,6 +31,7 @@ export enum PrivateOptionNames {
   MutedWords = 'wafrn.mutedWords',
   DisableCW = 'wafrn.disableCW',
   OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
+  DisableNSFWCloak = 'wafrn.disableNSFWCloak'
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -43,6 +44,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.MutedWords]: string
   [PrivateOptionNames.DisableCW]: boolean
   [PrivateOptionNames.OriginalMarkdownBio]: string
+  [PrivateOptionNames.DisableNSFWCloak]: boolean
 }
 
 export type PrivateOption = SettingsOption & {
