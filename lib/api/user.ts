@@ -6,11 +6,10 @@ import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
-import { PrivateOptionNames, PublicOption, SettingsOption } from "./settings";
+import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings";
 import { BSKY_URL } from "./content";
 import { showToastError, showToastSuccess } from "../interaction";
 import type { MediaUploadPayload } from "./media";
-import { markdownToHTML } from "../markdown";
 
 export type User = {
   createdAt: string // iso date
@@ -153,40 +152,20 @@ export function getRemoteInfo(user: User) {
 export type EditProfilePayload = {
   name: string
   avatar?: MediaUploadPayload
-  description?: string
+  description?: string // html, not markdown
   manuallyAcceptsFollows?: boolean
-  options?: SettingsOption[]
+  options?: {
+    name: PrivateOptionNames | PublicOptionNames;
+    value: string // result of JSON.stringify
+  }[]
 }
 
 async function updateProfile(token: string, payload: EditProfilePayload) {
-  const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
-
-  let optionFound = false
-  const editOptions = (payload.options || []).map(o => {
-    if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
-      optionFound = true
-      return {
-        name: o.optionName,
-        value: JSON.stringify(payload.description || '')
-      }
-    }
-    return {
-      name: o.optionName,
-      value: o.optionValue
-    }
-  })
-  if (!optionFound) {
-    editOptions.push({
-      name: PrivateOptionNames.OriginalMarkdownBio,
-      value: JSON.stringify(payload.description || '')
-    })
-  }
-
   const formData = new FormData()
   formData.append('name', payload.name)
-  formData.append('description', htmlDescription)
+  formData.append('description', payload.description || '')
   formData.append('manuallyAcceptsFollows', payload.manuallyAcceptsFollows ? 'true' : 'false')
-  formData.append('options', JSON.stringify(editOptions))
+  formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
     formData.append('avatar', payload.avatar as any)
   }

@@ -113,7 +113,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
             <Switch
               value={selectedImage.NSFW}
               onValueChange={NSFW => updateOpenImage({ NSFW })}
-              trackColor={{ false: colors.gray[600], true: colors.cyan[200] }}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
               thumbColor={selectedImage.NSFW ? colors.cyan[600] : colors.gray[300]}
             />
           </Pressable>

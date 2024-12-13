@@ -27,6 +27,7 @@ export enum PrivateOptionNames {
   DisableForceAltText = 'wafrn.disableForceAltText',
   FederateWithThreads = 'wafrn.federateWithThreads',
   ForceClassicLogo = 'wafrn.forceClassicLogo',
+  ForceOldEditor = 'wafrn.forceOldEditor',
   MutedWords = 'wafrn.mutedWords',
   DisableCW = 'wafrn.disableCW',
   OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
@@ -38,6 +39,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisableForceAltText]: boolean
   [PrivateOptionNames.FederateWithThreads]: boolean
   [PrivateOptionNames.ForceClassicLogo]: boolean
+  [PrivateOptionNames.ForceOldEditor]: boolean
   [PrivateOptionNames.MutedWords]: string
   [PrivateOptionNames.DisableCW]: boolean
   [PrivateOptionNames.OriginalMarkdownBio]: string
@@ -71,6 +73,11 @@ export enum AskOptionValue {
   AllowIdentifiedAsks = 2,
   AllowNoAsks = 3
 }
+export const ASKS_LABELS = {
+  [AskOptionValue.AllowAnonAsks]: 'Allow anonymous asks',
+  [AskOptionValue.AllowIdentifiedAsks]: 'Only allow asks from identified users',
+  [AskOptionValue.AllowNoAsks]: 'Disable asks'
+} as const
 
 export type PublicOption = SettingsOption & {
   public: true

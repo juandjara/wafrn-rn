@@ -73,6 +73,10 @@ export default function ProtectedLayout() {
         options={{ title: 'Edit profile', headerShown: false }}
         name='setting/edit-profile'
       />
+      <Stack.Screen
+        options={{ title: 'Options & Customizations', headerShown: false }}
+        name='setting/options'
+      />
     </Stack>
   )
 }

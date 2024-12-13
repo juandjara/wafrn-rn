@@ -14,7 +14,7 @@ import { useMentions } from "react-native-more-controlled-mentions"
 import EditorInput from "@/components/editor/EditorInput"
 import { PrivacyLevel } from "@/lib/api/privacy"
 import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
-import { HTMLToMarkdown } from "@/lib/markdown"
+import { HTMLToMarkdown, markdownToHTML } from "@/lib/markdown"
 import clsx from "clsx"
 import { launchImageLibraryAsync } from "expo-image-picker"
 import { MediaUploadPayload } from "@/lib/api/media"
@@ -96,12 +96,41 @@ export default function EditProfile() {
 
   function onSubmit() {
     if (canPublish) {
-      editMutation.mutate({
+      const payload = {
         name: form.name,
         description: form.content,
         avatar: typeof avatar === 'string' ? undefined : avatar,
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
         options: settings?.options,
+      }
+      const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
+
+      let optionFound = false
+      const editOptions = (payload.options || []).map(o => {
+        if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
+          optionFound = true
+          return {
+            name: o.optionName,
+            value: JSON.stringify(payload.description || '')
+          }
+        }
+        return {
+          name: o.optionName,
+          value: o.optionValue
+        }
+      })
+
+      if (!optionFound) {
+        editOptions.push({
+          name: PrivateOptionNames.OriginalMarkdownBio,
+          value: JSON.stringify(payload.description || '')
+        })
+      }
+
+      editMutation.mutate({
+        ...payload,
+        description: htmlDescription,
+        options: editOptions
       })
     }
   }
