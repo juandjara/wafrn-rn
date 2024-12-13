@@ -36,6 +36,7 @@ export default function ZoomableImage({
   aspectRatio,
   className,
   imgClassName,
+  blurHash
 }: {
   id: string
   src: string
@@ -46,6 +47,7 @@ export default function ZoomableImage({
   aspectRatio: number
   className?: string
   imgClassName?: string
+  blurHash?: string
 }) {
   const sx = useSafeAreaPadding()
   const [modalOpen, setModalOpen] = useState(false)
@@ -103,6 +105,7 @@ export default function ZoomableImage({
             cachePolicy={'memory-disk'}
             recyclingKey={id}
             source={src}
+            placeholder={{ blurHash, width, height: width * aspectRatio }}
             className={imgClassName}
             style={[style as ImageStyle, {
               width,

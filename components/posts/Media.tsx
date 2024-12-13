@@ -78,6 +78,7 @@ export default function Media({ media, contentWidth }: {
             className="rounded-t-md max-w-full"
             imgClassName="rounded-t-md"
             alt={media.description}
+            blurHash={media.blurhash || ''}
           />
         )}
         {isNotAV(mime, src) && (

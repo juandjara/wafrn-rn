@@ -46,7 +46,7 @@ export default function MediaCloak({
 
   const cloakWrapper = shouldUseImgBg ? (
     <ImageBackground
-      source={{ uri: blurHash }}
+      source={{ blurHash, width, height }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
       blurRadius={50}
     >{cloak}</ImageBackground>
