@@ -82,6 +82,10 @@ export default function ProtectedLayout() {
         name='setting/admin/index'
       />
       <Stack.Screen
+        options={{ title: 'New users' }}
+        name='setting/admin/new-users'
+      />
+      <Stack.Screen
         options={{ title: 'Mutes & Blocks' }}
         name='setting/mutes-and-blocks/index'
       />

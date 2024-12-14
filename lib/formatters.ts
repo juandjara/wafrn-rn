@@ -1,5 +1,4 @@
 import { CACHE_URL, MEDIA_URL } from "./config"
-import { PostUser } from "./api/posts.types"
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime'
 
@@ -36,7 +35,7 @@ export function formatDate(date: string) {
   return new Date(date).toLocaleString()
 }
 
-export function formatUserUrl(user?: PostUser) {
+export function formatUserUrl(user?: { url: string }) {
   if (!user?.url) {
     return ''
   }
