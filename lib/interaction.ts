@@ -51,22 +51,6 @@ export function showToastError(message: string) {
   })
 }
 
-// export function showToast(message: string, backgroundColor: string, textColor: string) {
-//   Toast.show({
-//     text1: message,
-//     type: 'info'
-//   })
-//   // Toast.show(message, {
-//   //   position: Toast.positions.TOP,
-//   //   backgroundColor,
-//   //   textColor,
-//   //   containerStyle: {
-//   //     marginTop: 72,
-//   //     paddingHorizontal: 16,
-//   //   }
-//   // })
-// }
-
 export function useLikeMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
