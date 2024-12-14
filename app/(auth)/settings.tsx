@@ -4,7 +4,7 @@ import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import colors from "tailwindcss/colors";
 
@@ -91,28 +91,26 @@ export default function Settings() {
   })
 
   return (
-    <View className="bg-gray-800">
-      <ScrollView>
+    <ScrollView>
+      <Pressable
+        onPress={() => setToken(null)}
+        className="active:bg-white/10"
+        style={optionStyleDark(0)}
+      >
+        <MaterialCommunityIcons name='logout' size={24} color={colors.red[400]} />
+        <Text className="text-red-400">Log out</Text>
+      </Pressable>
+      {filteredOptions.map((option, i) => (
         <Pressable
-          onPress={() => setToken(null)}
+          key={i}
+          onPress={() => router.navigate(option.link)}
           className="active:bg-white/10"
-          style={optionStyleDark(0)}
+          style={optionStyleDark(i)}
         >
-          <MaterialCommunityIcons name='logout' size={24} color={colors.red[400]} />
-          <Text className="text-red-400">Log out</Text>
+          <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
+          <Text className="text-white">{option.label}</Text>
         </Pressable>
-        {filteredOptions.map((option, i) => (
-          <Pressable
-            key={i}
-            onPress={() => router.navigate(option.link)}
-            className="active:bg-white/10"
-            style={optionStyleDark(i)}
-          >
-            <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
-            <Text className="text-white">{option.label}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </View>
+      ))}
+    </ScrollView>
   )
 }

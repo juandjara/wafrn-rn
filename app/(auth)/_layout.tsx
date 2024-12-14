@@ -77,6 +77,14 @@ export default function ProtectedLayout() {
         options={{ title: 'Options & Customizations', headerShown: false }}
         name='setting/options'
       />
+      <Stack.Screen
+        options={{ title: 'Admin settings' }}
+        name='setting/admin/index'
+      />
+      <Stack.Screen
+        options={{ title: 'Mutes & Blocks' }}
+        name='setting/mutes-and-blocks/index'
+      />
     </Stack>
   )
 }
