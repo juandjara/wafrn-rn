@@ -145,7 +145,7 @@ export default function UserFeed() {
       <AnimatedFlashList
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        estimatedItemSize={800}
+        estimatedItemSize={500}
         contentInset={{
           top: Platform.select({ android: sx.paddingTop }),
           bottom: sx.paddingBottom

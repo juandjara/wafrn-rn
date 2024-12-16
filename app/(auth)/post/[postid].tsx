@@ -225,7 +225,7 @@ export default function PostDetail() {
           contentContainerStyle={{
             paddingBottom: 120
           }}
-          estimatedItemSize={800}
+          estimatedItemSize={500}
           keyExtractor={(item) => {
             if (item.type === 'post' || item.type === 'reply') {
               return item.data.post.id

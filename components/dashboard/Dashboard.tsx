@@ -67,7 +67,7 @@ export default function Dashboard({
         refreshing={isFetching}
         onRefresh={refresh}
         data={deduped}
-        estimatedItemSize={800}
+        estimatedItemSize={500}
         onEndReachedThreshold={2}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Thread thread={item} />}
