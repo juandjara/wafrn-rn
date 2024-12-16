@@ -3,6 +3,7 @@ import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
+import { getPrivateOptionValue, PrivateOption, PrivateOptionNames } from "./settings"
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -12,6 +13,7 @@ export const MENTION_LINK_REGEX = /(\[@[\w-\.]+@?[\w-\.]*\]\([^(^)]+\))/gi
 export const COLOR_REGEX = /(\[fg=#[0-9a-fA-F]{6}\]\(.*?\))/gi
 export const WAFRNMEDIA_REGEX =
   /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
+export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content || !!post.content_warning) {
@@ -161,30 +163,34 @@ export function clearSelectionRangeFormat(
   }
 }
 
-export function getInitialContentWarning({ mutedWordsLine, post, context } : {
-  mutedWordsLine: string
-  post: Post
-  context: DashboardContextData
-}) {
+export function processContentWarning(post: Post, context: DashboardContextData, options: PrivateOption[]) {
+  const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
+  const disableCW = getPrivateOptionValue(options, PrivateOptionNames.DisableCW)
+
   const medias = context.medias.filter((m) => m.postId === post.id)
   const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
   const mutedWords = mutedWordsLine.split(',')
     .map((w) => w.trim().toLocaleLowerCase())
     .filter((w) => w.length > 0)
 
-  const contentCheck = mutedWords.filter((m) => post.content?.toLocaleLowerCase().includes(m))
-  const tagsCheck = mutedWords.filter((m) => tags.some((t) => t.toLocaleLowerCase().includes(m)))
-  const mediaCheck = mutedWords.filter((m) => medias.some((media) => media.description?.toLocaleLowerCase().includes(m)))
-  const presentWords = Array.from(new Set([...contentCheck, ...tagsCheck, ...mediaCheck]))
-  const isMuted = presentWords.length > 0
-  const formattedWords = presentWords.map((w) => `"${w}"`).join(', ')
+  const filteredWords = mutedWords.filter((m) => {
+    const contentCheck = post.content?.toLocaleLowerCase().includes(m)
+    const tagsCheck = tags.some((t) => t.toLocaleLowerCase().includes(m))
+    const mediaCheck = medias.some((media) => media.description?.toLocaleLowerCase().includes(m))
+    return contentCheck || tagsCheck || mediaCheck
+  })
+
+  const isMuted = filteredWords.length > 0
+  const formattedWords = filteredWords.map((w) => `"${w}"`).join(', ')
   const separator = post.content_warning ? ' - ' : ''
 
-  const initialCW = isMuted
+  const contentWarning = isMuted
     ? `${post.content_warning || ''}${separator}Contains muted words: ${formattedWords}`
     : post.content_warning
 
-  return { initialCW, isMuted }
+  const initialCWOpen = disableCW ? !isMuted : !contentWarning
+
+  return { contentWarning, initialCWOpen }
 }
 
 export function getTextFromMentionState(mentionState: MentionApi['mentionState']) {
@@ -328,4 +334,55 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
     getTriggerValue: (suggestion) => suggestion.name,
     getPlainString: (triggerData) => triggerData.name,
   },
+}
+
+export function separateInlineMedias(post: Post, context: DashboardContextData, options: PrivateOption[]) {
+  const disableNSFWCloak = getPrivateOptionValue(options, PrivateOptionNames.DisableNSFWCloak)
+  const medias = context.medias
+    .filter((m) => m.postId === post.id)
+    .map((m) => ({
+      ...m,
+      NSFW: disableNSFWCloak ? false : m.NSFW,
+    }))
+    .sort((a, b) => a.order - b.order)
+
+  const inlineMediaMatches = post.content.match(INLINE_MEDIA_REGEX) || []
+  return {
+    medias: medias.slice(inlineMediaMatches.length),
+    inlineMedias: medias.slice(0, inlineMediaMatches.length),
+  }
+}
+
+export function getAskData(post: Post, context: DashboardContextData) {
+  const ask = context.asks.find((a) => a.postId === post.id)
+  if (!ask) {
+    return null
+  }
+  const askUser = context.users.find((u) => u.id === ask.userAsker)
+  return {
+    user: askUser,
+    userName: replaceEmojis(askUser?.name || '', context.emojiRelations.emojis),
+    question: ask.question,
+  }
+}
+
+export function groupPostReactions(post: Post, context: DashboardContextData) {
+  const reactions = getReactions(post, context)
+  const likeReactions = reactions.filter((r) => isUnicodeHeart(r.emoji))
+  const likeUsers = context.likes
+    .filter((l) => l.postId === post.id)
+    .map((l) => context.users.find((u) => u.id === l.userId))
+    .filter((u) => !!u)
+    .concat(likeReactions?.flatMap((l) => l.users) || [])
+
+  const fullReactions = reactions.filter((r) => !isUnicodeHeart(r.emoji))
+  if (likeUsers.length) {
+    return [{
+      id: `${post.id}-likes`,
+      emoji: '❤️' as any,
+      users: likeUsers,
+    }].concat(fullReactions)
+  }
+
+  return fullReactions
 }

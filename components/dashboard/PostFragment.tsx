@@ -1,27 +1,34 @@
-import { Post } from "@/lib/api/posts.types"
+import type { Post } from "@/lib/api/posts.types"
 import { LayoutChangeEvent, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
-import { formatCachedUrl, formatDate, formatMediaUrl, formatSmallAvatar } from "@/lib/formatters"
+import { formatDate, formatSmallAvatar } from "@/lib/formatters"
 import { useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
-import { EmojiGroup, getInitialContentWarning, getReactions, isEmptyRewoot, isUnicodeHeart, processPostContent, replaceEmojis } from "@/lib/api/content"
+import {
+  getAskData,
+  groupPostReactions,
+  isEmptyRewoot,
+  processContentWarning,
+  processPostContent,
+  replaceEmojis,
+  separateInlineMedias
+} from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import colors from "tailwindcss/colors"
 import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
 import { LinearGradient } from "expo-linear-gradient"
-import ReactionDetailsMenu from "../posts/ReactionDetailsMenu"
 import PostHtmlRenderer from "../posts/PostHtmlRenderer"
 import UserRibbon from "../user/UserRibbon"
 import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
-import { INLINE_MEDIA_REGEX } from "@/lib/api/html"
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
-import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/api/settings"
+import { useSettings } from "@/lib/api/settings"
+import PostReaction from "../posts/PostReaction"
 
 const HEIGHT_LIMIT = 462
 
@@ -35,26 +42,65 @@ export default function PostFragment({
   hasCornerMenu?: boolean
 }) {
   const { width } = useWindowDimensions()
+  const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
+
   const context = useDashboardContext()
   const postRef = useRef(_post)
   const post = postRef.current
 
   const { data: settings } = useSettings()
-  const mutedWordsLine = useMemo(() => (
-    getPrivateOptionValue(settings?.options || [], PrivateOptionNames.MutedWords)
-  ), [settings])
 
-  const { initialCW, isMuted } = useMemo(() => getInitialContentWarning({
-    mutedWordsLine,
-    context,
-    post,
-  }), [mutedWordsLine, context, post])
+  const {
+    user,
+    userName,
+    postContent,
+    tags,
+    medias,
+    inlineMedias,
+    quotedPost,
+    ask,
+    poll,
+    reactions,
+    isEdited,
+    contentWarning,
+    initialCWOpen,
+  } = useMemo(() => {
+    const user = context.users.find((u) => u.id === post.userId)
+    const userName = replaceEmojis(user?.name || '', context.emojiRelations.emojis)
+    const postContent = processPostContent(post, context)
+    const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+    const options = settings?.options || []
 
-  const disableCW = useMemo(() => (
-    getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableCW)
-  ), [settings])
+    // this processes the option "wafrn.disableNSFWCloak"
+    const { medias, inlineMedias } = separateInlineMedias(post, context, options)
+    const quotedPostId = !isQuote && context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
+    const quotedPost = quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
+    const ask = getAskData(post, context)
+    const poll = context.polls.find((p) => p.postId === post.id)
+    const reactions = groupPostReactions(post, context)
 
-  const initialCWOpen = disableCW && !isMuted ? true : !initialCW
+    // edition is considered if the post was updated more than 1 minute after it was created
+    const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
+
+    // this proccesses the options "wafrn.disableCW" and "wafrn.mutedWords"
+    const { contentWarning, initialCWOpen } = processContentWarning(post, context, options)
+
+    return {
+      user,
+      userName,
+      postContent,
+      tags,
+      medias,
+      inlineMedias,
+      quotedPost,
+      ask,
+      poll,
+      reactions,
+      isEdited,
+      contentWarning,
+      initialCWOpen,
+    }
+  }, [post, context, settings, isQuote])
 
   const [CWOpen, setCWOpen] = useState(initialCWOpen)
   const [collapsed, setCollapsed] = useState(true)
@@ -71,6 +117,12 @@ export default function PostFragment({
     }
   })
 
+  const { postid } = useLocalSearchParams()
+  const isDetailView = postid === post.id
+  const Root = isDetailView ? View : Pressable
+
+  const voteMutation = useVoteMutation(poll?.id || null, post)
+
   // recommended way of updating react hooks state when props change
   // taken from the old `getDerivedStateFromProps` lifecycle method
   if (postRef.current.id !== _post.id) {
@@ -80,12 +132,8 @@ export default function PostFragment({
   function recycleState(post: Post) {
     console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
     postRef.current = post
-    const { initialCW, isMuted } = getInitialContentWarning({
-      mutedWordsLine,
-      context,
-      post,
-    })
-    const initialCWOpen = disableCW && !isMuted ? true : !initialCW
+
+    const { initialCWOpen } = processContentWarning(post, context, settings?.options || [])
 
     setCWOpen(initialCWOpen)
     setCollapsed(true)
@@ -117,7 +165,7 @@ export default function PostFragment({
       setCollapsed(true)
     }
     setCWOpen((o) => !o)
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       animationRef.value = withTiming(
         CWOpen ? 0 : 1,
         {
@@ -132,106 +180,13 @@ export default function PostFragment({
     setCollapsed((c) => !c)
   }
 
-  const user = useMemo(
-    () => context.users.find((u) => u.id === post.userId),
-    [context.users, post.userId]
-  )
-
-  const userName = useMemo(() => {
-    return replaceEmojis(user?.name || '', context.emojiRelations.emojis)
-  }, [user, context])
-
-  const postContent = useMemo(
-    () => processPostContent(post, context),
-    [context, post]
-  )
-
-  const tags = useMemo(() => {
-    const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
-    return tags
-  }, [post, context])
-
-  const { medias, inlineMedias } = useMemo(() => {
-    const disableNSFWCloak = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableNSFWCloak)
-    const medias = context.medias
-      .filter((m) => m.postId === post.id)
-      .map((m) => ({
-        ...m,
-        NSFW: disableNSFWCloak ? false : m.NSFW,
-      }))
-      .sort((a, b) => a.order - b.order)
-
-    const inlineMediaMatches = post.content.match(INLINE_MEDIA_REGEX) || []
-    return {
-      medias: medias.slice(inlineMediaMatches.length),
-      inlineMedias: medias.slice(0, inlineMediaMatches.length),
-    }
-  }, [post, context, settings])
-
-  const quotedPost = useMemo(() => {
-    if (isQuote) {
-      return undefined
-    }
-    const id = context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
-    return context.quotedPosts.find((p) => p.id === id)
-  }, [post, isQuote, context])
-
-  const ask = useMemo(() => {
-    const ask = context.asks.find((a) => a.postId === post.id)
-    if (!ask) {
-      return null
-    }
-    const askUser = context.users.find((u) => u.id === ask.userAsker)
-    return {
-      user: askUser,
-      userName: replaceEmojis(askUser?.name || '', context.emojiRelations.emojis),
-      question: ask.question,
-    }
-  }, [post, context])
-
-  const poll = useMemo(() => {
-    return context.polls.find((p) => p.postId === post.id)
-  }, [post, context])
-
-  const reactions = useMemo(() => {
-    const reactions = getReactions(post, context)
-    const likeReactions = reactions.filter((r) => isUnicodeHeart(r.emoji))
-    const likeUsers = context.likes
-      .filter((l) => l.postId === post.id)
-      .map((l) => context.users.find((u) => u.id === l.userId))
-      .filter((u) => !!u)
-      .concat(likeReactions?.flatMap((l) => l.users) || [])
-
-    const fullReactions = reactions.filter((r) => !isUnicodeHeart(r.emoji))
-    if (likeUsers.length) {
-      return [{
-        id: `${post.id}-likes`,
-        emoji: '❤️' as any,
-        users: likeUsers,
-      }].concat(fullReactions)
-    }
-
-    return fullReactions
-  }, [post, context])
-
-  const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
-
-  // edition is considered if the post was updated more than 1 minute after it was created
-  const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
-
-  const voteMutation = useVoteMutation(poll?.id || null, post)
-
   function onPollVote(indexes: number[]) {
     if (!poll) {
       return
     }
     voteMutation.mutate(indexes)
   }
-
-  const { postid } = useLocalSearchParams()
-  const isDetailView = postid === post.id
-  const Root = isDetailView ? View : Pressable
-
+  
   if (isEmptyRewoot(post, context)) {
     return null
   }
@@ -257,10 +212,10 @@ export default function PostFragment({
           <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
         <View id='content' className={clsx('relative', {
-          'border border-yellow-500 rounded-xl my-4': !!initialCW,
+          'border border-yellow-500 rounded-xl my-4': !!contentWarning,
           'pb-10': showExpander && !collapsed // EXPANDER_MARGIN
         })}>
-          {initialCW && (
+          {contentWarning && (
             <View
               id='content-warning-indicator'
               className='flex-row items-start gap-3 p-2'
@@ -287,7 +242,7 @@ export default function PostFragment({
                 )}
               </View>
               <View className="flex-shrink flex-grow gap-2">
-                <Text className="text-yellow-100 leading-5">{initialCW}</Text>
+                <Text className="text-yellow-100 leading-5">{contentWarning}</Text>
                 <Pressable
                   id='content-warning-toggle'
                   className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
@@ -306,7 +261,7 @@ export default function PostFragment({
               animatedStyle,
               { height: CWOpen ? 'auto' : 0 },
               { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
-              { paddingHorizontal: initialCW ? 12 : 0 },
+              { paddingHorizontal: contentWarning ? 12 : 0 },
               {
                 transformOrigin: 'top center',
                 overflow: 'hidden',
@@ -401,7 +356,7 @@ export default function PostFragment({
                   paddingTop: 12,
                   paddingBottom: 8,
                   paddingHorizontal: 8,
-                  borderRadius: initialCW ? 12 : 0
+                  borderRadius: contentWarning ? 12 : 0
                 }}
               >
                 <Pressable
@@ -419,52 +374,10 @@ export default function PostFragment({
         </View>
         {reactions.length > 0 && (
           <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-            {reactions.map((r) => <Reaction key={r.id} reaction={r} />)}
+            {reactions.map((r) => <PostReaction key={r.id} reaction={r} />)}
           </View>
         )}
       </Root>
     </Link>
   )
-}
-
-function Reaction({ reaction }: { reaction: EmojiGroup }) {
-  if (typeof reaction.emoji === 'string') {
-    return (
-      <ReactionDetailsMenu
-        key={reaction.id}
-        users={reaction.users}
-        reaction={reaction.emoji}
-      >
-        <View className="flex-row items-center py-1 px-2 rounded-md border border-gray-500">
-          <Text className="text-gray-200">
-            {reaction.emoji} {reaction.users.length}
-          </Text>
-        </View>
-      </ReactionDetailsMenu>
-    )
-  } else {
-    return (
-      <ReactionDetailsMenu
-        key={reaction.id}
-        users={reaction.users}
-        reactionName={reaction.emoji.name}
-        reaction={(
-          <Image
-            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
-            style={{ resizeMode: 'contain', width: 20, height: 20 }}
-          />
-        )}
-      >
-        <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
-          <Image
-            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
-            style={{ resizeMode: 'contain', width: 20, height: 20 }}
-          />
-          <Text className="text-gray-200">
-            {reaction.users.length}
-          </Text>
-        </View>
-      </ReactionDetailsMenu>
-    )
-  }
 }

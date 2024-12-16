@@ -299,8 +299,6 @@ export function formatMentionHTML(mention: string, remoteId?: string) {
   return `<span class="h-card" translate="no"><a ${attr} href="${href}" class="u-url mention">@<span>${user}</span></a></span>`
 }
 
-export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
-
 export function replaceInlineImages(html: string, medias: PostMedia[], contentWidth: number) {
   medias.forEach((media, index) => {
     const ratio = (media.height || 1) / (media.width || 1)
