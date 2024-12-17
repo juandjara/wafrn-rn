@@ -2,7 +2,7 @@ import type { Post } from "@/lib/api/posts.types"
 import { LayoutChangeEvent, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatDate, formatSmallAvatar } from "@/lib/formatters"
-import { useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -26,7 +26,6 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
-import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { useSettings } from "@/lib/api/settings"
 import PostReaction from "../posts/PostReaction"
 
@@ -109,29 +108,11 @@ export default function PostFragment({
   const measured = useRef(false)
   const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
 
-  const animationRef = useSharedValue(initialCWOpen ? 1 : 0)
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: animationRef.value,
-      transform: [{ scaleY: animationRef.value }]
-    }
-  })
-
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
   const Root = isDetailView ? View : Pressable
 
   const voteMutation = useVoteMutation(poll?.id || null, post)
-
-  useLayoutEffect(() => {
-    animationRef.value = withTiming(
-      CWOpen ? 1 : 0,
-      {
-        duration: 200,
-        easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease)
-      }
-    )
-  }, [animationRef, CWOpen])
 
   // recommended way of updating react hooks state when props change
   // taken from the old `getDerivedStateFromProps` lifecycle method
@@ -255,10 +236,9 @@ export default function PostFragment({
               </View>
             </View>
           )}
-          <Reanimated.View
+          <View
             id='show-more-container'
             style={[
-              animatedStyle,
               { height: CWOpen ? 'auto' : 0 },
               { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
               { paddingHorizontal: contentWarning ? 12 : 0 },
@@ -343,7 +323,7 @@ export default function PostFragment({
                 </View>
               )}
             </View>
-          </Reanimated.View>
+          </View>
           {showExpander && (
             <View
               id='show-more-backdrop'
