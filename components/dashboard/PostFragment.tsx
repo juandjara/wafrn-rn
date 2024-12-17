@@ -2,7 +2,7 @@ import type { Post } from "@/lib/api/posts.types"
 import { LayoutChangeEvent, Pressable, Text, useWindowDimensions, View } from "react-native"
 import { Image } from 'expo-image'
 import { formatDate, formatSmallAvatar } from "@/lib/formatters"
-import { useMemo, useRef, useState } from "react"
+import { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
@@ -123,6 +123,16 @@ export default function PostFragment({
 
   const voteMutation = useVoteMutation(poll?.id || null, post)
 
+  useLayoutEffect(() => {
+    animationRef.value = withTiming(
+      CWOpen ? 1 : 0,
+      {
+        duration: 200,
+        easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease)
+      }
+    )
+  }, [animationRef, CWOpen])
+
   // recommended way of updating react hooks state when props change
   // taken from the old `getDerivedStateFromProps` lifecycle method
   if (postRef.current.id !== _post.id) {
@@ -137,7 +147,6 @@ export default function PostFragment({
 
     setCWOpen(initialCWOpen)
     setCollapsed(true)
-    animationRef.value = initialCWOpen ? 1 : 0
     if (measured.current) {
       setFullHeight(0)
       requestAnimationFrame(() => {
@@ -164,16 +173,7 @@ export default function PostFragment({
     if (CWOpen) {
       setCollapsed(true)
     }
-    setCWOpen((o) => !o)
-    setTimeout(() => {
-      animationRef.value = withTiming(
-        CWOpen ? 0 : 1,
-        {
-          duration: 200,
-          easing: CWOpen ? Easing.out(Easing.ease) : Easing.in(Easing.ease)
-        }
-      )
-    })
+    setCWOpen(!CWOpen)
   }
 
   function toggleShowMore() {
