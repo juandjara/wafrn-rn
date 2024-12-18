@@ -6,25 +6,9 @@ import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import MediaCloak from "./MediaCloak";
-import { useVideoPlayer, VideoView } from "expo-video";
+import Video from "../Video";
 
 export const MEDIA_MARGIN = -2
-
-function Video({ isAudioOnly = false, src, width, height }: {
-  isAudioOnly?: boolean
-  src: string
-  width: number
-  height: number
-}) {
-  const videoPlayer = useVideoPlayer(src)
-  return (
-    <VideoView
-      style={{ width, height }}
-      player={videoPlayer}
-      allowsFullscreen
-    />
-  )
-}
 
 export default function Media({ media, contentWidth }: {
   media: PostMedia
