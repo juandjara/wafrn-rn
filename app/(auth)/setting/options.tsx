@@ -222,7 +222,6 @@ export default function Options() {
           </Text>
           <TextInput
             value={form.threadAncestorLimit}
-            keyboardType="numeric"
             onChangeText={text => update('threadAncestorLimit', text)}
             className={clsx('p-3 rounded-lg text-white border', {
               'border-gray-600': validThreadAncestorLimit,
