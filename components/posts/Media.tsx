@@ -1,6 +1,6 @@
 import { PostMedia } from "@/lib/api/posts.types";
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { getAspectRatio, isAudio, isImage, isNotAV, isVideo } from "@/lib/api/media";
 import ZoomableImage from "./ZoomableImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -48,15 +48,13 @@ export default function Media({ media, contentWidth }: {
         }}
       >
         {isVideo(mime, src) && (
-          <>
-            <Pressable>
-              <Video
-                src={src}
-                width={mediaWidth}
-                height={mediaHeight}
-              />
-            </Pressable>
-          </>
+          <View className="bg-blue-950">
+            <Video
+              src={src}
+              width={mediaWidth}
+              height={mediaHeight}
+            />
+          </View>
         )}
         {isAudio(mime, src) && (
           <View className="p-1 bg-black">
