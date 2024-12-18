@@ -6,6 +6,7 @@ import ColorPicker from "./ColorPicker"
 import { launchImageLibraryAsync } from "expo-image-picker"
 import { EditorImage } from "./EditorImages"
 import EditorCanvas from "./EditorCanvas"
+import EmojiPicker from "../EmojiPicker"
 
 export type EditorActionProps = {
   actions: {
@@ -20,6 +21,7 @@ export type EditorActionProps = {
 export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -51,6 +53,14 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
         setOpen={setShowColorPicker}
         selectColor={colorSelection}
       />
+      <EmojiPicker
+        open={showEmojiPicker}
+        setOpen={setShowEmojiPicker}
+        onPick={(emoji) => {
+          actions.insertCharacter(emoji.content || emoji.name)
+          setShowEmojiPicker(false)
+        }}
+      />
       <ScrollView
         contentContainerClassName="gap-3 mx-auto"
         className="p-3 flex-shrink-0 flex-grow-0"
@@ -64,7 +74,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           <MaterialCommunityIcons name='at' color='white' size={24} />
         </Pressable>
         <Pressable
-          onPress={() => actions.insertCharacter(':')}
+          onPress={() => setShowEmojiPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
           <MaterialIcons name="emoji-emotions" size={24} color='white' />
