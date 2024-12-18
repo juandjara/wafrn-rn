@@ -27,7 +27,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
 
   async function pickImages() {
     const result = await launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: ['images', 'videos'],
       allowsEditing: false,
       allowsMultipleSelection: true,
       orderedSelection: true,

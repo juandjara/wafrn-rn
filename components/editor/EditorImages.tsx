@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors"
+import { isVideo } from "@/lib/api/media"
 import { MaterialIcons } from "@expo/vector-icons"
 import { useTheme } from "@react-navigation/native"
 import { useMutationState } from "@tanstack/react-query"
@@ -18,6 +19,7 @@ import {
   View
 } from "react-native"
 import colors from "tailwindcss/colors"
+import Video from "../Video"
 
 export type EditorImage = {
   uri: string
@@ -85,7 +87,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
             >
               <MaterialIcons name="arrow-back" color={theme.colors.text} size={24} />
             </Pressable>
-            <Text className="text-white flex-grow text-lg">Editing image</Text>
+            <Text className="text-white flex-grow text-lg">Editing media</Text>
             <Pressable
               className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
               onPress={() => {
@@ -93,15 +95,23 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 removeImage(openIndex!)
               }}
             >
-              <Text className="text-sm text-red-700">Delete image</Text>
+              <Text className="text-sm text-red-700">Delete media</Text>
               <MaterialIcons name="delete" color={colors.red[700]} size={20} />
             </Pressable>
           </View>
           <View className="border border-gray-600 rounded-lg">
-            <Image
-              source={selectedImage}
-              style={{ width: size, height: size, resizeMode: 'contain' }}
-            />
+            {isVideo(selectedImage.mimeType, selectedImage.uri) ? (
+              <Video
+                src={selectedImage.uri}
+                width={size}
+                height={size}
+              />
+            ) : (
+              <Image
+                source={selectedImage}
+                style={{ width: size, height: size, resizeMode: 'contain' }}
+              />
+            )}
           </View>
           <Pressable
             onPress={() => updateOpenImage({ NSFW: !selectedImage.NSFW })}
@@ -186,6 +196,13 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 className="z-10 items-center justify-center bg-black/50"
               >
                 <ActivityIndicator size="large" color="white" />
+              </View>
+            ) : null}
+            {isVideo(img.mimeType, img.uri) ? (
+              <View
+                className="absolute bottom-3 left-3 p-1.5 rounded-full bg-black/50"
+              >
+                <MaterialIcons name='videocam' color='white' size={16} />
               </View>
             ) : null}
           </View>
