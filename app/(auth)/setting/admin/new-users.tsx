@@ -25,7 +25,7 @@ export default function NewUsers() {
               id={user.id}
               src={user.avatar}
               width={80}
-              aspectRatio={1}
+              height={80}
               className="rounded-xl border border-gray-600 bg-black"
             />
             <View className="flex-shrink">

@@ -33,7 +33,7 @@ export default function ZoomableImage({
   style,
   contentFit,
   width,
-  aspectRatio,
+  height,
   className,
   imgClassName,
   blurHash
@@ -44,7 +44,7 @@ export default function ZoomableImage({
   style?: ImageStyle | ViewStyle
   contentFit?: ImageStyle["resizeMode"]
   width: number
-  aspectRatio: number
+  height: number
   className?: string
   imgClassName?: string
   blurHash?: string
@@ -96,7 +96,7 @@ export default function ZoomableImage({
         {isSVG(src) ? (
           <SvgUri
             width={width}
-            height={width * aspectRatio}
+            height={height}
             uri={src}
             style={style as ViewStyle}
           />
@@ -105,13 +105,12 @@ export default function ZoomableImage({
             cachePolicy={'memory-disk'}
             recyclingKey={id}
             source={src}
-            placeholder={{ blurHash, width, height: width * aspectRatio }}
+            placeholder={{ blurHash, width, height }}
             className={imgClassName}
-            style={[style as ImageStyle, {
-              width,
-              height: width * aspectRatio,
-              resizeMode: contentFit
-            }]}
+            style={[
+              style as ImageStyle,
+              { width, height, resizeMode: contentFit }
+            ]}
           />
         )}
       </Pressable>

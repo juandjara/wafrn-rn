@@ -25,6 +25,7 @@ export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
+  const height = width * 0.5
   const { data: settings } = useSettings()
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
@@ -73,7 +74,6 @@ export default function UserDetail({ user }: { user: User }) {
 
   const askFlag = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks)
   const hasAsks = !remoteInfo && askFlag !== AskOptionValue.AllowNoAsks
-  const aspectRatio = 0.5
 
   const userActions = useMemo(() => [
     {
@@ -110,13 +110,13 @@ export default function UserDetail({ user }: { user: User }) {
           id="header"
           src={formatCachedUrl(formatMediaUrl(user.headerImage))}
           width={width}
-          aspectRatio={aspectRatio}
+          height={height}
           className="border-b border-gray-500"
         />
       ) : (
         <View
           collapsable={false}
-          style={{ minHeight: width * aspectRatio, width: '100%', backgroundColor: colors.gray[800] }}
+          style={{ height, width, backgroundColor: colors.gray[800] }}
         />
       )}
       <View className='flex-row justify-center items-center my-4 rounded-md -mt-12'>
@@ -124,7 +124,7 @@ export default function UserDetail({ user }: { user: User }) {
           id="avatar"
           src={url}
           width={150}
-          aspectRatio={1}
+          height={150}
           className="rounded-lg border border-gray-500 bg-black"
           imgClassName="rounded-lg"
         />
