@@ -8,6 +8,11 @@ export enum UserRoles {
   User = 0,
 }
 
+export function useAdminCheck() {
+  const me = useParsedToken()
+  return me?.role === UserRoles.Admin
+}
+
 type AuthContextData = {
   token: string | null;
   setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>;

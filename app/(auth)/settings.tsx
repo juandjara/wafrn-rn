@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/lib/config";
-import { useAuth, useParsedToken, UserRoles } from "@/lib/contexts/AuthContext";
+import { useAdminCheck, useAuth } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,8 +12,7 @@ cssInterop(Pressable, { className: 'style' })
 
 export default function Settings() {
   const { setToken } = useAuth()
-  const me = useParsedToken()
-  const isAdmin = me?.role === UserRoles.Admin
+  const isAdmin = useAdminCheck()
 
   const options = [
     {
