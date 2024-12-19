@@ -2,7 +2,6 @@ import { Colors, getRootStyles } from "@/constants/Colors"
 import { useNotificationBadges } from "@/lib/notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Tabs } from "expo-router"
-import { useMemo } from "react"
 import { useColorScheme } from "react-native"
 import colors from "tailwindcss/colors"
 
@@ -12,11 +11,12 @@ export const unstable_settings = {
 
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
-  const notificationCount = useMemo(() => {
-    const notifications = data?.notifications || 0
-    const asks = data?.asks || 0
-    return notifications + asks
-  }, [data])
+  const notificationCount = data?.notifications || 0
+  // const notificationCount = useMemo(() => {
+  //   const notifications = data?.notifications || 0
+  //   const asks = data?.asks || 0
+  //   return notifications + asks
+  // }, [data])
 
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 

@@ -18,6 +18,13 @@ export default function NewUsers() {
         />
       }
     >
+      {data?.length === 0 && !isFetching && (
+        <View className="p-3 mt-3">
+          <Text className="text-white text-center">
+            No new users to approve
+          </Text>
+        </View>
+      )}
       {data?.map((user) => (
         <View key={user.id} className="p-3 bg-gray-800 rounded-lg m-2 mb-6">
           <View className="flex-row items-center gap-3 pb-8">

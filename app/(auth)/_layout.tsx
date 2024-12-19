@@ -53,7 +53,7 @@ export default function ProtectedLayout() {
       <Stack.Screen name='user/[userid]' />
       <Stack.Screen name='user/followed/[userid]' />
       <Stack.Screen name='user/followers/[userid]' />
-      <Stack.Screen name='asks' />
+      <Stack.Screen name='asks' options={{ title: 'Asks' }} />
       <Stack.Screen
         name='editor'
         options={{

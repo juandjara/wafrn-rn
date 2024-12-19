@@ -8,7 +8,7 @@ const options = [
   { label: 'Emoji packs', link: '/setting/admin/emoji', icon: 'emoticon-outline' },
   { label: 'Server stats', link: '/setting/admin/stats', icon: 'chart-line' },
   { label: 'Server list', link: '/setting/admin/servers', icon: 'server' },
-  { label: 'Users awaiting approval', link: '/setting/admin/new-users', icon: 'account-check-outline' },
+  { label: 'New users awaiting approval', link: '/setting/admin/new-users', icon: 'account-check-outline' },
   { label: 'Banned users', link: '/setting/admin/banned-users', icon: 'account-off-outline' },
   { label: 'Block lists', link: '/setting/admin/block-lists', icon: 'account-cancel-outline' },
   { label: 'Reports', link: '/setting/admin/reports', icon: 'account-alert-outline' },

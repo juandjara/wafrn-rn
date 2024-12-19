@@ -7,21 +7,47 @@ import colors from "tailwindcss/colors"
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { optionStyle } from "@/lib/styles"
+import { useNotificationBadges } from "@/lib/notifications"
+import { useAdminCheck } from "@/lib/contexts/AuthContext"
 
 export default function UserMenu() {
-  const { data: user } = useCurrentUser()
+  const { data: me } = useCurrentUser()
+  const { data: badges } = useNotificationBadges()
+  const isAdmin = useAdminCheck()
 
   const options = [
     {
       icon: 'account-outline' as const,
       label: 'My profile',
-      action: () => router.push(`/user/${user?.url}`)
+      action: () => router.push(`/user/${me?.url}`)
     },
     {
       icon: 'account-clock-outline' as const,
       label: 'Follow requests',
       disabled: true,
-      action: () => router.push('/user/awaiting-follows')
+      action: () => router.push('/user/awaiting-follows'),
+      badge: badges?.followsAwaitingAproval || 0,
+      hidden: me?.manuallyAcceptsFollows === false
+    },
+    {
+      icon: 'account-check-outline' as const,
+      label: 'New users approval',
+      action: () => router.push('/setting/admin/new-users'),
+      badge: badges?.usersAwaitingAproval || 0,
+      hidden: !isAdmin
+    },
+    {
+      icon: 'account-alert-outline' as const,
+      label: 'Reports',
+      action: () => router.push('/setting/admin/reports'),
+      badge: badges?.reports || 0,
+      hidden: !isAdmin
+    },
+    {
+      icon: 'chat-question-outline' as const,
+      label: 'Asks',
+      action: () => router.push('/asks'),
+      badge: badges?.asks || 0
     },
     {
       icon: 'cog-outline' as const,
@@ -29,16 +55,31 @@ export default function UserMenu() {
       action: () => router.push('/settings')
     },
   ]
+  const anyBadge = options.some(option => option.badge)
+  const filteredOptions = options.filter(option => {
+    if ('hidden' in option) {
+      return option.hidden === false
+    }
+    return true
+  })
 
-  if (!user) return undefined
+  if (!me) {
+    return null
+  }
+
   return (
     <Menu>
       <MenuTrigger style={{ marginRight: 8 }} customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
         <Image
           className="rounded-full"
-          source={{ uri: formatSmallAvatar(user.avatar) }}
+          source={{ uri: formatSmallAvatar(me.avatar) }}
           style={{ width: 40, height: 40 }}
         />
+        {anyBadge && (
+          <Text className="absolute -top-1.5 -right-1.5 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
+            {options.reduce((acc, option) => acc + (option.badge || 0), 0)}
+          </Text>
+        )}
       </MenuTrigger>
       <MenuOptions customStyles={{
         optionsContainer: {
@@ -47,7 +88,7 @@ export default function UserMenu() {
           borderRadius: 8,
         },
       }}>
-        {options.map((option, i) => (
+        {filteredOptions.map((option, i) => (
           <MenuOption
             key={i}
             onSelect={option.action}
@@ -55,6 +96,11 @@ export default function UserMenu() {
           >
             <MaterialCommunityIcons name={option.icon} size={20} color={colors.gray[600]} />
             <Text className="text-sm flex-grow">{option.label}</Text>
+            {option.badge ? (
+              <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
+                {option.badge}
+              </Text>
+            ) : null}
           </MenuOption>
         ))}
       </MenuOptions>
