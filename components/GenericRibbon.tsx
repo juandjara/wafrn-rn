@@ -11,14 +11,14 @@ export default function GenericRibbon({
   userNameHTML,
   className,
   link,
-  label,
+  label = '',
   icon,
 }: {
   user: PostUser;
   userNameHTML: string;
   link: string;
   className?: string;
-  label: string;
+  label?: string;
   icon: React.ReactNode
 }) {
   const avatar = formatSmallAvatar(user?.avatar)
