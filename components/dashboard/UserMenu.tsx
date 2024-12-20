@@ -30,18 +30,11 @@ export default function UserMenu() {
       hidden: me?.manuallyAcceptsFollows === false
     },
     {
-      icon: 'account-check-outline' as const,
-      label: 'New users approval',
-      action: () => router.push('/setting/admin/new-users'),
-      badge: badges?.usersAwaitingAproval || 0,
-      hidden: !isAdmin
-    },
-    {
-      icon: 'account-alert-outline' as const,
-      label: 'Reports',
-      action: () => router.push('/setting/admin/reports'),
-      badge: badges?.reports || 0,
-      hidden: !isAdmin
+      icon: 'shield-outline' as const,
+      label: 'Admin',
+      action: () => router.push('/admin'),
+      hidden: !isAdmin,
+      badge: (badges?.reports || 0) + (badges?.usersAwaitingAproval || 0),
     },
     {
       icon: 'chat-question-outline' as const,

@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/lib/config";
-import { useAdminCheck, useAuth } from "@/lib/contexts/AuthContext";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,7 +12,7 @@ cssInterop(Pressable, { className: 'style' })
 
 export default function Settings() {
   const { setToken } = useAuth()
-  const isAdmin = useAdminCheck()
+  // const isAdmin = useAdminCheck()
 
   const options = [
     {
@@ -55,12 +55,12 @@ export default function Settings() {
       label: 'Mutes & Blocks',
       link: '/setting/mutes-and-blocks'
     },
-    {
-      icon: 'shield-account-outline',
-      label: 'Admin settings',
-      link: '/setting/admin',
-      hidden: !isAdmin
-    },
+    // {
+    //   icon: 'shield-account-outline',
+    //   label: 'Admin settings',
+    //   link: '/setting/admin',
+    //   hidden: !isAdmin
+    // },
     {
       icon: 'eye-off-outline',
       label: 'Privacy policy',

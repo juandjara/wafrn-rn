@@ -79,11 +79,11 @@ export default function ProtectedLayout() {
       />
       <Stack.Screen
         options={{ title: 'Admin settings' }}
-        name='setting/admin/index'
+        name='admin/index'
       />
       <Stack.Screen
         options={{ title: 'New users' }}
-        name='setting/admin/new-users'
+        name='admin/new-users'
       />
       <Stack.Screen
         options={{ title: 'Mutes & Blocks' }}
