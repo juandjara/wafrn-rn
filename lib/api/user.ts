@@ -196,7 +196,7 @@ export function useEditProfileMutation() {
     // after either error or success, refetch the settings to account for new options
     onSettled: () => {
       return qc.invalidateQueries({
-        queryKey: ['settings'],
+        predicate: query => query.queryKey[0] === 'settings' || query.queryKey[0] === 'currentUser',
       })
     }
   })
