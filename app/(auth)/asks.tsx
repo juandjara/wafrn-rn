@@ -1,36 +1,39 @@
 import GenericRibbon from "@/components/GenericRibbon";
-import { useAsks } from "@/lib/asks";
+import { useAsks, useDeleteAskMutation } from "@/lib/asks";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import clsx from "clsx";
 import { Link } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
 
 export default function Asks() {
   const { data, isFetching, refetch } = useAsks()
+  const deleteAskMutation = useDeleteAskMutation()
+
   return (
     <FlatList
-      data={data?.asks}
+      data={data}
       onRefresh={refetch}
       refreshing={isFetching}
       keyExtractor={item => String(item.id)}
-      className="flex-1"
-      contentContainerClassName="flex-1"
-      renderItem={({ item }) => {
-        const user = data?.users.find(user => user.id === item.userAsker)
-        if (!user) return null
+      renderItem={({ item: ask }) => {
         return (
-          <View className="bg-blue-950 mb-4">
+          <View className={clsx(
+            'bg-blue-950 mb-4',
+            { 'opacity-50': deleteAskMutation.isPending }
+          )}>
             <GenericRibbon
               label="asked"
-              user={user}
-              userNameHTML={user.url.startsWith('@') ? user.url : `@${user.url}`}
-              link={`/user/${user.url}`}
+              user={ask.user}
+              userNameHTML={ask.user.url.startsWith('@') ? ask.user.url : `@${ask.user.url}`}
+              link={`/user/${ask.user.url}`}
               icon={<MaterialCommunityIcons className="mx-1" name="chat-question" size={24} color="white" />}
               className="border-b border-slate-600"
             />
-            <Text className="text-lg text-white p-3">{item.question}</Text>
+            <Text className="text-lg text-white p-3">{ask.question}</Text>
             <View className="flex-row gap-3 p-3 mt-3">
-              <Link href={`/editor?type=ask&askId=${item.id}`} asChild>
+              <Link href={`/editor?type=ask&askId=${ask.id}`} asChild>
                 <Pressable
+                  disabled={deleteAskMutation.isPending}
                   className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
                 >
                   <MaterialCommunityIcons name="pencil" size={20} color="white" />
@@ -38,6 +41,8 @@ export default function Asks() {
                 </Pressable>
               </Link>
               <Pressable
+                disabled={deleteAskMutation.isPending}
+                onPress={() => deleteAskMutation.mutate(ask.id)}
                 className="bg-red-700/50 active:bg-red-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
               >
                 <MaterialIcons name="delete" size={20} color="white" />
