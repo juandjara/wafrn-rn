@@ -1,7 +1,7 @@
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { router, Stack, useLocalSearchParams } from "expo-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from "react-native"
 import colors from "tailwindcss/colors"
 import SearchResults from "@/components/search/SearchResults"
@@ -20,18 +20,20 @@ export default function Search() {
     loading: loadingRecent
   } = useAsyncStorage<string[]>('searchHistory', [])
 
+  useEffect(() => {
+    setSearchTerm(q || '')
+  }, [q])
+
   function search(query: string) {
     if (!loadingRecent && query) {
       const prev = (recent || []).filter((item) => item !== query)
       const next = [query, ...prev].slice(0, HISTORY_LIMIT)
       setRecent(next)
-      setSearchTerm(query)
       router.push(`/search?q=${query}`)
     }
   }
 
   function clear() {
-    setSearchTerm('')
     router.navigate('/search')
   }
 
