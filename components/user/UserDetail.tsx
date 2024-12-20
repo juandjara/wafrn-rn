@@ -186,7 +186,7 @@ export default function UserDetail({ user }: { user: User }) {
               {userActions.map((action, i) => (
                 <MenuOption
                   key={i}
-                  style={{ ...optionStyle(i), padding: 16, gap: 16 }}
+                  style={{ ...optionStyle(i), padding: 16, gap: 16, opacity: action.action ? 1 : 0.5 }}
                   onSelect={action.action}
                 >
                   <MaterialCommunityIcons
