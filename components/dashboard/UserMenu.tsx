@@ -29,17 +29,17 @@ export default function UserMenu() {
       hidden: me?.manuallyAcceptsFollows === false
     },
     {
+      icon: 'chat-question-outline' as const,
+      label: 'Asks',
+      action: () => router.push('/asks'),
+      badge: badges?.asks || 0
+    },
+    {
       icon: 'shield-outline' as const,
       label: 'Admin',
       action: () => router.push('/admin'),
       hidden: !isAdmin,
       badge: (badges?.reports || 0) + (badges?.usersAwaitingAproval || 0),
-    },
-    {
-      icon: 'chat-question-outline' as const,
-      label: 'Asks',
-      action: () => router.push('/asks'),
-      badge: badges?.asks || 0
     },
     {
       icon: 'cog-outline' as const,
