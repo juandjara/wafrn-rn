@@ -1,9 +1,8 @@
-import { BASE_URL } from "@/lib/config";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link, router, Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useMemo } from "react";
 import { ScrollView, Text, Pressable, View } from "react-native";
 import colors from "tailwindcss/colors";
@@ -56,7 +55,7 @@ export default function Settings() {
       {
         icon: 'eye-off-outline' as const,
         label: 'Privacy policy',
-        link: `${BASE_URL}/privacy`
+        link: '/setting/privacy'
       },
       {
         icon: 'code-braces' as const,
@@ -108,14 +107,17 @@ export default function Settings() {
           <Text className="text-red-400">Log out</Text>
         </Pressable>
         {options.map((option, i) => (
-          <View key={i}>
-            <Link href={option.link} asChild>
-              <Pressable className="active:bg-white/10" style={optionStyleDark(i)}>
-                <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
-                <Text className="text-white">{option.label}</Text>
-              </Pressable>
-            </Link>
-          </View>
+          <Pressable
+            key={i}
+            className="active:bg-white/10"
+            style={optionStyleDark(i)}
+            onPress={() => {
+              router.push(option.link)
+            }}
+          >
+            <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
+            <Text className="text-white">{option.label}</Text>
+          </Pressable>
         ))}
       </ScrollView>
     </View>
