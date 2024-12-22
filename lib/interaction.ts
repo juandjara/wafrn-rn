@@ -91,7 +91,10 @@ export async function toggleFollowUser({
   })
 }
 
-export function useFollowMutation(user: PostUser) {
+export function useFollowMutation(user: {
+  id: PostUser['id']
+  url: PostUser['url']
+}) {
   const qc = useQueryClient()
   const { token } = useAuth()
 
@@ -123,7 +126,7 @@ export async function invalidatePostQueries(qc: QueryClient, post: Post) {
   })
 }
 
-export async function invalidateUserQueries(qc: QueryClient, user: PostUser) {
+export async function invalidateUserQueries(qc: QueryClient, user: { url: PostUser['url'] }) {
   await qc.invalidateQueries({
     predicate: (query) => (
       query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds

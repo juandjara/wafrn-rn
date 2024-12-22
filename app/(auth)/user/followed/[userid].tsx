@@ -1,10 +1,10 @@
 import Loading from "@/components/Loading"
-import UserRibbon from "@/components/user/UserRibbon"
 import { useFollowed } from "@/lib/api/user"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { FlatList, Text, View } from "react-native"
 import { timeAgo } from "@/lib/formatters"
+import FollowRibbon from "@/components/user/FollowRibbon"
 
 export default function Followed() {
   const { userid } = useLocalSearchParams()
@@ -22,11 +22,7 @@ export default function Followed() {
         renderItem={({ item }) => {
           return (
             <View className="bg-indigo-950 border-t border-gray-600 px-2 relative">
-              <UserRibbon
-                user={{ ...item, name: '', remoteId: null }}
-                userName=""
-                showUnfollowButton
-              />
+              <FollowRibbon follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
               </View>

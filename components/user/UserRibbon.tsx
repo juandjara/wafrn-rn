@@ -12,11 +12,9 @@ import clsx from "clsx"
 export default function UserRibbon({
   user,
   userName,
-  showUnfollowButton = false,
 }: {
   user: PostUser
   userName: string
-  showUnfollowButton?: boolean
 }) {
   const { data: settings } = useSettings()
   const amIFollowing = settings?.followedUsers.includes(user?.id!)
@@ -54,18 +52,7 @@ export default function UserRibbon({
                 Follow
               </Text>
             </TouchableOpacity>
-          ) : (
-            showUnfollowButton ? (
-              <TouchableOpacity
-                className={clsx({ 'opacity-50': followMutation.isPending })}
-                onPress={toggleFollow}
-              >
-                <Text className="rounded-full px-2 text-sm text-red-500/70 bg-red-500/20">
-                  Unfollow
-                </Text>
-              </TouchableOpacity>
-            ) : <Text></Text>
-          )}
+          ) : null}
           {amIAwaitingApproval && (
             <TouchableOpacity>
               <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">

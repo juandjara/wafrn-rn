@@ -25,7 +25,7 @@ export default function UserMenu() {
       icon: 'account-clock-outline' as const,
       label: 'Follow requests',
       disabled: true,
-      action: () => router.push('/user/awaiting-follows'),
+      action: () => router.push(`/user/followers/${me?.url}`),
       badge: badges?.followsAwaitingAproval || 0,
       hidden: me?.manuallyAcceptsFollows === false
     },

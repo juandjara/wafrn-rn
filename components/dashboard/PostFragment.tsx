@@ -72,6 +72,7 @@ export default function PostFragment({
 
     // this processes the option "wafrn.disableNSFWCloak"
     const { medias, inlineMedias } = separateInlineMedias(post, context, options)
+    
     const quotedPostId = !isQuote && context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
     const quotedPost = quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
     const ask = getAskData(post, context)

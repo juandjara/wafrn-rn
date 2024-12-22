@@ -1,14 +1,16 @@
 import Loading from "@/components/Loading"
-import UserRibbon from "@/components/user/UserRibbon"
+import FollowRibbon from "@/components/user/FollowRibbon"
 import { useFollowers } from "@/lib/api/user"
 import { timeAgo } from "@/lib/formatters"
-import { Stack, useLocalSearchParams } from "expo-router"
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import clsx from "clsx"
+import { router, Stack, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
-import { FlatList, Text, View } from "react-native"
+import { FlatList, Pressable, Text, View } from "react-native"
 
 export default function Followers() {
   const { userid } = useLocalSearchParams()
-  const { data, isLoading } = useFollowers(userid as string)
+  const { data, isFetching, refetch } = useFollowers(userid as string)
   const sorted = useMemo(() => data?.sort((a, b) => {
     return new Date(b.follows.createdAt).getTime() - new Date(a.follows.createdAt).getTime()
   }), [data])
@@ -18,22 +20,47 @@ export default function Followers() {
       <Stack.Screen options={{ title: 'Followers' }} />
       <FlatList
         data={sorted}
+        onRefresh={refetch}
+        refreshing={isFetching}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           return (
-            <View className="bg-indigo-950 border-t border-gray-600 px-2 relative">
-              <UserRibbon
-                user={{ ...item, name: '', remoteId: null }}
-                userName=""
-                showUnfollowButton
-              />
+            <Pressable
+              onPress={() => router.push(`/user/${item.url}`)}
+              className="bg-indigo-950 active:bg-blue-950 border-t border-gray-600 px-2 relative"
+            >
+              <FollowRibbon follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
               </View>
-            </View>
+              <View className="flex-row gap-3 mt-6 m-3 ml-0">
+                <Pressable
+                  disabled={item.follows.accepted}
+                  className={clsx(
+                    'bg-cyan-700/50 active:bg-cyan-700/75',
+                    'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3',
+                    { 'opacity-50': item.follows.accepted }
+                  )}
+                >
+                  <MaterialCommunityIcons name="check" size={20} color="white" />
+                  <Text className="text-white">
+                    {item.follows.accepted ? 'Accepted' : 'Accept'} 
+                  </Text>
+                </Pressable>
+                <Pressable
+                  className={clsx(
+                    'bg-red-700/50 active:bg-red-700/75',
+                    'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3'
+                  )}
+                >
+                  <MaterialIcons name="delete" size={20} color="white" />
+                  <Text className="text-white">Delete</Text>
+                </Pressable>
+              </View>
+            </Pressable>
           )
         }}
-        ListFooterComponent={isLoading ? <Loading /> : null}
+        ListFooterComponent={isFetching ? <Loading /> : null}
       />
     </>
   )
