@@ -24,7 +24,6 @@ export default function UserMenu() {
     {
       icon: 'account-clock-outline' as const,
       label: 'Follow requests',
-      disabled: true,
       action: () => router.push(`/user/followers/${me?.url}`),
       badge: badges?.followsAwaitingAproval || 0,
       hidden: me?.manuallyAcceptsFollows === false
@@ -85,7 +84,7 @@ export default function UserMenu() {
           <MenuOption
             key={i}
             onSelect={option.action}
-            style={{ ...optionStyle(i), opacity: option.disabled ? 0.5 : 1 }} 
+            style={{ ...optionStyle(i) }} 
           >
             <MaterialCommunityIcons name={option.icon} size={20} color={colors.gray[600]} />
             <Text className="text-sm flex-grow">{option.label}</Text>

@@ -4,7 +4,7 @@ import { getJSON, statusError, StatusError } from "../http";
 import { parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, useParsedToken } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings";
 import { BSKY_URL } from "./content";
@@ -197,6 +197,78 @@ export function useEditProfileMutation() {
     onSettled: () => {
       return qc.invalidateQueries({
         predicate: query => query.queryKey[0] === 'settings' || query.queryKey[0] === 'currentUser',
+      })
+    }
+  })
+}
+
+async function approveFollow(token: string, followId: string) {
+  await getJSON(`${API_URL}/user/approveFollow/${followId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  })
+}
+
+export function useApproveFollowMutation() {
+  const qc = useQueryClient()
+  const me = useParsedToken()
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['approveFollow'],
+    mutationFn: (followId: string) => approveFollow(token!, followId),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError('Failed approving follow')
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Follow approved`)
+    },
+    onSettled: () => {
+      return qc.invalidateQueries({
+        predicate: query => {
+          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
+          const query2 = query.queryKey[0] === 'settings'
+          const query3 = query.queryKey[0] === 'notificationsBadge'
+          return query1 || query2  || query3
+        },
+      })
+    }
+  })
+}
+
+async function deleteFollow(token: string, followId: string) {
+  await getJSON(`${API_URL}/user/deleteFollow/${followId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  })
+}
+
+export function useDeleteFollowMutation() {
+  const qc = useQueryClient()
+  const me = useParsedToken()
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['deleteFollow'],
+    mutationFn: (followId: string) => deleteFollow(token!, followId),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError('Failed deleting follow')
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Follow deleted`)
+    },
+    onSettled: () => {
+      return qc.invalidateQueries({
+        predicate: query => {
+          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
+          const query2 = query.queryKey[0] === 'settings'
+          const query3 = query.queryKey[0] === 'notificationsBadge'
+          return query1 || query2 || query3
+        },
       })
     }
   })

@@ -8,7 +8,7 @@ import FollowRibbon from "@/components/user/FollowRibbon"
 
 export default function Followed() {
   const { userid } = useLocalSearchParams()
-  const { data, isLoading } = useFollowed(userid as string)
+  const { data, isFetching, refetch } = useFollowed(userid as string)
   const sorted = useMemo(() => data?.sort((a, b) => {
     return new Date(b.follows.createdAt).getTime() - new Date(a.follows.createdAt).getTime()
   }), [data])
@@ -18,6 +18,8 @@ export default function Followed() {
       <Stack.Screen options={{ title: 'Followed users' }} />
       <FlatList
         data={sorted}
+        onRefresh={refetch}
+        refreshing={isFetching}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           return (
@@ -29,7 +31,7 @@ export default function Followed() {
             </View>
           )
         }}
-        ListFooterComponent={isLoading ? <Loading /> : null}
+        ListFooterComponent={isFetching ? <Loading /> : null}
       />
     </>
   )
