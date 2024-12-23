@@ -1,6 +1,7 @@
 import Loading from "@/components/Loading"
 import FollowRibbon from "@/components/user/FollowRibbon"
 import { useApproveFollowMutation, useDeleteFollowMutation, useFollowers } from "@/lib/api/user"
+import { useParsedToken } from "@/lib/contexts/AuthContext"
 import { timeAgo } from "@/lib/formatters"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
@@ -9,6 +10,7 @@ import { useMemo } from "react"
 import { Alert, FlatList, Pressable, Text, View } from "react-native"
 
 export default function Followers() {
+  const me = useParsedToken()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowers(userid as string)
   const sorted = useMemo(() => data?.sort((a, b) => {
@@ -19,6 +21,9 @@ export default function Followers() {
   const deleteMutation = useDeleteFollowMutation()
 
   function onDelete(id: string) {
+    if (userid !== me?.userId) {
+      return
+    }
     Alert.alert('Delete follow', 'Are you sure you want to remove this user as your follower?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => {
@@ -45,34 +50,36 @@ export default function Followers() {
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
               </View>
-              <View className="flex-row gap-3 mt-6 m-3 ml-0">
-                <Pressable
-                  onPress={() => approveMutation.mutate(item.id)}
-                  disabled={approveMutation.isPending || item.follows.accepted}
-                  className={clsx(
-                    'bg-cyan-700/50',
-                    { 'active:bg-cyan-700/75': !item.follows.accepted },
-                    'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3',
-                    { 'opacity-50': item.follows.accepted }
-                  )}
-                >
-                  <MaterialCommunityIcons name="check" size={20} color="white" />
-                  <Text className="text-white">
-                    {item.follows.accepted ? 'Accepted' : 'Accept'} 
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => onDelete(item.id)}
-                  disabled={deleteMutation.isPending}
-                  className={clsx(
-                    'bg-red-700/50 active:bg-red-700/75',
-                    'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3'
-                  )}
-                >
-                  <MaterialIcons name="delete" size={20} color="white" />
-                  <Text className="text-white">Delete</Text>
-                </Pressable>
-              </View>
+              {userid === me?.userId && (
+                <View className="flex-row gap-3 mt-6 m-3 ml-0">
+                  <Pressable
+                    onPress={() => approveMutation.mutate(item.id)}
+                    disabled={approveMutation.isPending || item.follows.accepted}
+                    className={clsx(
+                      'bg-cyan-700/50',
+                      { 'active:bg-cyan-700/75': !item.follows.accepted },
+                      'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3',
+                      { 'opacity-50': item.follows.accepted }
+                    )}
+                  >
+                    <MaterialCommunityIcons name="check" size={20} color="white" />
+                    <Text className="text-white">
+                      {item.follows.accepted ? 'Accepted' : 'Accept'} 
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => onDelete(item.id)}
+                    disabled={deleteMutation.isPending}
+                    className={clsx(
+                      'bg-red-700/50 active:bg-red-700/75',
+                      'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3'
+                    )}
+                  >
+                    <MaterialIcons name="delete" size={20} color="white" />
+                    <Text className="text-white">Delete</Text>
+                  </Pressable>
+                </View>
+              )}
             </Pressable>
           )
         }}
