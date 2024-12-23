@@ -6,7 +6,6 @@ import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
 import { TextInput } from "react-native-gesture-handler"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { router } from "expo-router"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useEffect, useMemo, useState } from "react"
 import { EDITOR_TRIGGERS_CONFIG } from "@/lib/api/content"
@@ -18,6 +17,7 @@ import { HTMLToMarkdown, markdownToHTML } from "@/lib/markdown"
 import clsx from "clsx"
 import { launchImageLibraryAsync } from "expo-image-picker"
 import { MediaUploadPayload } from "@/lib/api/media"
+import Header from "@/components/Header"
 
 type FormState = {
   name: string
@@ -137,35 +137,29 @@ export default function EditProfile() {
 
   return (
     <>
-      <View
-        className="absolute px-3 py-2 z-10 flex-row gap-4 items-center"
-        style={{ marginTop: sx.paddingTop }}
-      >
-        <Pressable
-          className="bg-black/30 rounded-full p-2"
-          onPress={() => router.back()}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
-        </Pressable>
-        <Text className="text-white text-lg flex-grow">Edit Profile</Text>
-        <Pressable
-          onPress={onSubmit}
-          className={clsx(
-            'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-            {
-              'bg-cyan-800 active:bg-cyan-700': canPublish,
-              'bg-gray-400/25 opacity-50': !canPublish,
-            }
-          )}
-        >
-          {editMutation.isPending ? (
-            <ActivityIndicator size="small" color="white" />            
-          ) : (
-            <MaterialCommunityIcons name="content-save-edit" size={20} color="white" />
-          )}
-          <Text className="text-medium text-white">Save</Text>
-        </Pressable>
-      </View>
+      <Header
+        transparent
+        title='Edit Profile'
+        right={
+          <Pressable
+            onPress={onSubmit}
+            className={clsx(
+              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
+              {
+                'bg-cyan-800 active:bg-cyan-700': canPublish,
+                'bg-gray-400/25 opacity-50': !canPublish,
+              }
+            )}
+          >
+            {editMutation.isPending ? (
+              <ActivityIndicator size="small" color="white" />            
+            ) : (
+              <MaterialCommunityIcons name="content-save-edit" size={20} color="white" />
+            )}
+            <Text className="text-medium text-white">Save</Text>
+          </Pressable>
+        }
+      />
       <KeyboardAvoidingView
         style={{ marginTop: sx.paddingTop }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

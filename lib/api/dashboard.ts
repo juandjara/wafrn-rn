@@ -12,6 +12,7 @@ export enum DashboardMode {
   FEED = 1,
   FEDERATED = 0,
   PRIVATE = 10,
+  MUTED_POSTS = 25,
 }
 
 export async function getDashboard({
