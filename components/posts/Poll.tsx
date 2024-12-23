@@ -9,22 +9,37 @@ import colors from "tailwindcss/colors"
 export default function Poll({ poll, isLoading, onVote }: {
   poll: PostPoll
   isLoading?: boolean
-  onVote: (indexes: number[]) => void
+  onVote: (votes: number[]) => void
 }) {
   const me = useParsedToken()
-  const totalVotes = useMemo(() => poll.questionPollQuestions.reduce((acc, q) => acc + q.remoteReplies, 0), [poll])
-  const haveIVoted = useMemo(() => (
-    isLoading || poll.questionPollQuestions.some((q) => (
+
+  const { totalVotes, haveIVoted, questionMap } = useMemo(() => {
+    const totalVotes = poll.questionPollQuestions.reduce((acc, q) => acc + q.remoteReplies, 0)
+    const haveIVoted = poll.questionPollQuestions.some((q) => (
       q.questionPollAnswers.some((a) => a.userId === me?.userId)
     ))
-  ), [isLoading, poll, me])
+    const questionMap = Object.fromEntries(poll.questionPollQuestions.map((q) => [q.id, q]))
+    return { totalVotes, haveIVoted, questionMap }
+  }, [poll, me])
+
+  // localVote contains the ids of the questions that the user is voting for
   const [localVote, setLocalVote] = useState<number[]>([])
+
   const isEnded = new Date(poll.endDate) < new Date()
+  const canIVote = !haveIVoted && !isLoading && !isEnded
+
+  let buttonLabel = "Vote"
+  if (haveIVoted) {
+    buttonLabel = "Already voted"
+  }
+  if (isEnded) {
+    buttonLabel = "Poll ended"
+  }
   
-  function getIcon(index: number) {
-    const question = poll.questionPollQuestions[index]
+  function getIcon(id: number) {
+    const question = questionMap[id]
     const haveIVotedThisOption = question.questionPollAnswers.find((a) => a.userId === me?.userId)
-    const hasVote = haveIVotedThisOption || localVote.includes(index)
+    const hasVote = haveIVotedThisOption || localVote.includes(id)
     if (poll.multiChoice) {
       return hasVote ? "check-box" : "check-box-outline-blank"
     } else {
@@ -32,72 +47,71 @@ export default function Poll({ poll, isLoading, onVote }: {
     }
   }
 
-  function doLocalVote(index: number) {
-    if (haveIVoted || isEnded) {
+  function doLocalVote(id: number) {
+    if (!canIVote) {
       return
     }
 
     setLocalVote((prev) => {
       if (poll.multiChoice) {
-        if (prev.includes(index)) {
-          return prev.filter((i) => i !== index)
+        if (prev.includes(id)) {
+          return prev.filter((i) => i !== id)
         } else {
-          return [...prev, index]
+          return [...prev, id]
         }
       } else {
-        return [index]
+        return [id]
       }
     })
   }
 
-  function getQuestionPercentage(index: number) {
-    const question = poll.questionPollQuestions[index]
+  function getQuestionPercentage(id: number) {
+    const question = questionMap[id]
     return ((question.remoteReplies || 0) / (totalVotes || 1))
   }
 
   function sendVotes() {
-    onVote(localVote.map((i) => poll.questionPollQuestions[i].id))
+    onVote(localVote)
   }
 
   return (
     <View className="my-2">
-      {poll.questionPollQuestions.map((q, i) => (
+      {poll.questionPollQuestions.map((q) => (
         <Pressable
           key={q.id}
           className={clsx(
             'relative border border-gray-600 mb-2 rounded-xl',
-            // getQuestionPercentage(i) > 0 ? 'rounded-t-xl' : 'rounded-xl',
             {
-              'active:bg-white/20': !haveIVoted,
+              'active:bg-white/20': canIVote,
             },
           )}
-          onPress={() => doLocalVote(i)}
+          onPress={() => doLocalVote(q.id)}
         >
           <View className="p-2 flex-row gap-2 items-stretch">
-            <MaterialIcons name={getIcon(i)} size={24} color="white" />
+            <MaterialIcons name={getIcon(q.id)} size={24} color="white" />
             <Text className="text-white flex-grow flex-shrink">{q.questionText}</Text>
-            <Text className="text-white">{`${(getQuestionPercentage(i) * 100).toFixed()} %`}</Text>
+            <Text className="text-white">{`${(getQuestionPercentage(q.id) * 100).toFixed()} %`}</Text>
           </View>
           <View
             className={clsx(
               'absolute -bottom-0.5 left-0 right-0 mx-1',
-              getQuestionPercentage(i) === 1 ? 'rounded-b-lg' : 'rounded-bl-lg',
+              getQuestionPercentage(q.id) === 1 ? 'rounded-b-lg' : 'rounded-bl-lg',
             )}
             style={{
               height: 3,
               backgroundColor: colors.blue[500],
-              width: `${getQuestionPercentage(i) * 100}%`
+              width: `${getQuestionPercentage(q.id) * 100}%`
             }}
           />
         </Pressable>
       ))}
       <Pressable
         onPress={sendVotes}
-        disabled={haveIVoted || localVote.length === 0}
+        disabled={!canIVote || localVote.length === 0}
         className="mt-1 mb-2 p-2 bg-blue-500/75 active:bg-blue-600/50 disabled:bg-white/20 rounded-full"
       >
         <Text className="text-white text-center text-lg">
-          {haveIVoted ? "Already voted" : "Vote"}
+          {buttonLabel}
         </Text>
       </Pressable>
       <Text className="my-2 text-sm text-gray-200">

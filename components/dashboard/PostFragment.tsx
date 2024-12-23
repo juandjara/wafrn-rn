@@ -162,11 +162,11 @@ export default function PostFragment({
     setCollapsed((c) => !c)
   }
 
-  function onPollVote(indexes: number[]) {
+  function onPollVote(votes: number[]) {
     if (!poll) {
       return
     }
-    voteMutation.mutate(indexes)
+    voteMutation.mutate(votes)
   }
   
   if (isEmptyRewoot(post, context)) {
