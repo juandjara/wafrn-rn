@@ -21,7 +21,7 @@ export default function Followers() {
   const deleteMutation = useDeleteFollowMutation()
 
   function onDelete(id: string) {
-    if (userid !== me?.userId) {
+    if (userid !== me?.url) {
       return
     }
     Alert.alert('Delete follow', 'Are you sure you want to remove this user as your follower?', [
@@ -50,7 +50,7 @@ export default function Followers() {
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
               </View>
-              {userid === me?.userId && (
+              {userid === me?.url && (
                 <View className="flex-row gap-3 mt-6 m-3 ml-0">
                   <Pressable
                     onPress={() => approveMutation.mutate(item.id)}
