@@ -13,7 +13,7 @@ export default function UserRibbon({
   user,
   userName,
 }: {
-  user: PostUser
+  user: Omit<PostUser, 'remoteId'>
   userName: string
 }) {
   const { data: settings } = useSettings()

@@ -67,6 +67,10 @@ export default function ProtectedLayout() {
         options={{ title: 'Settings', headerShown: false }}
       />
       <Stack.Screen
+        name='setting/import-follows'
+        options={{ title: 'Import Follows', headerShown: false }}
+      />
+      <Stack.Screen
         options={{ title: 'Edit profile', headerShown: false }}
         name='setting/edit-profile'
       />

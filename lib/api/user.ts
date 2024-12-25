@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../config";
-import { getJSON, statusError, StatusError } from "../http";
+import { getJSON, isErrorResponse, statusError, StatusError } from "../http";
 import { parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
@@ -10,6 +10,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings"
 import { BSKY_URL } from "./content";
 import { showToastError, showToastSuccess } from "../interaction";
 import type { MediaUploadPayload } from "./media";
+import { createUploadTask, FileSystemUploadType } from 'expo-file-system';
 
 export type User = {
   createdAt: string // iso date
@@ -265,6 +266,83 @@ export function useDeleteFollowMutation() {
       return qc.invalidateQueries({
         predicate: query => {
           const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
+          const query2 = query.queryKey[0] === 'settings'
+          const query3 = query.queryKey[0] === 'notificationsBadge'
+          return query1 || query2 || query3
+        },
+      })
+    }
+  })
+}
+
+type MastodonCSVParseResponse = {
+  foundUsers: Omit<PostUser, 'remoteId'>[];
+  notFoundUsers: string[];
+}
+
+async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
+  const url = `${API_URL}/loadFollowList`
+  const task = createUploadTask(url, localFileUri, {
+    fieldName: 'follows',
+    httpMethod: 'POST',
+    mimeType: 'text/csv',
+    uploadType: FileSystemUploadType.MULTIPART,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+    }
+  })
+  const res = await task.uploadAsync()
+  const status = res?.status || 500
+
+  if (status >= 400) {
+    throw statusError(status, `Network response not ok for url ${url}: code ${status} \n${res?.body}`)
+  }
+
+  try {
+    const json = JSON.parse(res?.body || '{}')
+    if (isErrorResponse(json)) {
+      const msg = `Error response for URL ${url}: ${res?.body}`
+      console.error(msg)
+      throw statusError(500, msg)  
+    }
+    const data = json as MastodonCSVParseResponse
+    const found = data.foundUsers
+    const notFound = data.notFoundUsers.filter((u) => u && u !== '@')
+
+    return {
+      total: data.foundUsers.length + data.notFoundUsers.length,
+      found: found.length,
+      notFound: notFound.length,
+      users: [
+        ...notFound.map((u) => ({ type: 'notFound' as const, username: u })),
+        ...found.map((u) => ({ type: 'found' as const, user: u })),
+      ]
+    }
+  } catch (err) {
+    console.error(err)
+    throw statusError(500, `Error parsing response body for URL ${url}: ${res?.body}`)
+  }
+}
+
+export function useFollowsParserMutation() {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationKey: ['importFollows'],
+    mutationFn: (localFileUri: string) => loadMastodonFollowersCSV(token!, localFileUri),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError('CSV Follows read failed')
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`CSV Follows loaded`)
+    },
+    onSettled: () => {
+      return qc.invalidateQueries({
+        predicate: query => {
+          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
           const query2 = query.queryKey[0] === 'settings'
           const query3 = query.queryKey[0] === 'notificationsBadge'
           return query1 || query2 || query3
