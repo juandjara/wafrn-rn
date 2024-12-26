@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import { useFollowsParserMutation } from "@/lib/api/user";
+import { useFollowAllMutation, useFollowsParserMutation } from "@/lib/api/user";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 import { getDocumentAsync } from 'expo-document-picker'
@@ -9,11 +9,14 @@ import UserRibbon from "@/components/user/UserRibbon";
 import { formatUserUrl } from "@/lib/formatters";
 import clsx from "clsx";
 import { Link } from "expo-router";
+import { useState } from "react";
 
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
   const mutation = useFollowsParserMutation()
-  const canFollowAll = mutation.isSuccess && mutation.data?.found > 0
+  const followAllMutation = useFollowAllMutation()
+  const canFollowAll = mutation.isSuccess && mutation.data?.found > 0 && !followAllMutation.isPending
+  const [rightLabel, setRightLabel] = useState('Follow all')
 
   async function uploadCSV() {
     const file = await getDocumentAsync({
@@ -29,7 +32,15 @@ export default function ImportFollows() {
     }
   }
 
-  async function followAll() {}
+  async function followAll() {
+    if (canFollowAll) {
+      const users = mutation.data.users.filter(u => u.type === 'found').map(u => u.user)
+      followAllMutation.mutate({
+        users,
+        progressCallback: (count) => setRightLabel(`Following ${count}/${users.length}`)
+      })
+    }
+  }
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + 64 }}>
@@ -38,6 +49,7 @@ export default function ImportFollows() {
         right={
           <Pressable
             onPress={followAll}
+            disabled={!canFollowAll}
             className={clsx(
               'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
               {
@@ -51,7 +63,7 @@ export default function ImportFollows() {
             ) : (
               <MaterialCommunityIcons name="account-multiple-plus" size={20} color="white" />
             )}
-            <Text className="text-medium text-white">Follow all</Text>
+            <Text className="text-medium text-white">{rightLabel}</Text>
           </Pressable>
         }
       />
@@ -69,9 +81,11 @@ export default function ImportFollows() {
           renderItem={({ item }) => {
             if (item.type === 'found') {
               return (
-                <Pressable className="px-3 bg-gray-800/25 active:bg-white/20">
-                  <UserRibbon user={item.user} userName="" />
-                </Pressable>
+                <Link href={`/user/${item.user.url}`} asChild>
+                  <Pressable className="px-3 bg-gray-800/25 active:bg-white/20">
+                    <UserRibbon user={item.user} userName="" />
+                  </Pressable>
+                </Link>
               )
             }
             if (item.type === 'notFound') {
@@ -82,7 +96,10 @@ export default function ImportFollows() {
                   href={`/search?q=${url}`}
                 >
                   <Pressable className="p-3 bg-gray-800/25 active:bg-white/20 flex-row items-center gap-3">
-                    <Text className="text-red-300 flex-grow flex-shrink">{url}</Text>
+                    <Text className="text-red-300 flex-grow flex-shrink">
+                      {url}
+                      <Text className="text-white"> not found</Text>
+                    </Text>
                     <MaterialCommunityIcons name="magnify" size={24} color="white" />
                   </Pressable>
                 </Link>

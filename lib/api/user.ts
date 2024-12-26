@@ -8,9 +8,10 @@ import { useAuth, useParsedToken } from "../contexts/AuthContext";
 import { PostUser } from "./posts.types";
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings";
 import { BSKY_URL } from "./content";
-import { showToastError, showToastSuccess } from "../interaction";
+import { showToastError, showToastSuccess, toggleFollowUser } from "../interaction";
 import type { MediaUploadPayload } from "./media";
 import { createUploadTask, FileSystemUploadType } from 'expo-file-system';
+import { formatUserUrl } from "../formatters";
 
 export type User = {
   createdAt: string // iso date
@@ -311,7 +312,7 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
     const notFound = data.notFoundUsers.filter((u) => u && u !== '@')
 
     return {
-      total: data.foundUsers.length + data.notFoundUsers.length,
+      total: found.length + notFound.length,
       found: found.length,
       notFound: notFound.length,
       users: [
@@ -338,6 +339,55 @@ export function useFollowsParserMutation() {
     },
     onSuccess: (data, variables) => {
       showToastSuccess(`CSV Follows loaded`)
+    },
+    onSettled: () => {
+      return qc.invalidateQueries({
+        predicate: query => {
+          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
+          const query2 = query.queryKey[0] === 'settings'
+          const query3 = query.queryKey[0] === 'notificationsBadge'
+          return query1 || query2 || query3
+        },
+      })
+    }
+  })
+}
+
+export function useFollowAllMutation() {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['followAll'],
+    mutationFn: async ({ users, progressCallback }: {
+      users: { id: string; url: string }[],
+      progressCallback: (ev: number) => void
+    }) => {
+      let count = 0
+      let countOk = 0
+      for (const user of users) {
+        count++
+        progressCallback(count)
+        try {
+          await toggleFollowUser({
+            token: token!,
+            userId: user.id,
+            isFollowing: false,
+          })
+          countOk++
+        } catch (err) {
+          console.error(err)
+          showToastError(`Error while following ${formatUserUrl(user)}`)
+        }
+      }
+      return countOk
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError('Failed following users')
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Followed ${data}/${variables.users.length} users`)
     },
     onSettled: () => {
       return qc.invalidateQueries({
