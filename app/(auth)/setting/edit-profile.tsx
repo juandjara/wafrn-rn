@@ -18,6 +18,7 @@ import clsx from "clsx"
 import { launchImageLibraryAsync } from "expo-image-picker"
 import { MediaUploadPayload } from "@/lib/api/media"
 import Header from "@/components/Header"
+import { Link } from "expo-router"
 
 type FormState = {
   name: string
@@ -223,6 +224,12 @@ export default function EditProfile() {
               autoFocus={false}
             />
           </View>
+          <Link href='/setting/options' asChild>
+            <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
+              <MaterialCommunityIcons name="cog" size={24} color='white' />
+              <Text className='text-white'>More customization options</Text>
+            </Pressable>
+          </Link>
         </ScrollView>
       </KeyboardAvoidingView>
     </>
