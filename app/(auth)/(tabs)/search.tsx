@@ -59,7 +59,7 @@ export default function Search() {
           <TextInput
             autoFocus
             style={{ marginRight: 48 }}
-            placeholderTextColor={colors.gray[300]}
+            placeholderTextColor={colors.gray[500]}
             placeholder="Search text or enter URL"
             className="text-white flex-grow"
             value={searchTerm}
