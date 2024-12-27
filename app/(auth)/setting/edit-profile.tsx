@@ -38,6 +38,9 @@ export default function EditProfile() {
   const [avatar, setAvatar] = useState<string | MediaUploadPayload>(
     formatCachedUrl(formatMediaUrl(me?.avatar || ''))
   )
+  const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
+    formatCachedUrl(formatMediaUrl(me?.headerImage || ''))
+  )
 
   const description = useMemo(() => {
     if (!me || !settings?.options) {
@@ -78,7 +81,7 @@ export default function EditProfile() {
     })
   }
 
-  async function pickImage() {
+  async function pickAvatar() {
     const result = await launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: true,
@@ -95,12 +98,30 @@ export default function EditProfile() {
     }
   }
 
+  async function pickHeaderImage() {
+    const result = await launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      allowsMultipleSelection: false,
+      quality: 0.5,
+    })
+    if (!result.canceled) {
+      const img = result.assets[0]
+      setHeaderImage({
+        uri: img.uri,
+        name: img.fileName!,
+        type: img.mimeType!,
+      })
+    }
+  }
+
   function onSubmit() {
     if (canPublish) {
       const payload = {
         name: form.name,
         description: form.content,
         avatar: typeof avatar === 'string' ? undefined : avatar,
+        headerImage: typeof headerImage === 'string' ? undefined : headerImage,
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
         options: settings?.options,
       }
@@ -170,14 +191,25 @@ export default function EditProfile() {
           contentContainerClassName="pb-6"
           keyboardShouldPersistTaps="handled"
         >
-          <View
-            collapsable={false}
+          <Pressable
+            onPress={pickHeaderImage}
             style={{ minHeight: width * 0.5, width: '100%', backgroundColor: colors.gray[800] }}
-          />
+          >
+            {headerImage ? (
+              <Image
+                source={headerImage}
+                contentFit="cover"
+                style={{ width: '100%', height: width * 0.5 }}
+              />
+            ) : null}
+            <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-3">
+              <MaterialCommunityIcons name="camera" size={24} color="white" />
+            </View>
+          </Pressable>
           <View className='items-center my-4 rounded-md -mt-12'>
             <Pressable
               className="relative bg-black rounded-lg border border-gray-500"
-              onPress={pickImage}
+              onPress={pickAvatar}
             >
               <Image
                 style={{ width: 150, height: 150 }}

@@ -155,6 +155,7 @@ export function getRemoteInfo(user: User) {
 export type EditProfilePayload = {
   name: string
   avatar?: MediaUploadPayload
+  headerImage?: MediaUploadPayload
   description?: string // html, not markdown
   manuallyAcceptsFollows?: boolean
   options?: {
@@ -171,6 +172,9 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
     formData.append('avatar', payload.avatar as any)
+  }
+  if (payload.headerImage) {
+    formData.append('headerImage', payload.headerImage as any)
   }
 
   await getJSON(`${API_URL}/editProfile`, {
