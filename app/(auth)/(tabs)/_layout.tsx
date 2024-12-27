@@ -12,17 +12,12 @@ export const unstable_settings = {
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
-  // const notificationCount = useMemo(() => {
-  //   const notifications = data?.notifications || 0
-  //   const asks = data?.asks || 0
-  //   return notifications + asks
-  // }, [data])
-
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 
   return (
     <Tabs screenOptions={{
       ...rootStyles,
+      headerShown: false,
       headerStyle: {
         backgroundColor: Colors.dark.background,
       },

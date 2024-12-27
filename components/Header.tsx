@@ -3,13 +3,22 @@ import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
 import { router } from "expo-router"
-import { View, Text, Pressable } from "react-native"
+import { View, Text, Pressable, ViewStyle } from "react-native"
 
-export default function Header({ title, left, right, transparent }: {
-  title: string | React.ReactNode
+export const HEADER_HEIGHT = 64
+
+export default function Header({
+  title = '',
+  left,
+  right,
+  transparent,
+  style,
+}: {
+  title?: string | React.ReactNode
   left?: React.ReactNode
   right?: React.ReactNode
   transparent?: boolean
+  style?: ViewStyle
 }) {
   const sx = useSafeAreaPadding()
 
@@ -19,11 +28,11 @@ export default function Header({ title, left, right, transparent }: {
         'absolute z-10 px-3 py-2 flex-row gap-4 items-center',
         // !transparent && 'border-b border-gray-700',
       )}
-      style={{
-        minHeight: 64,
+      style={[{
+        minHeight: HEADER_HEIGHT,
         marginTop: sx.paddingTop,
         backgroundColor: transparent ? 'transparent' : Colors.dark.background
-      }}
+      }, style]}
     >
       {left ?? (
         <Pressable

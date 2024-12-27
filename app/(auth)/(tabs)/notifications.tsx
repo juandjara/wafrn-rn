@@ -1,5 +1,6 @@
 import PostFragment from "@/components/dashboard/PostFragment"
 import GenericRibbon from "@/components/GenericRibbon"
+import Header, { HEADER_HEIGHT } from "@/components/Header"
 import Loading from "@/components/Loading"
 import RewootRibbon from "@/components/posts/RewootRibbon"
 import UserRibbon from "@/components/user/UserRibbon"
@@ -9,6 +10,7 @@ import { Post } from "@/lib/api/posts.types"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
 import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useScrollToTop } from "@react-navigation/native"
 import { FlashList } from "@shopify/flash-list"
@@ -21,6 +23,7 @@ import { Text, useWindowDimensions, View } from "react-native"
 import colors from "tailwindcss/colors"
 
 export default function NotificationList() {
+  const sx = useSafeAreaPadding()
   const {
     data,
     fetchNextPage,
@@ -52,21 +55,24 @@ export default function NotificationList() {
   }
 
   return (
-    <DashboardContextProvider data={context}>
-      <FlashList
-        ref={listRef}
-        data={notifications}
-        estimatedItemSize={300}
-        getItemType={(item) => item.type}
-        refreshing={isFetching}
-        onRefresh={refresh}
-        onEndReachedThreshold={2}
-        keyExtractor={(item) => `${item.user.url}-${item.createdAt}`}
-        onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
-        ListFooterComponent={isFetching ? <Loading /> : null}
-        renderItem={({ item }) => <NotificationItem notification={item} />}
-      />
-    </DashboardContextProvider>
+    <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <Header title="Notifications" />
+      <DashboardContextProvider data={context}>
+        <FlashList
+          ref={listRef}
+          data={notifications}
+          estimatedItemSize={300}
+          getItemType={(item) => item.type}
+          refreshing={isFetching}
+          onRefresh={refresh}
+          onEndReachedThreshold={2}
+          keyExtractor={(item) => `${item.user.url}-${item.createdAt}`}
+          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
+          ListFooterComponent={isFetching ? <Loading /> : null}
+          renderItem={({ item }) => <NotificationItem notification={item} />}
+        />
+      </DashboardContextProvider>
+    </View>
   ) 
 }
 

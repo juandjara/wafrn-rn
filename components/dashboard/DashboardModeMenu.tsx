@@ -24,7 +24,7 @@ const MODE_ICONS = {
   [DashboardMode.FEDERATED]: 'earth',
 } as const
 
-export type PublicDashboardMode = Exclude<DashboardMode, DashboardMode.PRIVATE>
+export type PublicDashboardMode = Exclude<DashboardMode, DashboardMode.PRIVATE | DashboardMode.MUTED_POSTS>
 
 export default function DashboardModeMenu({
   mode, setMode
@@ -38,7 +38,7 @@ export default function DashboardModeMenu({
 
   return (
     <Menu onSelect={setMode}>
-      <MenuTrigger style={{ marginLeft: 8 }}>
+      <MenuTrigger>
         <View className="flex-row items-center">
           <Image
             className="ml-1 mr-3"

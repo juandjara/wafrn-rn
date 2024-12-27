@@ -61,7 +61,7 @@ export default function UserMenu() {
 
   return (
     <Menu>
-      <MenuTrigger style={{ marginRight: 8 }} customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
+      <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
         <Image
           className="rounded-full"
           source={{ uri: formatSmallAvatar(me.avatar) }}

@@ -1,16 +1,14 @@
 import Dashboard from "@/components/dashboard/Dashboard";
+import Header, { HEADER_HEIGHT } from "@/components/Header";
 import { DashboardMode } from "@/lib/api/dashboard";
-import { Stack } from "expo-router";
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { Text, View } from "react-native";
 
 export default function Messages() {
+  const sx = useSafeAreaPadding()
   return (
-    <View className="flex-1">
-      <Stack.Screen
-        options={{
-          headerTitle: 'Direct Messages'
-        }}
-      />
+    <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <Header title='Direct Messages' />
       <Dashboard
         mode={DashboardMode.PRIVATE} 
         header={

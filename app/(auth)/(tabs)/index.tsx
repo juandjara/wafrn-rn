@@ -1,4 +1,3 @@
-import { Stack } from "expo-router";
 import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardMode } from "@/lib/api/dashboard";
 import { useMemo, useRef, useState } from "react";
@@ -6,6 +5,8 @@ import UserMenu from "@/components/dashboard/UserMenu";
 import DashboardModeMenu, { PublicDashboardMode } from "@/components/dashboard/DashboardModeMenu";
 import PagerView from "react-native-pager-view";
 import { View } from "react-native";
+import Header from "@/components/Header";
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 
 const MODES = [
   DashboardMode.FEED,
@@ -14,6 +15,7 @@ const MODES = [
 ] as const
 
 export default function Index() {
+  const sx = useSafeAreaPadding()
   const pagerRef = useRef<PagerView>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
 
@@ -31,15 +33,11 @@ export default function Index() {
   }, [])
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          headerTitle: () => null,
-          headerLeft: () => (
-            <DashboardModeMenu mode={mode} setMode={_setMode} />
-          ),
-          headerRight: () => <UserMenu />
-        }}
+    <View style={{ flex: 1, paddingTop: sx.paddingTop + 60 }}>
+      <Header
+        style={{ minHeight: 60, paddingLeft: 8 }}
+        left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
+        right={<UserMenu />}
       />
       <PagerView
         ref={pagerRef}
@@ -53,6 +51,6 @@ export default function Index() {
       >
         {pages}
       </PagerView>
-    </>
+    </View>
   )
 }
