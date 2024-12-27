@@ -229,7 +229,8 @@ export default function UserDetail({ user }: { user: User }) {
             Follows you
           </Text>
         )}
-        <View className="flex-row gap-6 mt-6">
+
+        <View className="flex-row gap-6 mt-6 mb-3">
           <Link href={`/user/followed/${user.url}`} asChild>
             <Pressable className="items-center">
               <Text className="text-white text-2xl">{user.followed || user.followingCount || '--'}</Text>
@@ -242,6 +243,10 @@ export default function UserDetail({ user }: { user: User }) {
               <Text className="text-white text-sm">followers</Text>
             </Pressable>
           </Link>
+          <View className="items-center">
+            <Text className="text-white text-2xl">{user.postCount || '--'}</Text>
+            <Text className="text-white text-sm">posts</Text>
+          </View>
         </View>
         <View style={{ maxWidth: width - 48 }}>  
           <View style={{ paddingVertical: 8 }}>

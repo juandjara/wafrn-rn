@@ -45,6 +45,7 @@ export type User = {
   publicOptions: PublicOption[]
   bskyDid?: string
   manuallyAcceptsFollows: boolean
+  postCount: number
 }
 export type UserEmoji = EmojiBase & Timestamps & {
   emojiCollectionId: string | null
