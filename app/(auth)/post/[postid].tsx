@@ -177,8 +177,12 @@ export default function PostDetail() {
 
   const headerConfig = (
     <Header
+      style={{
+        paddingTop: 4,
+        paddingBottom: 4,
+      }}
       title={(
-        <View className="py-3">
+        <View>
           <Text className="text-white text-2xl font-semibold">
             Woot
           </Text>
