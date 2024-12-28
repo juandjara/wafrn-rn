@@ -159,7 +159,6 @@ export async function arbitraryWaitPostQueue() {
 }
 
 export async function createPost(token: string, payload: CreatePostPayload) {
-  console.log('createPost payload', payload)
   const data = await getJSON(`${API_URL}/v3/createPost`, {
     method: 'POST',
     headers: {

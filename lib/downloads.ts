@@ -22,9 +22,7 @@ export async function downloadFile(url: string) {
   try {
     await ensureDownloadDirectory()
     const file = await downloadAsync(url, `${CACHE_DIR}${name}`)
-    console.log('Downloaded file', file.uri)
     await saveFileToGallery(file.uri)
-    console.log('Saved file to gallery')
     showToastSuccess('Downloaded file')
   } catch (e) {
     console.error('Failed to download file', e)

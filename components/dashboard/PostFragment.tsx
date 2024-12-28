@@ -136,7 +136,7 @@ export default function PostFragment({
           if (height) {
             setFullHeight(Math.round(height))
           } else {
-            console.log('measure height failed for post ', postRef.current.id)
+            console.warn('measure height failed for post ', postRef.current.id)
           }
         })
       })
