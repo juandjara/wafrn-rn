@@ -16,7 +16,7 @@ import { useSharedValue, withSpring } from "react-native-reanimated";
 import { useLikeMutation } from "@/lib/interaction";
 import { useEmojiReactMutation } from "@/lib/api/emojis";
 import { getRemotePostUrl, useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
-import { useSilenceMutation } from "@/lib/api/blocks";
+import { useSilenceMutation } from "@/lib/api/blocks-and-mutes";
 import { useSettings } from "@/lib/api/settings";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {

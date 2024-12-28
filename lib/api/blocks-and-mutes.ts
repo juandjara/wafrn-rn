@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
@@ -126,5 +126,29 @@ export function useSilenceMutation(post: Post) {
     onSettled: async () => {
       await qc.invalidateQueries({ queryKey: ['settings'] })
     }
+  })
+}
+
+type Mute = {
+  reason: string | null
+  createdAt: string // iso date
+  muted: Omit<PostUser, 'remoteId'>
+}
+
+async function getMutes(token: string) {
+  const json = await getJSON(`${API_URL}/myMutes`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+  })
+  return json as Mute[]
+}
+
+export function useMutes() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['mutes'],
+    queryFn: () => getMutes(token!),
+    enabled: !!token
   })
 }
