@@ -20,7 +20,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { optionStyle } from "@/lib/styles";
 import { BASE_URL } from "@/lib/config";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { useBlockMutation, useMuteMutation } from "@/lib/api/blocks-and-mutes";
+import { useBlockMutation, useMuteMutation, useServerBlockMutation } from "@/lib/api/blocks-and-mutes";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -33,6 +33,7 @@ export default function UserDetail({ user }: { user: User }) {
   const followMutation = useFollowMutation(user)
   const muteMutation = useMuteMutation(user)
   const blockMutation = useBlockMutation(user)
+  const serverBlockMutation = useServerBlockMutation(user)
 
   const {
     amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows
@@ -99,9 +100,10 @@ export default function UserDetail({ user }: { user: User }) {
     {
       name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
       icon: 'server-off' as const,
-      disabled: true,
+      disabled: isMe || serverBlockMutation.isPending,
+      action: () => serverBlockMutation.mutate(user.serverBlocked),
     },
-  ], [user, isMe, muteMutation, blockMutation])
+  ], [user, isMe, muteMutation, blockMutation, serverBlockMutation])
 
   const sx = useSafeAreaPadding()
 

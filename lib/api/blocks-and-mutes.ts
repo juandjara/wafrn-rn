@@ -2,8 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
-import { invalidateUserQueries, showToastError, showToastSuccess } from "../interaction"
+import { showToastError, showToastSuccess } from "../interaction"
 import { Post, PostUser } from "./posts.types"
+
+/*
+ * USER BLOCKS
+ */
 
 export async function toggleBlockUser({
   token, userId, isBlocked
@@ -22,7 +26,6 @@ export async function toggleBlockUser({
   })
 }
 
-// TODO: implement in UserDetail
 export function useBlockMutation(user: PostUser) {
   const qc = useQueryClient()
   const { token } = useAuth()
@@ -41,9 +44,49 @@ export function useBlockMutation(user: PostUser) {
     onSuccess: (data, variables) => {
       showToastSuccess(`User ${variables ? 'un' : ''}blocked`)
     },
-    onSettled: () => invalidateUserQueries(qc, user)
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'settings'
+            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
+        )
+      })
+    }
   })
 }
+
+type Block = {
+  reason: string | null
+  createdAt: string // iso date
+  blocked: Omit<PostUser, 'remoteId'>
+}
+
+async function getBlocks(token: string) {
+  const json = await getJSON(`${API_URL}/myBlocks`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+  })
+  const data = json as Block[]
+  return data.map((d) => ({
+    reason: d.reason,
+    createdAt: d.createdAt,
+    user: d.blocked
+  }))
+}
+
+export function useBlocks() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['blocks'],
+    queryFn: () => getBlocks(token!),
+    enabled: !!token
+  })
+}
+
+/*
+ * USER MUTES
+ */
 
 export async function toggleMuteUser({
   token, userId, isMuted
@@ -62,7 +105,6 @@ export async function toggleMuteUser({
   })
 }
 
-// TODO: implement in UserDetail
 export function useMuteMutation(user: PostUser) {
   const qc = useQueryClient()
   const { token } = useAuth()
@@ -81,9 +123,49 @@ export function useMuteMutation(user: PostUser) {
     onSuccess: (data, variables) => {
       showToastSuccess(`User ${variables ? 'un' : ''}muted`)
     },
-    onSettled: () => invalidateUserQueries(qc, user)
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'settings'
+            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
+        )
+      })
+    }
   })
 }
+
+type Mute = {
+  reason: string | null
+  createdAt: string // iso date
+  muted: Omit<PostUser, 'remoteId'>
+}
+
+async function getMutes(token: string) {
+  const json = await getJSON(`${API_URL}/myMutes`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+  })
+  const data = json as Mute[]
+  return data.map((d) => ({
+    reason: d.reason,
+    createdAt: d.createdAt,
+    user: d.muted
+  }))
+}
+
+export function useMutes() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['mutes'],
+    queryFn: () => getMutes(token!),
+    enabled: !!token
+  })
+}
+
+/*
+ * POST MUTES
+ */
 
 export async function toggleSilencePost({
   token, postId, isSilenced
@@ -129,61 +211,80 @@ export function useSilenceMutation(post: Post) {
   })
 }
 
-type Mute = {
-  reason: string | null
-  createdAt: string // iso date
-  muted: Omit<PostUser, 'remoteId'>
+// NOTE: to get a list of muted posts, use `DashboardMode.MUTED_POSTS` as `mode` parameter in `getDashboard`
+
+async function toggleServerBlock({
+  token, userId, isBlocked
+}: {
+  token: string
+  userId: string
+  isBlocked: boolean
+}) {
+  await getJSON(`${API_URL}/${isBlocked ? 'unblockServer' : 'blockUserServer'}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId })
+  })
 }
 
-async function getMutes(token: string) {
-  const json = await getJSON(`${API_URL}/myMutes`, {
+export function useServerBlockMutation(user: PostUser) {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation<void, Error, boolean>({
+    mutationKey: ['serverBlock', user.id],
+    mutationFn: variables => toggleServerBlock({
+      token: token!,
+      userId: user.id,
+      isBlocked: variables
+    }),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to ${variables ? 'un' : ''}block server`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Server ${variables ? 'un' : ''}blocked`)
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'settings'
+            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
+        )
+      })
+    }
+  })
+}
+
+type ServerBlock = {
+  createdAt: string // iso date
+  blockedServer: {
+    id: string
+    displayName: string
+  }
+}
+
+async function getServerBlocks(token: string) {
+  const json = await getJSON(`${API_URL}/myServerBlocks`, {
     headers: {
       Authorization: `Bearer ${token}`
     },
   })
-  const data = json as Mute[]
+  const data = json as ServerBlock[]
   return data.map((d) => ({
-    reason: d.reason,
     createdAt: d.createdAt,
-    user: d.muted
+    server: d.blockedServer,
   }))
 }
 
-export function useMutes() {
+export function useServerBlocks() {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['mutes'],
-    queryFn: () => getMutes(token!),
+    queryKey: ['serverBlocks'],
+    queryFn: () => getServerBlocks(token!),
     enabled: !!token
   })
 }
-
-type Block = {
-  reason: string | null
-  createdAt: string // iso date
-  blocked: Omit<PostUser, 'remoteId'>
-}
-
-async function getBlocks(token: string) {
-  const json = await getJSON(`${API_URL}/myBlocks`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-  })
-  const data = json as Block[]
-  return data.map((d) => ({
-    reason: d.reason,
-    createdAt: d.createdAt,
-    user: d.blocked
-  }))
-}
-
-export function useBlocks() {
-  const { token } = useAuth()
-  return useQuery({
-    queryKey: ['blocks'],
-    queryFn: () => getBlocks(token!),
-    enabled: !!token
-  })
-}
-
