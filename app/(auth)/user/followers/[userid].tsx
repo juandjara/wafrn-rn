@@ -1,16 +1,19 @@
+import Header, { HEADER_HEIGHT } from "@/components/Header"
 import Loading from "@/components/Loading"
 import FollowRibbon from "@/components/user/FollowRibbon"
 import { useApproveFollowMutation, useDeleteFollowMutation, useFollowers } from "@/lib/api/user"
 import { useParsedToken } from "@/lib/contexts/AuthContext"
 import { timeAgo } from "@/lib/formatters"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import clsx from "clsx"
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { Alert, FlatList, Pressable, Text, View } from "react-native"
 
 export default function Followers() {
   const me = useParsedToken()
+  const sx = useSafeAreaPadding()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowers(userid as string)
   const sorted = useMemo(() => data?.sort((a, b) => {
@@ -33,8 +36,8 @@ export default function Followers() {
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: 'Followers' }} />
+    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <Header title='Followers' />
       <FlatList
         data={sorted}
         onRefresh={refetch}
@@ -85,6 +88,6 @@ export default function Followers() {
         }}
         ListFooterComponent={isFetching ? <Loading /> : null}
       />
-    </>
+    </View>
   )
 }

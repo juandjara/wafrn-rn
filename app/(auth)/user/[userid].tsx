@@ -12,7 +12,7 @@ import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
-import { Link, router, Stack, useLocalSearchParams } from "expo-router"
+import { Link, router, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo } from "react"
 import { Platform, Pressable, Text, View } from "react-native"
 import Reanimated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated"
@@ -104,15 +104,9 @@ export default function UserFeed() {
   //   )
   // }))
 
-  const headerTitle = String(userid).startsWith('@') ? String(userid) : `@${userid}`
-
   if (userError) {
     return (
       <ThemedView className="p-3 flex-1 justify-center items-center">
-        <Stack.Screen options={{
-          title: 'User Detail',
-          headerBackTitle: 'Back',
-        }} />
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{userError?.message}</ThemedText>
@@ -131,10 +125,6 @@ export default function UserFeed() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen options={{
-        headerShown: false,
-        title: headerTitle,
-      }} />
       <Link href='../' asChild>
         <Pressable style={{
           marginTop: sx.paddingTop,

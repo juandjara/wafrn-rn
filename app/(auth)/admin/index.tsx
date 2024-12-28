@@ -1,14 +1,17 @@
+import Header, { HEADER_HEIGHT } from "@/components/Header";
 import { useAdminCheck } from "@/lib/contexts/AuthContext";
 import { useNotificationBadges } from "@/lib/notifications";
 import { optionStyleDark } from "@/lib/styles";
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, ScrollView, Text } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import colors from "tailwindcss/colors";
 
 export default function AdminIndex() {
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
+  const sx = useSafeAreaPadding()
 
   const options = [
     {
@@ -55,23 +58,26 @@ export default function AdminIndex() {
   }
 
   return (
-    <ScrollView>
-      {options.map((opt, i) => (
-        <Pressable
-          key={i}
-          className="active:bg-white/10"
-          style={optionStyleDark(i)}
-          onPress={() => router.navigate(opt.link)}
-        >
-          <MaterialCommunityIcons name={opt.icon} size={24} color={colors.gray[200]} />
-          <Text className="text-white">{opt.label}</Text>
-          {opt.badge ? (
-            <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
-              {opt.badge}
-            </Text>
-          ) : null}
-        </Pressable>
-      ))}
-    </ScrollView>
+    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <Header title="Admin settings" />
+      <ScrollView>
+        {options.map((opt, i) => (
+          <Pressable
+            key={i}
+            className="active:bg-white/10"
+            style={optionStyleDark(i)}
+            onPress={() => router.navigate(opt.link)}
+          >
+            <MaterialCommunityIcons name={opt.icon} size={24} color={colors.gray[200]} />
+            <Text className="text-white">{opt.label}</Text>
+            {opt.badge ? (
+              <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
+                {opt.badge}
+              </Text>
+            ) : null}
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
   )
 }

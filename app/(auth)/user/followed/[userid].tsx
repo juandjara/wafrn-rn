@@ -1,12 +1,15 @@
 import Loading from "@/components/Loading"
 import { useFollowed } from "@/lib/api/user"
-import { Stack, useLocalSearchParams } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
 import { useMemo } from "react"
 import { FlatList, Text, View } from "react-native"
 import { timeAgo } from "@/lib/formatters"
 import FollowRibbon from "@/components/user/FollowRibbon"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import Header, { HEADER_HEIGHT } from "@/components/Header"
 
 export default function Followed() {
+  const sx = useSafeAreaPadding()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowed(userid as string)
   const sorted = useMemo(() => data?.sort((a, b) => {
@@ -14,8 +17,8 @@ export default function Followed() {
   }), [data])
 
   return (
-    <>
-      <Stack.Screen options={{ title: 'Followed users' }} />
+    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <Header title='Followed users' />
       <FlatList
         data={sorted}
         onRefresh={refetch}
@@ -33,6 +36,6 @@ export default function Followed() {
         }}
         ListFooterComponent={isFetching ? <Loading /> : null}
       />
-    </>
+    </View>
   )
 }

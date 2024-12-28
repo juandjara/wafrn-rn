@@ -44,60 +44,33 @@ export default function ProtectedLayout() {
     <Stack
       screenOptions={{
         ...rootStyles,
+        headerShown: false,
         navigationBarTranslucent: true,
-        navigationBarColor: 'rgba(0,0,0,0)'
+        navigationBarColor: 'rgba(0,0,0,0)',
       }}
     >
-      <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+      <Stack.Screen name='(tabs)' />
       <Stack.Screen name='post/[postid]' />
       <Stack.Screen name='user/[userid]' />
       <Stack.Screen name='user/followed/[userid]' />
       <Stack.Screen name='user/followers/[userid]' />
-      <Stack.Screen name='asks' options={{ title: 'Asks' }} />
+      <Stack.Screen name='asks' />
       <Stack.Screen
         name='editor'
         options={{
           presentation: 'fullScreenModal',
           animation: 'slide_from_bottom',
-          headerShown: false,
         }}
       />
-      <Stack.Screen
-        name='settings'
-        options={{ title: 'Settings', headerShown: false }}
-      />
-      <Stack.Screen
-        name='setting/import-follows'
-        options={{ title: 'Import Follows', headerShown: false }}
-      />
-      <Stack.Screen
-        options={{ title: 'Edit profile', headerShown: false }}
-        name='setting/edit-profile'
-      />
-      <Stack.Screen
-        options={{ title: 'Options & Customizations', headerShown: false }}
-        name='setting/options'
-      />
-      <Stack.Screen
-        options={{ title: 'Mutes & Blocks', headerShown: false }}
-        name='setting/mutes-and-blocks/index'
-      />
-      <Stack.Screen
-        options={{ title: 'Muted posts', headerShown: false }}
-        name='setting/mutes-and-blocks/muted-posts'
-      />
-      <Stack.Screen
-        name='setting/privacy'
-        options={{ title: 'Privacy', headerShown: false }}
-      />
-      <Stack.Screen
-        options={{ title: 'Admin settings' }}
-        name='admin/index'
-      />
-      <Stack.Screen
-        options={{ title: 'New users' }}
-        name='admin/new-users'
-      />
+      <Stack.Screen name='settings' />
+      <Stack.Screen name='setting/import-follows' />
+      <Stack.Screen name='setting/edit-profile' />
+      <Stack.Screen name='setting/options' />
+      <Stack.Screen name='setting/mutes-and-blocks/index' />
+      <Stack.Screen name='setting/mutes-and-blocks/muted-posts' />
+      <Stack.Screen name='setting/privacy' />
+      <Stack.Screen name='admin/index' />
+      <Stack.Screen name='admin/new-users' />
     </Stack>
   )
 }

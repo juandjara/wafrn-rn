@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import Header, { HEADER_HEIGHT } from "@/components/Header";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
@@ -84,7 +84,7 @@ export default function Settings() {
   }, [])
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + 64 }}>
+    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Settings" />
       <ScrollView>
         <Pressable

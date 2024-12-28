@@ -1,4 +1,5 @@
 import PostFragment from "@/components/dashboard/PostFragment"
+import Header from "@/components/Header"
 import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
@@ -16,7 +17,7 @@ import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import { FlashList, FlashListProps } from "@shopify/flash-list"
 import clsx from "clsx"
-import { router, Stack, useLocalSearchParams } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import { memo, useCallback, useMemo, useRef } from "react"
 import { Pressable, Text, View } from "react-native"
 import Reanimated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
@@ -175,28 +176,28 @@ export default function PostDetail() {
   }, [postCount])
 
   const headerConfig = (
-    <Stack.Screen options={{
-      title: 'Woot',
-      headerBackTitle: 'Back',
-      headerTransparent: true,
-      headerTitle: ({ children }) => (
+    <Header
+      title={(
         <View className="py-3">
           <Text className="text-white text-2xl font-semibold">
-            {children}
+            Woot
           </Text>
           <Text numberOfLines={1} className="text-gray-200 text-base">
             {formatUserUrl(mainUser)}
           </Text>
         </View>
-      )
-    }} />
+      )}
+    />
   )
 
   const sx = useSafeAreaPadding()
 
   if (postError) {
     return (
-      <ThemedView className="p-3 flex-1 justify-center items-center">
+      <ThemedView
+        className="p-3 flex-1 justify-center items-center"
+        style={{ marginTop: sx.paddingTop + 72 }}
+      >
         {headerConfig}
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
