@@ -71,7 +71,7 @@ export default function AdminIndex() {
             <MaterialCommunityIcons name={opt.icon} size={24} color={colors.gray[200]} />
             <Text className="text-white">{opt.label}</Text>
             {opt.badge ? (
-              <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
+              <Text className="font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
                 {opt.badge}
               </Text>
             ) : null}
