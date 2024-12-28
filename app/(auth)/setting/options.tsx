@@ -237,7 +237,7 @@ export default function Options() {
         </View>
         <Pressable
           onPress={() => update('manuallyAcceptsFollows', prev => !prev)}
-          className="flex-row items-center gap-4 my-2 pt-0 p-4 active:bg-white/10"
+          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
             Manually accept follow requests
