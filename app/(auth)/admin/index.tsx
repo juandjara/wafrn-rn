@@ -33,7 +33,7 @@ export default function AdminIndex() {
       label: 'New users awaiting approval',
       link: 'admin/new-users',
       icon: 'account-check-outline' as const,
-      badge: badges?.usersAwaitingAproval || 0
+      badge: badges?.usersAwaitingApproval || 0
     },
     {
       label: 'Banned users',

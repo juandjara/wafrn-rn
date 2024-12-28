@@ -11,9 +11,9 @@ import { Timestamps } from "./api/types"
 type NotificationsBadges = {
   asks: number
   notifications: number
-  followsAwaitingAproval: number
+  followsAwaitingApproval: number
   reports: number
-  usersAwaitingAproval: number
+  usersAwaitingApproval: number
 }
 
 function getLastDate(posts: Timestamps[]) {

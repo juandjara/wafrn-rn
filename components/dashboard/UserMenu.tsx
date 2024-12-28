@@ -25,7 +25,7 @@ export default function UserMenu() {
       icon: 'account-clock-outline' as const,
       label: 'Follow requests',
       action: () => router.push(`/user/followers/${me?.url}`),
-      badge: badges?.followsAwaitingAproval || 0,
+      badge: badges?.followsAwaitingApproval || 0,
       hidden: me?.manuallyAcceptsFollows === false
     },
     {
@@ -39,7 +39,7 @@ export default function UserMenu() {
       label: 'Admin',
       action: () => router.push('/admin'),
       hidden: !isAdmin,
-      badge: (badges?.reports || 0) + (badges?.usersAwaitingAproval || 0),
+      badge: (badges?.reports || 0) + (badges?.usersAwaitingApproval || 0),
     },
     {
       icon: 'cog-outline' as const,
