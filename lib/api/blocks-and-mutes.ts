@@ -288,3 +288,39 @@ export function useServerBlocks() {
     enabled: !!token
   })
 }
+
+async function unblockServer(token: string, serverId: string) {
+  await getJSON(`${API_URL}/unblockServer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ id: serverId })
+  })
+}
+
+export function useUnblockServerMutation() {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation<void, Error, string>({
+    mutationKey: ['unblockServer'],
+    mutationFn: serverId => unblockServer(token!, serverId),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to unblock server`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Server unblocked`)
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'settings'
+            || query.queryKey[0] === 'serverBlocks'
+        )
+      })
+    }
+  })
+}
