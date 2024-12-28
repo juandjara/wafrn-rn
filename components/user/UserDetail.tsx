@@ -20,6 +20,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { optionStyle } from "@/lib/styles";
 import { BASE_URL } from "@/lib/config";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
+import { useBlockMutation, useMuteMutation } from "@/lib/api/blocks-and-mutes";
 
 export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
@@ -30,6 +31,8 @@ export default function UserDetail({ user }: { user: User }) {
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
   const followMutation = useFollowMutation(user)
+  const muteMutation = useMuteMutation(user)
+  const blockMutation = useBlockMutation(user)
 
   const {
     amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows
@@ -82,18 +85,23 @@ export default function UserDetail({ user }: { user: User }) {
       action: () => user && Share.share({ message: user.remoteId ?? `${BASE_URL}/blog/${user.url}` }),
     },
     {
-      name: 'Mute user',
+      name: `${user.muted ? 'Unmute' : 'Mute'} user`,
       icon: 'volume-off' as const,
+      disabled: isMe || muteMutation.isPending,
+      action: () => muteMutation.mutate(user.muted),
     },
     {
-      name: 'Block user',
+      name: `${user.blocked ? 'Unblock' : 'Block'} user`,
       icon: 'account-cancel-outline' as const,
+      disabled: isMe || blockMutation.isPending,
+      action: () => blockMutation.mutate(user.blocked),
     },
     {
-      name: 'Block server',
+      name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
       icon: 'server-off' as const,
+      disabled: true,
     },
-  ], [user])
+  ], [user, isMe, muteMutation, blockMutation])
 
   const sx = useSafeAreaPadding()
 
@@ -186,7 +194,8 @@ export default function UserDetail({ user }: { user: User }) {
               {userActions.map((action, i) => (
                 <MenuOption
                   key={i}
-                  style={{ ...optionStyle(i), padding: 16, gap: 16, opacity: action.action ? 1 : 0.5 }}
+                  disabled={action.disabled}
+                  style={{ ...optionStyle(i), padding: 16, gap: 16, opacity: action.disabled ? 0.5 : 1 }}
                   onSelect={action.action}
                 >
                   <MaterialCommunityIcons
@@ -229,7 +238,16 @@ export default function UserDetail({ user }: { user: User }) {
             Follows you
           </Text>
         )}
-
+        {user.muted && (
+          <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
+            Muted
+          </Text>
+        )}
+        {user.blocked && (
+          <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
+            Blocked
+          </Text>
+        )}
         <View className="flex-row gap-6 mt-6 mb-3">
           <Link href={`/user/followed/${user.url}`} asChild>
             <Pressable className="items-center">

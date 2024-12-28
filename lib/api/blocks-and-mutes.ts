@@ -141,7 +141,12 @@ async function getMutes(token: string) {
       Authorization: `Bearer ${token}`
     },
   })
-  return json as Mute[]
+  const data = json as Mute[]
+  return data.map((d) => ({
+    reason: d.reason,
+    createdAt: d.createdAt,
+    user: d.muted
+  }))
 }
 
 export function useMutes() {
@@ -152,3 +157,33 @@ export function useMutes() {
     enabled: !!token
   })
 }
+
+type Block = {
+  reason: string | null
+  createdAt: string // iso date
+  blocked: Omit<PostUser, 'remoteId'>
+}
+
+async function getBlocks(token: string) {
+  const json = await getJSON(`${API_URL}/myBlocks`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+  })
+  const data = json as Block[]
+  return data.map((d) => ({
+    reason: d.reason,
+    createdAt: d.createdAt,
+    user: d.blocked
+  }))
+}
+
+export function useBlocks() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['blocks'],
+    queryFn: () => getBlocks(token!),
+    enabled: !!token
+  })
+}
+

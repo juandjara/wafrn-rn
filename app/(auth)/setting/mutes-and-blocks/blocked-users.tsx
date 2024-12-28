@@ -1,17 +1,17 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { useMutes } from "@/lib/api/blocks-and-mutes";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
+import Header, { HEADER_HEIGHT } from "@/components/Header"
+import { useBlocks } from "@/lib/api/blocks-and-mutes"
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { Image } from "expo-image"
+import { Link } from "expo-router"
+import { FlatList, Pressable, Text, View } from "react-native"
 
-export default function MutedUsers() {
+export default function BlockedUsers() {
   const sx = useSafeAreaPadding()
-  const { data, isFetching, refetch } = useMutes()
+  const { data, isFetching, refetch } = useBlocks()
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
-      <Header title="Muted users" />
+      <Header title="Blocked users" />
       <FlatList
         data={data}
         onRefresh={refetch}
@@ -35,7 +35,7 @@ export default function MutedUsers() {
         )}
         ListEmptyComponent={
           <Text className="text-center text-white my-6">
-            No muted users
+            No blocked users
           </Text>
         }
       />
