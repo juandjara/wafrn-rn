@@ -28,26 +28,6 @@ export default function Settings() {
         label: 'Options & Customizations',
         link: '/setting/options'
       },
-      // {
-      //   icon: 'account-eye-outline' as const,
-      //   label: 'Manage muted users',
-      //   link: '/manage/muted-users'
-      // },
-      // {
-      //   icon: 'file-eye-outline' as const,
-      //   label: 'Manage muted posts',
-      //   link: '/manage/muted-posts'
-      // },
-      // {
-      //   icon: 'account-cancel-outline' as const,
-      //   label: 'Manage blocked users',
-      //   link: '/manage/blocked-users'
-      // },
-      // {
-      //   icon: 'server-off' as const,
-      //   label: 'Manage blocked servers',
-      //   link: '/manage/blocked-servers'
-      // },
       {
         icon: 'server-off' as const,
         label: 'Mutes & Blocks',
