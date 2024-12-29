@@ -6,7 +6,7 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
+import { blockedOrMuted, getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
 import { sortPosts } from "@/lib/api/posts"
 import RewootRibbon from "./RewootRibbon"
 import InteractionRibbon from "./InteractionRibbon"
@@ -51,6 +51,9 @@ export default function Thread({ thread }: { thread: PostThread }) {
       if (!amIFollowing) {
         return true
       }
+    }
+    if (settings && blockedOrMuted(settings, thread.userId)) {
+      return true
     }
     return false
   }

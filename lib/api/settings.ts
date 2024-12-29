@@ -158,3 +158,9 @@ export function useSettings() {
     enabled: !!token
   })
 }
+
+export function blockedOrMuted(settings: Settings, userId: string) {
+  const isMuted = settings.mutedUsers.includes(userId)
+  const isBlocked = settings.blockedUsers.includes(userId)
+  return isMuted || isBlocked
+}

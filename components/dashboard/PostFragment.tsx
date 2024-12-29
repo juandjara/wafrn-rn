@@ -26,7 +26,7 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
-import { useSettings } from "@/lib/api/settings"
+import { blockedOrMuted, useSettings } from "@/lib/api/settings"
 import PostReaction from "../posts/PostReaction"
 
 const HEIGHT_LIMIT = 462
@@ -170,6 +170,10 @@ export default function PostFragment({
   }
   
   if (isEmptyRewoot(post, context)) {
+    return null
+  }
+
+  if (settings && blockedOrMuted(settings, post.userId)) {
     return null
   }
 

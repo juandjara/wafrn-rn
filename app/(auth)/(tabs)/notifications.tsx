@@ -7,6 +7,7 @@ import UserRibbon from "@/components/user/UserRibbon"
 import { replaceEmojis } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { Post } from "@/lib/api/posts.types"
+import { blockedOrMuted, useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
 import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
@@ -77,11 +78,22 @@ export default function NotificationList() {
 }
 
 function NotificationItem({ notification }: { notification: Notification }) {
+  const { data: settings } = useSettings()
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
   const userName = replaceEmojis(notification.user.name, context.emojiRelations.emojis)
  
+  if (settings && blockedOrMuted(settings, user.id)) {
+    return (
+      <View className="mb-4 bg-blue-950 overflow-hidden relative" style={{ maxHeight: 300, maxWidth: width }}>
+        <Text className="text-gray-300 text-center p-4">
+          This notification is hidden because you have blocked or muted this user.
+        </Text>
+      </View>
+    )
+  }
+
   let ribbon = null
   if (notification.type === 'reblog') {
     ribbon = <RewootRibbon user={user} userNameHTML={userName} />
