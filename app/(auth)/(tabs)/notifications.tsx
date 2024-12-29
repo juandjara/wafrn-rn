@@ -87,8 +87,8 @@ function NotificationItem({ notification }: { notification: Notification }) {
   if (hiddenUserIds.includes(user.id)) {
     return (
       <View className="mb-4 bg-blue-950 overflow-hidden relative" style={{ maxHeight: 300, maxWidth: width }}>
-        <Text className="text-gray-300 text-center p-4">
-          This notification is hidden because you have blocked or muted this user.
+        <Text className="text-gray-300 text-center text-sm p-4">
+          Hidden notification from a blocked or muted user ({user.url})
         </Text>
       </View>
     )
