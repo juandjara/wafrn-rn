@@ -28,7 +28,6 @@ import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { useSettings } from "@/lib/api/settings"
 import PostReaction from "../posts/PostReaction"
-import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 
 const HEIGHT_LIMIT = 462
 
@@ -49,7 +48,6 @@ export default function PostFragment({
   const post = postRef.current
 
   const { data: settings } = useSettings()
-  const hiddenUserIds = useHiddenUserIds()
 
   const {
     user,
@@ -172,10 +170,6 @@ export default function PostFragment({
   }
   
   if (isEmptyRewoot(post, context)) {
-    return null
-  }
-
-  if (hiddenUserIds.includes(post.userId)) {
     return null
   }
 

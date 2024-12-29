@@ -26,17 +26,18 @@ export default function Thread({ thread }: { thread: PostThread }) {
   }, [thread, context])
   const threadAncestorLimit = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ThreadAncestorLimit)
 
-  const ancestors = useMemo(() => {
-    const sorted = thread.ancestors.sort(sortPosts)
-    if (sorted.length < threadAncestorLimit) {
-      return sorted
-    }
+  const hiddenUserIds = useHiddenUserIds()
 
-    return [
-      sorted[0],
-      sorted[sorted.length - 1]
-    ].filter(Boolean)
-  }, [threadAncestorLimit, thread.ancestors])
+  const ancestors = useMemo(() => {
+    let posts = thread.ancestors.sort(sortPosts)
+    if (posts.length >= threadAncestorLimit) {
+      posts = [
+        posts[0],
+        posts[posts.length - 1]
+      ].filter(Boolean)
+    }
+    return posts.filter((p) => !hiddenUserIds.includes(p.userId))
+  }, [threadAncestorLimit, thread.ancestors, hiddenUserIds])
 
   const interactionPost = useMemo(() => {
     const rewootAncestor = thread.ancestors.find((a) => a.id === thread.parentId)
@@ -46,7 +47,6 @@ export default function Thread({ thread }: { thread: PostThread }) {
       : thread
   }, [isRewoot, thread])
   
-  const hiddenUserIds = useHiddenUserIds()
 
   function shouldHide(post: Post) {
     if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {

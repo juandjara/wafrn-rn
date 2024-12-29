@@ -5,6 +5,7 @@ import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
+import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { sortPosts, usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
@@ -71,6 +72,7 @@ export default function PostDetail() {
   } = usePostReplies(postid as string)
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
+  const hiddenUserIds = useHiddenUserIds()
 
   const {
     mainPost,
@@ -84,7 +86,9 @@ export default function PostDetail() {
     )
     const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
     const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
-    const replies = repliesData?.posts || []
+    const replies = (
+      repliesData?.posts || []
+    ).filter((p) => !hiddenUserIds.includes(p.userId))
     const numRewoots = replies.filter((p) => isEmptyRewoot(p, context) && p.parentId === postid).length
     const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length
     const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
@@ -93,6 +97,7 @@ export default function PostDetail() {
     const mainUser = mainPost && userMap[mainPost.userId]
     const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
     const ancestors = mainPost?.ancestors
+      .filter((a) => !hiddenUserIds.includes(a.userId))
       .sort(sortPosts)  
       .map((a) => ({ post: a, className: 'border-t border-slate-600' })) || []
 
@@ -110,9 +115,9 @@ export default function PostDetail() {
           ? [mainFragment, ...ancestors] 
           : [...ancestors, mainFragment]
       )
-      : [] 
+      : []
 
-    const fullReplies = repliesData?.posts
+    const fullReplies = replies
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
       .sort(sortPosts)
@@ -131,7 +136,7 @@ export default function PostDetail() {
             data: { post: p },
           }
         }
-      }) || []
+      })
 
     const postCount = mainPost?.ancestors.length || 0
 
@@ -145,7 +150,7 @@ export default function PostDetail() {
     ].filter(l => !!l)
 
     return { mainPost, mainUser, postCount, listData, context }
-  }, [postData, repliesData, postid, repliesError])
+  }, [postData, repliesData, postid, repliesError, hiddenUserIds])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
 
