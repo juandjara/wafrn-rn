@@ -6,12 +6,13 @@ import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { blockedOrMuted, getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
+import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
 import { sortPosts } from "@/lib/api/posts"
 import RewootRibbon from "./RewootRibbon"
 import InteractionRibbon from "./InteractionRibbon"
 import { Link } from "expo-router"
 import ReplyRibbon from "./ReplyRibbon"
+import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 
 export default function Thread({ thread }: { thread: PostThread }) {
   const { data: settings } = useSettings()
@@ -45,6 +46,8 @@ export default function Thread({ thread }: { thread: PostThread }) {
       : thread
   }, [isRewoot, thread])
   
+  const hiddenUserIds = useHiddenUserIds()
+
   function shouldHide(post: Post) {
     if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {
       const amIFollowing = settings?.followedUsers?.includes(post.userId)
@@ -52,7 +55,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
         return true
       }
     }
-    if (settings && blockedOrMuted(settings, thread.userId)) {
+    if (hiddenUserIds.includes(thread.userId)) {
       return true
     }
     return false

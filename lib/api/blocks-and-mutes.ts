@@ -4,6 +4,7 @@ import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
 import { showToastError, showToastSuccess } from "../interaction"
 import { Post, PostUser } from "./posts.types"
+import { useMemo } from "react"
 
 /*
  * USER BLOCKS
@@ -323,4 +324,16 @@ export function useUnblockServerMutation() {
       })
     }
   })
+}
+
+export function useHiddenUserIds() {
+  const { data: mutes } = useMutes()
+  const { data: blocks } = useBlocks()
+
+  return useMemo(() => {
+    const mutedIds = mutes?.map(m => m.user.id) || []
+    const blockedIds = blocks?.map(b => b.user.id) || []
+  
+    return [...mutedIds, ...blockedIds]
+  }, [mutes, blocks])
 }

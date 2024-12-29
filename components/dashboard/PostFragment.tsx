@@ -26,8 +26,9 @@ import Poll from "../posts/Poll"
 import HtmlRenderer from "../HtmlRenderer"
 import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
-import { blockedOrMuted, useSettings } from "@/lib/api/settings"
+import { useSettings } from "@/lib/api/settings"
 import PostReaction from "../posts/PostReaction"
+import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 
 const HEIGHT_LIMIT = 462
 
@@ -48,6 +49,7 @@ export default function PostFragment({
   const post = postRef.current
 
   const { data: settings } = useSettings()
+  const hiddenUserIds = useHiddenUserIds()
 
   const {
     user,
@@ -173,7 +175,7 @@ export default function PostFragment({
     return null
   }
 
-  if (settings && blockedOrMuted(settings, post.userId)) {
+  if (hiddenUserIds.includes(post.userId)) {
     return null
   }
 
