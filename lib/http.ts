@@ -1,3 +1,5 @@
+import { createUploadTask, FileSystemUploadOptions } from "expo-file-system"
+
 export type ErrorResponse = {
   success: false
   errorMessage: string
@@ -31,3 +33,36 @@ export function statusError(status: number, message: string) {
   ;(e as StatusError).status = status
   return e as StatusError
 }
+
+export type UploadFilePayload = FileSystemUploadOptions & {
+  uploadUrl: string
+  fileUri: string
+}
+
+export async function uploadFile({
+  uploadUrl,
+  fileUri,
+  ...options
+}: UploadFilePayload) {
+  const task = createUploadTask(uploadUrl, fileUri, options)
+  const res = await task.uploadAsync()
+  const status = res?.status || 500
+
+  if (status >= 400) {
+    throw statusError(status, `Network response not ok for url ${uploadUrl}: code ${status} \n${res?.body}`)
+  }
+
+  try {
+    const json = JSON.parse(res?.body || '{}')
+    if (isErrorResponse(json)) {
+      const msg = `Error response for URL ${uploadUrl}: ${res?.body}`
+      console.error(msg)
+      throw statusError(500, msg)  
+    }
+    return json
+  } catch (err) {
+    console.error(err)
+    throw statusError(500, `Error parsing response body for URL ${uploadUrl}: ${res?.body}`)
+  }
+}
+

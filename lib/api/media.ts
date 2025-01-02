@@ -5,7 +5,8 @@ import { isValidURL } from "./content"
 import { Timestamps } from "./types"
 import { useAuth } from "../contexts/AuthContext"
 import { showToastError, showToastSuccess } from "../interaction"
-import { getJSON } from "../http"
+import { uploadFile } from "../http"
+import { FileSystemUploadType } from "expo-file-system"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -81,17 +82,21 @@ export type MediaUploadPayload = {
 }
 
 export async function uploadMedia(token: string, payload: MediaUploadPayload) {
-  const formData = new FormData()
-  // turns out that the React Native implementation of FormData can read local files if given a file:// URI inside an object
-  formData.append('image', payload as any)
-  const response = await getJSON(`${BASE_URL}/api/uploadMedia`, {
-    method: 'POST',
-    body: formData,
+  const url = `${BASE_URL}/api/uploadMedia`
+  const res = await uploadFile({
+    uploadUrl: url,
+    fileUri: payload.uri,
+    fieldName: 'image',
+    httpMethod: 'POST',
+    mimeType: payload.type,
+    uploadType: FileSystemUploadType.MULTIPART,
     headers: {
-      Authorization: `Bearer ${token}`,
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
     }
   })
-  const data = response as MediaUploadResponse[]
+  const data = res as MediaUploadResponse[]
+
   return Array.isArray(data) ? data[0] : data
 }
 

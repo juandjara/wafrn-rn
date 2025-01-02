@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { API_URL } from "../config";
-import { getJSON, isErrorResponse, statusError, StatusError } from "../http";
+import { getJSON, statusError, StatusError, uploadFile } from "../http";
 import { parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
@@ -10,7 +10,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings"
 import { BSKY_URL } from "./content";
 import { showToastError, showToastSuccess, toggleFollowUser } from "../interaction";
 import type { MediaUploadPayload } from "./media";
-import { createUploadTask, FileSystemUploadType } from 'expo-file-system';
+import { FileSystemUploadType } from 'expo-file-system';
 import { formatUserUrl } from "../formatters";
 
 export type User = {
@@ -288,7 +288,9 @@ type MastodonCSVParseResponse = {
 
 async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
   const url = `${API_URL}/loadFollowList`
-  const task = createUploadTask(url, localFileUri, {
+  const json = await uploadFile({
+    uploadUrl: url,
+    fileUri: localFileUri,
     fieldName: 'follows',
     httpMethod: 'POST',
     mimeType: 'text/csv',
@@ -298,36 +300,19 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
       'Accept': 'application/json',
     }
   })
-  const res = await task.uploadAsync()
-  const status = res?.status || 500
 
-  if (status >= 400) {
-    throw statusError(status, `Network response not ok for url ${url}: code ${status} \n${res?.body}`)
-  }
+  const data = json as MastodonCSVParseResponse
+  const found = data.foundUsers
+  const notFound = data.notFoundUsers.filter((u) => u && u !== '@')
 
-  try {
-    const json = JSON.parse(res?.body || '{}')
-    if (isErrorResponse(json)) {
-      const msg = `Error response for URL ${url}: ${res?.body}`
-      console.error(msg)
-      throw statusError(500, msg)  
-    }
-    const data = json as MastodonCSVParseResponse
-    const found = data.foundUsers
-    const notFound = data.notFoundUsers.filter((u) => u && u !== '@')
-
-    return {
-      total: found.length + notFound.length,
-      found: found.length,
-      notFound: notFound.length,
-      users: [
-        ...notFound.map((u) => ({ type: 'notFound' as const, username: u })),
-        ...found.map((u) => ({ type: 'found' as const, user: u })),
-      ]
-    }
-  } catch (err) {
-    console.error(err)
-    throw statusError(500, `Error parsing response body for URL ${url}: ${res?.body}`)
+  return {
+    total: found.length + notFound.length,
+    found: found.length,
+    notFound: notFound.length,
+    users: [
+      ...notFound.map((u) => ({ type: 'notFound' as const, username: u })),
+      ...found.map((u) => ({ type: 'found' as const, user: u })),
+    ]
   }
 }
 
