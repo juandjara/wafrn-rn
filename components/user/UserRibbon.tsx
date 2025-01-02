@@ -12,9 +12,11 @@ import clsx from "clsx"
 export default function UserRibbon({
   user,
   userName,
+  showFollowButtons = true,
 }: {
   user: Omit<PostUser, 'remoteId'>
   userName: string
+  showFollowButtons?: boolean
 }) {
   const { data: settings } = useSettings()
   const amIFollowing = settings?.followedUsers.includes(user?.id!)
@@ -43,22 +45,26 @@ export default function UserRibbon({
               <HtmlRenderer html={userName} renderTextRoot />
             </View>
           )}
-          {!amIFollowing && !amIAwaitingApproval ? (
-            <TouchableOpacity
-              className={clsx({ 'opacity-50': followMutation.isPending })}
-              onPress={toggleFollow}
-            >
-              <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
-                Follow
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-          {amIAwaitingApproval && (
-            <TouchableOpacity>
-              <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
-                Awaiting approval
-              </Text>
-            </TouchableOpacity>
+          {showFollowButtons && (
+            <View>
+              {!amIFollowing && !amIAwaitingApproval ? (
+                <TouchableOpacity
+                  className={clsx({ 'opacity-50': followMutation.isPending })}
+                  onPress={toggleFollow}
+                >
+                  <Text className="rounded-full px-2 text-sm text-indigo-500 bg-indigo-500/20">
+                    Follow
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+              {amIAwaitingApproval && (
+                <TouchableOpacity>
+                  <Text className="rounded-full px-2 text-sm text-gray-400 bg-gray-500/50">
+                    Awaiting approval
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
         <Link href={`/user/${user.url}`}>
