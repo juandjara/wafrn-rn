@@ -5,6 +5,9 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 
 export function unfurlCacheUrl(url: string) {
+  if (!url.startsWith(CACHE_URL)) {
+    return url
+  }
   return decodeURIComponent(url.replace(CACHE_URL, ''))
 }
 

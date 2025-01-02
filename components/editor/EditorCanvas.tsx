@@ -1,6 +1,6 @@
 import { EditorImage } from "./EditorImages"
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native"
-import { Canvas, Path, Skia, SkPath, useCanvasRef } from "@shopify/react-native-skia"
+import { Canvas, ImageFormat, Path, Skia, SkPath, useCanvasRef } from "@shopify/react-native-skia"
 import { useMemo, useState } from "react"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import ColorPicker from "./ColorPicker"
@@ -9,6 +9,7 @@ import Animated, { useSharedValue } from "react-native-reanimated"
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler"
 import { Colors } from "@/constants/Colors"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { cacheDirectory, writeAsStringAsync } from "expo-file-system"
 
 type EditorCanvasProps = {
   open: boolean
@@ -40,16 +41,22 @@ export default function EditorCanvas({ open, setOpen, addImage }: EditorCanvasPr
 
   async function confirmDrawing() {
     const image = await canvasRef.current?.makeImageSnapshotAsync()
-    if (image) {
-      const uri = image.encodeToBase64()
+    if (image) {  
+      const base64Uri = image.encodeToBase64(ImageFormat.WEBP, 50)
+      const filename = `drawing-${Date.now()}.webp`
+      const fileUri = `${cacheDirectory}${filename}`
+      console.log('Writing image to', fileUri)
+      await writeAsStringAsync(fileUri, base64Uri, { encoding: 'base64' })
       addImage({
-        uri: `data:image/png;base64,${uri}`,
-        mimeType: 'image/png',
-        fileName: `drawing-${Date.now()}.png`,
+        uri: fileUri,
+        mimeType: 'image/webp',
+        fileName: filename,
         width: image.width(),
         height: image.height()
       })
       close()
+    } else {
+      console.error('Failed to create image snapshot')
     }
   }
 
