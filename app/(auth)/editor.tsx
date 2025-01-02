@@ -54,12 +54,12 @@ export default function EditorView() {
     return getPrivateOptionValue(settings?.options || [], PrivateOptionNames.DisableForceAltText)
   }, [settings?.options])
 
-  const mentionsPrefix = useMemo(() => {
+  const { mentionsPrefix, mentionedUserIds } = useMemo(() => {
     if (!reply) {
-      return ''
-    }
-    if (reply.posts[0].bskyUri) {
-      return ''
+      return {
+        mentionsPrefix: '',
+        mentionedUserIds: [],
+      }
     }
 
     const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
@@ -74,10 +74,17 @@ export default function EditorView() {
       }
     }
     const mentionUsers = Array.from(ids).map((id) => userMap[id])
-    return mentionUsers.map((m) => {
+    const mentionsPrefix = mentionUsers.map((m) => {
       const remoteId = m.remoteId || `${BASE_URL}/blog/${m.url}`
       return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
     }).join('')
+
+    const isBsky = !!reply.posts[0].bskyUri
+
+    return {
+      mentionsPrefix: isBsky ? '' : mentionsPrefix,
+      mentionedUserIds: Array.from(ids),
+    }
   }, [reply, me])
   
   const { ask, askUser, context } = useMemo(() => {
@@ -192,9 +199,11 @@ export default function EditorView() {
     Keyboard.dismiss()
 
     const text = getTextFromMentionState(mentionApi.mentionState)
-    const mentionedUserIds = mentionApi.mentionState.parts
+    const editorMentionedUserIds = mentionApi.mentionState.parts
       .filter((p) => p.data?.id && p.config && isTriggerConfig(p.config) && p.config.trigger === '@')
       .map((p) => p.data?.id) as string[]
+
+    const mentions = new Set([...editorMentionedUserIds, ...mentionedUserIds])
 
     createMutation.mutate({
       content: text,
@@ -213,7 +222,7 @@ export default function EditorView() {
         description: m.description || '',
         NSFW: m.NSFW || false,
       })),
-      mentionedUserIds,
+      mentionedUserIds: Array.from(mentions),
     }, {
       onSuccess(data) {
         router.replace(`/post/${data}`)
