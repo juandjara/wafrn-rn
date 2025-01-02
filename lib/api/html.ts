@@ -212,7 +212,7 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
     if (node.children.length === 1) {
       const child = node.children[0]
       if (child.type === 'text') {
-        const handle = buildFullHandle(child.data || '', new URL(link).host)
+        const handle = buildFullHandle(child.data || '', new URL(link, BASE_URL).host)
         const user = context.users.find((u) => u.url === handle)
         if (user) {
           node.attribs['href'] = `wafrn:///user/${user.url}`
