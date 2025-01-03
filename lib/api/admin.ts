@@ -4,7 +4,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { getJSON } from "../http";
 import { showToastSuccess } from "../interaction";
 import type { Report } from "./reports";
-import { PostUser } from "./posts.types";
 
 export type UserForApproval = {
   id: string
