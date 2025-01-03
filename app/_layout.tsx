@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { enableFreeze } from 'react-native-screens';
 import { Toasts } from '@backpackapp-io/react-native-toast';
+import { Colors } from "@/constants/Colors"
 
 enableFreeze(true);
 
@@ -41,7 +42,7 @@ cssInterop(Image, { className: "style" })
 export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors[colorScheme!]?.background }}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
