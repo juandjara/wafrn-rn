@@ -1,29 +1,8 @@
-import { API_URL } from "../config"
-import { isErrorResponse, statusError } from "../http"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { getJSON } from "../http"
+import useAsyncStorage from "../useLocalStorage"
 
-type TokenResponse = {
-  success: true
-  token: string
-}
-
-export async function login(email: string, password: string) {
-  const res = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  })
-  if (!res.ok) {
-    throw statusError(res.status, `Network response not ok: ${res.status} ${res.statusText} \n${await res.text()}`)
-  }
-  const json = await res.json()
-  if (isErrorResponse(json)) {
-    throw statusError(500, `Network response error in auth response: ${JSON.stringify(json)}`)
-  }
-
-  return (json as TokenResponse).token
-}
+export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 
 export type ParsedToken = {
   birthDate: string // ISO date
@@ -33,6 +12,15 @@ export type ParsedToken = {
   role: number // marks admin or user
   url: string // @ handle of the user
   userId: string
+}
+
+function isValidURL(str: string) {
+  try {
+    new URL(str)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function parseToken(token: string | null) {
@@ -51,4 +39,103 @@ export function parseToken(token: string | null) {
     console.error('Error parsing token', error)
     return null
   }
+}
+
+type EnvironmenResponse = {
+  maxUploadSize: number
+  baseUrl: string
+  logo: string
+  baseMediaUrl: string
+  externalCacheurl: string
+  frontUrl: string
+  shortenPosts: number
+  reviewRegistrations: boolean
+  disablePWA: boolean
+  maintenance: boolean
+  maintenanceMessage: string
+}
+export type Environment = {
+  API_URL: string
+  MEDIA_URL: string
+  CACHE_URL: string
+  BASE_URL: string
+  CACHE_HOST: string
+}
+
+export async function getInstanceEnvironment(instanceURL: string) {
+  const url = `${instanceURL}/api/environment`
+  const res = await getJSON(url)
+  const env = res as EnvironmenResponse
+  if (env.maintenance) {
+    throw new Error('Sorry, this instance is in maintenance mode. Check back soon')
+  }
+
+  const API_URL = env.baseUrl
+  const MEDIA_URL = env.baseMediaUrl
+  const CACHE_URL = env.externalCacheurl
+  const BASE_URL = new URL(env.baseUrl).origin
+  const CACHE_HOST = new URL(env.externalCacheurl).host
+
+  return { API_URL, MEDIA_URL, CACHE_URL, BASE_URL, CACHE_HOST }
+}
+
+export function useEnvironment() {
+  const { value, loading } = useAsyncStorage<string>('wafrn_instance_url')
+  const { data, isLoading } = useQuery({
+    queryKey: ['environment'],
+    queryFn: async () => {
+      const env = await getInstanceEnvironment(value!)
+      return env
+    },
+    enabled: !!value
+  })
+  return { data, isLoading: isLoading || loading }
+}
+
+export function useEnvCheckMutation() {
+  return useMutation<void, Error, string>({
+    mutationKey: ['environment'],
+    // this mutation returns nothing, it is just used to check if the environment is valid
+    // if the function does not throw an error, this instance environment is marked valid
+    mutationFn: async (instance) => {
+      const env = await getInstanceEnvironment(instance || DEFAULT_INSTANCE)
+      const isValid = isValidURL(env.API_URL) && isValidURL(env.MEDIA_URL) && isValidURL(env.CACHE_URL)
+      if (!isValid) {
+        throw new Error('Invalid environment response. baseUrl, baseMediaUrl, and externalCacheurl must be valid URLs')
+      }
+    },
+    
+  })
+}
+
+type TokenResponse = {
+  success: true
+  token: string
+}
+
+type LoginPayload = {
+  email: string
+  password: string
+}
+
+export async function login(env: Environment, { email, password }: LoginPayload) {
+  const url = `${env.API_URL}/login`
+  const res = await getJSON(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  })
+  const json = res as TokenResponse
+  return json.token
+}
+
+export function useLoginMutation() {
+  const { data: env } = useEnvironment()
+
+  return useMutation<string, Error, { email: string; password: string }>({
+    mutationKey: ['signIn'],
+    mutationFn: (body) => login(env!, body),
+  })
 }

@@ -12,7 +12,7 @@ export const unstable_settings = {
 }
 
 export default function ProtectedLayout() {
-  const { token, isLoading } = useAuth()
+  const { token, env, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
   const nav = useNavigation()
   const qc = useQueryClient()
@@ -33,7 +33,7 @@ export default function ProtectedLayout() {
 
   // Only require authentication within the (auth) group's layout as users
   // need to be able to access the (auth) group and sign in again.
-  if (!token) {
+  if (!token || !env) {
     // On web, static rendering will stop here as the user is not authenticated
     // in the headless Node process that the pages are rendered in.
     return <Redirect href="/sign-in" />;

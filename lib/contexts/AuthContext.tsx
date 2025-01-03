@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react";
 import useAsyncStorage from "../useLocalStorage";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
-import { parseToken } from "../api/auth";
+import { Environment, parseToken, useEnvironment } from "../api/auth";
 
 export enum UserRoles {
   Admin = 10,
@@ -17,24 +17,32 @@ type AuthContextData = {
   token: string | null;
   setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>;
   isLoading: boolean;
+  env: Environment | null;
 }
 
 const AuthContext = createContext<AuthContextData>({
   token: null,
   setToken: async () => {},
   isLoading: true,
+  env: null,
 });
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const { value, setValue, loading } = useAsyncStorage<string>('wafrn_token')
+  const { data: env, isLoading: envLoading } = useEnvironment()
+  const {
+    value: token,
+    setValue: setToken,
+    loading: tokenLoading
+  } = useAsyncStorage<string>('wafrn_token')
   const context = useMemo(() => {
-    const parsed = parseToken(value)
+    const parsed = parseToken(token)
     return {
-      token: parsed ? value : null,
-      setToken: setValue,
-      isLoading: loading,
+      token: parsed ? token : null,
+      setToken,
+      env: env || null,
+      isLoading: tokenLoading || envLoading,
     }
-  }, [value, setValue, loading])
+  }, [token, setToken, env, tokenLoading, envLoading])
   return (
     <AuthContext.Provider value={context}>
       {children}
