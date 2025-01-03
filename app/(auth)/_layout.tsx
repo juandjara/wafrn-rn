@@ -72,6 +72,7 @@ export default function ProtectedLayout() {
       <Stack.Screen name='admin/index' />
       <Stack.Screen name='admin/new-users' />
       <Stack.Screen name='admin/reports' />
+      <Stack.Screen name='admin/banned-users' />
     </Stack>
   )
 }
