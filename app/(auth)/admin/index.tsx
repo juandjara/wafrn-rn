@@ -48,7 +48,7 @@ export default function AdminIndex() {
     {
       label: 'Reports',
       link: 'admin/reports',
-      icon: 'account-alert-outline' as const,
+      icon: 'alert-box-outline' as const,
       badge: badges?.reports || 0
     },
   ]

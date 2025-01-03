@@ -5,22 +5,23 @@ import { useIgnoreReportMutation, useReportList, useToggleBanUserMutation } from
 import { Report, REPORT_SEVERITY_DESCRIPTIONS, REPORT_SEVERITY_LABELS } from "@/lib/api/reports";
 import { formatUserUrl } from "@/lib/formatters";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import clsx from "clsx";
 import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import colors from "tailwindcss/colors";
 
 export default function ReportList() {
   const sx = useSafeAreaPadding()
-  const { data } = useReportList()
+  const { data, refetch, isFetching } = useReportList()
   
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Reports" />
       <FlashList
         data={data}
+        onRefresh={refetch}
+        refreshing={isFetching}
         estimatedItemSize={500}
         keyExtractor={item => String(item.id)}
         renderItem={({ item }) => (
@@ -45,15 +46,15 @@ function ReportListItem({ report }: { report: Report }) {
         link={`/user/${report.user.url}`}
         label="reported"
         icon={
-          <MaterialIcons
+          <MaterialCommunityIcons
             className="mx-1"
-            name="report-problem"
-            color={colors.red[200]}
-            size={20}
+            name="alert-box-outline"
+            color='white'
+            size={24}
           />
         }
       />
-      <View className="mt-4 mb-2">
+      <View className="mt-4">
         <Text className="text-white">Reported user:</Text>
         <UserRibbon
           user={report.post.user}
@@ -61,21 +62,23 @@ function ReportListItem({ report }: { report: Report }) {
           showFollowButtons={false}
         />
       </View>
-      <Text className="text-white">
-        Reported post:{' '}
-        <Link href={`/post/${report.post.id}`} className="text-blue-400 active:text-blue-600">
-          See post
-        </Link>
-      </Text>
+      <Link href={`/post/${report.post.id}`} className="text-blue-400 active:text-blue-600">
+        See post
+      </Link>
       <View className="mt-4 mb-2">
-        <Text className="text-white mb-2">Report Severity:</Text>
+        <Text className="text-white mb-2">
+          Severity:{' '}
+          <Text className="text-gray-300">{REPORT_SEVERITY_LABELS[report.severity]}</Text>
+        </Text>
         <View className="py-2 px-3 bg-gray-700 rounded-md">
-          <Text className="text-white text-sm mb-2">{report.severity} - {REPORT_SEVERITY_LABELS[report.severity]}</Text>
-          <Text className="text-white">{REPORT_SEVERITY_DESCRIPTIONS[report.severity]}</Text>
+          {/* <Text className="text-white text-sm mb-2">{}</Text> */}
+          <Text className="text-white">
+            {REPORT_SEVERITY_DESCRIPTIONS[report.severity]}
+          </Text>
         </View>
       </View>
       <View className="my-4">
-        <Text className="text-white mb-2">Report description:</Text>
+        <Text className="text-white mb-2">Description:</Text>
         <View className="py-2 px-3 bg-gray-700 rounded-md">
           <Text className="text-white">{report.description}</Text>
         </View>

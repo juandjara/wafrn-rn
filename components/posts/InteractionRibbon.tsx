@@ -18,6 +18,7 @@ import { useEmojiReactMutation } from "@/lib/api/emojis";
 import { getRemotePostUrl, useDeleteMutation, useRewootMutation } from "@/lib/api/posts";
 import { useSilenceMutation } from "@/lib/api/blocks-and-mutes";
 import { useSettings } from "@/lib/api/settings";
+import ReportPostModal from "./ReportPostModal";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -26,6 +27,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   const { postid } = useLocalSearchParams()
   const me = useParsedToken()
   const context = useDashboardContext()
+  const [reportModalOpen, setReportModalOpen] = useState(false)
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
   const { data: settings } = useSettings()
   const isSilenced = !!settings?.silencedPosts.includes(post.id)
@@ -176,9 +178,9 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       },
       {
         action: () => {
-          router.navigate(`/report/${post.id}`)
+          setReportModalOpen(true)
         },
-        icon: <MaterialIcons name='report-problem' size={20} />,
+        icon: <MaterialCommunityIcons name='alert-box-outline' size={20} />,
         label: 'Report',
         enabled: true,
       },
@@ -243,7 +245,20 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   if (orientation === 'vertical') {
     return (
       <>
-        <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
+        {reportModalOpen && (
+          <View className="absolute inset-0">
+            <ReportPostModal
+              post={post}
+              open={reportModalOpen}
+              onClose={() => setReportModalOpen(false)}
+            />
+          </View>
+        )}
+        {emojiPickerOpen && (
+          <View className="absolute inset-0">
+            <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
+          </View>
+        )}
         <Menu style={{
           margin: 6,
           borderRadius: 8,

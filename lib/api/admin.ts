@@ -119,7 +119,7 @@ export function useIgnoreReportMutation() {
       await ignoreReport(token!, reportId)
     },
     onSettled: () => qc.invalidateQueries({
-      queryKey: ['report-list']
+      predicate: (query) => query.queryKey[0] === 'report-list' || query.queryKey[0] === 'notificationsBadge'
     }),
   })
 }
@@ -176,7 +176,7 @@ export function useToggleBanUserMutation(user: PostUser) {
       })
     },
     onSettled: () => qc.invalidateQueries({
-      queryKey: ['ban-list']
+      predicate: (query) => query.queryKey[0] === 'ban-list' || query.queryKey[0] === 'notificationsBadge'
     }),
   })
 }
