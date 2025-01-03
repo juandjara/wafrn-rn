@@ -2,10 +2,9 @@ import { Platform, TextStyle, ViewStyle } from "react-native";
 import colors from "tailwindcss/colors";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { ChildNode, Element } from 'domhandler'
-import { BASE_URL } from "../config";
-import { isValidURL } from "./content";
 import { formatCachedUrl, formatMediaUrl } from "../formatters";
 import { PostMedia } from "./posts.types";
+import { getEnvironmentStatic } from "./auth";
 
 export const BR = '\n'
 
@@ -196,7 +195,7 @@ export function replaceHref(node: ChildNode, context: DashboardContextData) {
   }
 }
 
-export function replaceMentionLink(node: Element, context: DashboardContextData) {
+function replaceMentionLink(node: Element, context: DashboardContextData) {
   if (node.attribs['href'].startsWith('wafrn:///')) {
     return
   }
@@ -209,10 +208,16 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
     }
   } else {
     const link = node.attribs['href']
+    const env = getEnvironmentStatic()
+
     if (node.children.length === 1) {
       const child = node.children[0]
       if (child.type === 'text') {
-        const handle = buildFullHandle(child.data || '', new URL(link, BASE_URL).host)
+        const handle = buildFullHandle(
+          child.data || '',
+          new URL(link, env!.BASE_URL).host,
+          new URL(env!.BASE_URL).host
+        )
         const user = context.users.find((u) => u.url === handle)
         if (user) {
           node.attribs['href'] = `wafrn:///user/${user.url}`
@@ -226,7 +231,11 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
       if (firstPartIsAt && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {
-          const handle = buildFullHandle(`@${spanText.data}`, new URL(link).host)
+          const handle = buildFullHandle(
+            `@${spanText.data}`,
+            new URL(link, env!.BASE_URL).host,
+            new URL(env!.BASE_URL).host
+          )
           const user = context.users.find((u) => u.url === handle)
           if (user) {
             node.attribs['href'] = `wafrn:///user/${user.url}`
@@ -237,9 +246,9 @@ export function replaceMentionLink(node: Element, context: DashboardContextData)
   }
 }
 
-function buildFullHandle(handle: string, host: string) {
+function buildFullHandle(handle: string, host: string, wafrnHost: string) {
   if (handle.lastIndexOf('@') === 0) {
-    if (host === new URL(BASE_URL).host) {
+    if (host === wafrnHost) {
       return handle.replace('@', '')
     }
     return `${handle}@${host}`
@@ -247,7 +256,7 @@ function buildFullHandle(handle: string, host: string) {
   return handle
 }
 
-export function replaceHashtagLink(node: Element, context: DashboardContextData) {
+function replaceHashtagLink(node: Element, context: DashboardContextData) {
   if (node.attribs['href'].startsWith('wafrn:///')) {
     return
   }
@@ -282,21 +291,6 @@ export function replaceHashtagLink(node: Element, context: DashboardContextData)
       }
     }
   }
-}
-
-/** @deprecated this function is not being used and might be removed soon */
-export function formatMentionHTML(mention: string, remoteId?: string) {
-  const user = remoteId ? mention.split('@')[1] : mention
-  let href = remoteId || `${BASE_URL}/blog/${mention}`
-  let id = undefined
-  if (isValidURL(href)) {
-    const url = new URL(href)
-    id = url.searchParams.get('id')
-    url.searchParams.delete('id')
-    href = url.toString()
-  }
-  const attr = id ? `data-id="${id}"` : ''
-  return `<span class="h-card" translate="no"><a ${attr} href="${href}" class="u-url mention">@<span>${user}</span></a></span>`
 }
 
 export function replaceInlineImages(html: string, medias: PostMedia[], contentWidth: number) {

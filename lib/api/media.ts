@@ -1,5 +1,5 @@
 import { PostMedia } from "./posts.types"
-import { BASE_URL, CACHE_HOST } from "../config"
+import { API_URL } from "../config"
 import { useMutation } from "@tanstack/react-query"
 import { isValidURL } from "./content"
 import { Timestamps } from "./types"
@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { showToastError, showToastSuccess } from "../interaction"
 import { uploadFile } from "../http"
 import { FileSystemUploadType } from "expo-file-system"
+import { getEnvironmentStatic } from "./auth"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -61,7 +62,8 @@ export function isImage(mime: string | undefined, url: string) {
   }
 
   let fullUrl = new URL(url)
-  const isCDN = fullUrl.host === CACHE_HOST
+  const env = getEnvironmentStatic()
+  const isCDN = fullUrl.host === env?.CACHE_HOST
   if (isCDN) {
     url =  decodeURIComponent(fullUrl.searchParams.get('media') || '')
     if (!isValidURL(url)) return false
@@ -82,7 +84,7 @@ export type MediaUploadPayload = {
 }
 
 export async function uploadMedia(token: string, payload: MediaUploadPayload) {
-  const url = `${BASE_URL}/api/uploadMedia`
+  const url = `${API_URL}/uploadMedia`
   const res = await uploadFile({
     uploadUrl: url,
     fileUri: payload.uri,

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { getJSON } from "../http"
 import useAsyncStorage from "../useLocalStorage"
+import { queryClient } from "../queryClient"
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 
@@ -138,4 +139,11 @@ export function useLoginMutation() {
     mutationKey: ['signIn'],
     mutationFn: (body) => login(env!, body),
   })
+}
+
+// NOTE: using static access to query client here to get the environment outside of a React component 
+// this can be undefined and is not reactive so be careful
+export function getEnvironmentStatic() {
+  const env = queryClient.getQueryData<Environment>(['environment'])
+  return env
 }

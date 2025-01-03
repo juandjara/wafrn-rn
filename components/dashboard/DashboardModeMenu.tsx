@@ -4,8 +4,8 @@ import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { DashboardMode } from "@/lib/api/dashboard"
 import colors from "tailwindcss/colors"
-import { BASE_URL } from "@/lib/config"
 import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
+import { useAuth } from "@/lib/contexts/AuthContext"
 
 const MODES = [
   DashboardMode.FEED,
@@ -32,9 +32,10 @@ export default function DashboardModeMenu({
   mode: PublicDashboardMode
   setMode: (mode: PublicDashboardMode) => void
 }) {
+  const { env } = useAuth()
   const { data: settings } = useSettings()
   const forceClassicLogo = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ForceClassicLogo)
-  const logoUrl = forceClassicLogo ? `${BASE_URL}/assets/classicLogo.png` : `${BASE_URL}/assets/logo_w.png`
+  const logoUrl = forceClassicLogo ? `${env?.BASE_URL}/assets/classicLogo.png` : `${env?.BASE_URL}/assets/logo_w.png`
 
   return (
     <Menu onSelect={setMode}>

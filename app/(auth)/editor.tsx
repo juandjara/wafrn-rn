@@ -18,8 +18,7 @@ import { useMediaUploadMutation } from "@/lib/api/media"
 import { formatMediaUrl, formatUserUrl } from "@/lib/formatters"
 import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/api/settings"
 import { clearSelectionRangeFormat, EDITOR_TRIGGERS_CONFIG, getTextFromMentionState } from "@/lib/api/content"
-import { BASE_URL } from "@/lib/config"
-import { useParsedToken } from "@/lib/contexts/AuthContext"
+import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 
 type EditorSearchParams = {
@@ -44,6 +43,7 @@ export default function EditorView() {
   const { replyId, askId, quoteId, editId } = useLocalSearchParams<EditorSearchParams>()
 
   const me = useParsedToken()
+  const { env } = useAuth()
   const { data: reply } = usePostDetail(replyId)
   const { data: quote } = usePostDetail(quoteId)
   const { data: editingPost } = usePostDetail(editId)
@@ -75,7 +75,7 @@ export default function EditorView() {
     }
     const mentionUsers = Array.from(ids).map((id) => userMap[id])
     const mentionsPrefix = mentionUsers.map((m) => {
-      const remoteId = m.remoteId || `${BASE_URL}/blog/${m.url}`
+      const remoteId = m.remoteId || `${env?.BASE_URL}/blog/${m.url}`
       return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
     }).join('')
 
@@ -85,7 +85,7 @@ export default function EditorView() {
       mentionsPrefix: isBsky ? '' : mentionsPrefix,
       mentionedUserIds: Array.from(ids),
     }
-  }, [reply, me])
+  }, [reply, me, env])
   
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.find(a => a.id === Number(askId))
@@ -153,7 +153,7 @@ export default function EditorView() {
         if (!user) {
           continue
         }
-        const remoteId = user.remoteId || `${BASE_URL}/blog/${user.url}`
+        const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
         const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${user.id})`
         content = content.replace(user.url, mentionText)
       }

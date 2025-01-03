@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { getUserNameHTML, isValidURL, replaceEmojis } from "@/lib/api/content";
 import HtmlRenderer from "../HtmlRenderer";
 import ZoomableImage from "../posts/ZoomableImage";
-import { useParsedToken } from "@/lib/contexts/AuthContext";
+import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext";
 import PostHtmlRenderer from "../posts/PostHtmlRenderer";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
@@ -18,11 +18,11 @@ import { useFollowMutation } from "@/lib/interaction";
 import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { optionStyle } from "@/lib/styles";
-import { BASE_URL } from "@/lib/config";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { useBlockMutation, useMuteMutation, useServerBlockMutation } from "@/lib/api/blocks-and-mutes";
 
 export default function UserDetail({ user }: { user: User }) {
+  const { env } = useAuth()
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
@@ -83,7 +83,7 @@ export default function UserDetail({ user }: { user: User }) {
     {
       name: 'Share user',
       icon: 'share-variant' as const,
-      action: () => user && Share.share({ message: user.remoteId ?? `${BASE_URL}/blog/${user.url}` }),
+      action: () => user && Share.share({ message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}` }),
     },
     {
       name: `${user.muted ? 'Unmute' : 'Mute'} user`,
@@ -103,7 +103,7 @@ export default function UserDetail({ user }: { user: User }) {
       disabled: isMe || serverBlockMutation.isPending,
       action: () => serverBlockMutation.mutate(user.serverBlocked),
     },
-  ], [user, isMe, muteMutation, blockMutation, serverBlockMutation])
+  ], [user, env, isMe, muteMutation, blockMutation, serverBlockMutation])
 
   const sx = useSafeAreaPadding()
 

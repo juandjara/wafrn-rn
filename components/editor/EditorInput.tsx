@@ -1,6 +1,5 @@
 import { PostUser } from "@/lib/api/posts.types"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { BASE_URL } from "@/lib/config"
 import useDebounce from "@/lib/useDebounce"
 import { MaterialIcons } from "@expo/vector-icons"
 import { useLocalSearchParams } from "expo-router"
@@ -11,6 +10,7 @@ import colors from "tailwindcss/colors"
 import EditorSuggestions from "./EditorSuggestions"
 import { EditorImage } from "./EditorImages"
 import { clearSelectionRangeFormat, MENTION_REGEX } from "@/lib/api/content"
+import { useAuth } from "@/lib/contexts/AuthContext"
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -43,6 +43,7 @@ export default function EditorInput({
   showTags = true,
   autoFocus = true,
 }: EditorProps) {
+  const { env } = useAuth()
   const tagsLine = formState.tags
   const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
   const { type } = useLocalSearchParams<{ type: 'reply' | 'ask' | 'quote' }>()
@@ -70,7 +71,7 @@ export default function EditorInput({
 
   function selectMentionUser(data: Suggestion) {
     const id = (data as PostUser).id
-    const remoteId = (data as PostUser).remoteId || `${BASE_URL}/blog/${(data as PostUser).url}`
+    const remoteId = (data as PostUser).remoteId || `${env?.BASE_URL}/blog/${(data as PostUser).url}`
     const newText = mentionState.plainText.replace(
       `@${debouncedMentionKeyword}`,
       `[${data.name}](${remoteId}?id=${id}) `

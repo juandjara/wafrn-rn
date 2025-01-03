@@ -1,7 +1,6 @@
 import { Post } from "@/lib/api/posts.types";
 import { PrivacyLevel } from "@/lib/api/privacy";
-import { BASE_URL } from "@/lib/config";
-import { useParsedToken } from "@/lib/contexts/AuthContext";
+import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext";
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
@@ -26,6 +25,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
 }) {
   const { postid } = useLocalSearchParams()
   const me = useParsedToken()
+  const { env } = useAuth()
   const context = useDashboardContext()
   const [reportModalOpen, setReportModalOpen] = useState(false)
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
@@ -150,7 +150,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
       {
         action: () => {
           Share.share({
-            message: `${BASE_URL}/fediverse/post/${post.id}`,
+            message: `${env?.BASE_URL}/fediverse/post/${post.id}`,
           })
         },
         icon: <MaterialCommunityIcons name='share-variant' size={20} />,

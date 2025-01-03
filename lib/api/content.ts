@@ -199,9 +199,6 @@ export function getTextFromMentionState(mentionState: MentionApi['mentionState']
     const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
     if (trigger === '@') {
       text += part.data?.name || part.text
-      // const url = part.data?.name
-      // const remoteId = part.data?.id
-      // text += url ? formatMentionHTML(url, remoteId) : part.text
       continue
     }
     if (trigger === '**') {

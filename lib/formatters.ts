@@ -1,28 +1,35 @@
-import { CACHE_URL, MEDIA_URL } from "./config"
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { getEnvironmentStatic } from "./api/auth"
 
 dayjs.extend(relativeTime)
 
 export function unfurlCacheUrl(url: string) {
-  if (!url.startsWith(CACHE_URL)) {
+  const env = getEnvironmentStatic()
+  if (!url.startsWith(env!.CACHE_URL)) {
     return url
   }
-  return decodeURIComponent(url.replace(CACHE_URL, ''))
+  return decodeURIComponent(url.replace(env!.CACHE_URL, ''))
 }
 
 export function formatCachedUrl(url: string) {
-  return `${CACHE_URL}${encodeURIComponent(url)}`
+  const env = getEnvironmentStatic()
+  return `${env?.CACHE_URL}${encodeURIComponent(url)}`
 }
 
-export function formatMediaUrl(url: string) {
+export function formatMediaUrl(url?: string) {
+  if (!url) {
+    return ''
+  }
+
+  const env = getEnvironmentStatic()
   if (url.startsWith("http")) {
     return url
   }
   if (url.startsWith("?")) {
     return url
   }
-  return `${MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
+  return `${env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
 export function formatSmallAvatar(link?: string) {
