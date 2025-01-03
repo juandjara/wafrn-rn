@@ -69,3 +69,44 @@ export function useDeleteAskMutation() {
     }
   })
 }
+
+type AskPayload = {
+  question: string
+  userAskedUrl: string
+  anonymous: boolean
+}
+
+async function ask(token: string, payload: Omit<AskPayload, 'anonymous'>) {
+  const url = `${API_URL}/user/${payload.userAskedUrl}/ask`
+  await getJSON(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token ? `Bearer ${token}` : ''
+    },
+    body: JSON.stringify({ question: payload.question })
+  })
+}
+
+export function useAskMutation() {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationKey: ['ask'],
+    mutationFn: ({ anonymous, question, userAskedUrl }: AskPayload) => {
+      return ask(anonymous ? token! : '', { question, userAskedUrl })
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to ask`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Question asked`)
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === 'asks' || query.queryKey[0] === 'notificationsBadge'
+      })
+    }
+  })
+}

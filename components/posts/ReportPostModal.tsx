@@ -19,7 +19,7 @@ export default function ReportPostModal({ open, onClose, post }: {
   const mutation = useReportPostMutation()
 
   function onSubmit() {
-    mutation.mutateAsync({
+    mutation.mutate({
       postId: post.id,
       severity,
       description
