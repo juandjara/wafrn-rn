@@ -34,8 +34,15 @@ export default function ReportList() {
 
 function ReportListItem({ report }: { report: Report }) {
   const ignoreReportMutation = useIgnoreReportMutation()
-  const banMutation = useToggleBanUserMutation(report.user)
+  const banMutation = useToggleBanUserMutation()
   const actionDisabled = ignoreReportMutation.isPending || banMutation.isPending || report.resolved
+
+  function banUser() {
+    banMutation.mutate({
+      isBanned: false, // assume user is not banned previously
+      userId: report.post.userId
+    })
+  }
   
   return (
     <View className="p-3 bg-gray-800 rounded-lg mb-3">
@@ -111,7 +118,7 @@ function ReportListItem({ report }: { report: Report }) {
               'opacity-50': actionDisabled,
             },
           )}
-          onPress={() => banMutation.mutate(false)} // assume user is not banned previously
+          onPress={banUser}
         >
           <MaterialCommunityIcons name="close" size={20} color="white" />
           <Text className="text-white">

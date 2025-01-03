@@ -133,7 +133,10 @@ async function banList(token: string) {
       Authorization: `Bearer ${token}`
     }
   })
-  return json as { id: string; url: string; avatar: string }[]
+  const data = json as {
+    users: { id: string; url: string; avatar: string }[]
+  }
+  return data.users
 }
 
 export function useBanList() {
@@ -163,15 +166,20 @@ async function toggleBanUser({
   })
 }
 
-export function useToggleBanUserMutation(user: PostUser) {
+type BanPayload = {
+  userId: string;
+  isBanned: boolean;
+}
+
+export function useToggleBanUserMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
   return useMutation({
-    mutationKey: ['ban-user', user.id],
-    mutationFn: async (isBanned: boolean) => {
+    mutationKey: ['ban-user'],
+    mutationFn: async ({ isBanned, userId }: BanPayload) => {
       await toggleBanUser({
         token: token!,
-        userId: user.id,
+        userId,
         isBanned
       })
     },
