@@ -85,7 +85,7 @@ export function useEnvironment() {
   const { data, isLoading } = useQuery({
     queryKey: ['environment'],
     queryFn: async () => {
-      const env = await getInstanceEnvironment(value!)
+      const env = await getInstanceEnvironment(value! || DEFAULT_INSTANCE)
       return env
     },
     enabled: !!value
