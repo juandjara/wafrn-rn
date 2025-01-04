@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
-import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
 import { EmojiBase } from "./emojis"
 import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
+import { getEnvironmentStatic } from "./auth"
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
@@ -141,7 +141,8 @@ type Settings = {
 }
 
 export async function getSettings(token: string) {
-  const url = `${API_URL}/my-ui-options`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/my-ui-options`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`

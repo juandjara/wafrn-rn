@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PostAsk, PostUser } from "./api/posts.types";
-import { API_URL } from "./config";
 import { getJSON } from "./http";
 import { useAuth } from "./contexts/AuthContext";
 import { showToastError, showToastSuccess } from "./interaction";
+import { getEnvironmentStatic } from "./api/auth";
 
 export type UserAsk = { id: number } & Pick<PostAsk, 'apObject' | 'question' | 'userAsker'>
 export type UserAsksData = {
@@ -12,7 +12,8 @@ export type UserAsksData = {
 }
 
 export async function getAsks(token: string) {
-  const json = await getJSON(`${API_URL}/user/myAsks`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/user/myAsks`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -39,7 +40,8 @@ export function useAsks() {
 }
 
 async function deleteAsk(token: string, askId: number) {
-  await getJSON(`${API_URL}/user/ignoreAsk`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/ignoreAsk`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -77,7 +79,8 @@ type AskPayload = {
 }
 
 async function ask(token: string, payload: Omit<AskPayload, 'anonymous'>) {
-  const url = `${API_URL}/user/${payload.userAskedUrl}/ask`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/user/${payload.userAskedUrl}/ask`
   await getJSON(url, {
     method: 'POST',
     headers: {

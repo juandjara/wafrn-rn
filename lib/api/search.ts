@@ -1,10 +1,10 @@
-import { API_URL } from "../config";
 import { getJSON } from "../http";
 import { DashboardData, PostUser } from "./posts.types";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { useAuth } from "../contexts/AuthContext";
 import { useMemo } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getEnvironmentStatic } from "./auth";
 
 export enum SearchView {
   Users = 'users',
@@ -40,7 +40,8 @@ export async function search({
   if (term.startsWith('#')) {
     term = term.slice(1)
   }
-  const json = await getJSON(`${API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -78,7 +79,8 @@ export function useSearch(query: string, view: SearchView) {
 }
 
 export async function searchUser(token: string, handlePart: string) {
-  const json = await getJSON(`${API_URL}/userSearch/${encodeURIComponent(handlePart)}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/userSearch/${encodeURIComponent(handlePart)}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

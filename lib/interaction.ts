@@ -2,9 +2,9 @@ import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Post, PostUser } from "./api/posts.types"
 import { useAuth } from "./contexts/AuthContext"
 import { getJSON } from "./http"
-import { API_URL } from "./config"
 import { toast } from "@backpackapp-io/react-native-toast"
 import colors from "tailwindcss/colors"
+import { getEnvironmentStatic } from "./api/auth"
 
 export async function toggleLikePost({
   token, postId, isLiked
@@ -13,7 +13,8 @@ export async function toggleLikePost({
   postId: string
   isLiked: boolean
 }) {
-  await getJSON(`${API_URL}/${isLiked ? 'unlike' : 'like'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isLiked ? 'unlike' : 'like'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -81,7 +82,8 @@ export async function toggleFollowUser({
   userId: string
   isFollowing: boolean
 }) {
-  await getJSON(`${API_URL}/${isFollowing ? 'unfollow' : 'follow'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isFollowing ? 'unfollow' : 'follow'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

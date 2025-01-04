@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON, statusError, StatusError } from "../http"
 import { DashboardData, Post, PostUser } from "./posts.types"
@@ -8,6 +7,7 @@ import { PrivacyLevel } from "./privacy"
 import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
 import { EditorImage } from "@/components/editor/EditorImages"
 import { BSKY_URL } from "./content"
+import { getEnvironmentStatic } from "./auth"
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -15,7 +15,8 @@ export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(token: string, id: string) {
   try {
-    const json = await getJSON(`${API_URL}/v2/post/${id}`, {
+    const env = getEnvironmentStatic()
+    const json = await getJSON(`${env?.API_URL}/v2/post/${id}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -54,7 +55,8 @@ export type PostDescendants = {
  * @deprecated Use `getPostReplies` instead
  */
 export async function getPostDescendants(token: string, id: string) {
-  const json = await getJSON(`${API_URL}/v2/descendents/${id}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v2/descendents/${id}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -89,7 +91,8 @@ export function usePostDescendants(id: string) {
   - not paginated, can return lots of posts
 */
 export async function getPostReplies(token: string, id: string) {
-  const json = await getJSON(`${API_URL}/forum/${id}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -120,7 +123,8 @@ export function sortPosts(a: Timestamps, b: Timestamps) {
 }
 
 export async function requestMoreRemoteReplies(token: string, id: string) {
-  await getJSON(`${API_URL}/loadRemoteResponses?id=${id}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/loadRemoteResponses?id=${id}`, {
     headers: { 'Authorization': `Bearer ${token}` }
   })
 }
@@ -159,7 +163,8 @@ export async function arbitraryWaitPostQueue() {
 }
 
 export async function createPost(token: string, payload: CreatePostPayload) {
-  const data = await getJSON(`${API_URL}/v3/createPost`, {
+  const env = getEnvironmentStatic()
+  const data = await getJSON(`${env?.API_URL}/v3/createPost`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -223,7 +228,8 @@ export async function rewoot(token: string, postId: string) {
 }
 
 export async function deleteRewoot(token: string, postId: string) {
-  await getJSON(`${API_URL}/deleteRewoots?id=${postId}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/deleteRewoots?id=${postId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -257,7 +263,8 @@ export function useRewootMutation(post: Post) {
 }
 
 export async function deletePost(token: string, postId: string) {
-  await getJSON(`${API_URL}/deletePost?id=${postId}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/deletePost?id=${postId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -287,7 +294,8 @@ export function useDeleteMutation(post: Post) {
 }
 
 export async function voteOnPoll(token: string, pollId: number, votes: number[]) {
-  await getJSON(`${API_URL}/v2/pollVote/${pollId}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v2/pollVote/${pollId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

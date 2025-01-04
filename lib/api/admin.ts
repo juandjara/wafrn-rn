@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { API_URL } from "../config";
 import { useAuth } from "../contexts/AuthContext";
 import { getJSON } from "../http";
 import { showToastSuccess } from "../interaction";
 import type { Report } from "./reports";
+import { getEnvironmentStatic } from "./auth";
 
 export type UserForApproval = {
   id: string
@@ -14,7 +14,8 @@ export type UserForApproval = {
 }
 
 async function getUsersForApproval(token: string) {
-  const url = `${API_URL}/admin/getPendingApprovalUsers`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/getPendingApprovalUsers`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -32,7 +33,8 @@ export function useUsersForApproval() {
 }
 
 async function activateUser(token: string, userId: string) {
-  const url = `${API_URL}/admin/activateUser`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/activateUser`
   await getJSON(url, {
     method: 'POST',
     headers: {
@@ -44,7 +46,8 @@ async function activateUser(token: string, userId: string) {
 }
 
 async function requireEmailConfirmation(token: string, userId: string) {
-  const url = `${API_URL}/admin/notActivateAndSendEmail`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/notActivateAndSendEmail`
   await getJSON(url, {
     method: 'POST',
     headers: {
@@ -76,7 +79,8 @@ export function useNewUserMutation() {
 }
 
 async function getReportList(token: string) {
-  const url = `${API_URL}/admin/reportList`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/reportList`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -98,7 +102,8 @@ export function useReportList() {
 }
 
 async function ignoreReport(token: string, reportId: number) {
-  const url = `${API_URL}/admin/ignoreReport`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/ignoreReport`
   await getJSON(url, {
     method: 'POST',
     headers: {
@@ -126,7 +131,8 @@ export function useIgnoreReportMutation() {
 /** BANNED USERS */
 
 async function banList(token: string) {
-  const url = `${API_URL}/admin/getBannedUsers`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/getBannedUsers`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -154,7 +160,8 @@ async function toggleBanUser({
   userId: string;
   isBanned: boolean;
 }) {
-  const url = `${API_URL}/admin/${isBanned ? 'unbanUser' : 'banUser'}`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/${isBanned ? 'unbanUser' : 'banUser'}`
   await getJSON(url, {
     method: 'POST',
     headers: {

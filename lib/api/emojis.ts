@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { API_URL } from "../config"
 import { useAuth } from "../contexts/AuthContext"
 import { getJSON } from "../http"
 import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
 import { Post } from "./posts.types"
+import { getEnvironmentStatic } from "./auth"
 
 export type EmojiBase = {
   external: boolean
@@ -27,7 +27,8 @@ type EmojiReactPayload = {
 }
 
 export async function emojiReact(token: string, { post, emojiName }: EmojiReactPayload) {
-  await getJSON(`${API_URL}/emojiReact`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/emojiReact`, {
     method: 'POST',
     body: JSON.stringify({ postId: post.id, emojiName }),
     headers: {

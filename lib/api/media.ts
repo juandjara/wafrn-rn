@@ -1,5 +1,4 @@
 import { PostMedia } from "./posts.types"
-import { API_URL } from "../config"
 import { useMutation } from "@tanstack/react-query"
 import { isValidURL } from "./content"
 import { Timestamps } from "./types"
@@ -84,7 +83,8 @@ export type MediaUploadPayload = {
 }
 
 export async function uploadMedia(token: string, payload: MediaUploadPayload) {
-  const url = `${API_URL}/uploadMedia`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/uploadMedia`
   const res = await uploadFile({
     uploadUrl: url,
     fileUri: payload.uri,

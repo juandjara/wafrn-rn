@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { useAuth } from "../contexts/AuthContext"
 import { showToastError, showToastSuccess } from "../interaction"
 import { Post, PostUser } from "./posts.types"
 import { useMemo } from "react"
+import { getEnvironmentStatic } from "./auth"
 
 /*
  * USER BLOCKS
@@ -17,7 +17,8 @@ export async function toggleBlockUser({
   userId: string
   isBlocked: boolean
 }) {
-  await getJSON(`${API_URL}/${isBlocked ? 'unblock' : 'block'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isBlocked ? 'unblock' : 'block'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,7 +64,8 @@ type Block = {
 }
 
 async function getBlocks(token: string) {
-  const json = await getJSON(`${API_URL}/myBlocks`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/myBlocks`, {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -96,7 +98,8 @@ export async function toggleMuteUser({
   userId: string
   isMuted: boolean
 }) {
-  await getJSON(`${API_URL}/${isMuted ? 'unmute' : 'mute'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isMuted ? 'unmute' : 'mute'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -142,7 +145,8 @@ type Mute = {
 }
 
 async function getMutes(token: string) {
-  const json = await getJSON(`${API_URL}/myMutes`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/myMutes`, {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -175,7 +179,8 @@ export async function toggleSilencePost({
   postId: string
   isSilenced: boolean
 }) {
-  await getJSON(`${API_URL}/v2/${isSilenced ? 'unsilencePost' : 'silencePost'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v2/${isSilenced ? 'unsilencePost' : 'silencePost'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -221,7 +226,8 @@ async function toggleServerBlock({
   userId: string
   isBlocked: boolean
 }) {
-  await getJSON(`${API_URL}/${isBlocked ? 'unblockServer' : 'blockUserServer'}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isBlocked ? 'unblockServer' : 'blockUserServer'}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -269,7 +275,8 @@ type ServerBlock = {
 }
 
 async function getServerBlocks(token: string) {
-  const json = await getJSON(`${API_URL}/myServerBlocks`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/myServerBlocks`, {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -291,7 +298,8 @@ export function useServerBlocks() {
 }
 
 async function unblockServer(token: string, serverId: string) {
-  await getJSON(`${API_URL}/unblockServer`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/unblockServer`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

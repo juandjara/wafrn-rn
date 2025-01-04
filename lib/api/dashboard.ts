@@ -1,11 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { API_URL } from "../config";
 import { getJSON } from "../http";
 import { DashboardData } from "./posts.types";
 import { useAuth } from "../contexts/AuthContext";
 import { DashboardContextData } from "../contexts/DashboardContext";
 import { Timestamps } from "./types";
 import { useNotificationBadges } from "../notifications";
+import { getEnvironmentStatic } from "./auth";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -24,7 +24,8 @@ export async function getDashboard({
   startTime: number
   token: string
 }) {
-  const json = await getJSON(`${API_URL}/v2/dashboard?level=${mode}&startScroll=${startTime}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v2/dashboard?level=${mode}&startScroll=${startTime}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -202,7 +203,8 @@ export async function getUserFeed({
   userId: string
   token: string
 }) {
-  const json = await getJSON(`${API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }

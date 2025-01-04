@@ -1,5 +1,4 @@
 import { useMemo } from "react"
-import { API_URL } from "./config"
 import { getJSON } from "./http"
 import { useAuth } from "./contexts/AuthContext"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
@@ -7,6 +6,7 @@ import { DashboardData, Post, PostAsk, PostEmojiReaction, PostMedia, PostQuote, 
 import { Follow } from "./api/user"
 import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
+import { getEnvironmentStatic } from "./api/auth"
 
 type NotificationsBadges = {
   asks: number
@@ -25,7 +25,8 @@ function getLastDate(posts: Timestamps[]) {
 }
 
 export async function getNotificationBadges({ token, time }: { token: string; time: number }) {
-  const json = await getJSON(`${API_URL}/v2/notificationsCount?startScroll=${time}`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v2/notificationsCount?startScroll=${time}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -97,8 +98,9 @@ export type NotificationDetails = FollowNotification | LikeNotification | Reblog
 
 
 export async function getNotifications({ token, payload }: { token: string; payload: NotificationPayload }) {
+  const env = getEnvironmentStatic()
   const params = new URLSearchParams(payload as any) // force string coercion
-  const json = await getJSON(`${API_URL}/v2/notificationsScroll?${params.toString()}`, {
+  const json = await getJSON(`${env?.API_URL}/v2/notificationsScroll?${params.toString()}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

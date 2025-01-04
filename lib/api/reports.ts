@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { API_URL } from "../config"
 import { getJSON } from "../http"
 import { Post, PostUser } from "./posts.types"
 import { Timestamps } from "./types"
 import { useAuth } from "../contexts/AuthContext"
 import { showToastError, showToastSuccess } from "../interaction"
+import { getEnvironmentStatic } from "./auth"
 
 export enum ReportSeverity {
   SPAM = 1,
@@ -53,7 +53,8 @@ type ReportPayload = {
 }
 
 async function reportPost(token: string, payload: ReportPayload) {
-  const url = `${API_URL}/reportPost`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/reportPost`
   await getJSON(url, {
     method: 'POST',
     headers: {

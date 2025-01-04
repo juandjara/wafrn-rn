@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { API_URL } from "../config";
 import { getJSON, statusError, StatusError, uploadFile } from "../http";
-import { parseToken } from "./auth";
+import { getEnvironmentStatic, parseToken } from "./auth";
 import { EmojiBase, UserEmojiRelation } from "./emojis";
 import { Timestamps } from "./types";
 import { useAuth, useParsedToken } from "../contexts/AuthContext";
@@ -58,7 +57,8 @@ export async function getUser(token: string, handle?: string) {
     handle = parsed.url
   }
   try {
-    const json = await getJSON(`${API_URL}/user?id=${handle}`, {
+    const env = getEnvironmentStatic()
+    const json = await getJSON(`${env?.API_URL}/user?id=${handle}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -102,7 +102,8 @@ export type Follow = Omit<PostUser, 'remoteId'> & {
 }
 
 export async function getFollowers(token: string, handle: string) {
-  const json = await getJSON(`${API_URL}/user/${handle}/follows?followers=false`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/user/${handle}/follows?followers=false`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -110,7 +111,8 @@ export async function getFollowers(token: string, handle: string) {
   return json as Follow[]
 }
 export async function getFollowed(token: string, handle: string) {
-  const json = await getJSON(`${API_URL}/user/${handle}/follows?followers=true`, {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/user/${handle}/follows?followers=true`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -177,7 +179,8 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
     formData.append('headerImage', payload.headerImage as any)
   }
 
-  await getJSON(`${API_URL}/editProfile`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/editProfile`, {
     method: 'POST',
     body: formData,
     headers: {
@@ -210,7 +213,8 @@ export function useEditProfileMutation() {
 }
 
 async function approveFollow(token: string, followId: string) {
-  await getJSON(`${API_URL}/user/approveFollow/${followId}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/approveFollow/${followId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     },
@@ -246,7 +250,8 @@ export function useApproveFollowMutation() {
 }
 
 async function deleteFollow(token: string, followId: string) {
-  await getJSON(`${API_URL}/user/deleteFollow/${followId}`, {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/deleteFollow/${followId}`, {
     headers: {
       'Authorization': `Bearer ${token}`
     },
@@ -287,7 +292,8 @@ type MastodonCSVParseResponse = {
 }
 
 async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
-  const url = `${API_URL}/loadFollowList`
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/loadFollowList`
   const json = await uploadFile({
     uploadUrl: url,
     fileUri: localFileUri,
