@@ -1,5 +1,6 @@
 import Header, { HEADER_HEIGHT } from "@/components/Header";
 import { useBanList, useToggleBanUserMutation } from "@/lib/api/admin";
+import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import clsx from "clsx";
 import { Image } from "expo-image";
@@ -24,7 +25,7 @@ export default function BanList() {
             <View className="flex-row items-center gap-3">
               <Image
                 recyclingKey={item.id}
-                source={{ uri: item.avatar }}
+                source={{ uri: formatCachedUrl(formatMediaUrl(item.avatar)) }}                
                 style={{
                   width: 52,
                   height: 52,

@@ -4,6 +4,7 @@ import { getJSON } from "../http";
 import { showToastSuccess } from "../interaction";
 import type { Report } from "./reports";
 import { getEnvironmentStatic } from "./auth";
+import { Timestamps } from "./types";
 
 export type UserForApproval = {
   id: string
@@ -192,5 +193,84 @@ export function useToggleBanUserMutation() {
     onSettled: () => qc.invalidateQueries({
       predicate: (query) => query.queryKey[0] === 'ban-list' || query.queryKey[0] === 'notificationsBadge'
     }),
+  })
+}
+
+function sortByTimestamp(a: Timestamps, b: Timestamps) {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
+type UserBlockListItem = Timestamps & {
+  remoteBlockId: string | null
+  reason: string | null
+  blockedId: string
+  blocked: { url: string; avatar: string }
+  blockerId: string
+  blocker: { url: string; avatar: string }
+}
+type ServerBlockListItem = Timestamps & {
+  id: number
+  userBlockerId: string
+  userBlocker: { url: string; avatar: string }
+  blockedServerId: string
+  blockedServer: { displayName: string }
+}
+type BlockList = {
+  userBlocks: UserBlockListItem[]
+  userServerBlocks: ServerBlockListItem[]
+}
+
+async function getUserBlocklist(token: string) {
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/userBlockList`
+  const json = await getJSON(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  const data = json as BlockList
+  const blockedUsers = data.userBlocks.map((b) => ({
+    createdAt: b.createdAt,
+    updatedAt: b.updatedAt,
+    id: `${b.blockerId}-${b.blockedId}`,
+    reason: b.reason,
+    type: 'user' as const,
+    user: {
+      id: b.blockerId,
+      url: b.blocker.url,
+      avatar: b.blocker.avatar
+    },
+    blockedUser: {
+      id: b.blockedId,
+      url: b.blocked.url,
+      avatar: b.blocked.avatar
+    },
+  }))
+  const blockedServers = data.userServerBlocks.map((b) => ({
+    createdAt: b.createdAt,
+    updatedAt: b.updatedAt,
+    id: `${b.userBlockerId}-${b.blockedServerId}`,
+    reason: null,
+    type: 'server' as const,
+    user: {
+      id: b.userBlockerId,
+      url: b.userBlocker.url,
+      avatar: b.userBlocker.avatar
+    },
+    blockedServer: {
+      id: b.blockedServerId,
+      displayName: b.blockedServer.displayName
+    }
+  }))
+  const list = [...blockedUsers, ...blockedServers].sort(sortByTimestamp)
+  return list
+}
+
+export function useBlocklists() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['blocklists'],
+    queryFn: () => getUserBlocklist(token!),
+    enabled: !!token
   })
 }

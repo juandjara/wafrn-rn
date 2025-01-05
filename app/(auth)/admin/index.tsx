@@ -41,8 +41,8 @@ export default function AdminIndex() {
       icon: 'account-off-outline' as const,
     },
     {
-      label: 'Block lists',
-      link: 'admin/block-lists',
+      label: 'User blocklists',
+      link: 'admin/user-blocklists',
       icon: 'account-cancel-outline' as const,
     },
     {
