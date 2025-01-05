@@ -67,12 +67,15 @@ function _PostHtmlRenderer({
     const renderedHtml = renderDom(dom.children)
     renderContext.current = {}
 
+    const uniqueLinks = Array.from(new Set(links.map((node) => node.attribs.href)))
+    const ytLinks = uniqueLinks.map((link) => ({
+      href: link,
+      image: getYoutubeImage(link),
+    })).filter((link) => link.image)
+
     return {
       renderedHtml,
-      ytLinks: links.map((node) => ({
-        href: node.attribs.href,
-        image: getYoutubeImage(node.attribs.href),
-      })).filter((link) => link.image),
+      ytLinks,
     }
     // ignore dependency on 'renderDom' function
     // eslint-disable-next-line react-hooks/exhaustive-deps
