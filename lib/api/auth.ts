@@ -15,9 +15,9 @@ export type ParsedToken = {
   userId: string
 }
 
-function isValidURL(str: string) {
+function isValidURL(str: string, base?: string) {
   try {
-    new URL(str)
+    new URL(str, base)
     return true
   } catch {
     return false
@@ -67,15 +67,24 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const url = `${instanceURL}/api/environment`
   const res = await getJSON(url)
   const env = res as EnvironmenResponse
+
   if (env.maintenance) {
     throw new Error('Sorry, this instance is in maintenance mode. Check back soon')
   }
 
-  const API_URL = env.baseUrl
-  const MEDIA_URL = env.baseMediaUrl
-  const CACHE_URL = env.externalCacheurl
-  const BASE_URL = new URL(env.baseUrl).origin
-  const CACHE_HOST = new URL(env.externalCacheurl).host
+  const isValid = isValidURL(env.baseUrl, instanceURL)
+     && isValidURL(env.baseMediaUrl, instanceURL)
+     && isValidURL(env.externalCacheurl, instanceURL)
+
+  if (!isValid) {
+    throw new Error('Invalid environment response. baseUrl, baseMediaUrl, and externalCacheurl must be valid URLs')
+  }
+
+  const API_URL = new URL(env.baseUrl, instanceURL).href
+  const MEDIA_URL = new URL(env.baseMediaUrl, instanceURL).href
+  const CACHE_URL = new URL(env.externalCacheurl, instanceURL).href
+  const BASE_URL = new URL(env.baseUrl, instanceURL).origin
+  const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
 
   return { API_URL, MEDIA_URL, CACHE_URL, BASE_URL, CACHE_HOST }
 }
@@ -99,13 +108,8 @@ export function useEnvCheckMutation() {
     // this mutation returns nothing, it is just used to check if the environment is valid
     // if the function does not throw an error, this instance environment is marked valid
     mutationFn: async (instance) => {
-      const env = await getInstanceEnvironment(instance || DEFAULT_INSTANCE)
-      const isValid = isValidURL(env.API_URL) && isValidURL(env.MEDIA_URL) && isValidURL(env.CACHE_URL)
-      if (!isValid) {
-        throw new Error('Invalid environment response. baseUrl, baseMediaUrl, and externalCacheurl must be valid URLs')
-      }
+      await getInstanceEnvironment(instance || DEFAULT_INSTANCE)
     },
-    
   })
 }
 
