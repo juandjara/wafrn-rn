@@ -21,7 +21,7 @@ export default function AdminIndex() {
     },
     {
       label: 'Server stats',
-      link: 'admin/stats',
+      link: 'admin/server-stats',
       icon: 'chart-line' as const,
     },
     {

@@ -75,6 +75,7 @@ export default function ProtectedLayout() {
       <Stack.Screen name='admin/banned-users' />
       <Stack.Screen name='admin/user-blocklists' />
       <Stack.Screen name='admin/server-list' />
+      <Stack.Screen name='admin/server-stats' />
     </Stack>
   )
 }

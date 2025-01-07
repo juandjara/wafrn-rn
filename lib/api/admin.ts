@@ -309,3 +309,65 @@ export function useServerList(query: string) {
     enabled: !!token
   })
 }
+
+type WellKnownNodeInfo = {
+  version: string
+  software: {
+    name: string
+    version: string
+  }
+  protocols: string[]
+  services: {
+    inbound: string[]
+    outbound: string[]
+  }
+  usage: {
+    users: {
+      total: number
+      activeMonth: number
+      activeHalfyear: number
+    }
+    localPosts: number
+  }
+  openRegistrations: boolean
+  metadata: unknown
+}
+
+async function getWellKnownNodeInfo() {
+  const env = getEnvironmentStatic()
+  const url = `${env?.BASE_URL}/.well-known/nodeinfo/2.0`
+  const json = await getJSON(url)
+  return json as WellKnownNodeInfo
+}
+
+type QueueStats = {
+  sendPostAwaiting: number
+  prepareSendPostAwaiting: number
+  inboxAwaiting: number
+  deletePostAwaiting: number
+  atProtoAwaiting: number
+}
+
+async function getQueueStats(token: string) {
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/status/workerStats`
+  const json = await getJSON(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  return json as QueueStats
+}
+
+export function useServerStats() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['server-stats'],
+    queryFn: async () => {
+      const queueStats = await getQueueStats(token!)
+      const nodeInfo = await getWellKnownNodeInfo()
+      return { queueStats, nodeInfo }
+    },
+    enabled: !!token
+  })
+}
