@@ -274,3 +274,38 @@ export function useBlocklists() {
     enabled: !!token
   })
 }
+
+type ServerListItem = Timestamps & {
+  id: string
+  displayName: string
+  publicInbox: string // URL
+  publicKey: string | null
+  detail: string | null
+  blocked: boolean
+  friendServer: boolean
+}
+
+async function serverList(token: string, query: string) {
+  const env = getEnvironmentStatic()
+  const url = `${env?.API_URL}/admin/server-list`
+  const json = await getJSON(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+  const data = json as { servers: ServerListItem[] }
+  return data.servers
+    .filter((s) => s ? s.displayName.toLowerCase().includes(query.toLowerCase()) : true)
+    .sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    })
+}
+
+export function useServerList(query: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['server-list', query],
+    queryFn: () => serverList(token!, query),
+    enabled: !!token
+  })
+}

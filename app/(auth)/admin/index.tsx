@@ -26,7 +26,7 @@ export default function AdminIndex() {
     },
     {
       label: 'Server list',
-      link: 'admin/servers',
+      link: 'admin/server-list',
       icon: 'server' as const,
     },
     {
