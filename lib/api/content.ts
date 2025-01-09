@@ -3,7 +3,7 @@ import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
-import { getPrivateOptionValue, PrivateOption, PrivateOptionNames } from "./settings"
+import { getPrivateOptionValue, PrivateOption, PrivateOptionNames, PublicOption } from "./settings"
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -387,3 +387,48 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
 
   return fullReactions
 }
+
+
+export function getDerivedPostState(
+  post: Post,
+  context: DashboardContextData,
+  options: PrivateOption[] & PublicOption[]
+) {
+  const user = context.users.find((u) => u.id === post.userId)
+  const userName = replaceEmojis(user?.name || '', context.emojiRelations.emojis)
+  const postContent = processPostContent(post, context)
+  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+  // const options = settings?.options || []
+
+  // this processes the option "wafrn.disableNSFWCloak"
+  const { medias, inlineMedias } = separateInlineMedias(post, context, options)
+  
+  const quotedPostId = /* !isQuote &&  */ context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
+  const quotedPost = quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
+  const ask = getAskData(post, context)
+  const poll = context.polls.find((p) => p.postId === post.id)
+  const reactions = groupPostReactions(post, context)
+
+  // edition is considered if the post was updated more than 1 minute after it was created
+  const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
+
+  // this proccesses the options "wafrn.disableCW" and "wafrn.mutedWords"
+  const { contentWarning, initialCWOpen } = processContentWarning(post, context, options)
+
+  return {
+    user,
+    userName,
+    postContent,
+    tags,
+    medias,
+    inlineMedias,
+    quotedPost,
+    ask,
+    poll,
+    reactions,
+    isEdited,
+    contentWarning,
+    initialCWOpen,
+  }
+}
+

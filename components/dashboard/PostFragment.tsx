@@ -8,13 +8,9 @@ import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
 import Media from "../posts/Media"
 import { Link, useLocalSearchParams } from "expo-router"
 import {
-  getAskData,
-  groupPostReactions,
+  getDerivedPostState,
   isEmptyRewoot,
   processContentWarning,
-  processPostContent,
-  replaceEmojis,
-  separateInlineMedias
 } from "@/lib/api/content"
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 import colors from "tailwindcss/colors"
@@ -64,43 +60,12 @@ export default function PostFragment({
     contentWarning,
     initialCWOpen,
   } = useMemo(() => {
-    const user = context.users.find((u) => u.id === post.userId)
-    const userName = replaceEmojis(user?.name || '', context.emojiRelations.emojis)
-    const postContent = processPostContent(post, context)
-    const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
     const options = settings?.options || []
+    const derivedState = getDerivedPostState(post, context, options)
+    return derivedState
+  }, [post, context, settings])
 
-    // this processes the option "wafrn.disableNSFWCloak"
-    const { medias, inlineMedias } = separateInlineMedias(post, context, options)
-    
-    const quotedPostId = !isQuote && context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
-    const quotedPost = quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
-    const ask = getAskData(post, context)
-    const poll = context.polls.find((p) => p.postId === post.id)
-    const reactions = groupPostReactions(post, context)
-
-    // edition is considered if the post was updated more than 1 minute after it was created
-    const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
-
-    // this proccesses the options "wafrn.disableCW" and "wafrn.mutedWords"
-    const { contentWarning, initialCWOpen } = processContentWarning(post, context, options)
-
-    return {
-      user,
-      userName,
-      postContent,
-      tags,
-      medias,
-      inlineMedias,
-      quotedPost,
-      ask,
-      poll,
-      reactions,
-      isEdited,
-      contentWarning,
-      initialCWOpen,
-    }
-  }, [post, context, settings, isQuote])
+  const showQuotedPost = quotedPost && !isQuote
 
   const [CWOpen, setCWOpen] = useState(initialCWOpen)
   const [collapsed, setCollapsed] = useState(true)
@@ -215,7 +180,7 @@ export default function PostFragment({
                     size={24}
                   />
                 )}
-                {quotedPost && (
+                {showQuotedPost && (
                   <MaterialIcons
                     name='format-quote'
                     size={24}
@@ -318,7 +283,7 @@ export default function PostFragment({
                   ))}
                 </View>
               )}
-              {quotedPost && (
+              {showQuotedPost && (
                 <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
                   <PostFragment isQuote post={quotedPost} />
                 </View>
