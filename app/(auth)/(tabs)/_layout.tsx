@@ -41,6 +41,14 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{
+          href: '/search',
+          title: 'Search',
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="magnify" size={size} color={color} />
+        }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
           href: '/notifications',
@@ -51,14 +59,6 @@ export default function TabsLayout() {
             color: colors.white,
           },
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          href: '/search',
-          title: 'Search',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="magnify" size={size} color={color} />
         }}
       />
       <Tabs.Screen
