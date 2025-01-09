@@ -51,41 +51,6 @@ export type PostDescendants = {
   users: Omit<PostUser, 'remoteId'>[]
 }
 
-/**
- * @deprecated Use `getPostReplies` instead
- */
-export async function getPostDescendants(token: string, id: string) {
-  const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/v2/descendents/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
-  json.posts = json.posts.map(({ len, ...post }: any) => {
-    return {
-      ...post,
-      type: len === 0 ? 'rewoot' : 'reply'
-    }
-  }).sort((a: any, b: any) => {
-    const aTime = new Date(a.createdAt).getTime()
-    const bTime = new Date(b.createdAt).getTime()
-    return aTime - bTime
-  })
-  return json as PostDescendants
-}
-
-/** 
- * @deprecated Use `usePostReplies` instead
- */
-export function usePostDescendants(id: string) {
-  const { token } = useAuth()
-  return useQuery({
-    queryKey: ['postDescendants', id],
-    queryFn: () => getPostDescendants(token!, id),
-    enabled: !!token && !!id
-  })
-}
-
 /** forum endpoint:
   - includes complete replies and rewoots,
   - not paginated, can return lots of posts
