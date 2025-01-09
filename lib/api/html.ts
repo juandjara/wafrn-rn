@@ -190,7 +190,10 @@ export function replaceHref(node: ChildNode, context: DashboardContextData) {
   if (className?.includes('hashtag')) {
     return replaceHashtagLink(node, context)
   }
-  if (className?.includes('mention')) {
+
+  const env = getEnvironmentStatic()
+  const isWafrnMentionLink = node.attribs['href'].startsWith(`${env?.BASE_URL}/blog/`)
+  if (isWafrnMentionLink || className?.includes('mention')) {
     return replaceMentionLink(node, context)
   }
 }
