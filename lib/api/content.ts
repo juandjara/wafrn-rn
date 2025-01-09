@@ -19,6 +19,10 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (!!post.content || !!post.content_warning) {
     return false
   }
+  if (!post.parentId) {
+    // a rewoot must have a parent id, if not, it is just an empty post (maybe from a bsky briding bug)
+    return false
+  }
 
   const hasMedias = context.medias.some((m) => m.postId === post.id)
   const hasTags = context.tags.some((t) => t.postId === post.id)
