@@ -388,7 +388,6 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   return fullReactions
 }
 
-
 export function getDerivedPostState(
   post: Post,
   context: DashboardContextData,
