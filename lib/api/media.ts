@@ -123,3 +123,12 @@ export type MediaUploadResponse = Timestamps
     userId: string
     ipUpload: string
   }
+
+export function extensionFromMimeType(mime: string) {
+  return mime
+    .split('/')
+    .pop()
+    ?.replace('jpeg', 'jpg')
+    .replace('svg+xml', 'svg')
+    .replace('x-icon', 'ico') || ''
+}

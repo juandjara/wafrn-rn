@@ -2,12 +2,13 @@ import { useState } from "react"
 import { Image, ImageStyle } from 'expo-image'
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native"
 import { MaterialIcons } from "@expo/vector-icons"
-import { isSVG } from "@/lib/api/media"
+import { extensionFromMimeType, isSVG } from "@/lib/api/media"
 import { SvgUri } from "react-native-svg"
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { downloadFile } from "@/lib/downloads"
 import { Toasts } from "@backpackapp-io/react-native-toast"
+import { unfurlCacheUrl } from "@/lib/formatters"
 
 const imageRenderer = ({
   item,
@@ -31,6 +32,7 @@ export default function ZoomableImage({
   src,
   alt,
   style,
+  mimeType,
   contentFit,
   width,
   height,
@@ -42,6 +44,7 @@ export default function ZoomableImage({
   src: string
   alt?: string
   style?: ImageStyle | ViewStyle
+  mimeType?: string
   contentFit?: ImageStyle["resizeMode"]
   width: number
   height: number
@@ -57,6 +60,16 @@ export default function ZoomableImage({
     ios: sx.paddingTop + 8,
   })
 
+  function download() {
+    let name = unfurlCacheUrl(src).split('/').pop() || ''
+    if (name?.startsWith('?cid=') && mimeType) {
+      const ext = extensionFromMimeType(mimeType)
+      name = `${name.replace('?cid=', '')}.${ext}`
+    }
+
+    downloadFile(src, name)
+  }
+
   return (
     <View>
       <Modal visible={modalOpen} onRequestClose={() => setModalOpen(false)}>
@@ -66,7 +79,7 @@ export default function ZoomableImage({
             style={{ paddingTop: pt || 8, backgroundColor: 'rgba(0,0,0,0.5)' }}
             className='absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end'
           >
-            <Pressable className='p-2 rounded-full active:bg-white/20' onPress={() => downloadFile(src)}>
+            <Pressable className='p-2 rounded-full active:bg-white/20' onPress={download}>
               <MaterialIcons name="download" size={24} color='white' />
             </Pressable>
             <Pressable className='p-2 rounded-full active:bg-white/20' onPress={() => setModalOpen(false)}>

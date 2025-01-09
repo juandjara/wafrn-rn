@@ -43,6 +43,7 @@ export default function Media({ media, contentWidth }: {
     content = (<ZoomableImage
       id={media.id}
       src={src}
+      mimeType={mime}
       width={contentWidth}
       height={height}
       contentFit="cover"
