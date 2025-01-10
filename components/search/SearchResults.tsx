@@ -2,6 +2,7 @@ import Thread from "@/components/posts/Thread"
 import UserRibbon from "@/components/user/UserRibbon"
 import { dedupeById, dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
 import { SearchView, useSearch } from "@/lib/api/search"
+import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
 import { FlashList } from "@shopify/flash-list"
@@ -35,11 +36,13 @@ export default function SearchResults({ query }: { query: string }) {
     })
   }
 
+  const { data: settings } = useSettings()
   const context = useMemo(
     () => getDashboardContext(
-      (data?.pages || []).map((page) => page.posts)
+      (data?.pages || []).map((page) => page.posts),
+      settings,
     ),
-    [data?.pages]
+    [data?.pages, settings]
   )
   const deduped = useMemo(
     () => (

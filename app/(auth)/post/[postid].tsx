@@ -9,7 +9,8 @@ import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { sortPosts, usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
-import { DashboardData, Post, PostThread, PostUser } from "@/lib/api/posts.types"
+import { Post, PostThread, PostUser } from "@/lib/api/posts.types"
+import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatUserUrl } from "@/lib/formatters"
 import pluralize from "@/lib/pluralize"
@@ -73,6 +74,7 @@ export default function PostDetail() {
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
   const hiddenUserIds = useHiddenUserIds()
+  const { data: settings } = useSettings()
 
   const {
     mainPost,
@@ -82,7 +84,8 @@ export default function PostDetail() {
     context,
   } = useMemo(() => {
     const context = getDashboardContext(
-      [postData, repliesData].filter(Boolean) as DashboardData[]
+      [postData, repliesData].filter(d => !!d),
+      settings,
     )
     const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
     const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
@@ -150,7 +153,7 @@ export default function PostDetail() {
     ].filter(l => !!l)
 
     return { mainPost, mainUser, postCount, listData, context }
-  }, [postData, repliesData, postid, repliesError, hiddenUserIds])
+  }, [settings, postData, repliesData, postid, repliesError, hiddenUserIds])
 
   const listRef = useRef<FlashList<PostDetailItemData>>(null)
 

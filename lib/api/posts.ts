@@ -6,10 +6,8 @@ import { Timestamps } from "./types"
 import { PrivacyLevel } from "./privacy"
 import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
 import { EditorImage } from "@/components/editor/EditorImages"
-import { BSKY_URL, getDerivedPostState } from "./content"
+import { BSKY_URL } from "./content"
 import { getEnvironmentStatic } from "./auth"
-import { useDashboardContext } from "../contexts/DashboardContext"
-import { useSettings } from "./settings"
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -306,21 +304,4 @@ export function getRemotePostUrl(post: Post) {
     return `${BSKY_URL}/profile/${did}/post/${postId}`
   }
   return null
-}
-
-// unused, not sure yet if we need this
-export function useDerivedPostData(post: Post) {
-  const context = useDashboardContext()
-  const { data: settings } = useSettings()
-  const { data } = useQuery({
-    queryKey: ['post', post.id, 'derivedData', context, settings],
-    queryFn: () => {
-      console.log('>> computing derived post data for post', post.id)
-      const options = settings?.options || []
-      const derivedState = getDerivedPostState(post, context, options)
-      return derivedState
-    },
-    staleTime: Infinity,
-  })
-  return data ?? getDerivedPostState(post, context, settings?.options || [])
 }

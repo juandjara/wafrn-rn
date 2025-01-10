@@ -5,6 +5,7 @@ import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
 import { PostThread } from "@/lib/api/posts.types"
+import { useSettings } from "@/lib/api/settings"
 import { User, useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { buttonCN } from "@/lib/styles"
@@ -46,8 +47,9 @@ export default function UserFeed() {
     })
   }
 
+  const { data: settings } = useSettings()
   const { context, listData } = useMemo(() => {
-    const context = getDashboardContext(feed?.pages || [])
+    const context = getDashboardContext(feed?.pages || [], settings)
     const posts = dedupePosts(feed?.pages || [])
     
     const listData = [
@@ -57,7 +59,7 @@ export default function UserFeed() {
     ].filter(d => !!d)
 
     return { context, listData }
-  }, [feedError, feed?.pages, user])
+  }, [settings, feedError, feed?.pages, user])
 
   const renderListItem = useCallback(({ item }: { item: UserListItem }) => {
     if (item.type === 'post') {

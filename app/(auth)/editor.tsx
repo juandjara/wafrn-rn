@@ -90,9 +90,9 @@ export default function EditorView() {
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.find(a => a.id === Number(askId))
     const askUser = ask?.user
-    const context =  getDashboardContext([reply, quote].filter(d => !!d))
+    const context = getDashboardContext([reply, quote].filter(d => !!d), settings)
     return { ask, askUser, context }
-  }, [reply, quote, asks, askId])
+  }, [settings, reply, quote, asks, askId])
 
   const uploadMutation = useMediaUploadMutation()
   const createMutation = useCreatePostMutation()

@@ -130,7 +130,7 @@ export function getPublicOptionValue<T extends PublicOptionNames = PublicOptionN
   }
 }
 
-type Settings = {
+export type Settings = {
   blockedUsers: string[] // ids of people you've blocked
   followedUsers: string[] // ids of people you follow
   notAcceptedFollows: string[] // ids of people who you tried to follow but they didn't accept yet

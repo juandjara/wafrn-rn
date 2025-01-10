@@ -3,7 +3,7 @@ import { Post, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
-import { getPrivateOptionValue, PrivateOption, PrivateOptionNames, PublicOption } from "./settings"
+import { getPrivateOptionValue, type PrivateOption, PrivateOptionNames, type Settings } from "./settings"
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -388,16 +388,18 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   return fullReactions
 }
 
+export type DerivedPostData = ReturnType<typeof getDerivedPostState>
+
 export function getDerivedPostState(
   post: Post,
   context: DashboardContextData,
-  options: PrivateOption[] & PublicOption[]
+  settings?: Settings
 ) {
+  const options = settings?.options || []
   const user = context.users.find((u) => u.id === post.userId)
   const userName = replaceEmojis(user?.name || '', context.emojiRelations.emojis)
   const postContent = processPostContent(post, context)
   const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
-  // const options = settings?.options || []
 
   // this processes the option "wafrn.disableNSFWCloak"
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)

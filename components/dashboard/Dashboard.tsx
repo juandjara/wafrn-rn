@@ -10,6 +10,7 @@ import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
 import { FlashList } from "@shopify/flash-list"
 import { PostThread } from "@/lib/api/posts.types"
+import { useSettings } from "@/lib/api/settings"
 
 export default function Dashboard({
   mode = DashboardMode.FEED,
@@ -35,9 +36,10 @@ export default function Dashboard({
     })
   }
 
+  const { data: settings } = useSettings()
   const context = useMemo(
-    () => getDashboardContext(data?.pages || []),
-    [data?.pages]
+    () => getDashboardContext(data?.pages || [], settings),
+    [data?.pages, settings]
   )
   const deduped = useMemo(() => dedupePosts(data?.pages || []), [data?.pages])
 

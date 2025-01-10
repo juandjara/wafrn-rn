@@ -8,6 +8,7 @@ import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { replaceEmojis } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
 import { Post } from "@/lib/api/posts.types"
+import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
 import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
@@ -32,10 +33,11 @@ export default function NotificationList() {
     isFetching,
   } = useNotifications()
 
+  const { data: settings } = useSettings()
   const context = useMemo(() => {
     const pages = data?.pages.map((page) => notificationPageToDashboardPage(page)) || []
-    return getDashboardContext(pages)
-  }, [data])
+    return getDashboardContext(pages, settings)
+  }, [data, settings])
 
   const notifications = useMemo(() => {
     if (!data) {

@@ -6,6 +6,8 @@ import { DashboardContextData } from "../contexts/DashboardContext";
 import { Timestamps } from "./types";
 import { useNotificationBadges } from "../notifications";
 import { getEnvironmentStatic } from "./auth";
+import { Settings } from "./settings";
+import { getDerivedPostState } from "./content";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -59,7 +61,7 @@ export function getLastDate(posts: Timestamps[]) {
 
 // assume everything here could be duplicated data
 // and dedupe by unique key relevant to each data type
-export function getDashboardContext(data: DashboardData[]) {
+export function getDashboardContext(data: DashboardData[], settings: Settings | undefined) {
   const seen = new Set<string>()
   const context = {
     users: [],
@@ -77,7 +79,8 @@ export function getDashboardContext(data: DashboardData[]) {
     quotes: [],
     tags: [],
     asks: [],
-    rewootIds: []
+    rewootIds: [],
+    postsData: {},
   } as DashboardContextData
 
   for (const page of data) {
@@ -157,6 +160,22 @@ export function getDashboardContext(data: DashboardData[]) {
         seen.add(rewootId)
         context.rewootIds?.push(rewootId)
       }
+    }
+  }
+
+  // TODO: consider extracting this block elsewhere
+  // this does not dedupe posts, it creates the derived state for each post and its ancestors if present
+  for (const page of data) {
+    for (const post of page.posts) {
+      context.postsData[post.id] = getDerivedPostState(post, context, settings)
+      if (post.ancestors) {
+        for (const postAncestor of post.ancestors) {
+          context.postsData[postAncestor.id] = getDerivedPostState(postAncestor, context, settings)
+        }
+      }
+    }
+    for (const quotedPost of page.quotedPosts) {
+      context.postsData[quotedPost.id] = getDerivedPostState(quotedPost, context, settings)
     }
   }
   return context
