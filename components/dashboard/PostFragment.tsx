@@ -24,11 +24,13 @@ import { toggleCollapsed, toggleCwOpen, usePostLayout } from "@/lib/store"
 export default function PostFragment({
   post,
   isQuote,
-  hasCornerMenu = true
+  hasCornerMenu = true,
+  collapsible = true,
 }: {
   post: Post
   isQuote?: boolean
   hasCornerMenu?: boolean
+  collapsible?: boolean
 }) {
   const context = useDashboardContext()
   const derivedState = context.postsData[post.id]
@@ -69,6 +71,12 @@ export default function PostFragment({
     }
     voteMutation.mutate(votes)
   }
+
+  function collapsePost() {
+    if (collapsible) {
+      toggleCollapsed(post.id)
+    }
+  }
   
   if (isEmptyRewoot(post, context)) {
     return null
@@ -81,7 +89,7 @@ export default function PostFragment({
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
-        onLongPress={() => toggleCollapsed(post.id)}
+        onLongPress={collapsePost}
       >
         {hasCornerMenu && (
           <View className="absolute z-20 top-0 right-0">
@@ -98,7 +106,7 @@ export default function PostFragment({
         {collapsed ? (
           <Pressable
             className="rounded-xl my-4 bg-gray-600/75 p-3"
-            onPress={() => toggleCollapsed(post.id)}
+            onPress={collapsePost}
           >
             <Text className="text-white">This post is collapsed. Click to expand.</Text>
           </Pressable>

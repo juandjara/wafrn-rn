@@ -193,7 +193,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
   } else {
     const post = (notification as any).post as Post
     if (post) {
-      content = <PostFragment post={post} hasCornerMenu={false} />
+      content = <PostFragment post={post} hasCornerMenu={false} collapsible={false} />
     }
   }
 
