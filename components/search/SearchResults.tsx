@@ -5,6 +5,7 @@ import { SearchView, useSearch } from "@/lib/api/search"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
+import { useLayoutData } from "@/lib/store"
 import { FlashList } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
@@ -26,6 +27,7 @@ export default function SearchResults({ query }: { query: string }) {
     }
   })
 
+  const layoutData = useLayoutData()
   const { width } = useWindowDimensions()
   const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query, view)
 
@@ -113,6 +115,7 @@ export default function SearchResults({ query }: { query: string }) {
                 refreshing={isFetching}
                 onRefresh={refresh}
                 data={deduped}
+                extraData={layoutData}
                 estimatedItemSize={500}
                 onEndReachedThreshold={2}
                 keyExtractor={(item) => item.id}

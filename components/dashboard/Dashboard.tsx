@@ -11,6 +11,7 @@ import Thread from "../posts/Thread"
 import { FlashList } from "@shopify/flash-list"
 import { PostThread } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
+import { useLayoutData } from "@/lib/store"
 
 export default function Dashboard({
   mode = DashboardMode.FEED,
@@ -36,6 +37,7 @@ export default function Dashboard({
     })
   }
 
+  const layoutData = useLayoutData()
   const { data: settings } = useSettings()
   const context = useMemo(
     () => getDashboardContext(data?.pages || [], settings),
@@ -69,6 +71,7 @@ export default function Dashboard({
         refreshing={isFetching}
         onRefresh={refresh}
         data={deduped}
+        extraData={layoutData}
         estimatedItemSize={400}
         onEndReachedThreshold={1}
         keyExtractor={(item) => item.id}

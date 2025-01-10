@@ -12,6 +12,7 @@ import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
 import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
+import { useLayoutData } from "@/lib/store"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useScrollToTop } from "@react-navigation/native"
@@ -33,6 +34,7 @@ export default function NotificationList() {
     isFetching,
   } = useNotifications()
 
+  const layoutData = useLayoutData()
   const { data: settings } = useSettings()
   const context = useMemo(() => {
     const pages = data?.pages.map((page) => notificationPageToDashboardPage(page)) || []
@@ -64,6 +66,7 @@ export default function NotificationList() {
         <FlashList
           ref={listRef}
           data={notifications}
+          extraData={layoutData}
           estimatedItemSize={300}
           getItemType={(item) => item.type}
           refreshing={isFetching}

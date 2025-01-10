@@ -14,6 +14,7 @@ import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatUserUrl } from "@/lib/formatters"
 import pluralize from "@/lib/pluralize"
+import { useLayoutData } from "@/lib/store"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
@@ -75,6 +76,7 @@ export default function PostDetail() {
   const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
   const hiddenUserIds = useHiddenUserIds()
   const { data: settings } = useSettings()
+  const layoutData = useLayoutData()
 
   const {
     mainPost,
@@ -234,6 +236,7 @@ export default function PostDetail() {
         <AnimatedFlashList
           ref={listRef}
           data={listData}
+          extraData={layoutData}
           className="flex-1"
           contentContainerStyle={{
             paddingBottom: 120

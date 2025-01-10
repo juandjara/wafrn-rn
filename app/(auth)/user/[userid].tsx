@@ -8,6 +8,7 @@ import { PostThread } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
 import { User, useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
+import { useLayoutData } from "@/lib/store"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -26,6 +27,7 @@ type UserListItem =
 const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<UserListItem>>(FlashList)
 
 export default function UserFeed() {
+  const layoutData = useLayoutData()
   const { userid } = useLocalSearchParams()
   const {
     data: feed,
@@ -144,6 +146,7 @@ export default function UserFeed() {
         }}
         contentContainerStyle={{ ...sx }}
         data={listData}
+        extraData={layoutData}
         refreshing={feedFetching || userFetching}
         onRefresh={refresh}
         getItemType={(item) => item.type}
