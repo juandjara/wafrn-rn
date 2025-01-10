@@ -24,11 +24,12 @@ import clsx from "clsx"
 import InteractionRibbon from "../posts/InteractionRibbon"
 import { useSettings } from "@/lib/api/settings"
 import PostReaction from "../posts/PostReaction"
+import { toggleCollapsed, toggleCwOpen, usePostLayout } from "@/lib/store"
 
-const HEIGHT_LIMIT = 462
+// const HEIGHT_LIMIT = 462
 
 export default function PostFragment({
-  post: _post,
+  post,
   isQuote,
   hasCornerMenu = true
 }: {
@@ -40,11 +41,12 @@ export default function PostFragment({
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
 
   const context = useDashboardContext()
-  const postRef = useRef(_post)
-  const post = postRef.current
-
   const { data: settings } = useSettings()
-
+  const derivedState = useMemo(() => {
+    const options = settings?.options || []
+    const derivedState = getDerivedPostState(post, context, options)
+    return derivedState
+  }, [post, context, settings])
   const {
     user,
     userName,
@@ -59,20 +61,19 @@ export default function PostFragment({
     isEdited,
     contentWarning,
     initialCWOpen,
-  } = useMemo(() => {
-    const options = settings?.options || []
-    const derivedState = getDerivedPostState(post, context, options)
-    return derivedState
-  }, [post, context, settings])
+  } = derivedState
 
   const showQuotedPost = quotedPost && !isQuote
 
-  const [CWOpen, setCWOpen] = useState(initialCWOpen)
-  const [collapsed, setCollapsed] = useState(true)
-  const [fullHeight, setFullHeight] = useState(0)
-  const layoutRef = useRef<View>(null)
-  const measured = useRef(false)
-  const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
+  const layout = usePostLayout(post.id)
+  const cwOpen = layout.cwOpen ?? initialCWOpen
+  const collapsed = layout.collapsed ?? false
+  // const [CWOpen, setCWOpen] = useState(initialCWOpen)
+  // const [collapsed, setCollapsed] = useState(true)
+  // const [fullHeight, setFullHeight] = useState(0)
+  // const layoutRef = useRef<View>(null)
+  // const measured = useRef(false)
+  // const showExpander = CWOpen && fullHeight >= HEIGHT_LIMIT
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
@@ -82,50 +83,50 @@ export default function PostFragment({
 
   // recommended way of updating react hooks state when props change
   // taken from the old `getDerivedStateFromProps` lifecycle method
-  if (postRef.current.id !== _post.id) {
-    recycleState(_post)
-  }
+  // if (postRef.current.id !== _post.id) {
+  //   recycleState(_post)
+  // }
 
-  function recycleState(post: Post) {
-    console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
-    postRef.current = post
+  // function recycleState(post: Post) {
+  //   console.log(`PostFragment recycled \n new: ${post.id} \n old: ${postRef.current.id}`)
+  //   postRef.current = post
 
-    const { initialCWOpen } = processContentWarning(post, context, settings?.options || [])
+  //   const { initialCWOpen } = processContentWarning(post, context, settings?.options || [])
 
-    setCWOpen(initialCWOpen)
-    setCollapsed(true)
-    if (measured.current) {
-      setFullHeight(0)
-      requestAnimationFrame(() => {
-        layoutRef.current?.measure((x, y, width, height) => {
-          if (height) {
-            setFullHeight(Math.round(height))
-          } else {
-            console.warn('measure height failed for post ', postRef.current.id)
-          }
-        })
-      })
-    }
-  }
+  //   setCWOpen(initialCWOpen)
+  //   setCollapsed(true)
+  //   if (measured.current) {
+  //     setFullHeight(0)
+  //     requestAnimationFrame(() => {
+  //       layoutRef.current?.measure((x, y, width, height) => {
+  //         if (height) {
+  //           setFullHeight(Math.round(height))
+  //         } else {
+  //           console.warn('measure height failed for post ', postRef.current.id)
+  //         }
+  //       })
+  //     })
+  //   }
+  // }
 
-  function onLayout(ev: LayoutChangeEvent) {
-    const height = Math.round(ev.nativeEvent.layout.height)
-    if (height !== fullHeight) {
-      setFullHeight(height)
-      measured.current = true
-    }
-  }
+  // function onLayout(ev: LayoutChangeEvent) {
+  //   const height = Math.round(ev.nativeEvent.layout.height)
+  //   if (height !== fullHeight) {
+  //     setFullHeight(height)
+  //     measured.current = true
+  //   }
+  // }
 
-  function toggleCWOpen() {
-    if (CWOpen) {
-      setCollapsed(true)
-    }
-    setCWOpen(!CWOpen)
-  }
+  // function toggleCWOpen() {
+  //   if (CWOpen) {
+  //     setCollapsed(true)
+  //   }
+  //   setCWOpen(!CWOpen)
+  // }
 
-  function toggleShowMore() {
-    setCollapsed((c) => !c)
-  }
+  // function toggleShowMore() {
+  //   setCollapsed((c) => !c)
+  // }
 
   function onPollVote(votes: number[]) {
     if (!poll) {
@@ -145,6 +146,7 @@ export default function PostFragment({
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
+        onLongPress={() => toggleCollapsed(post.id)}
       >
         {hasCornerMenu && (
           <View className="absolute z-20 top-0 right-0">
@@ -158,170 +160,181 @@ export default function PostFragment({
           <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
           <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
         </View>
-        <View id='content' className={clsx('relative', {
-          'border border-yellow-500 rounded-xl my-4': !!contentWarning,
-          'pb-10': showExpander && !collapsed // EXPANDER_MARGIN
-        })}>
-          {contentWarning && (
-            <View
-              id='content-warning-indicator'
-              className='flex-row items-start gap-3 p-2'
-            >
-              <View className="ml-1 gap-1">
-                <Ionicons
-                  name="warning"
-                  size={24}
-                  color={colors.yellow[500]}
-                />
-                {medias.length > 0 && (
-                  <MaterialCommunityIcons
-                    name='image'
-                    color='white'
-                    size={24}
-                  />
-                )}
-                {showQuotedPost && (
-                  <MaterialIcons
-                    name='format-quote'
-                    size={24}
-                    color={colors.gray[200]}
-                  />
-                )}
-              </View>
-              <View className="flex-shrink flex-grow gap-2">
-                <Text className="text-yellow-100 leading-5">{contentWarning}</Text>
-                <Pressable
-                  id='content-warning-toggle'
-                  className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
-                  onPress={toggleCWOpen}
-                >
-                  <Text className='text-indigo-500 text-center text-base'>
-                    {CWOpen ? 'Hide' : 'Show'} content
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-          <View
-            id='show-more-container'
-            style={[
-              { height: CWOpen ? 'auto' : 0 },
-              { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
-              { paddingHorizontal: contentWarning ? 12 : 0 },
-              {
-                transformOrigin: 'top center',
-                overflow: 'hidden',
-                marginBottom: 4,
-              },
-            ]}
+        {collapsed ? (
+          <Pressable
+            className="rounded-xl my-4 bg-gray-600/75 p-3"
+            onPress={() => toggleCollapsed(post.id)}
           >
-            <View
-              id='show-more-content'
-              ref={layoutRef}
-              onLayout={onLayout}
-            >
-              {ask && (
-                <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
-                  <View className="flex-row gap-2 mb-4 items-center">
-                    <Link href={`/user/${ask.user?.url}`}>
-                      <Image
-                        source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
-                        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-                        className="flex-shrink-0 rounded-md border border-gray-500"
-                      />
-                    </Link>
-                    <View className="flex-row items-center flex-grow flex-shrink text-white">
-                      <HtmlRenderer html={ask.userName} renderTextRoot />
-                      <Text className="text-white"> asked: </Text>
-                    </View>
-                  </View>
-                  <Text className="text-white my-1">{ask.question}</Text>
-                </View>
-              )}
-              <View collapsable={false} className="py-2">
-                <PostHtmlRenderer
-                  html={postContent}
-                  inlineMedias={inlineMedias}
-                  contentWidth={contentWidth}
-                  disableWhitespaceCollapsing
-                />
-              </View>
-              {medias.length > 0 && (
-                <View 
-                  id='media-list'
-                  className='pt-4 pb-2'
+            <Text className="text-white">This post is collapsed. Click to expand.</Text>
+          </Pressable>
+        ) : (
+          <>
+            <View id='content' className={clsx('relative', {
+              'border border-yellow-500 rounded-xl my-4': !!contentWarning,
+              // 'pb-10': showExpander && !collapsed // EXPANDER_MARGIN
+            })}>
+              {contentWarning && (
+                <View
+                  id='content-warning-indicator'
+                  className='flex-row items-start gap-3 p-2'
                 >
-                  {medias.map((media, index) => (
-                    <Media
-                      key={`${media.id}-${index}`}
-                      media={media}
-                      contentWidth={contentWidth}
+                  <View className="ml-1 gap-1">
+                    <Ionicons
+                      name="warning"
+                      size={24}
+                      color={colors.yellow[500]}
                     />
-                  ))}
-                </View>
-              )}
-              {poll && (
-                <Poll
-                  poll={poll}
-                  isLoading={voteMutation.isPending}
-                  onVote={onPollVote}
-                />
-              )}
-              {tags.length > 0 && (
-                <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
-                  {tags.map((tag, index) => (
-                    <Link
-                      key={`${tag}-${index}`}
-                      href={`/search?q=${tag}`}
-                      className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
-                      asChild
+                    {medias.length > 0 && (
+                      <MaterialCommunityIcons
+                        name='image'
+                        color='white'
+                        size={24}
+                      />
+                    )}
+                    {showQuotedPost && (
+                      <MaterialIcons
+                        name='format-quote'
+                        size={24}
+                        color={colors.gray[200]}
+                      />
+                    )}
+                  </View>
+                  <View className="flex-shrink flex-grow gap-2">
+                    <Text className="text-yellow-100 leading-5">{contentWarning}</Text>
+                    <Pressable
+                      id='content-warning-toggle'
+                      className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
+                      onPress={() => toggleCwOpen(post.id)}
                     >
-                      <Pressable>
-                        <Text className="text-cyan-200 text-sm">#{tag}</Text>
-                      </Pressable>
-                    </Link>
-                  ))}
+                      <Text className='text-indigo-500 text-center text-base'>
+                        {cwOpen ? 'Hide' : 'Show'} content
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
               )}
-              {showQuotedPost && (
-                <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
-                  <PostFragment isQuote post={quotedPost} />
-                </View>
-              )}
-            </View>
-          </View>
-          {showExpander && (
-            <View
-              id='show-more-backdrop'
-              className='absolute bottom-0 left-0 right-0'
-            >
-              <LinearGradient
-                colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
-                style={{
-                  width: '100%',
-                  paddingTop: 12,
-                  paddingBottom: 8,
-                  paddingHorizontal: 8,
-                  borderRadius: contentWarning ? 12 : 0
-                }}
+              <View
+                id='show-more-container'
+                style={[
+                  { height: cwOpen ? 'auto' : 0 },
+                  // { maxHeight: collapsed ? HEIGHT_LIMIT : 'auto' },
+                  { paddingHorizontal: contentWarning ? 12 : 0 },
+                  {
+                    transformOrigin: 'top center',
+                    overflow: 'hidden',
+                    marginBottom: 4,
+                  },
+                ]}
               >
-                <Pressable
-                  id='show-more-toggle'
-                  className="active:bg-indigo-900/40 bg-indigo-950/75 px-3 py-1.5 rounded-full border border-indigo-500"
-                  onPress={toggleShowMore}
+                <View
+                  id='show-more-content'
+                  // ref={layoutRef}
+                  // onLayout={onLayout}
                 >
-                  <Text className='text-indigo-500 text-center text-base uppercase'>
-                    {collapsed ? 'Show more' : 'Show less'}
-                  </Text>
-                </Pressable>
-              </LinearGradient>
+                  {ask && (
+                    <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                      <View className="flex-row gap-2 mb-4 items-center">
+                        <Link href={`/user/${ask.user?.url}`}>
+                          <Image
+                            source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
+                            style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+                            className="flex-shrink-0 rounded-md border border-gray-500"
+                          />
+                        </Link>
+                        <View className="flex-row items-center flex-grow flex-shrink text-white">
+                          <HtmlRenderer html={ask.userName} renderTextRoot />
+                          <Text className="text-white"> asked: </Text>
+                        </View>
+                      </View>
+                      <Text className="text-white my-1">{ask.question}</Text>
+                    </View>
+                  )}
+                  <View collapsable={false} className="py-2">
+                    <PostHtmlRenderer
+                      html={postContent}
+                      inlineMedias={inlineMedias}
+                      contentWidth={contentWidth}
+                      disableWhitespaceCollapsing
+                    />
+                  </View>
+                  {medias.length > 0 && (
+                    <View 
+                      id='media-list'
+                      className='pt-4 pb-2'
+                    >
+                      {medias.map((media, index) => (
+                        <Media
+                          key={`${media.id}-${index}`}
+                          media={media}
+                          contentWidth={contentWidth}
+                        />
+                      ))}
+                    </View>
+                  )}
+                  {poll && (
+                    <Poll
+                      poll={poll}
+                      isLoading={voteMutation.isPending}
+                      onVote={onPollVote}
+                    />
+                  )}
+                  {tags.length > 0 && (
+                    <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
+                      {tags.map((tag, index) => (
+                        <Link
+                          key={`${tag}-${index}`}
+                          href={`/search?q=${tag}`}
+                          className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
+                          asChild
+                        >
+                          <Pressable>
+                            <Text className="text-cyan-200 text-sm">#{tag}</Text>
+                          </Pressable>
+                        </Link>
+                      ))}
+                    </View>
+                  )}
+                  {showQuotedPost && (
+                    <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                      <PostFragment isQuote post={quotedPost} />
+                    </View>
+                  )}
+                </View>
+              </View>
+              {/* {showExpander && (
+                <View
+                  id='show-more-backdrop'
+                  className='absolute bottom-0 left-0 right-0'
+                >
+                  <LinearGradient
+                    colors={[`${colors.indigo[950]}10`, colors.indigo[950]]}
+                    style={{
+                      width: '100%',
+                      paddingTop: 12,
+                      paddingBottom: 8,
+                      paddingHorizontal: 8,
+                      borderRadius: contentWarning ? 12 : 0
+                    }}
+                  >
+                    <Pressable
+                      id='show-more-toggle'
+                      className="active:bg-indigo-900/40 bg-indigo-950/75 px-3 py-1.5 rounded-full border border-indigo-500"
+                      onPress={toggleShowMore}
+                    >
+                      <Text className='text-indigo-500 text-center text-base uppercase'>
+                        {collapsed ? 'Show more' : 'Show less'}
+                      </Text>
+                    </Pressable>
+                  </LinearGradient>
+                </View>
+              )} */}
             </View>
-          )}
-        </View>
-        {reactions.length > 0 && (
-          <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-            {reactions.map((r) => <PostReaction key={r.id} reaction={r} />)}
-          </View>
+            {reactions.length > 0 && (
+              <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
+                {reactions.map((r) => <PostReaction key={r.id} reaction={r} />)}
+              </View>
+            )}
+          </>
         )}
       </Root>
     </Link>

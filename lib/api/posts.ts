@@ -312,13 +312,15 @@ export function getRemotePostUrl(post: Post) {
 export function useDerivedPostData(post: Post) {
   const context = useDashboardContext()
   const { data: settings } = useSettings()
-  return useQuery({
+  const { data } = useQuery({
     queryKey: ['post', post.id, 'derivedData', context, settings],
     queryFn: () => {
-      console.log('>> computing derived post data')
+      console.log('>> computing derived post data for post', post.id)
       const options = settings?.options || []
       const derivedState = getDerivedPostState(post, context, options)
       return derivedState
     },
+    staleTime: Infinity,
   })
+  return data ?? getDerivedPostState(post, context, settings?.options || [])
 }

@@ -18,6 +18,7 @@ import { getRemotePostUrl, useDeleteMutation, useRewootMutation } from "@/lib/ap
 import { useSilenceMutation } from "@/lib/api/blocks-and-mutes";
 import { useSettings } from "@/lib/api/settings";
 import ReportPostModal from "./ReportPostModal";
+import { toggleCollapsed } from "@/lib/store";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -147,6 +148,12 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
 
     const remoteUrl = getRemotePostUrl(post)
     const secondaryOptions = [
+      {
+        action: () => toggleCollapsed(post.id),
+        icon: <MaterialCommunityIcons name='arrow-collapse' size={20} />,
+        label: 'Collapse',
+        enabled: true,
+      },
       {
         action: () => {
           Share.share({
