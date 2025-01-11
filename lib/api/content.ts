@@ -345,7 +345,7 @@ export function separateInlineMedias(post: Post, context: DashboardContextData, 
       ...m,
       NSFW: disableNSFWCloak ? false : m.NSFW,
     }))
-    .sort((a, b) => a.order - b.order)
+    .sort((a, b) => a.mediaOrder - b.mediaOrder)
 
   const inlineMediaMatches = post.content.match(INLINE_MEDIA_REGEX) || []
   return {

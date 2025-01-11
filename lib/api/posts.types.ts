@@ -52,7 +52,7 @@ export type PostEmojiReaction = PostUserRelation & {
 export type PostMedia = {
   id: string
   url: string
-  order: number
+  mediaOrder: number
   external: boolean
   description: string
   NSFW: boolean
