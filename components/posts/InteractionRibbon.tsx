@@ -19,6 +19,7 @@ import { useSilenceMutation } from "@/lib/api/blocks-and-mutes";
 import { useSettings } from "@/lib/api/settings";
 import ReportPostModal from "./ReportPostModal";
 import { toggleCollapsed } from "@/lib/store";
+import { BSKY_URL } from "@/lib/api/content";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
   post: Post
@@ -180,7 +181,7 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
           router.navigate(remoteUrl!)
         },
         icon: <MaterialCommunityIcons name='open-in-new' size={20} />,
-        label: 'Open remote post',
+        label: remoteUrl?.startsWith(BSKY_URL) ? 'Open in Bluesky' : 'Open remote post',
         enabled: !!remoteUrl
       },
       {
