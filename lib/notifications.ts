@@ -169,7 +169,7 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
     mentions: [],
     polls: [],
     tags: [],
-    posts: page.posts as PostThread[],
+    posts: [...page.mentions, ...page.posts] as PostThread[],
     quotedPosts: page.posts.filter((p) => page.quotes.some((q) => q.quotedPostId === p.id)),
     quotes: page.quotes,
     asks: page.asks,
