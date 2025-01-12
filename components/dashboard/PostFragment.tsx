@@ -85,7 +85,7 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className='px-3 bg-indigo-950 relative'
+        className={clsx('px-3 bg-indigo-950 relative', { 'rounded-lg': isQuote })}
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
