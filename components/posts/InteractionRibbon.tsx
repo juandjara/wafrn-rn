@@ -3,7 +3,7 @@ import { PrivacyLevel } from "@/lib/api/privacy";
 import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext";
 import { AntDesign, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Link, router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, Share, Text, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu";
 import colors from "tailwindcss/colors";
@@ -34,17 +34,23 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
   const { data: settings } = useSettings()
   const isSilenced = !!settings?.silencedPosts.includes(post.id)
 
-  const isLiked = context.likes.some((like) => like.postId === post.id && like.userId === me?.userId)
-  const liked = useSharedValue(isLiked ? 1 : 0)
-  if (isLiked !== Boolean(Math.round(liked.value))) {
-    liked.value = isLiked ? 1 : 0
-  }
+  const { isLiked, isRewooted } = useMemo(() => {
+    const isLiked = context.likes.some((like) => like.postId === post.id && like.userId === me?.userId)
+    const isRewooted = (context.rewootIds || []).includes(post.id)
+    return { isLiked, isRewooted }
+  }, [context, post.id, me?.userId])
 
-  const isRewooted = (context.rewootIds || []).includes(post.id)
+  const liked = useSharedValue(isLiked ? 1 : 0)
   const rewooted = useSharedValue(isRewooted ? 1 : 0)
-  if (isRewooted !== Boolean(Math.round(rewooted.value))) {
-    rewooted.value = isRewooted ? 1 : 0
-  }
+
+  useEffect(() => {
+    const isLiked = context.likes.some((like) => like.postId === post.id && like.userId === me?.userId)
+    const isRewooted = (context.rewootIds || []).includes(post.id)
+    liked.set(isLiked ? 1 : 0)
+    rewooted.set(isRewooted ? 1 : 0)
+    // ignore update on 'liked' and 'rewooted'
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context, post.id, me?.userId])
 
   const likeMutation = useLikeMutation(post)
   const rewootMutation = useRewootMutation(post)
