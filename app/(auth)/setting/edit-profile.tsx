@@ -12,7 +12,7 @@ import { EDITOR_TRIGGERS_CONFIG } from "@/lib/api/content"
 import { useMentions } from "react-native-more-controlled-mentions"
 import EditorInput from "@/components/editor/EditorInput"
 import { PrivacyLevel } from "@/lib/api/privacy"
-import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
+import { getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
 import { HTMLToMarkdown, markdownToHTML } from "@/lib/markdown"
 import clsx from "clsx"
 import { launchImageLibraryAsync } from "expo-image-picker"
@@ -41,6 +41,27 @@ export default function EditProfile() {
   const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
     formatCachedUrl(formatMediaUrl(me?.headerImage || ''))
   )
+
+  const savedCustomFields = useMemo(() => {
+    const options = getPublicOptionValue(settings?.options || [], PublicOptionNames.CustomFields)
+    return options.map((o) => ({
+      name: o.name,
+      value: o.value,
+    }))
+  }, [settings])
+
+  const [customFields, setCustomFields] = useState<{
+    name: string,
+    value: string
+  }[]>(savedCustomFields)
+
+  function updateCustomField(index: number, key: 'name' | 'value', value: string) {
+    setCustomFields((prev) => {
+      const newFields = [...prev]
+      newFields[index] = { ...newFields[index], [key]: value }
+      return newFields
+    })
+  }
 
   const description = useMemo(() => {
     if (!me || !settings?.options) {
@@ -127,13 +148,23 @@ export default function EditProfile() {
       }
       const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
 
-      let optionFound = false
+      let descriptionOptionFound = false
       const editOptions = (payload.options || []).map(o => {
         if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
-          optionFound = true
+          descriptionOptionFound = true
           return {
             name: o.optionName,
             value: JSON.stringify(payload.description || '')
+          }
+        }
+        if (o.optionName === (PublicOptionNames.CustomFields as any)) {
+          return {
+            name: o.optionName,
+            value: JSON.stringify(customFields.map((field) => ({
+              name: field.name,
+              value: field.value,
+              type: "PropertyValue"              
+            })))
           }
         }
         return {
@@ -142,7 +173,7 @@ export default function EditProfile() {
         }
       })
 
-      if (!optionFound) {
+      if (!descriptionOptionFound) {
         editOptions.push({
           name: PrivateOptionNames.OriginalMarkdownBio,
           value: JSON.stringify(payload.description || '')
@@ -255,6 +286,51 @@ export default function EditProfile() {
               showTags={false}
               autoFocus={false}
             />
+          </View>
+          <View className="m-4">
+            <Text className="text-white text-sm mb-1">
+              Custom fields
+            </Text>
+            {customFields.map((o, index) => (
+              <View
+                key={index}
+                className="mb-3 py-2 bg-indigo-900/20 px-2 rounded-md"
+              >
+                <View className="flex-row items-center gap-2 mb-2">
+                  <TextInput
+                    placeholder='Name'
+                    placeholderTextColor={colors.gray[500]}
+                    value={o.name}
+                    onChangeText={(value) => updateCustomField(index, 'name', value)}
+                    numberOfLines={1}
+                    className="flex-grow text-lg text-white rounded-md p-2 border border-gray-600"
+                  />
+                  <Pressable
+                    onPress={() => setCustomFields((prev) => prev.filter((_, i) => i !== index))}
+                    className="bg-red-700/30 active:bg-red-700/50 rounded-md p-2"
+                  >
+                    <MaterialCommunityIcons name="close" size={20} color="white" />
+                  </Pressable>
+                </View>
+                <TextInput
+                  placeholder='Value'
+                  placeholderTextColor={colors.gray[500]}
+                  value={o.value}
+                  onChangeText={(value) => updateCustomField(index, 'value', value)}
+                  numberOfLines={1}
+                  className="text-lg text-white rounded-md p-2 border border-gray-600"
+                />
+              </View>
+            ))}
+            <View>
+              <Pressable
+                onPress={() => setCustomFields((prev) => [...prev, { name: '', value: '' }])}
+                className="w-48 flex-row items-center gap-3 py-1 px-2 bg-cyan-700/50 active:bg-cyan-700/75 rounded-xl"
+              >
+                <MaterialCommunityIcons name="plus" size={24} color="white" />
+                <Text className="text-white text-sm">Add custom field</Text>
+              </Pressable>
+            </View>
           </View>
           <Link href='/setting/options' asChild>
             <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
