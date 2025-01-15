@@ -13,13 +13,14 @@ export default function Poll({ poll, isLoading, onVote }: {
 }) {
   const me = useParsedToken()
 
-  const { totalVotes, haveIVoted, questionMap } = useMemo(() => {
+  const { totalVotes, haveIVoted, questionMap, sortedQuestions } = useMemo(() => {
     const totalVotes = poll.questionPollQuestions.reduce((acc, q) => acc + q.remoteReplies, 0)
     const haveIVoted = poll.questionPollQuestions.some((q) => (
       q.questionPollAnswers.some((a) => a.userId === me?.userId)
     ))
     const questionMap = Object.fromEntries(poll.questionPollQuestions.map((q) => [q.id, q]))
-    return { totalVotes, haveIVoted, questionMap }
+    const sortedQuestions = poll.questionPollQuestions.sort((a, b) => a.id - b.id)
+    return { totalVotes, haveIVoted, questionMap, sortedQuestions }
   }, [poll, me])
 
   // localVote contains the ids of the questions that the user is voting for
@@ -76,7 +77,7 @@ export default function Poll({ poll, isLoading, onVote }: {
 
   return (
     <View className="my-2">
-      {poll.questionPollQuestions.map((q) => (
+      {sortedQuestions.map((q) => (
         <Pressable
           key={q.id}
           className={clsx(
