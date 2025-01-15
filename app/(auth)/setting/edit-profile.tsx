@@ -149,6 +149,7 @@ export default function EditProfile() {
       const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
 
       let descriptionOptionFound = false
+      let customFieldsOptionFound = false
       const editOptions = (payload.options || []).map(o => {
         if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
           descriptionOptionFound = true
@@ -158,6 +159,7 @@ export default function EditProfile() {
           }
         }
         if (o.optionName === (PublicOptionNames.CustomFields as any)) {
+          customFieldsOptionFound = true
           return {
             name: o.optionName,
             value: JSON.stringify(customFields.map((field) => ({
@@ -177,6 +179,16 @@ export default function EditProfile() {
         editOptions.push({
           name: PrivateOptionNames.OriginalMarkdownBio,
           value: JSON.stringify(payload.description || '')
+        })
+      }
+      if (!customFieldsOptionFound) {
+        editOptions.push({
+          name: PublicOptionNames.CustomFields as any,
+          value: JSON.stringify(customFields.map((field) => ({
+            name: field.name,
+            value: field.value,
+            type: "PropertyValue"              
+          })))
         })
       }
 
@@ -288,15 +300,15 @@ export default function EditProfile() {
             />
           </View>
           <View className="m-4">
-            <Text className="text-white text-sm mb-1">
+            <Text className="text-white text-sm mb-2">
               Custom fields
             </Text>
             {customFields.map((o, index) => (
               <View
                 key={index}
-                className="mb-3 py-2 bg-indigo-900/20 px-2 rounded-md"
+                className="mb-4 rounded-md"
               >
-                <View className="flex-row items-center gap-2 mb-2">
+                <View className="flex-row items-center gap-2 mb-3">
                   <TextInput
                     placeholder='Name'
                     placeholderTextColor={colors.gray[500]}
@@ -309,7 +321,7 @@ export default function EditProfile() {
                     onPress={() => setCustomFields((prev) => prev.filter((_, i) => i !== index))}
                     className="bg-red-700/30 active:bg-red-700/50 rounded-md p-2"
                   >
-                    <MaterialCommunityIcons name="close" size={20} color="white" />
+                    <MaterialCommunityIcons name="close" size={24} color="white" />
                   </Pressable>
                 </View>
                 <TextInput
