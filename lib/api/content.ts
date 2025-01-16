@@ -1,9 +1,11 @@
 import { DashboardContextData } from "../contexts/DashboardContext"
-import { Post, PostUser } from "./posts.types"
+import { Post, PostThread, PostUser } from "./posts.types"
 import { formatCachedUrl, formatMediaUrl } from "../formatters"
 import { EmojiBase } from "./emojis"
 import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
 import { getPrivateOptionValue, type PrivateOption, PrivateOptionNames, type Settings } from "./settings"
+import { PrivacyLevel } from "./privacy"
+import { Timestamps } from "./types"
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -388,6 +390,17 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   return fullReactions
 }
 
+/**
+ * sort posts from older to newer
+ * used to sort ancestors in a thread and replies in a post detail
+ * based on the `createdAt` field, so post editing does not alter sort order
+ */
+export function sortPosts(a: Timestamps, b: Timestamps) {
+  const aTime = new Date(a.createdAt).getTime()
+  const bTime = new Date(b.createdAt).getTime()
+  return aTime - bTime
+}
+
 export type DerivedPostData = ReturnType<typeof getDerivedPostState>
 
 export function getDerivedPostState(
@@ -433,3 +446,49 @@ export function getDerivedPostState(
   }
 }
 
+export type DerivedThreadData = ReturnType<typeof getDerivedThreadState> 
+
+export function getDerivedThreadState(thread: Post | PostThread, context: DashboardContextData, settings?: Settings) {
+  const isRewoot = isEmptyRewoot(thread, context)
+  const isReply = !!thread.parentId && !isRewoot
+  const postUser = context.users.find((u) => u.id === thread.userId)
+  const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
+
+  const threadAncestorLimit = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ThreadAncestorLimit)
+
+  let ancestors = ((thread as PostThread).ancestors || []).sort(sortPosts)
+  const ancestorLimitReached = ancestors.length >= threadAncestorLimit
+  if (ancestorLimitReached) {
+    ancestors = [
+      ancestors[0],
+      ancestors[ancestors.length - 1]
+    ].filter(Boolean)
+  }
+
+  let interactionPost = thread as Post
+  if (isRewoot) {
+    const rewootAncestor = ancestors.find((a) => a.id === thread.parentId)
+    if (rewootAncestor) {
+      interactionPost = { ...rewootAncestor, notes: thread.notes }
+    }
+  }
+
+  function isFollowersOnly(post: Post) {
+    const privacyIsFollowersOnly = post.privacy === PrivacyLevel.FOLLOWERS_ONLY
+    const amIFollowing = settings?.followedUsers?.includes(post.userId)
+    return privacyIsFollowersOnly && !amIFollowing
+  }
+
+  const postHidden = isFollowersOnly(thread) || ancestors.some(isFollowersOnly)
+
+  return {
+    isRewoot,
+    isReply,
+    postUser,
+    postUserName,
+    interactionPost,
+    postHidden,
+    ancestors,
+    ancestorLimitReached
+  }
+}

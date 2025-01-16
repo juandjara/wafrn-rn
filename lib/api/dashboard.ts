@@ -7,7 +7,7 @@ import { Timestamps } from "./types";
 import { useNotificationBadges } from "../notifications";
 import { getEnvironmentStatic } from "./auth";
 import { Settings } from "./settings";
-import { getDerivedPostState } from "./content";
+import { getDerivedPostState, getDerivedThreadState } from "./content";
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -81,6 +81,7 @@ export function getDashboardContext(data: DashboardData[], settings: Settings | 
     asks: [],
     rewootIds: [],
     postsData: {},
+    threadData: {},
   } as DashboardContextData
 
   for (const page of data) {
@@ -166,10 +167,11 @@ export function getDashboardContext(data: DashboardData[], settings: Settings | 
   // TODO: consider extracting this block elsewhere
   // this does not dedupe posts, it creates the derived state for each post and its ancestors if present
   for (const page of data) {
-    for (const post of page.posts) {
-      context.postsData[post.id] = getDerivedPostState(post, context, settings)
-      if (post.ancestors) {
-        for (const postAncestor of post.ancestors) {
+    for (const thread of page.posts) {
+      context.threadData[thread.id] = getDerivedThreadState(thread, context, settings)
+      context.postsData[thread.id] = getDerivedPostState(thread, context, settings)
+      if (thread.ancestors) {
+        for (const postAncestor of thread.ancestors) {
           context.postsData[postAncestor.id] = getDerivedPostState(postAncestor, context, settings)
         }
       }

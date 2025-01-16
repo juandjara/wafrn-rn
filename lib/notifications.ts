@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { getJSON } from "./http"
 import { useAuth } from "./contexts/AuthContext"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { DashboardData, Post, PostAsk, PostEmojiReaction, PostMedia, PostQuote, PostThread, PostUser, PostUserRelation } from "./api/posts.types"
+import { DashboardData, Post, PostAsk, PostEmojiReaction, PostMedia, PostQuote, PostUser, PostUserRelation } from "./api/posts.types"
 import { Follow } from "./api/user"
 import { EmojiGroupConfig } from "./api/settings"
 import { Timestamps } from "./api/types"
@@ -169,7 +169,7 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
     mentions: [],
     polls: [],
     tags: [],
-    posts: [...page.mentions, ...page.posts] as PostThread[],
+    posts: [...page.mentions, ...page.posts].map((p) => ({ ...p, ancestors: [] })),
     quotedPosts: page.posts.filter((p) => page.quotes.some((q) => q.quotedPostId === p.id)),
     quotes: page.quotes,
     asks: page.asks,

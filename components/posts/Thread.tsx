@@ -1,13 +1,8 @@
-import { Post, PostThread } from "@/lib/api/posts.types"
-import { useMemo } from "react"
+import { PostThread } from "@/lib/api/posts.types"
 import { View } from "react-native"
 import PostFragment from "../dashboard/PostFragment"
 import { useDashboardContext } from "@/lib/contexts/DashboardContext"
 import clsx from "clsx"
-import { getUserNameHTML, isEmptyRewoot } from "@/lib/api/content"
-import { PrivacyLevel } from "@/lib/api/privacy"
-import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "@/lib/api/settings"
-import { sortPosts } from "@/lib/api/posts"
 import RewootRibbon from "./RewootRibbon"
 import InteractionRibbon from "./InteractionRibbon"
 import { Link } from "expo-router"
@@ -15,53 +10,24 @@ import ReplyRibbon from "./ReplyRibbon"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 
 export default function Thread({ thread }: { thread: PostThread }) {
-  const { data: settings } = useSettings()
   const context = useDashboardContext()
-  const { isRewoot, isReply, postUser, postUserName } = useMemo(() => {
-    const isRewoot = isEmptyRewoot(thread, context)
-    const isReply = !!thread.parentId && !isRewoot
-    const postUser = context.users.find((u) => u.id === thread.userId)
-    const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
-    return { isRewoot, isReply, postUser, postUserName }
-  }, [thread, context])
-  const threadAncestorLimit = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ThreadAncestorLimit)
-
   const hiddenUserIds = useHiddenUserIds()
 
-  const ancestors = useMemo(() => {
-    let posts = thread.ancestors.sort(sortPosts)
-    if (posts.length >= threadAncestorLimit) {
-      posts = [
-        posts[0],
-        posts[posts.length - 1]
-      ].filter(Boolean)
-    }
-    return posts.filter((p) => !hiddenUserIds.includes(p.userId))
-  }, [threadAncestorLimit, thread.ancestors, hiddenUserIds])
+  const {
+    isRewoot,
+    isReply,
+    postUser,
+    postUserName,
+    interactionPost,
+    ancestors,
+    postHidden,
+    ancestorLimitReached
+  } = context.threadData[thread.id]
 
-  const interactionPost = useMemo(() => {
-    const rewootAncestor = thread.ancestors.find((a) => a.id === thread.parentId)
-    // TODO: consider adding an invariant to check the existance of rewootAncestor
-    return isRewoot && rewootAncestor
-      ? { ...rewootAncestor, notes: thread.notes }
-      : thread
-  }, [isRewoot, thread])
-  
+  const userHidden = hiddenUserIds.includes(thread.userId)
+    || ancestors.some((a) => hiddenUserIds.includes(a.userId))
 
-  function shouldHide(post: Post) {
-    if (post.privacy === PrivacyLevel.FOLLOWERS_ONLY) {
-      const amIFollowing = settings?.followedUsers?.includes(post.userId)
-      if (!amIFollowing) {
-        return true
-      }
-    }
-    if (hiddenUserIds.includes(thread.userId)) {
-      return true
-    }
-    return false
-  }
-
-  if (shouldHide(thread) || ancestors.some(shouldHide)) {
+  if (postHidden || userHidden) {
     return null
   }
 
@@ -86,7 +52,7 @@ export default function Thread({ thread }: { thread: PostThread }) {
           )}
         </>
       ) : null}
-      {thread.ancestors.length >= threadAncestorLimit ? (
+      {ancestorLimitReached ? (
         <>
           <PostFragment post={ancestors[0]} />
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">

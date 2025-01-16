@@ -76,17 +76,6 @@ export function usePostReplies(id: string) {
   })
 }
 
-/**
- * sort posts from older to newer
- * used to sort ancestors in a thread and replies in a post detail
- * based on the `createdAt` field, so post editing does not alter sort order
- */
-export function sortPosts(a: Timestamps, b: Timestamps) {
-  const aTime = new Date(a.createdAt).getTime()
-  const bTime = new Date(b.createdAt).getTime()
-  return aTime - bTime
-}
-
 export async function requestMoreRemoteReplies(token: string, id: string) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/loadRemoteResponses?id=${id}`, {
