@@ -140,6 +140,7 @@ export default function UserFeed() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         estimatedItemSize={500}
+        drawDistance={2000}
         contentInset={{
           top: Platform.select({ android: sx.paddingTop }),
           bottom: sx.paddingBottom
@@ -152,6 +153,7 @@ export default function UserFeed() {
         getItemType={(item) => item.type}
         keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
         renderItem={renderListItem}
+        onEndReachedThreshold={2}
         onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
         ListEmptyComponent={
           <View className="py-4">

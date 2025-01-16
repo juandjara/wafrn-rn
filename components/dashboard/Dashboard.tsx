@@ -72,10 +72,11 @@ export default function Dashboard({
         onRefresh={refresh}
         data={deduped}
         extraData={layoutData}
-        estimatedItemSize={400}
-        onEndReachedThreshold={1}
+        estimatedItemSize={500}
+        drawDistance={2000}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <Thread thread={item} />}
+        onEndReachedThreshold={2}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}

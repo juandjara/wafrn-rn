@@ -117,6 +117,7 @@ export default function SearchResults({ query }: { query: string }) {
                 data={deduped}
                 extraData={layoutData}
                 estimatedItemSize={500}
+                drawDistance={2000}
                 onEndReachedThreshold={2}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => <Thread thread={item} />}
