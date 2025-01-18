@@ -12,25 +12,25 @@ export const postStore = createStore({
   },
   on: {
     toggleCollapsed: {
-      layout: (context, payload: { id: string }) => {
+      layout: (context, payload: { id: string; flag: boolean }) => {
         const layout = context.layout[payload.id] || {} as PostLayoutState
         return {
           ...context.layout,
           [payload.id]: {
             ...layout,
-            collapsed: !layout.collapsed
+            collapsed: payload.flag
           }
         }
       }
     },
     toggleCwOpen: {
-      layout: (context, payload: { id: string }) => {
+      layout: (context, payload: { id: string; flag: boolean  }) => {
         const layout = context.layout[payload.id] || {} as PostLayoutState
         return {
           ...context.layout,
           [payload.id]: {
             ...layout,
-            cwOpen: !layout.cwOpen
+            cwOpen: payload.flag
           }
         }
       }
@@ -47,10 +47,10 @@ export function useLayoutData() {
   return useSelector(postStore, (state) => state.context.layout)
 }
 
-export function toggleCollapsed(postId: string) {
-  postStore.send({ type: 'toggleCollapsed', id: postId })
+export function toggleCollapsed(postId: string, flag: boolean) {
+  postStore.send({ type: 'toggleCollapsed', id: postId, flag })
 }
 
-export function toggleCwOpen(postId: string) {
-  postStore.send({ type: 'toggleCwOpen', id: postId })
+export function toggleCwOpen(postId: string, flag: boolean) {
+  postStore.send({ type: 'toggleCwOpen', id: postId, flag })
 }

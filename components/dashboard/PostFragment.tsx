@@ -74,8 +74,12 @@ export default function PostFragment({
 
   function collapsePost() {
     if (collapsible) {
-      toggleCollapsed(post.id)
+      toggleCollapsed(post.id, !collapsed)
     }
+  }
+
+  function toggleCW() {
+    toggleCwOpen(post.id, !cwOpen)
   }
   
   if (isEmptyRewoot(post, context)) {
@@ -146,7 +150,7 @@ export default function PostFragment({
                     <Pressable
                       id='content-warning-toggle'
                       className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
-                      onPress={() => toggleCwOpen(post.id)}
+                      onPress={toggleCW}
                     >
                       <Text className='text-indigo-500 text-center text-base'>
                         {cwOpen ? 'Hide' : 'Show'} content
