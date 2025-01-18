@@ -18,7 +18,7 @@ import { getRemotePostUrl, useDeleteMutation, useRewootMutation } from "@/lib/ap
 import { useSilenceMutation } from "@/lib/api/blocks-and-mutes";
 import { useSettings } from "@/lib/api/settings";
 import ReportPostModal from "./ReportPostModal";
-import { toggleCollapsed } from "@/lib/store";
+import { toggleCollapsed, usePostLayout } from "@/lib/store";
 import { BSKY_URL } from "@/lib/api/content";
 
 export default function InteractionRibbon({ post, orientation = 'horizontal' }: {
@@ -39,6 +39,9 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     const isRewooted = (context.rewootIds || []).includes(post.id)
     return { isLiked, isRewooted }
   }, [context, post.id, me?.userId])
+
+  const layout = usePostLayout(post.id)
+  const collapsed = layout.collapsed ?? false
 
   const liked = useSharedValue(isLiked ? 1 : 0)
   const rewooted = useSharedValue(isRewooted ? 1 : 0)
@@ -156,9 +159,9 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
     const remoteUrl = getRemotePostUrl(post)
     const secondaryOptions = [
       {
-        action: () => toggleCollapsed(post.id),
+        action: () => toggleCollapsed(post.id, !collapsed),
         icon: <MaterialCommunityIcons name='arrow-collapse' size={20} />,
-        label: 'Collapse',
+        label: collapsed ? 'Expand' : 'Collapse',
         enabled: true,
       },
       {
@@ -314,9 +317,11 @@ export default function InteractionRibbon({ post, orientation = 'horizontal' }: 
 
   return (
     <>
-      <View className="absolute inset-0">
-        <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
-      </View>
+      {emojiPickerOpen && (
+        <View className="absolute inset-0">
+          <EmojiPicker open={emojiPickerOpen} setOpen={setEmojiPickerOpen} onPick={onPickEmoji} />
+        </View>
+      )}
       <View id='interaction-ribbon' className="bg-indigo-950 items-center flex-row py-2 px-3">
         {post.notes !== undefined ? (
           <Link id='notes' href={`/post/${post.id}`} asChild>
