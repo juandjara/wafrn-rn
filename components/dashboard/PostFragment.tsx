@@ -109,7 +109,7 @@ export default function PostFragment({
         </View>
         {collapsed ? (
           <Pressable
-            className="rounded-xl my-4 bg-gray-600/75 p-3"
+            className="rounded-xl my-4 p-3 bg-gray-600/75 active:bg-gray-800/75"
             onPress={collapsePost}
           >
             <Text className="text-white">This post is collapsed. Click to expand.</Text>
