@@ -82,6 +82,7 @@ export default function Dashboard({
         viewabilityConfig={VIEWABILITY_CONFIG}
         contentInset={{ bottom: bottomTabBarHeight }}
         initialNumToRender={5}
+        windowSize={11}
       />
       {cornerButton}
     </DashboardContextProvider>
