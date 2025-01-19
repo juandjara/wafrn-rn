@@ -8,8 +8,9 @@ import InteractionRibbon from "./InteractionRibbon"
 import { Link } from "expo-router"
 import ReplyRibbon from "./ReplyRibbon"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
+import { memo } from "react"
 
-export default function Thread({ thread }: { thread: PostThread }) {
+function _Thread({ thread }: { thread: PostThread }) {
   const context = useDashboardContext()
   const hiddenUserIds = useHiddenUserIds()
 
@@ -81,3 +82,6 @@ export default function Thread({ thread }: { thread: PostThread }) {
     </View>
   )
 }
+
+const Thread = memo(_Thread)
+export default Thread
