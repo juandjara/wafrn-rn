@@ -47,6 +47,7 @@ export default function ProtectedLayout() {
         headerShown: false,
         navigationBarTranslucent: true,
         navigationBarColor: 'rgba(0,0,0,0)',
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen name='(tabs)' />

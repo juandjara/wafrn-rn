@@ -30,7 +30,9 @@ export default function TabsLayout() {
       tabBarActiveBackgroundColor: colors.blue[950],
       tabBarLabelStyle: {
         fontWeight: 'bold',
-      }
+      },
+      freezeOnBlur: true,
+      lazy: true,
     }}>
       <Tabs.Screen
         name="index"

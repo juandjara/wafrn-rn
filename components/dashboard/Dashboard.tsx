@@ -1,17 +1,21 @@
-import { DashboardMode, dedupePosts, getDashboardContext, useDashboard } from "@/lib/api/dashboard"
-import { Pressable, View } from "react-native"
+import { DashboardMode, useDashboard } from "@/lib/api/dashboard"
+import { FlatList, Pressable, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
-import { useMemo, useRef } from "react"
+import { useRef } from "react"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import Loading from "../Loading"
 import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
-import { FlashList } from "@shopify/flash-list"
 import { PostThread } from "@/lib/api/posts.types"
-import { useSettings } from "@/lib/api/settings"
 import { useLayoutData } from "@/lib/store"
+import { VIEWABILITY_CONFIG } from "@/lib/api/posts"
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
+
+function renderItem({ item }: { item: PostThread }) {
+  return <Thread thread={item} />
+}
 
 export default function Dashboard({
   mode = DashboardMode.FEED,
@@ -20,13 +24,14 @@ export default function Dashboard({
   mode: DashboardMode
   header?: React.ReactElement
 }) {
-  const listRef = useRef<FlashList<PostThread>>(null)
+  const listRef = useRef<FlatList<PostThread>>(null)
   const {
     data,
     isFetching,
     fetchNextPage,
     hasNextPage,
   } = useDashboard(mode)
+  const bottomTabBarHeight = useBottomTabBarHeight()
 
   useScrollToTop(listRef)
 
@@ -38,12 +43,8 @@ export default function Dashboard({
   }
 
   const layoutData = useLayoutData()
-  const { data: settings } = useSettings()
-  const context = useMemo(
-    () => getDashboardContext(data?.pages || [], settings),
-    [data?.pages, settings]
-  )
-  const deduped = useMemo(() => dedupePosts(data?.pages || []), [data?.pages])
+  const context = data?.context
+  const posts = data?.posts
 
   const cornerButton = (
     <View key='editor-link' className="absolute bottom-3 right-3">
@@ -55,7 +56,7 @@ export default function Dashboard({
     </View>
   )
 
-  if (!data) {
+  if (!context) {
     return (
       <>
         <Loading />
@@ -66,20 +67,21 @@ export default function Dashboard({
 
   return (
     <DashboardContextProvider data={context}>
-      <FlashList
+      <FlatList
         ref={listRef}
         refreshing={isFetching}
         onRefresh={refresh}
-        data={deduped}
+        data={posts}
         extraData={layoutData}
-        estimatedItemSize={500}
-        drawDistance={2000}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Thread thread={item} />}
+        renderItem={renderItem}
         onEndReachedThreshold={2}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
+        viewabilityConfig={VIEWABILITY_CONFIG}
+        contentInset={{ bottom: bottomTabBarHeight }}
+        initialNumToRender={5}
       />
       {cornerButton}
     </DashboardContextProvider>

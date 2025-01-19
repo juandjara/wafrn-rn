@@ -9,6 +9,11 @@ import { EditorImage } from "@/components/editor/EditorImages"
 import { BSKY_URL } from "./content"
 import { getEnvironmentStatic } from "./auth"
 
+export const VIEWABILITY_CONFIG = {
+  minimumViewTime: 500,
+  itemVisiblePercentThreshold: 50,
+}
+
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
