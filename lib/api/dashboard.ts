@@ -42,7 +42,7 @@ export function useDashboard(mode: DashboardMode) {
   const { data: settings } = useSettings()
 
   return useInfiniteQuery({
-    queryKey: ['dashboard', mode, settings],
+    queryKey: ['dashboard', mode],
     queryFn: async ({ pageParam }) => {
       const list = await getDashboard({ mode, startTime: pageParam, token: token! })
       await refetchBadge()
