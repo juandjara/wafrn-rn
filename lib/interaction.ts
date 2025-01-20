@@ -114,7 +114,13 @@ export function useFollowMutation(user: {
     onSuccess: (data, variables) => {
       showToastSuccess(`User ${variables ? 'un' : ''}followed`)
     },
-    onSettled: () => invalidateUserQueries(qc, user)
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'settings'
+        )
+      })
+    }
   })
 }
 
@@ -124,17 +130,6 @@ export async function invalidatePostQueries(qc: QueryClient, post: Post) {
       query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
         || query.queryKey[0] === 'search'
         || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-    )
-  })
-}
-
-export async function invalidateUserQueries(qc: QueryClient, user: { url: PostUser['url'] }) {
-  await qc.invalidateQueries({
-    predicate: (query) => (
-      query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-        || query.queryKey[0] === 'search'
-        || query.queryKey[0] === 'settings'
-        || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
     )
   })
 }
