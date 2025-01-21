@@ -12,7 +12,7 @@ import { OnPageScrollEventData } from "react-native-pager-view/lib/typescript/sp
 const MODES = [
   DashboardMode.FEED,
   DashboardMode.LOCAL,
-  //DashboardMode.FEDERATED,
+  DashboardMode.FEDERATED,
 ] as const
 
 export default function Index() {
@@ -22,7 +22,6 @@ export default function Index() {
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
-    // @ts-ignore
     pagerRef.current?.setPage(MODES.indexOf(mode))
   }
 
@@ -54,7 +53,6 @@ export default function Index() {
       <PagerView
         ref={pagerRef}
         onPageScroll={onPageScroll}
-        // @ts-ignore
         initialPage={MODES.indexOf(mode)}
         style={styles.flex}
         useNext

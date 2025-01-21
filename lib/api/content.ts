@@ -75,14 +75,28 @@ export function getReactions(post: Post, context: DashboardContextData) {
   const emojis = Object.fromEntries(
     context.emojiRelations.emojis.map((e) => [e.id, e])
   )
-  const reactions = context.emojiRelations.postEmojiReactions
-    .filter((r) => r.postId === post.id)
-    .map((e) => ({
-      id: `${e.emojiId}-${e.userId}`,
-      user: context.users.find((u) => u.id === e.userId),
-      emoji: e.emojiId ? emojis[e.emojiId] : e.content
-    }))
-    .filter((r) => r.user)
+  type Reaction = {
+    id: string
+    user: PostUser
+    emoji: EmojiBase | string
+  }
+  const users = Object.fromEntries(context.users.map((u) => [u.id, u]))
+
+  const reactions: Reaction[] = []
+  for (const r of context.emojiRelations.postEmojiReactions) {
+    if (r.postId === post.id) {
+      const user = users[r.userId]
+      if (!user) {
+        continue
+      }
+      const emoji = r.emojiId ? emojis[r.emojiId] : r.content
+      reactions.push({
+        id: `${r.emojiId}-${r.userId}`,
+        user,
+        emoji
+      })
+    }
+  }
   const grouped = new Map<string, EmojiGroup>()
   for (const r of reactions) {
     const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
@@ -371,14 +385,27 @@ export function getAskData(post: Post, context: DashboardContextData) {
 
 export function groupPostReactions(post: Post, context: DashboardContextData) {
   const reactions = getReactions(post, context)
-  const likeReactions = reactions.filter((r) => isUnicodeHeart(r.emoji))
-  const likeUsers = context.likes
-    .filter((l) => l.postId === post.id)
-    .map((l) => context.users.find((u) => u.id === l.userId))
-    .filter((u) => !!u)
-    .concat(likeReactions?.flatMap((l) => l.users) || [])
+  const fullReactions = [] as EmojiGroup[]
+  const likeUsers = [] as PostUser[]
+  const users = Object.fromEntries(context.users.map((u) => [u.id, u]))
 
-  const fullReactions = reactions.filter((r) => !isUnicodeHeart(r.emoji))
+  for (const like of context.likes) {
+    if (like.postId === post.id) {
+      const user = users[like.userId]
+      if (user) {
+        likeUsers.push(user)
+      }
+    }
+  }
+
+  for (const r of reactions) {
+    if (isUnicodeHeart(r.emoji)) {
+      likeUsers.push(...r.users)
+    } else {
+      fullReactions.push(r)
+    }
+  }
+
   if (likeUsers.length) {
     return [{
       id: `${post.id}-likes`,
