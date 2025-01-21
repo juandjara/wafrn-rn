@@ -51,11 +51,7 @@ export function useDashboard(mode: DashboardMode) {
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
     enabled: !!token && !!settings,
-    select(data) {
-      const context = getDashboardContext(data.pages || [], settings)
-      const posts = dedupePosts(data?.pages || [])
-      return { context, posts }
-    },
+    staleTime: 1000 * 60 * 60 // 1 hour
   })
 }
 

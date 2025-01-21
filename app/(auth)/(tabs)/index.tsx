@@ -1,12 +1,13 @@
 import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardMode } from "@/lib/api/dashboard";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import UserMenu from "@/components/dashboard/UserMenu";
 import DashboardModeMenu, { PublicDashboardMode } from "@/components/dashboard/DashboardModeMenu";
 import PagerView from "react-native-pager-view";
-import { View } from "react-native";
+import { NativeSyntheticEvent, StyleSheet, View } from "react-native";
 import Header from "@/components/Header";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
+import { OnPageScrollEventData } from "react-native-pager-view/lib/typescript/specs/PagerViewNativeComponent";
 
 const MODES = [
   DashboardMode.FEED,
@@ -33,8 +34,18 @@ export default function Index() {
     ))
   }, [])
 
+  const onPageScroll = useCallback((ev: NativeSyntheticEvent<OnPageScrollEventData>) => {
+    const index = ev.nativeEvent.position
+    setMode(MODES[index])
+  }, [])
+
+  const styles = useMemo(() => StyleSheet.create({
+    flex: { flex: 1 },
+    root: { flex: 1, paddingTop: sx.paddingTop + 60 }
+  }), [sx.paddingTop])
+
   return (
-    <View style={{ flex: 1, paddingTop: sx.paddingTop + 60 }}>
+    <View style={styles.root}>
       <Header
         style={{ minHeight: 60, paddingLeft: 8 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
@@ -42,13 +53,10 @@ export default function Index() {
       />
       <PagerView
         ref={pagerRef}
-        onPageScroll={(ev) => {
-          const index = ev.nativeEvent.position
-          setMode(MODES[index])
-        }}
+        onPageScroll={onPageScroll}
         // @ts-ignore
         initialPage={MODES.indexOf(mode)}
-        style={{ flex: 1 }}
+        style={styles.flex}
         useNext
       >
         {pages}

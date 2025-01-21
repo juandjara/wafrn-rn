@@ -1,8 +1,8 @@
-import { DashboardMode, useDashboard } from "@/lib/api/dashboard"
+import { DashboardMode, dedupePosts, getDashboardContext, useDashboard } from "@/lib/api/dashboard"
 import { FlatList, Pressable, View } from "react-native"
 import { Link } from "expo-router"
 import { MaterialIcons } from "@expo/vector-icons"
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useQueryClient } from "@tanstack/react-query"
 import Loading from "../Loading"
@@ -12,6 +12,7 @@ import { PostThread } from "@/lib/api/posts.types"
 import { useLayoutData } from "@/lib/store"
 import { VIEWABILITY_CONFIG } from "@/lib/api/posts"
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
+import { useSettings } from "@/lib/api/settings"
 
 function renderItem({ item }: { item: PostThread }) {
   return <Thread thread={item} />
@@ -33,6 +34,14 @@ export default function Dashboard({
   } = useDashboard(mode)
   const bottomTabBarHeight = useBottomTabBarHeight()
 
+  const { data: settings } = useSettings()
+  const { context, posts } = useMemo(() => {
+    if (!data || !settings) return { context: null, posts: [] }
+    const context = getDashboardContext(data.pages || [], settings)
+    const posts = dedupePosts(data?.pages || [])
+    return { context, posts }
+  }, [data, settings])
+
   useScrollToTop(listRef)
 
   const qc = useQueryClient()
@@ -43,8 +52,6 @@ export default function Dashboard({
   }
 
   const layoutData = useLayoutData()
-  const context = data?.context
-  const posts = data?.posts
 
   const cornerButton = (
     <View key='editor-link' className="absolute bottom-3 right-3">
@@ -82,7 +89,14 @@ export default function Dashboard({
         viewabilityConfig={VIEWABILITY_CONFIG}
         contentInset={{ bottom: bottomTabBarHeight }}
         initialNumToRender={5}
-        windowSize={11}
+        windowSize={9}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+        }}
+        removeClippedSubviews
+        updateCellsBatchingPeriod={100}
+        maxToRenderPerBatch={5}
+        progressViewOffset={isFetching ? bottomTabBarHeight : 0}
       />
       {cornerButton}
     </DashboardContextProvider>
