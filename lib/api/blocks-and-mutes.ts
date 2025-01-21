@@ -83,7 +83,8 @@ export function useBlocks() {
   return useQuery({
     queryKey: ['blocks'],
     queryFn: () => getBlocks(token!),
-    enabled: !!token
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60 // 1 hour
   })
 }
 
@@ -164,7 +165,8 @@ export function useMutes() {
   return useQuery({
     queryKey: ['mutes'],
     queryFn: () => getMutes(token!),
-    enabled: !!token
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60 // 1 hour
   })
 }
 
@@ -293,7 +295,8 @@ export function useServerBlocks() {
   return useQuery({
     queryKey: ['serverBlocks'],
     queryFn: () => getServerBlocks(token!),
-    enabled: !!token
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60 // 1 hour
   })
 }
 
