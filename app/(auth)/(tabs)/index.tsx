@@ -11,7 +11,7 @@ import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 const MODES = [
   DashboardMode.FEED,
   DashboardMode.LOCAL,
-  DashboardMode.FEDERATED,
+  //DashboardMode.FEDERATED,
 ] as const
 
 export default function Index() {
@@ -21,12 +21,13 @@ export default function Index() {
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
+    // @ts-ignore
     pagerRef.current?.setPage(MODES.indexOf(mode))
   }
 
   const pages = useMemo(() => {
     return MODES.map((mode, index) => (
-      <View collapsable={false} key={index} style={{ flex: 1 }}>
+      <View key={index} style={{ flex: 1 }}>
         <Dashboard mode={mode} />
       </View>
     ))
@@ -45,6 +46,7 @@ export default function Index() {
           const index = ev.nativeEvent.position
           setMode(MODES[index])
         }}
+        // @ts-ignore
         initialPage={MODES.indexOf(mode)}
         style={{ flex: 1 }}
         useNext
