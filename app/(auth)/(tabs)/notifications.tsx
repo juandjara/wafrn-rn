@@ -11,7 +11,7 @@ import { Post } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
-import { getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
+import { getNotificationKey, getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
 import { useLayoutData } from "@/lib/store"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -72,7 +72,7 @@ export default function NotificationList() {
           refreshing={isFetching}
           onRefresh={refresh}
           onEndReachedThreshold={2}
-          keyExtractor={(item) => `${item.user.url}-${item.createdAt}`}
+          keyExtractor={getNotificationKey}
           onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
           ListFooterComponent={isFetching ? <Loading /> : null}
           renderItem={({ item }) => <NotificationItem notification={item} />}
@@ -88,7 +88,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
   const user = { ...notification.user, remoteId: null }
   const userName = replaceEmojis(notification.user.name, context.emojiRelations.emojis)
   const hiddenUserIds = useHiddenUserIds()
-
+  
   if (hiddenUserIds.includes(user.id)) {
     return (
       <View className="mb-4 bg-blue-950 overflow-hidden relative" style={{ maxHeight: 300, maxWidth: width }}>

@@ -177,10 +177,15 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
   } satisfies DashboardData
 }
 
+export function getNotificationKey(notification: Notification) {
+  return `${notification.type}-${notification.user.url}-${notification.createdAt}`
+}
+
 export function getNotificationList(pages: NotificationsPage[]) {
   const list = pages.flatMap(page => {
     const endDate = getNotificationPageEnd(page)
     const notifications = [] as Notification[]
+
     notifications.push(...page.follows.map(follow => ({
       type: 'follow' as const,
       user: page.users.find(u => u.id === follow.followerId)!,
@@ -226,20 +231,20 @@ export function getNotificationList(pages: NotificationsPage[]) {
         updatedAt: quote.updatedAt,
       }
     }))
-    return notifications
+    const filtered = notifications
       .filter((n) => new Date(n.createdAt).getTime() >= endDate)
       .sort((a, b) => {
         const aTime = new Date(a.createdAt).getTime()
         const bTime = new Date(b.createdAt).getTime()
         return bTime - aTime
       })
+    return filtered
   })
 
   const seen = new Set<string>()
-  const keyFn = (item: Notification) => `${item.user.url}-${item.createdAt}`
 
   return list.filter(item => {
-    const key = keyFn(item)
+    const key = getNotificationKey(item)
     if (seen.has(key)) {
       return false
     }
