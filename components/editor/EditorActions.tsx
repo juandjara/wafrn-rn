@@ -7,12 +7,14 @@ import { launchImageLibraryAsync } from "expo-image-picker"
 import { EditorImage } from "./EditorImages"
 import EditorCanvas from "./EditorCanvas"
 import EmojiPicker from "../EmojiPicker"
+import GifSearch, { GIFSelection } from "./GifSearch"
 
 export type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
+    addGif: (gif: GIFSelection) => void
     toggleCW: () => void
   }
   cwOpen: boolean
@@ -22,6 +24,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showGifPicker, setShowGifPicker] = useState(false)
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -41,8 +44,20 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
     }
   }
 
+  function handleGifSelect(gif: GIFSelection) {
+    setShowGifPicker(false)
+    actions.addGif(gif)
+  }
+
   return (
     <View>
+      {showGifPicker && (
+        <GifSearch
+          open
+          onClose={() => setShowGifPicker(false)}
+          onSelect={handleGifSelect}
+        />
+      )}
       <EditorCanvas
         open={showCanvas}
         setOpen={setShowCanvas}
@@ -90,6 +105,12 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
           <MaterialCommunityIcons name='image' color='white' size={24} />
+        </Pressable>
+        <Pressable
+          onPress={() => setShowGifPicker(true)}
+          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+        >
+          <MaterialIcons name='gif' color='white' size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowColorPicker(true)}

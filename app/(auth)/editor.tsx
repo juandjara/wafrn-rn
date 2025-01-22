@@ -20,6 +20,7 @@ import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/ap
 import { clearSelectionRangeFormat, EDITOR_TRIGGERS_CONFIG, getTextFromMentionState } from "@/lib/api/content"
 import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
+import { GIFSelection } from "@/components/editor/GifSearch"
 
 type EditorSearchParams = {
   replyId: string
@@ -260,6 +261,16 @@ export default function EditorView() {
           newText,
         )
       )
+    },
+    addGif: (gif: GIFSelection) => {
+      const image = {
+        height: gif.height,
+        width: gif.width,
+        uri: gif.url,
+        description: gif.alt,
+        mimeType: gif.mimeType,
+      }
+      update('medias', (prev) => prev.concat(image))
     },
     addImages: (images: EditorImage[]) => {
       update('medias', prev => prev.concat(images))
