@@ -6,6 +6,7 @@ import colors from "tailwindcss/colors";
 import Tenor from "tenor-gif-api";
 import Loading from "../Loading";
 import { Image } from "expo-image";
+import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 
 const TenorClient = new Tenor(process.env.EXPO_PUBLIC_TENOR_KEY)
 
@@ -46,6 +47,7 @@ export default function GifSearch({ open, onClose, onSelect }: {
   onClose: () => void
   onSelect: (gif: GIFSelection) => void
 }) {
+  const sx = useSafeAreaPadding()
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
 
@@ -82,7 +84,7 @@ export default function GifSearch({ open, onClose, onSelect }: {
   }
 
   return (
-    <Modal visible={open} onRequestClose={onClose}>
+    <Modal style={sx} visible={open} onRequestClose={onClose}>
       <View className="flex-1 p-2 bg-gray-800">
         <View className="flex-row items-center gap-2 mb-2 m-1">
           <TextInput
