@@ -88,7 +88,7 @@ export default function GifSearch({ open, onClose, onSelect }: {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder="Search GIPHY..."
+            placeholder="Search GIFs on Tenor..."
             placeholderTextColor={colors.gray[500]}
             className="flex-grow text-white bg-gray-700 p-2 rounded-md"
             numberOfLines={1}
