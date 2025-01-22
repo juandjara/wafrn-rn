@@ -26,11 +26,13 @@ export default function PostFragment({
   isQuote,
   hasCornerMenu = true,
   collapsible = true,
+  clickable = true,
 }: {
   post: Post
   isQuote?: boolean
   hasCornerMenu?: boolean
   collapsible?: boolean
+  clickable?: boolean
 }) {
   const context = useDashboardContext()
   const derivedState = context.postsData[post.id]
@@ -61,7 +63,7 @@ export default function PostFragment({
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
-  const Root = isDetailView ? View : Pressable
+  const Root = isDetailView || !clickable ? View : Pressable
 
   const voteMutation = useVoteMutation(poll?.id || null, post)
 
