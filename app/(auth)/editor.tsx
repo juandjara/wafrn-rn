@@ -20,7 +20,6 @@ import { getPrivateOptionValue, useSettings, PrivateOptionNames } from "@/lib/ap
 import { clearSelectionRangeFormat, EDITOR_TRIGGERS_CONFIG, getTextFromMentionState } from "@/lib/api/content"
 import { useAuth, useParsedToken } from "@/lib/contexts/AuthContext"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { GIFSelection } from "@/components/editor/GifSearch"
 
 type EditorSearchParams = {
   replyId: string
@@ -262,16 +261,6 @@ export default function EditorView() {
         )
       )
     },
-    addGif: (gif: GIFSelection) => {
-      const image = {
-        height: gif.height,
-        width: gif.width,
-        uri: gif.url,
-        description: gif.alt,
-        mimeType: gif.mimeType,
-      }
-      update('medias', (prev) => prev.concat(image))
-    },
     addImages: (images: EditorImage[]) => {
       update('medias', prev => prev.concat(images))
       uploadMutation.mutate(images.map((a) => ({
@@ -328,16 +317,28 @@ export default function EditorView() {
           className="flex-grow-0 pb-1"
           keyboardShouldPersistTaps="handled"
         >
+          <EditorInput
+            {...mentionApi}
+            formState={form}
+            updateFormState={update}
+            selection={selection}
+            mentionState={mentionApi.mentionState}
+          />
+          <ImageList
+            images={form.medias}
+            setImages={(images) => update('medias', images)}
+            disableForceAltText={disableForceAltText}
+          />
           {reply && (
-            <View className="m-2 mb-4 rounded-lg">
-              <Text className="text-white mb-2">Replying to:</Text>
-              <PostFragment post={reply.posts[0]} />
+            <View className="mx-2 my-4 rounded-lg bg-indigo-950">
+              <Text className="text-white mb-2 px-3 pt-2 text-sm">Replying to:</Text>
+              <PostFragment post={reply.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
             </View>
           )}
           {quote && (
-            <View className="m-2 mb-4 rounded-lg">
-              <Text className="text-white mb-2">Quoting:</Text>
-              <PostFragment post={quote.posts[0]} />
+            <View className="mx-2 my-4 rounded-lg bg-indigo-950">
+              <Text className="text-white mb-2 px-3 pt-2 text-sm">Quoting:</Text>
+              <PostFragment post={quote.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
             </View>
           )}
           {ask && askUser && (
@@ -353,18 +354,6 @@ export default function EditorView() {
               <Text className="text-lg text-white px-3 py-4">{ask.question}</Text>
             </View>
           )}
-          <EditorInput
-            {...mentionApi}
-            formState={form}
-            updateFormState={update}
-            selection={selection}
-            mentionState={mentionApi.mentionState}
-          />
-          <ImageList
-            images={form.medias}
-            setImages={(images) => update('medias', images)}
-            disableForceAltText={disableForceAltText}
-          />
         </ScrollView>
         <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
       </KeyboardAvoidingView>
