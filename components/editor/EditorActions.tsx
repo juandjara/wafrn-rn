@@ -7,14 +7,13 @@ import { launchImageLibraryAsync } from "expo-image-picker"
 import { EditorImage } from "./EditorImages"
 import EditorCanvas from "./EditorCanvas"
 import EmojiPicker from "../EmojiPicker"
-import GifSearch, { GIFSelection } from "./GifSearch"
+import GifSearch from "./GifSearch"
 
 export type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
-    addGif: (gif: GIFSelection) => void
     toggleCW: () => void
   }
   cwOpen: boolean
@@ -44,9 +43,9 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
     }
   }
 
-  function handleGifSelect(gif: GIFSelection) {
+  function handleGifSelect(gif: EditorImage) {
+    actions.addImages([gif])
     setShowGifPicker(false)
-    actions.addGif(gif)
   }
 
   return (

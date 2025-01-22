@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
 import colors from "tailwindcss/colors";
@@ -7,16 +7,10 @@ import Tenor from "tenor-gif-api";
 import Loading from "../Loading";
 import { Image } from "expo-image";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
+import { downloadFile } from "@/lib/downloads";
+import { EditorImage } from "./EditorImages";
 
 const TenorClient = new Tenor(process.env.EXPO_PUBLIC_TENOR_KEY)
-
-export type GIFSelection = {
-  url: string
-  width: number
-  height: number
-  alt: string
-  mimeType: string
-}
 
 type GifMediaFormat = {
   dims: number[]
@@ -45,7 +39,7 @@ type GifResponse = {
 export default function GifSearch({ open, onClose, onSelect }: {
   open: boolean
   onClose: () => void
-  onSelect: (gif: GIFSelection) => void
+  onSelect: (gif: EditorImage) => void
 }) {
   const sx = useSafeAreaPadding()
   const [search, setSearch] = useState('')
@@ -73,18 +67,39 @@ export default function GifSearch({ open, onClose, onSelect }: {
     },
   })
 
+  const downloadMutation = useMutation({
+    mutationKey: ['download-gif'],
+    mutationFn: async (gif: GifResponse) => {
+      const filename = `gif-${gif.id}.webp`
+      const file = await downloadFile(
+        gif.media_formats.webp.url,
+        filename,
+        false
+      )
+      if (file) {
+        onSelect({
+          uri: file?.uri,
+          width: gif.media_formats.webp.dims[0],
+          height: gif.media_formats.webp.dims[1],
+          mimeType: 'image/webp',
+          description: gif.content_description,
+          fileName: filename,
+        })
+      }
+    }
+  })
+
   function handleSelect(gif: GifResponse) {
-    onSelect({
-      url: gif.media_formats.webp.url,
-      width: gif.media_formats.webp.dims[0],
-      height: gif.media_formats.webp.dims[1],
-      alt: gif.content_description,
-      mimeType: 'image/webp',
-    })
+    downloadMutation.mutate(gif)
   }
 
   return (
     <Modal style={sx} visible={open} onRequestClose={onClose}>
+      {downloadMutation.isPending && (
+        <View className="bg-black/50 absolute inset-0 items-center justify-center">
+          <Loading />
+        </View>
+      )}
       <View className="flex-1 p-2 bg-gray-800">
         <View className="flex-row items-center gap-2 mb-2 m-1">
           <TextInput

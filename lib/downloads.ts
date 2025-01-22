@@ -16,12 +16,15 @@ async function saveFileToGallery(localUrl: string) {
   await saveToLibraryAsync(localUrl)
 }
 
-export async function downloadFile(url: string, name: string) {
+export async function downloadFile(url: string, name: string, saveToGallery = true) {
   try {
     await ensureDownloadDirectory()
     const file = await downloadAsync(url, `${CACHE_DIR}${name}`)
-    await saveFileToGallery(file.uri)
-    showToastSuccess('Downloaded file')
+    if (saveToGallery) {
+      await saveFileToGallery(file.uri)
+      showToastSuccess('Downloaded file')
+    }
+    return file
   } catch (e) {
     console.error('Failed to download file', e)
     showToastError('Failed to download file')
