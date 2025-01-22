@@ -6,6 +6,8 @@
     "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive",
     "update:preview": "npx eas-cli update --channel preview --auto",
     "build:preview": "npx eas-cli build --profile preview",
+    "build:dev": "npx eas-cli build --profile development --platform android",
+    "prebuild": "expo prebuild",
     "start": "expo start --go",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -68,7 +70,8 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.13",
     "showdown": "^2.1.0",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.15",
+    "tenor-gif-api": "^1.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -84,5 +87,6 @@
         "enabled": true
       }
     }
-  }
+  },
+  "packageManager": "npm@10.9.0"
 }
