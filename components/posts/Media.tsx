@@ -49,8 +49,7 @@ export default function Media({ media, contentWidth }: {
       width={contentWidth}
       height={height}
       contentFit="cover"
-      className="rounded-t-md max-w-full"
-      imgClassName="rounded-t-md"
+      className="max-w-full"
       alt={media.description}
       blurHash={media.blurhash || ''}
     />)
@@ -72,7 +71,7 @@ export default function Media({ media, contentWidth }: {
   }
 
   return (
-    <View className="overflow-hidden mb-2 border border-gray-300 rounded-lg relative">
+    <View className="overflow-hidden relative">
       <MediaCloak
         blurHash={media.blurhash}
         isNSFW={media.NSFW}
@@ -84,9 +83,6 @@ export default function Media({ media, contentWidth }: {
       >
         {content}
       </MediaCloak>
-      {/* <Text className="text-white text-xs p-2 bg-blue-950 rounded-lg">
-        {media.description || 'no alt text'}
-      </Text> */}
       <Pressable
         onPress={() => setShowAlt(prev => !prev)}
         className="absolute top-0 left-0 rounded-br-md bg-indigo-950/75 p-2"
