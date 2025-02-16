@@ -16,7 +16,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, router, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo, useRef } from "react"
-import { FlatList, Platform, Pressable, Text, View } from "react-native"
+import { FlatList, Pressable, Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 
 type UserListItem =
@@ -122,33 +122,35 @@ export default function UserFeed() {
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
       </Link>
-      <Animated.FlatList
-        ref={listRef}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentInset={{
-          top: Platform.select({ android: sx.paddingTop }),
-          bottom: sx.paddingBottom
-        }}
-        contentContainerStyle={{ ...sx }}
-        data={listData}
-        extraData={layoutData}
-        refreshing={feedFetching || userFetching}
-        onRefresh={refresh}
-        keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
-        renderItem={renderListItem}
-        onEndReachedThreshold={2}
-        onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
-        ListEmptyComponent={
-          <View className="py-4">
-            {feedFetching ? (
-              <Loading />
-            ) : (
-              <Text className="text-white text-center">No posts found</Text>
-            )}
-          </View>
-        }
-      />
+      <View style={{ flex: 1, paddingTop: sx.paddingTop }}>
+        <Animated.FlatList
+          ref={listRef}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          style={{ flex: 1 }}
+          contentInset={{
+            bottom: sx.paddingBottom + 60
+          }}
+          data={listData}
+          extraData={layoutData}
+          refreshing={feedFetching || userFetching}
+          onRefresh={refresh}
+          keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
+          renderItem={renderListItem}
+          onEndReachedThreshold={2}
+          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+          ListEmptyComponent={
+            <View className="py-4">
+              {!feedFetching && !userFetching && (
+                <Text className="text-white text-center">No posts found</Text>
+              )}
+              {feedFetching && !userFetching && (
+                <Loading />
+              )}
+            </View>
+          }
+        />
+      </View>
       <CornerButton buttonStyle={buttonStyle} onClick={scrollToTop} />
     </DashboardContextProvider>
   );
