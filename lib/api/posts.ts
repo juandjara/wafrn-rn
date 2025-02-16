@@ -14,6 +14,15 @@ export const VIEWABILITY_CONFIG = {
   itemVisiblePercentThreshold: 50,
 }
 
+export const FLATLIST_PERFORMANCE_CONFIG = {
+  viewabilityConfig: VIEWABILITY_CONFIG,
+  initialNumToRender: 5,
+  windowSize: 9,
+  removeClippedSubviews: true,
+  updateCellsBatchingPeriod: 100,
+  maxToRenderPerBatch: 5
+}
+
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN

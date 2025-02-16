@@ -10,7 +10,7 @@ import { useScrollToTop } from "@react-navigation/native"
 import Thread from "../posts/Thread"
 import { PostThread } from "@/lib/api/posts.types"
 import { useLayoutData } from "@/lib/store"
-import { VIEWABILITY_CONFIG } from "@/lib/api/posts"
+import { FLATLIST_PERFORMANCE_CONFIG } from "@/lib/api/posts"
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
 import { useSettings } from "@/lib/api/settings"
 
@@ -82,21 +82,15 @@ export default function Dashboard({
         extraData={layoutData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        onEndReachedThreshold={2}
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
-        viewabilityConfig={VIEWABILITY_CONFIG}
         contentInset={{ bottom: bottomTabBarHeight }}
-        initialNumToRender={5}
-        windowSize={9}
         maintainVisibleContentPosition={{
           minIndexForVisible: 0,
         }}
-        removeClippedSubviews
-        updateCellsBatchingPeriod={100}
-        maxToRenderPerBatch={5}
         progressViewOffset={isFetching ? bottomTabBarHeight : 0}
+        {...FLATLIST_PERFORMANCE_CONFIG}
       />
       {cornerButton}
     </DashboardContextProvider>

@@ -18,6 +18,7 @@ import { Link, router, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo, useRef } from "react"
 import { FlatList, Pressable, Text, View } from "react-native"
 import Animated from "react-native-reanimated"
+import { FLATLIST_PERFORMANCE_CONFIG } from "@/lib/api/posts"
 
 type UserListItem =
   | { type: 'user', user: User }
@@ -149,6 +150,7 @@ export default function UserFeed() {
               )}
             </View>
           }
+          {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
       <CornerButton buttonStyle={buttonStyle} onClick={scrollToTop} />
