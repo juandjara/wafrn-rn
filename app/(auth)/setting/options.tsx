@@ -323,7 +323,7 @@ export default function Options() {
             thumbColor={form.disableForceAltText ? colors.cyan[600] : colors.gray[300]}
           />
         </Pressable>
-        <Pressable
+        {/* <Pressable
           onPress={() => update('federateWithThreads', prev => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
@@ -343,7 +343,7 @@ export default function Options() {
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
             thumbColor={form.federateWithThreads ? colors.cyan[600] : colors.gray[300]}
           />
-        </Pressable>
+        </Pressable> */}
       </ScrollView>
     </View>
   )
