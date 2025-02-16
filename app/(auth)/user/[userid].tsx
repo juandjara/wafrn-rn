@@ -1,5 +1,6 @@
 import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
+import { CornerButton, useCornerButtonAnimation } from "@/components/CornerButton"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
@@ -12,21 +13,19 @@ import { useLayoutData } from "@/lib/store"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { FlashList, FlashListProps } from "@shopify/flash-list"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, router, useLocalSearchParams } from "expo-router"
-import { useCallback, useMemo } from "react"
-import { Platform, Pressable, Text, View } from "react-native"
-import Reanimated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated"
+import { useCallback, useMemo, useRef } from "react"
+import { FlatList, Platform, Pressable, Text, View } from "react-native"
+import Animated from "react-native-reanimated"
 
 type UserListItem =
   | { type: 'user', user: User }
   | { type: 'error', error: Error }
   | { type: 'post', post: PostThread }
 
-const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<UserListItem>>(FlashList)
-
 export default function UserFeed() {
+  const sx = useSafeAreaPadding()
   const layoutData = useLayoutData()
   const { userid } = useLocalSearchParams()
   const {
@@ -85,28 +84,15 @@ export default function UserFeed() {
     return null
   }, [])
 
-  const sx = useSafeAreaPadding()
-  const scrollY = useSharedValue(0)
+  const listRef = useRef<FlatList<UserListItem>>(null)
 
-  const scrollHandler = useAnimatedScrollHandler((ev) => {
-    scrollY.value = ev.contentOffset.y
-  })
+  const scrollToTop = useCallback(() => {
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex({ index: 0, animated: false })
+    })
+  }, [])
 
-  // const headerColor = Colors.dark.background
-  // const scrollStyle = useAnimatedStyle(() => ({
-  //   backgroundColor: interpolateColor(
-  //     scrollY.value,
-  //     [0, 500],
-  //     ['transparent', headerColor],
-  //   )
-  // }))
-  // const headerTitleStyle = useAnimatedStyle(() => ({
-  //   opacity: interpolate(
-  //     scrollY.value,
-  //     [0, 500],
-  //     [0, 1],
-  //   )
-  // }))
+  const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
 
   if (userError) {
     return (
@@ -136,11 +122,10 @@ export default function UserFeed() {
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
       </Link>
-      <AnimatedFlashList
+      <Animated.FlatList
+        ref={listRef}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        estimatedItemSize={500}
-        drawDistance={2000}
         contentInset={{
           top: Platform.select({ android: sx.paddingTop }),
           bottom: sx.paddingBottom
@@ -150,7 +135,6 @@ export default function UserFeed() {
         extraData={layoutData}
         refreshing={feedFetching || userFetching}
         onRefresh={refresh}
-        getItemType={(item) => item.type}
         keyExtractor={(item) => item.type === 'post' ? item.post.id : item.type}
         renderItem={renderListItem}
         onEndReachedThreshold={2}
@@ -165,6 +149,7 @@ export default function UserFeed() {
           </View>
         }
       />
+      <CornerButton buttonStyle={buttonStyle} onClick={scrollToTop} />
     </DashboardContextProvider>
   );
 }

@@ -3,6 +3,7 @@ import Header from "@/components/Header"
 import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
+import { CornerButton, useCornerButtonAnimation } from "@/components/CornerButton"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
@@ -17,13 +18,13 @@ import pluralize from "@/lib/pluralize"
 import { useLayoutData } from "@/lib/store"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { FlashList, FlashListProps } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, useLocalSearchParams } from "expo-router"
 import { memo, useCallback, useMemo, useRef } from "react"
 import { Pressable, Text, View } from "react-native"
-import Reanimated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Reanimated from "react-native-reanimated"
 
 type PostDetailItemData = {
   type: 'go-to-bottom'
@@ -59,6 +60,7 @@ type PostDetailItemData = {
 const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<PostDetailItemData>>(FlashList)
 
 export default function PostDetail() {
+  const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
   const {
     data: postData,
@@ -150,7 +152,7 @@ export default function PostDetail() {
       ...thread.map((post) => ({ type: 'post' as const, data: post })),
       mainPost && { type: 'interaction-ribbon' as const, data: mainPost },
       mainPost && { type: 'stats' as const, data: statsText },
-      ...fullReplies, //.map((post) => ({ type: 'replies' as const, data: post })),
+      ...fullReplies,
       repliesError && { type: 'error' as const, data: repliesError },
     ].filter(l => !!l)
 
@@ -203,8 +205,6 @@ export default function PostDetail() {
       )}
     />
   )
-
-  const sx = useSafeAreaPadding()
 
   if (postError) {
     return (
@@ -285,18 +285,7 @@ export default function PostDetail() {
           )}
         />
       </View>
-      <Reanimated.View
-        style={[
-          buttonStyle,
-          { position: 'absolute', bottom: 12, right: 12 }
-        ]}>
-        <Pressable
-          className="p-3 rounded-full bg-white border border-gray-300"
-          onPress={scrollToTop}
-        >
-          <MaterialIcons name="arrow-upward" size={24} />
-        </Pressable>
-      </Reanimated.View>
+      <CornerButton buttonStyle={buttonStyle} onClick={scrollToTop} />
     </DashboardContextProvider>
   )
 }
@@ -382,40 +371,3 @@ function _PostDetailItem({ item, postCount, onScrollEnd }: {
   return null
 }
 const PostDetailItem = memo(_PostDetailItem)
-
-function useCornerButtonAnimation() {
-  const lastContentOffset = useSharedValue(0)
-  const isScrolling = useSharedValue(false)
-  const translateY = useSharedValue(0)
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (ev) => {
-      if (isScrolling.value) {
-        if (lastContentOffset.value > ev.contentOffset.y) {
-          translateY.value = 0 // scrolling up
-        } else if (lastContentOffset.value < ev.contentOffset.y) {
-          translateY.value = 100 // scrolling down
-        }
-      }
-      lastContentOffset.value = ev.contentOffset.y
-    },
-    onBeginDrag: () => {
-      isScrolling.value = true
-    },
-    onEndDrag: () => {
-      isScrolling.value = false
-    }
-  })
-
-  const buttonStyle = useAnimatedStyle(() => ({
-    transform: [{
-      translateY: withTiming(translateY.value, {
-        duration: 300,
-        easing: Easing.inOut(Easing.ease),
-      })
-    }],
-  }))
-
-  return { scrollHandler, buttonStyle }
-}
-
