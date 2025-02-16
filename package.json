@@ -7,6 +7,7 @@
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
     "build:preview": "npx eas-cli build --profile preview",
     "build:dev": "npx eas-cli build --profile development --platform android",
+    "build:prod": "npx eas-cli build --profile production --platform android",
     "prebuild": "expo prebuild",
     "start": "expo start",
     "android": "expo start --android",
