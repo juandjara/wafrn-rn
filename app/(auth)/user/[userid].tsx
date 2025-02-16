@@ -129,8 +129,8 @@ export default function UserFeed() {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           style={{ flex: 1 }}
-          contentInset={{
-            bottom: sx.paddingBottom + 60
+          contentContainerStyle={{
+            paddingBottom: sx.paddingBottom + (feedFetching ? 8 : 32)
           }}
           data={listData}
           extraData={layoutData}
@@ -145,11 +145,9 @@ export default function UserFeed() {
               {!feedFetching && !userFetching && (
                 <Text className="text-white text-center">No posts found</Text>
               )}
-              {feedFetching && !userFetching && (
-                <Loading />
-              )}
             </View>
           }
+          ListFooterComponent={feedFetching ? <Loading /> : null}
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
