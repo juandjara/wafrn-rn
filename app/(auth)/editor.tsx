@@ -44,9 +44,9 @@ export default function EditorView() {
 
   const me = useParsedToken()
   const { env } = useAuth()
-  const { data: reply } = usePostDetail(replyId)
-  const { data: quote } = usePostDetail(quoteId)
-  const { data: editingPost } = usePostDetail(editId)
+  const { data: reply } = usePostDetail(replyId, false)
+  const { data: quote } = usePostDetail(quoteId, false)
+  const { data: editingPost } = usePostDetail(editId, false)
   const { data: asks } = useAsks()
   const { data: settings } = useSettings()
 
@@ -62,24 +62,29 @@ export default function EditorView() {
       }
     }
 
-    const userMap = Object.fromEntries(reply.users.map((user) => [user.id, user]))
-    const userId = reply.posts[0].userId
+    const replyData = reply.post
+
+    const userMap = Object.fromEntries(replyData.users.map((user) => [user.id, user]))
+    const userId = replyData.posts[0].userId
     const ids = new Set<string>()
+
     if (userId !== me?.userId) {
       ids.add(userId)
     }
-    for (const mention of reply.mentions) {
+
+    for (const mention of replyData.mentions) {
       if (mention.userMentioned !== me?.userId) {
         ids.add(mention.userMentioned)
       }
     }
+
     const mentionUsers = Array.from(ids).map((id) => userMap[id])
     const mentionsPrefix = mentionUsers.map((m) => {
       const remoteId = m.remoteId || `${env?.BASE_URL}/blog/${m.url}`
       return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
     }).join('')
 
-    const isBsky = !!reply.posts[0].bskyUri
+    const isBsky = !!replyData.posts[0].bskyUri
 
     return {
       mentionsPrefix: isBsky ? '' : mentionsPrefix,
@@ -90,7 +95,7 @@ export default function EditorView() {
   const { ask, askUser, context } = useMemo(() => {
     const ask = asks?.find(a => a.id === Number(askId))
     const askUser = ask?.user
-    const context = getDashboardContext([reply, quote].filter(d => !!d), settings)
+    const context = getDashboardContext([reply?.post, quote?.post].filter(d => !!d), settings)
     return { ask, askUser, context }
   }, [settings, reply, quote, asks, askId])
 
@@ -136,9 +141,9 @@ export default function EditorView() {
 
   useEffect(() => {
     if (editingPost) {
-      const post = editingPost.posts[0]
-      const tags = editingPost.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
-      const medias = editingPost.medias.filter((m) => m.postId === post.id).map((m) => ({
+      const post = editingPost.post.posts[0]
+      const tags = editingPost.post.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+      const medias = editingPost.post.medias.filter((m) => m.postId === post.id).map((m) => ({
         ...m,
         uri: formatMediaUrl(m.url),
         width: m.width || 0,
@@ -146,8 +151,8 @@ export default function EditorView() {
       }))
 
       let content = post.markdownContent || ''
-      const mentions = editingPost.mentions.filter((m) => m.post === post.id)
-      const userMap = Object.fromEntries(editingPost.users.map((u) => [u.id, u]))
+      const mentions = editingPost.post.mentions.filter((m) => m.post === post.id)
+      const userMap = Object.fromEntries(editingPost.post.users.map((u) => [u.id, u]))
       for (const mention of mentions) {
         const user = userMap[mention.userMentioned]
         if (!user) {
@@ -170,7 +175,7 @@ export default function EditorView() {
   }, [editingPost])
 
   useEffect(() => {
-    const replyPost = reply?.posts[0]
+    const replyPost = reply?.post.posts[0]
     if (replyPost) {
       const replyCw = replyPost.content_warning || ''
       if (replyCw) {
@@ -332,13 +337,13 @@ export default function EditorView() {
           {reply && (
             <View className="mx-2 my-4 rounded-lg bg-indigo-950">
               <Text className="text-white mb-2 px-3 pt-2 text-sm">Replying to:</Text>
-              <PostFragment post={reply.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
+              <PostFragment post={reply.post.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
             </View>
           )}
           {quote && (
             <View className="mx-2 my-4 rounded-lg bg-indigo-950">
               <Text className="text-white mb-2 px-3 pt-2 text-sm">Quoting:</Text>
-              <PostFragment post={quote.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
+              <PostFragment post={quote.post.posts[0]} collapsible={false} clickable={false} hasCornerMenu={false} />
             </View>
           )}
           {ask && askUser && (

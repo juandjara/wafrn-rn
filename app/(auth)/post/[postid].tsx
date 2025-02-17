@@ -9,7 +9,7 @@ import { ThemedView } from "@/components/ThemedView"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { getUserNameHTML, isEmptyRewoot, sortPosts } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { usePostDetail, usePostReplies, useRemoteRepliesMutation } from "@/lib/api/posts"
+import { usePostDetail, useRemoteRepliesMutation } from "@/lib/api/posts"
 import { Post, PostThread, PostUser } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
@@ -63,17 +63,12 @@ export default function PostDetail() {
   const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
   const {
-    data: postData,
-    isFetching: postFetching,
-    refetch: refetchPost,
-    error: postError,
-  } = usePostDetail(postid as string)
-  const {
-    data: repliesData,
-    isFetching: repliesFetching,
-    refetch: refetchReplies,
-    error: repliesError,
-  } = usePostReplies(postid as string)
+    data,
+    isFetching,
+    refetch,
+    error
+  } = usePostDetail(postid as string, true)
+
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
   const hiddenUserIds = useHiddenUserIds()
@@ -88,10 +83,14 @@ export default function PostDetail() {
     listData,
     context,
   } = useMemo(() => {
+    const postData = data?.post
+    const repliesData = data?.replies
+    
     const context = getDashboardContext(
       [postData, repliesData].filter(d => !!d),
       settings,
     )
+
     const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
     const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
     const replies = (
@@ -129,7 +128,7 @@ export default function PostDetail() {
       // only show rewoots from the top post
       .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
       .sort(sortPosts)
-      .map((p, i) => {
+      .map((p) => {
         if (isEmptyRewoot(p, context)) {
           return {
             type: 'rewoot' as const,
@@ -154,21 +153,15 @@ export default function PostDetail() {
       mainPost && { type: 'interaction-ribbon' as const, data: mainPost },
       mainPost && { type: 'stats' as const, data: statsText },
       ...fullReplies,
-      repliesError && { type: 'error' as const, data: repliesError },
     ].filter(l => !!l)
 
     return { mainPost, mainUser, postCount, listData, context }
-  }, [settings, postData, repliesData, postid, repliesError, hiddenUserIds])
+  }, [settings, data, postid, hiddenUserIds])
 
   function scrollToTop() {
     requestAnimationFrame(() => {
       listRef.current?.scrollToIndex({ index: 0, animated: false })
     })
-  }
-
-  function refresh() {
-    refetchPost()
-    refetchReplies()
   }
 
   const renderItem = useCallback(({ item, index }: { item: PostDetailItemData, index: number }) => {
@@ -205,7 +198,7 @@ export default function PostDetail() {
     />
   )
 
-  if (postError) {
+  if (error) {
     return (
       <ThemedView
         className="p-3 flex-1 justify-center items-center"
@@ -214,10 +207,10 @@ export default function PostDetail() {
         {header}
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
-          <ThemedText selectable>{postError?.message}</ThemedText>
+          <ThemedText selectable>{error.message}</ThemedText>
         </ThemedView>
         <ThemedView className="flex-row gap-3 my-3">
-          <Pressable onPress={refresh}>
+          <Pressable onPress={() => refetch()}>
             <Text className='text-gray-500 py-2 px-3 bg-gray-500/20 rounded-full'>Retry</Text>
           </Pressable>
           <Pressable onPress={() => router.canGoBack() ? router.back() : router.navigate('/')}>
@@ -259,8 +252,8 @@ export default function PostDetail() {
           // }}
           getItemType={(item) => item.type}
           renderItem={renderItem}
-          refreshing={postFetching || repliesFetching}
-          onRefresh={refresh}
+          refreshing={isFetching}
+          onRefresh={refetch}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           ListFooterComponent={(
@@ -351,19 +344,6 @@ function _PostDetailItem({ item, postCount, onScrollEnd }: {
             color="white"
           />
         </View>
-      </View>
-    )
-  }
-  if (item.type === 'error') {
-    const error = item.data
-    return (
-      <View className="m-1 p-2 bg-red-500/30 rounded-md">
-        <Text className="text-white mb-2 font-bold">
-          Error fetching replies:
-        </Text>
-        <Text className="text-gray-200">
-          {error?.message}
-        </Text>
       </View>
     )
   }
