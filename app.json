@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "dev.djara.wafrn-rn"
+      "bundleIdentifier": "dev.djara.wafrn-rn",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "androidStatusBar": {

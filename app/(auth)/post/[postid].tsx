@@ -19,9 +19,9 @@ import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
-import { router, useLocalSearchParams } from "expo-router"
+import { Link, router, useLocalSearchParams } from "expo-router"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { FlatList, Pressable, Text, View } from "react-native"
+import { Dimensions, FlatList, Pressable, Text, View } from "react-native"
 import Reanimated from "react-native-reanimated"
 
 type PostDetailItemData = {
@@ -298,7 +298,8 @@ export default function PostDetail() {
           renderItem={renderItem}
           style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingBottom: 120
+            paddingBottom: 80,
+            minHeight: Dimensions.get('screen').height + 80
           }}
           keyExtractor={(item) => {
             if (item.type === 'post' || item.type === 'reply') {
@@ -329,6 +330,14 @@ export default function PostDetail() {
             <Loading />
           ) : (
             <View collapsable={false} className="my-8">
+              {postCount > 1 && (
+                <Link
+                  href={`/post/${(listData[0].data as { post: Post }).post.id}`}
+                  className="mb-4 text-center items-center mx-4 py-3 rounded-full text-blue-400 bg-blue-950 active:bg-blue-900"
+                >
+                  Go to initial post
+                </Link>
+              )}
               {mainPost?.remotePostId && (
                 remoteRepliesMutation.isPending ? <Loading /> : (
                   <Text
