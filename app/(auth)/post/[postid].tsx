@@ -79,6 +79,7 @@ export default function PostDetail() {
   const hiddenUserIds = useHiddenUserIds()
   const { data: settings } = useSettings()
   const layoutData = useLayoutData()
+  const listRef = useRef<FlashList<PostDetailItemData>>(null)
 
   const {
     mainPost,
@@ -159,8 +160,6 @@ export default function PostDetail() {
     return { mainPost, mainUser, postCount, listData, context }
   }, [settings, postData, repliesData, postid, repliesError, hiddenUserIds])
 
-  const listRef = useRef<FlashList<PostDetailItemData>>(null)
-
   function scrollToTop() {
     requestAnimationFrame(() => {
       listRef.current?.scrollToIndex({ index: 0, animated: false })
@@ -187,7 +186,7 @@ export default function PostDetail() {
     )
   }, [postCount])
 
-  const headerConfig = (
+  const header = (
     <Header
       style={{
         paddingTop: 4,
@@ -212,7 +211,7 @@ export default function PostDetail() {
         className="p-3 flex-1 justify-center items-center"
         style={{ marginTop: sx.paddingTop + 72 }}
       >
-        {headerConfig}
+        {header}
         <ThemedView>
           <ThemedText className="text-lg font-bold">Error</ThemedText>
           <ThemedText selectable>{postError?.message}</ThemedText>
@@ -231,7 +230,7 @@ export default function PostDetail() {
 
   return (
     <DashboardContextProvider data={context}>
-      {headerConfig}
+      {header}
       <View style={{ marginTop: sx.paddingTop + 72, flex: 1 }}>
         <AnimatedFlashList
           ref={listRef}
