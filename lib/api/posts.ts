@@ -9,6 +9,10 @@ import { EditorImage } from "@/components/editor/EditorImages"
 import { BSKY_URL } from "./content"
 import { getEnvironmentStatic } from "./auth"
 
+export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
+  minIndexForVisible: 0,
+}
+
 export const VIEWABILITY_CONFIG = {
   minimumViewTime: 500,
   itemVisiblePercentThreshold: 50,

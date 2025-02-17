@@ -3,13 +3,12 @@ import Header from "@/components/Header"
 import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
-import { CornerButton, useCornerButtonAnimation } from "@/components/CornerButton"
 import { ThemedText } from "@/components/ThemedText"
 import { ThemedView } from "@/components/ThemedView"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { getUserNameHTML, isEmptyRewoot, sortPosts } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { usePostDetail, useRemoteRepliesMutation } from "@/lib/api/posts"
+import { FLATLIST_PERFORMANCE_CONFIG, MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG, usePostDetail, useRemoteRepliesMutation } from "@/lib/api/posts"
 import { Post, PostThread, PostUser } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
@@ -19,11 +18,10 @@ import { useLayoutData } from "@/lib/store"
 import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { FlashList, FlashListProps } from "@shopify/flash-list"
 import clsx from "clsx"
 import { router, useLocalSearchParams } from "expo-router"
-import { memo, useCallback, useMemo, useRef } from "react"
-import { Pressable, Text, View } from "react-native"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { FlatList, Pressable, Text, View } from "react-native"
 import Reanimated from "react-native-reanimated"
 
 type PostDetailItemData = {
@@ -57,8 +55,6 @@ type PostDetailItemData = {
   data: Error | null
 }
 
-const AnimatedFlashList = Reanimated.createAnimatedComponent<FlashListProps<PostDetailItemData>>(FlashList)
-
 export default function PostDetail() {
   const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
@@ -70,16 +66,16 @@ export default function PostDetail() {
   } = usePostDetail(postid as string, true)
 
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
-  const { buttonStyle, scrollHandler } = useCornerButtonAnimation()
   const hiddenUserIds = useHiddenUserIds()
   const { data: settings } = useSettings()
   const layoutData = useLayoutData()
-  const listRef = useRef<FlashList<PostDetailItemData>>(null)
+  const listRef = useRef<FlatList<PostDetailItemData>>(null)
 
   const {
     mainPost,
     mainUser,
     postCount,
+    replyCount,
     listData,
     context,
   } = useMemo(() => {
@@ -145,46 +141,116 @@ export default function PostDetail() {
         }
       })
 
-    const postCount = mainPost?.ancestors.length || 0
+    const replyCount = fullReplies.length
+    const postCount = thread.length
 
-    const listData = [
-      postCount > 0 && { type: 'go-to-bottom' as const, data: null },
+    const listData = mainPost ? [
       ...thread.map((post) => ({ type: 'post' as const, data: post })),
-      mainPost && { type: 'interaction-ribbon' as const, data: mainPost },
-      mainPost && { type: 'stats' as const, data: statsText },
+      { type: 'interaction-ribbon' as const, data: mainPost },
+      { type: 'stats' as const, data: statsText },
       ...fullReplies,
-    ].filter(l => !!l)
+    ].filter(l => !!l) : []
 
-    return { mainPost, mainUser, postCount, listData, context }
+    return { mainPost, mainUser, postCount, replyCount, listData, context }
   }, [settings, data, postid, hiddenUserIds])
 
-  function scrollToTop() {
-    requestAnimationFrame(() => {
-      listRef.current?.scrollToIndex({ index: 0, animated: false })
-    })
-  }
+  // Pagination strategy copied and adapted from https://github.com/bluesky-social/social-app/blob/main/src/view/com/post-thread/PostThread.tsx#L377
 
-  const renderItem = useCallback(({ item, index }: { item: PostDetailItemData, index: number }) => {
-    function scrollToEnd(animated?: boolean) {
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToIndex({ index: postCount + 1, animated: false })
-      })
+  const PARENTS_CHUNK_SIZE = 10
+  const REPLIES_CHUNK_SIZE = 20
+  
+  // start with no parents so we show the main post first
+  const [maxParents, setMaxParents] = useState(0)
+  const [maxReplies, setMaxReplies] = useState(REPLIES_CHUNK_SIZE)
+
+  const currentList = useMemo(() => {
+    if (listData.length === 0) {
+      return []
     }
-    return (
-      <PostDetailItem
-        item={item}
-        postCount={postCount}
-        onScrollEnd={scrollToEnd}
-      />
-    )
-  }, [postCount])
+
+    const numAncestors = postCount - 1
+
+    const clampMaxParents = maxParents > numAncestors ? numAncestors : maxParents
+    const clampMaxReplies = maxReplies > replyCount ? replyCount : maxReplies
+
+    let startIndex = numAncestors - clampMaxParents
+
+    // +3 for the main post, then the interaction ribbon, then the stats
+    let endIndex = postCount + 3 + clampMaxReplies
+    
+    console.log('maxParents', maxParents)
+    console.log('maxReplies', maxReplies)
+
+    console.log('startIndex', startIndex)
+    console.log('endIndex', endIndex)
+
+    return listData.slice(startIndex, endIndex)
+  }, [listData, maxParents, maxReplies, postCount, replyCount])
+
+
+  // We reveal parents in chunks. Although they're all already
+  // loaded and FlatList already has its own virtualization, unfortunately FlatList
+  // has a bug that causes the content to jump around if too many items are getting
+  // prepended at once. It also jumps around if items get prepended during scroll.
+  // To work around this, we prepend rows after scroll bumps against the top and rests.
+  const needsBumpMaxParents = useRef(false)
+
+  const onStartReached = useCallback(() => {
+    if (isFetching) {
+      return
+    }
+
+    const parents = postCount - 1
+    if (parents && maxParents < parents) {
+      needsBumpMaxParents.current = true
+      console.log('onStartReached')
+    }
+  }, [maxParents, postCount, isFetching])
+
+  const onEndReached = useCallback(() => {
+    if (isFetching || replyCount < maxReplies) {
+      return
+    }
+    console.log('onEndReached')
+    setMaxReplies(prev => prev + 50)
+  }, [isFetching, maxReplies, replyCount])
+
+  const bumpMaxParentsIfNeeded = useCallback(() => {
+    console.log('bumpMaxParentsIfNeeded')
+    if (needsBumpMaxParents.current) {
+      needsBumpMaxParents.current = false
+      setMaxParents(n => n + PARENTS_CHUNK_SIZE)
+    }
+  }, [])
+
+  const onScrollToTop = bumpMaxParentsIfNeeded
+ 
+  const renderItem = useCallback(({ item }: { item: PostDetailItemData, index: number }) => (
+    <PostDetailItem item={item} />
+  ), [])
+
+  useEffect(() => {
+    // reset pagination when a new post is fetched
+    setMaxParents(0)
+    setMaxReplies(REPLIES_CHUNK_SIZE)
+
+    // make it so on the next scroll event, we bump the max parents without disturbing the current scroll position
+    needsBumpMaxParents.current = true
+
+    // scroll to the top with a small delay (I don't know how much to set here, just need the first list item to be rendered)
+    if (data) {
+      setTimeout(() => {
+        listRef.current?.scrollToIndex({ index: 0, animated: false })
+      }, 100)
+    }
+  
+    // react on "data" to run this effect everytime a new post is fetched
+    // like when navigating between posts on a thread
+  }, [data, bumpMaxParentsIfNeeded])
 
   const header = (
     <Header
-      style={{
-        paddingTop: 4,
-        paddingBottom: 4,
-      }}
+      style={{ height: 72 }}
       title={(
         <View>
           <Text className="text-white text-2xl font-semibold">
@@ -225,15 +291,15 @@ export default function PostDetail() {
     <DashboardContextProvider data={context}>
       {header}
       <View style={{ marginTop: sx.paddingTop + 72, flex: 1 }}>
-        <AnimatedFlashList
+        <Reanimated.FlatList
           ref={listRef}
-          data={listData}
+          data={currentList}
           extraData={layoutData}
-          className="flex-1"
+          renderItem={renderItem}
+          style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: 120
           }}
-          estimatedItemSize={500}
           keyExtractor={(item) => {
             if (item.type === 'post' || item.type === 'reply') {
               return item.data.post.id
@@ -246,21 +312,25 @@ export default function PostDetail() {
             }
             return item.type
           }}
-          // maintainVisibleContentPosition={{
-          //   minIndexForVisible: 0,
-          //   // autoscrollToTopThreshold: 10,
-          // }}
-          getItemType={(item) => item.type}
-          renderItem={renderItem}
+          maintainVisibleContentPosition={isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG}
           refreshing={isFetching}
           onRefresh={refetch}
-          onScroll={scrollHandler}
-          scrollEventThrottle={16}
-          ListFooterComponent={(
+          scrollEventThrottle={1}
+          onStartReached={onStartReached}
+          onStartReachedThreshold={0.1}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.1}
+          onMomentumScrollEnd={bumpMaxParentsIfNeeded}
+          onScrollToTop={onScrollToTop} // only on iOS
+          ListHeaderComponent={maxParents < (postCount - 1) ? (
+            <Loading />
+          ) : null}
+          ListFooterComponent={maxReplies < replyCount ? (
+            <Loading />
+          ) : (
             <View collapsable={false} className="my-8">
               {mainPost?.remotePostId && (
-                <>
-                  {remoteRepliesMutation.isPending && <Loading />}
+                remoteRepliesMutation.isPending ? <Loading /> : (
                   <Text
                     onPress={() => remoteRepliesMutation.mutate()}
                     className={clsx(
@@ -271,40 +341,18 @@ export default function PostDetail() {
                   >
                     Fetch more replies from remote instance
                   </Text>
-                </>
+                )
               )}
             </View>
           )}
+          {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
-      <CornerButton buttonStyle={buttonStyle} onClick={scrollToTop} />
     </DashboardContextProvider>
   )
 }
 
-function _PostDetailItem({ item, postCount, onScrollEnd }: {
-  item: PostDetailItemData
-  postCount: number
-  onScrollEnd: (animmted: boolean) => void
-}) {
-  if (item.type === 'go-to-bottom') {
-    return (
-      <View className="p-2">
-        <Pressable
-          className='text-indigo-500 py-1 px-2 bg-indigo-500/20 rounded-lg flex-row items-baseline gap-1'
-          onPress={() => onScrollEnd(postCount < 20)}
-        >
-          <MaterialCommunityIcons name="arrow-down" size={16} color="white" />
-          <Text className="text-white">
-            Go to end of thread
-            <Text className="text-sm text-gray-300">
-              {' - '}{postCount + 1} {pluralize(postCount + 1, 'post')}
-            </Text>
-          </Text>
-        </Pressable>
-      </View>
-    )
-  }
+function _PostDetailItem({ item }: { item: PostDetailItemData }) {
   if (item.type === 'post') {
     const post = item.data.post
     return (

@@ -46,7 +46,9 @@ export default function Header({
         <Text numberOfLines={1} className="text-white text-lg flex-grow flex-shrink">
           {title}
         </Text>
-      ) : title}
+      ) : (
+        <View className="flex-grow flex-shrink">{title}</View>
+      )}
       {right}
     </View>
   )
