@@ -45,6 +45,8 @@ export type PostUserRelation = {
 }
 
 export type PostEmojiReaction = PostUserRelation & {
+  id?: string // TODO: these ids are returned in the notifications endpoint but not in other endpoints
+  remoteId?: string // TODO: these ids are returned in the notifications endpoint but not in other endpoints
   content: string
   emojiId: string | null
 }

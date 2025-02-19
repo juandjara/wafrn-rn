@@ -7,11 +7,10 @@ import UserRibbon from "@/components/user/UserRibbon"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { replaceEmojis } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
-import { Post } from "@/lib/api/posts.types"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
-import { getNotificationKey, getNotificationList, notificationPageToDashboardPage, useNotifications, type Notification } from "@/lib/notifications"
+import { FullNotificationV3, getNotificationListV3, notificationPageToDashboardPageV3, useNotificationsV3 } from "@/lib/notifications"
 import { useLayoutData } from "@/lib/store"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -32,12 +31,12 @@ export default function NotificationList() {
     fetchNextPage,
     hasNextPage,
     isFetching,
-  } = useNotifications()
+  } = useNotificationsV3()
 
   const layoutData = useLayoutData()
   const { data: settings } = useSettings()
   const context = useMemo(() => {
-    const pages = data?.pages.map((page) => notificationPageToDashboardPage(page)) || []
+    const pages = data?.pages.map((page) => notificationPageToDashboardPageV3(page)) || []
     return getDashboardContext(pages, settings)
   }, [data, settings])
 
@@ -45,10 +44,10 @@ export default function NotificationList() {
     if (!data) {
       return []
     }
-    return getNotificationList(data.pages)
+    return getNotificationListV3(data.pages)
   }, [data])
 
-  const listRef = useRef<FlashList<Notification>>(null)
+  const listRef = useRef<FlashList<FullNotificationV3>>(null)
 
   useScrollToTop(listRef as any)
 
@@ -68,11 +67,11 @@ export default function NotificationList() {
           data={notifications}
           extraData={layoutData}
           estimatedItemSize={300}
-          getItemType={(item) => item.type}
+          getItemType={(item) => item.notificationType}
           refreshing={isFetching}
           onRefresh={refresh}
           onEndReachedThreshold={2}
-          keyExtractor={getNotificationKey}
+          keyExtractor={(n) => String(n.id)}
           onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
           ListFooterComponent={isFetching ? <Loading /> : null}
           renderItem={({ item }) => <NotificationItem notification={item} />}
@@ -82,7 +81,7 @@ export default function NotificationList() {
   ) 
 }
 
-function NotificationItem({ notification }: { notification: Notification }) {
+function NotificationItem({ notification }: { notification: FullNotificationV3 }) {
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
@@ -100,10 +99,10 @@ function NotificationItem({ notification }: { notification: Notification }) {
   }
 
   let ribbon = null
-  if (notification.type === 'reblog') {
+  if (notification.notificationType === 'REWOOT') {
     ribbon = <RewootRibbon user={user} userNameHTML={userName} />
   }
-  if (notification.type === 'quote') {
+  if (notification.notificationType === 'QUOTE') {
     ribbon = (
       <GenericRibbon
         user={user}
@@ -116,7 +115,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       />
     )
   }
-  if (notification.type === 'like') {
+  if (notification.notificationType === 'LIKE') {
     ribbon = (
       <GenericRibbon
         user={user}
@@ -129,7 +128,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       />
     )
   }
-  if (notification.type === 'emoji') {
+  if (notification.notificationType === 'EMOJIREACT') {
     const id = notification.emoji.emojiId
     const emojis = Object.fromEntries(
       context.emojiRelations.emojis.map((e) => [e.id, e])
@@ -155,7 +154,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       />
     )
   }
-  if (notification.type === 'follow') {
+  if (notification.notificationType === 'FOLLOW') {
     ribbon = (
       <GenericRibbon
         user={user}
@@ -168,7 +167,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
       />
     )
   }
-  if (notification.type === 'mention') {
+  if (notification.notificationType === 'MENTION') {
     const isReply = !!notification.post.parentId
     ribbon = (
       <GenericRibbon
@@ -184,7 +183,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
   }
 
   let content = null
-  if (notification.type === 'follow') {
+  if (notification.notificationType === 'FOLLOW') {
     content = (
       <Link href={`/user/${notification.user.url}`} className="mx-3">
         <UserRibbon
@@ -194,19 +193,19 @@ function NotificationItem({ notification }: { notification: Notification }) {
       </Link>
     )
   } else {
-    const post = (notification as any).post as Post
+    const post = notification.post
     if (post) {
       content = <PostFragment post={post} hasCornerMenu={false} collapsible={false} />
     }
   }
 
   const verbs = {
-    reblog: 'rewooted',
-    mention: 'mentioned',
-    quote: 'quoted',
-    like: 'liked',
-    emoji: 'reacted',
-    follow: 'followed',
+    REWOOT: 'rewooted',
+    MENTION: 'mentioned',
+    QUOTE: 'quoted',
+    LIKE: 'liked',
+    EMOJIREACT: 'reacted',
+    FOLLOW: 'followed',
   }
 
   return (
@@ -214,14 +213,14 @@ function NotificationItem({ notification }: { notification: Notification }) {
       <View className="border-b border-slate-600">
         {ribbon}
       </View>
-      {notification.type !== 'mention' && (
+      {notification.notificationType !== 'MENTION' && (
         <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
-          <Text className="text-gray-300 text-xs font-bold">{verbs[notification.type]}</Text>
+          <Text className="text-gray-300 text-xs font-bold">{verbs[notification.notificationType]}</Text>
           <Text className="text-gray-300 text-xs">{timeAgo(notification.createdAt)}</Text>
         </View>
       )}
       {content}
-      {notification.type !== 'follow' && (
+      {notification.notificationType !== 'FOLLOW' && (
         <LinearGradient
           className='flex-row justify-center absolute pt-4 pb-2 px-2 bottom-0 -left-3 -right-3'
           colors={[
