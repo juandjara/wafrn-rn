@@ -18,6 +18,10 @@ export const WAFRNMEDIA_REGEX =
 export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
+  if (post.isRewoot) {
+    return true
+  }
+
   if (!!post.content || !!post.content_warning) {
     return false
   }

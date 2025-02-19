@@ -10,6 +10,8 @@ export type Post = {
   remotePostId: string | null
   privacy: PrivacyLevel
   featured: boolean
+  isRewoot?: boolean // TODO: defined only for local posts
+  isDeleted?: boolean // TODO: (not sure about this one) defined only for local posts ??
   createdAt: string // ISO string
   updatedAt: string // ISO string
   userId: string

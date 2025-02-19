@@ -88,6 +88,17 @@ export default function PostFragment({
     return null
   }
 
+  if (post.isDeleted) {
+    return (
+      <View className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3" style={{ maxHeight: 300, maxWidth: width }}>
+        <MaterialIcons name="delete" color="white" size={24} />
+        <Text className="text-gray-300 text-center text-sm p-4">
+          This post has been deleted
+        </Text>
+      </View>
+    )
+  }
+
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
