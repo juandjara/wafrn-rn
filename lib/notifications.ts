@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { getJSON } from "./http"
 import { useAuth } from "./contexts/AuthContext"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { DashboardData, Post, PostAsk, PostEmojiContext, PostMedia, PostTag, PostUser } from "./api/posts.types"
+import { DashboardData, Post, PostAsk, PostEmojiContext, PostMedia, PostQuote, PostTag, PostUser } from "./api/posts.types"
 import { Timestamps } from "./api/types"
 import { getEnvironmentStatic } from "./api/auth"
 
@@ -47,6 +47,7 @@ export type NotificationsPageContext = {
   asks: PostAsk[]
   tags: (PostTag & Timestamps & { id: string })[]
   emojiRelations: PostEmojiContext
+  quotes: PostQuote[]
 }
 
 export type NotificationBase = Timestamps & {
@@ -125,8 +126,7 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
     rewootIds: [],
     polls: [],
     mentions: [],
-    quotes: [], // TODO inlcude data for this somehow
-    quotedPosts: [], // TODO inlcude data for this somehow
+    quotedPosts: page.posts.filter(p => page.quotes.some(q => q.quotedPostId === p.id)),
     users: page.users.map(u => ({ ...u, remoteId: null })),
     posts: page.posts.map(p => ({ ...p, ancestors: [] })),
   } satisfies DashboardData
