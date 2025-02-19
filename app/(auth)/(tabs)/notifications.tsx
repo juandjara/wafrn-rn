@@ -10,7 +10,7 @@ import { getDashboardContext } from "@/lib/api/dashboard"
 import { useSettings } from "@/lib/api/settings"
 import { DashboardContextProvider, useDashboardContext } from "@/lib/contexts/DashboardContext"
 import { formatCachedUrl, formatMediaUrl, timeAgo } from "@/lib/formatters"
-import { FullNotificationV3, getNotificationListV3, notificationPageToDashboardPageV3, useNotificationsV3 } from "@/lib/notifications"
+import { FullNotification, getNotificationList, notificationPageToDashboardPage, useNotifications } from "@/lib/notifications"
 import { useLayoutData } from "@/lib/store"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -31,12 +31,12 @@ export default function NotificationList() {
     fetchNextPage,
     hasNextPage,
     isFetching,
-  } = useNotificationsV3()
+  } = useNotifications()
 
   const layoutData = useLayoutData()
   const { data: settings } = useSettings()
   const context = useMemo(() => {
-    const pages = data?.pages.map((page) => notificationPageToDashboardPageV3(page)) || []
+    const pages = data?.pages.map((page) => notificationPageToDashboardPage(page)) || []
     return getDashboardContext(pages, settings)
   }, [data, settings])
 
@@ -44,10 +44,10 @@ export default function NotificationList() {
     if (!data) {
       return []
     }
-    return getNotificationListV3(data.pages)
+    return getNotificationList(data.pages)
   }, [data])
 
-  const listRef = useRef<FlashList<FullNotificationV3>>(null)
+  const listRef = useRef<FlashList<FullNotification>>(null)
 
   useScrollToTop(listRef as any)
 
@@ -81,7 +81,7 @@ export default function NotificationList() {
   ) 
 }
 
-function NotificationItem({ notification }: { notification: FullNotificationV3 }) {
+function NotificationItem({ notification }: { notification: FullNotification }) {
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
