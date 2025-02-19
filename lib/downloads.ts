@@ -7,7 +7,7 @@ const CACHE_DIR = `${cacheDirectory}WAFRN/`
 async function ensureDownloadDirectory() {
   const dir = await getInfoAsync(CACHE_DIR)
   if (!dir.exists) {
-    console.log('WAFRN directory does not exist, creating...')
+    console.log('WAFRN download directory does not exist, creating...')
     await makeDirectoryAsync(CACHE_DIR, { intermediates: true })
   }
 }

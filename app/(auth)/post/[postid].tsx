@@ -178,12 +178,6 @@ export default function PostDetail() {
     // +3 for the main post, then the interaction ribbon, then the stats
     let endIndex = postCount + 3 + clampMaxReplies
     
-    console.log('maxParents', maxParents)
-    console.log('maxReplies', maxReplies)
-
-    console.log('startIndex', startIndex)
-    console.log('endIndex', endIndex)
-
     return listData.slice(startIndex, endIndex)
   }, [listData, maxParents, maxReplies, postCount, replyCount])
 
@@ -203,7 +197,6 @@ export default function PostDetail() {
     const parents = postCount - 1
     if (parents && maxParents < parents) {
       needsBumpMaxParents.current = true
-      console.log('onStartReached')
     }
   }, [maxParents, postCount, isFetching])
 
@@ -211,12 +204,10 @@ export default function PostDetail() {
     if (isFetching || replyCount < maxReplies) {
       return
     }
-    console.log('onEndReached')
     setMaxReplies(prev => prev + 50)
   }, [isFetching, maxReplies, replyCount])
 
   const bumpMaxParentsIfNeeded = useCallback(() => {
-    console.log('bumpMaxParentsIfNeeded')
     if (needsBumpMaxParents.current) {
       needsBumpMaxParents.current = false
       setMaxParents(n => n + PARENTS_CHUNK_SIZE)
