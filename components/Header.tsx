@@ -42,9 +42,9 @@ export default function Header({
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
       )}
-      <View className="flex-grow flex-shrink">
+      <View className="flex-grow flex-shrink flex-row items-center">
         {typeof title === 'string' ? (
-          <Text numberOfLines={1} className="text-white text-lg flex-grow flex-shrink">
+          <Text numberOfLines={1} className="text-white text-lg">
             {title}
           </Text>
         ) : title}
