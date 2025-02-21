@@ -1,5 +1,6 @@
 import { Colors, getRootStyles } from "@/constants/Colors"
 import { useNotificationBadges } from "@/lib/notifications"
+import { usePushNotifications } from "@/lib/push-notifications"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Tabs } from "expo-router"
 import { useColorScheme } from "react-native"
@@ -13,6 +14,9 @@ export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+
+  // running this here to only register notifications after auth flow is complete
+  usePushNotifications()
 
   return (
     <Tabs screenOptions={{
