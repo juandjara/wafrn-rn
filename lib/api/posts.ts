@@ -66,7 +66,6 @@ export function usePostDetail(id: string, includeReplies = true) {
       }
     },
     enabled: !!token && !!id,
-    throwOnError: false
   })
 }
 
@@ -93,16 +92,6 @@ export async function getPostReplies(token: string, id: string) {
   const data = json as DashboardData
   return data
 }
-
-// export function usePostReplies(id: string) {
-//   const { token } = useAuth()
-//   return useQuery({
-//     queryKey: ['post', id, 'replies'],
-//     queryFn: () => getPostReplies(token!, id),
-//     enabled: !!token && !!id,
-//     throwOnError: false
-//   })
-// }
 
 export async function requestMoreRemoteReplies(token: string, id: string) {
   const env = getEnvironmentStatic()

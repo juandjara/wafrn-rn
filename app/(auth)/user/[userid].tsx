@@ -1,8 +1,6 @@
 import Loading from "@/components/Loading"
 import Thread from "@/components/posts/Thread"
 import { CornerButton, useCornerButtonAnimation } from "@/components/CornerButton"
-import { ThemedText } from "@/components/ThemedText"
-import { ThemedView } from "@/components/ThemedView"
 import UserDetail from "@/components/user/UserDetail"
 import { dedupePosts, getDashboardContext, useUserFeed } from "@/lib/api/dashboard"
 import { PostThread } from "@/lib/api/posts.types"
@@ -10,19 +8,19 @@ import { useSettings } from "@/lib/api/settings"
 import { User, useUser } from "@/lib/api/user"
 import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { useLayoutData } from "@/lib/store"
-import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQueryClient } from "@tanstack/react-query"
-import { Link, router, useLocalSearchParams } from "expo-router"
+import { Link, useLocalSearchParams } from "expo-router"
 import { useCallback, useMemo, useRef } from "react"
 import { FlatList, Pressable, Text, View } from "react-native"
 import Animated from "react-native-reanimated"
 import { FLATLIST_PERFORMANCE_CONFIG } from "@/lib/api/posts"
+import ErrorView from "@/components/errors/ErrorView"
 
 type UserListItem =
   | { type: 'user', user: User }
-  | { type: 'error', error: Error }
+  | { type: 'error', error: Error, refetch: () => void }
   | { type: 'post', post: PostThread }
 
 export default function UserFeed() {
@@ -35,11 +33,13 @@ export default function UserFeed() {
     fetchNextPage,
     hasNextPage,
     error: feedError,
+    refetch: refetchFeed,
   } = useUserFeed(userid as string)
   const {
     data: user,
     isFetching: userFetching,
     error: userError,
+    refetch: refetchUser,
   } = useUser(userid as string)
 
   const qc = useQueryClient()
@@ -55,13 +55,14 @@ export default function UserFeed() {
     const posts = dedupePosts(feed?.pages || [])
     
     const listData = [
+      userError && { type: 'error' as const, error: userError, refetch: refetchUser },
       user && { type: 'user' as const, user },
-      feedError && { type: 'error' as const, error: feedError },
+      feedError && { type: 'error' as const, error: feedError, refetch: refetchFeed },
       ...posts.map((post) => ({ type: 'post' as const, post })),
     ].filter(d => !!d)
 
     return { context, listData }
-  }, [settings, feedError, feed?.pages, user])
+  }, [settings, feed?.pages, feedError, refetchFeed, user, userError, refetchUser])
 
   const renderListItem = useCallback(({ item }: { item: UserListItem }) => {
     if (item.type === 'post') {
@@ -72,14 +73,10 @@ export default function UserFeed() {
     }
     if (item.type === 'error' && item.error) {
       return (
-        <View className="m-1 p-2 bg-red-500/30 rounded-md">
-          <Text className="text-white mb-2 font-bold">
-            Error fetching user posts:
-          </Text>
-          <Text className="text-gray-200">
-            {item.error.message}
-          </Text>
-        </View>
+        <ErrorView
+          onRetry={item.refetch}
+          message={item.error.message}
+        />
       )
     }
     return null
@@ -97,20 +94,11 @@ export default function UserFeed() {
 
   if (userError) {
     return (
-      <ThemedView className="p-3 flex-1 justify-center items-center">
-        <ThemedView>
-          <ThemedText className="text-lg font-bold">Error</ThemedText>
-          <ThemedText selectable>{userError?.message}</ThemedText>
-        </ThemedView>
-        <ThemedView className="flex-row gap-3 my-3">
-          <Pressable onPress={refresh}>
-            <Text className='text-gray-500 py-2 px-3 bg-gray-500/20 rounded-full'>Retry</Text>
-          </Pressable>
-          <Pressable onPress={() => router.canGoBack() ? router.back() : router.navigate('/')}>
-            <Text className={buttonCN}>Go back</Text>
-          </Pressable>
-        </ThemedView>
-      </ThemedView>
+      <ErrorView
+        style={{ marginTop: sx.paddingTop + 72 }}
+        message={userError.message}
+        onRetry={refresh}
+      />
     )
   }
 

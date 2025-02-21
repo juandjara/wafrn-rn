@@ -1,10 +1,9 @@
 import PostFragment from "@/components/dashboard/PostFragment"
+import ErrorView from "@/components/errors/ErrorView"
 import Header from "@/components/Header"
 import Loading from "@/components/Loading"
 import InteractionRibbon from "@/components/posts/InteractionRibbon"
 import RewootRibbon from "@/components/posts/RewootRibbon"
-import { ThemedText } from "@/components/ThemedText"
-import { ThemedView } from "@/components/ThemedView"
 import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
 import { getUserNameHTML, isEmptyRewoot, sortPosts } from "@/lib/api/content"
 import { getDashboardContext } from "@/lib/api/dashboard"
@@ -15,14 +14,15 @@ import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
 import { formatUserUrl } from "@/lib/formatters"
 import pluralize from "@/lib/pluralize"
 import { useLayoutData } from "@/lib/store"
-import { buttonCN } from "@/lib/styles"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import clsx from "clsx"
-import { Link, router, useLocalSearchParams } from "expo-router"
+import { Link, useLocalSearchParams } from "expo-router"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Dimensions, FlatList, Pressable, Text, View } from "react-native"
+import { Dimensions, FlatList, Text, View } from "react-native"
 import Reanimated from "react-native-reanimated"
+
+const POST_HEADER_HEIGHT = 72
 
 type PostDetailItemData = {
   type: 'go-to-bottom'
@@ -241,7 +241,7 @@ export default function PostDetail() {
 
   const header = (
     <Header
-      style={{ height: 72 }}
+      style={{ height: POST_HEADER_HEIGHT }}
       title={(
         <View>
           <Text className="text-white text-2xl font-semibold">
@@ -257,24 +257,14 @@ export default function PostDetail() {
 
   if (error) {
     return (
-      <ThemedView
-        className="p-3 flex-1 justify-center items-center"
-        style={{ marginTop: sx.paddingTop + 72 }}
-      >
+      <View className="flex-1">
         {header}
-        <ThemedView>
-          <ThemedText className="text-lg font-bold">Error</ThemedText>
-          <ThemedText selectable>{error.message}</ThemedText>
-        </ThemedView>
-        <ThemedView className="flex-row gap-3 my-3">
-          <Pressable onPress={() => refetch()}>
-            <Text className='text-gray-500 py-2 px-3 bg-gray-500/20 rounded-full'>Retry</Text>
-          </Pressable>
-          <Pressable onPress={() => router.canGoBack() ? router.back() : router.navigate('/')}>
-            <Text className={buttonCN}>Go back</Text>
-          </Pressable>
-        </ThemedView>
-      </ThemedView>
+        <ErrorView
+          style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT + 8 }}
+          message={error.message}
+          onRetry={refetch}
+        />
+      </View>
     )
   }
 

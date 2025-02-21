@@ -246,6 +246,5 @@ export function useUserFeed(userId: string) {
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
     enabled: !!token,
-    throwOnError: false,
   })
 }

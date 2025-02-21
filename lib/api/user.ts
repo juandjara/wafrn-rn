@@ -88,7 +88,6 @@ export function useUser(handle: string) {
     queryKey: ['user', handle],
     queryFn: () => getUser(token!, handle),
     enabled: !!token,
-    throwOnError: false,
   })
 }
 
