@@ -37,7 +37,7 @@ export default function ErrorCopyToast({
           }
         }}
       >
-        <Text className="text-red-800 font-bold">Copy</Text>
+        <Text className="text-red-800 font-semibold">Copy</Text>
       </Pressable>
     </View>
   )
