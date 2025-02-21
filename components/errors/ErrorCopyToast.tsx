@@ -19,7 +19,7 @@ export default function ErrorCopyToast({
     >
       <Text className="text-white flex-grow">{error.message}</Text>
       <Pressable
-        className="bg-white active:bg-gray-200 p-2 rounded-lg"
+        className="bg-white active:bg-gray-200 p-2 rounded-lg flex-shrink-0"
         onPress={async () => {
           if (error.stack) {
             await Clipboard.setStringAsync(error.stack)
