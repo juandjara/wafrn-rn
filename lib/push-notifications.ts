@@ -63,6 +63,8 @@ async function setupPushNotifications(authToken: string) {
     const token = await Notifications.getExpoPushTokenAsync({ projectId })
     await registerPushNotificationToken(authToken, token.data)
 
+    console.log('> Expo token registered with server instance')
+
     return token.data
   } else {
     throw new Error('Must use physical device to setup push notifications')
@@ -114,13 +116,10 @@ export function usePushNotifications() {
     }
 
     const subscription = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('Notification received while the app is running', notification)
       refetchBadges()
     })
 
     const subscription2 = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('Notification pressed while the app is running', response)
-      // TODO: navigate to the notification link
       const notif = response.notification.request.content.data as PushNotificationPayload
       processNotificationClick(notif)
     })
