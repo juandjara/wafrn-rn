@@ -1,5 +1,5 @@
 import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { useAdminCheck, useAuth } from "@/lib/contexts/AuthContext";
+import { useAdminCheck, useLogout } from "@/lib/contexts/AuthContext";
 import { optionStyleDark } from "@/lib/styles";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -10,8 +10,8 @@ import colors from "tailwindcss/colors";
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
-  const { setToken } = useAuth()
   const isAdmin = useAdminCheck()
+  const logout = useLogout()
 
   const options = useMemo(() => {
     const opts = [
@@ -76,7 +76,7 @@ export default function Settings() {
       <Header title="Settings" />
       <ScrollView>
         <Pressable
-          onPress={() => setToken(null)}
+          onPress={logout}
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >

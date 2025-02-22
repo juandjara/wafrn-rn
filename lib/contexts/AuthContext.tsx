@@ -1,7 +1,8 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from "react";
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from "react";
 import useAsyncStorage from "../useLocalStorage";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { Environment, parseToken, useEnvironment } from "../api/auth";
+import { deleteItemAsync } from "expo-secure-store";
 
 export enum UserRoles {
   Admin = 10,
@@ -27,13 +28,15 @@ const AuthContext = createContext<AuthContextData>({
   env: null,
 });
 
+const AUTH_TOKEN_KEY = 'wafrn_token'
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const { data: env, isLoading: envLoading } = useEnvironment()
   const {
     value: token,
     setValue: setToken,
     loading: tokenLoading
-  } = useAsyncStorage<string>('wafrn_token')
+  } = useAsyncStorage<string>(AUTH_TOKEN_KEY)
   const context = useMemo(() => {
     const parsed = parseToken(token)
     return {
@@ -64,4 +67,14 @@ export function useAuth() {
 export function useParsedToken() {
   const { token } = useAuth()
   return useMemo(() => parseToken(token), [token])
+}
+
+const PUSH_TOKEN_KEY = 'pushNotificationToken'
+
+export function useLogout() {
+  const { setToken } = useAuth()
+  return useCallback(() => {
+    setToken(null)
+    deleteItemAsync(PUSH_TOKEN_KEY)
+  }, [setToken])
 }

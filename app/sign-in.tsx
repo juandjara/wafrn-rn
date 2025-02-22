@@ -1,7 +1,7 @@
 import { DEFAULT_INSTANCE, useEnvCheckMutation, useLoginMutation } from "@/lib/api/auth"
-import { useAuth } from "@/lib/contexts/AuthContext"
+import { useAuth, useLogout } from "@/lib/contexts/AuthContext"
 import { Link, router } from "expo-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { TextInput, Button, View, Text, Pressable, Platform, KeyboardAvoidingView } from "react-native"
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
 import { useThemeColor } from "@/hooks/useThemeColor"
@@ -28,6 +28,13 @@ export default function SignIn() {
     value: savedInstance,
     setValue: setSavedInstance
   } = useAsyncStorage<string>('wafrn_instance_url')
+
+  const logout = useLogout()
+
+  useEffect(() => {
+    // reset local storage when entering sign in screen
+    logout()
+  }, [logout])
 
   function connect() {
     const url = instance || DEFAULT_INSTANCE
