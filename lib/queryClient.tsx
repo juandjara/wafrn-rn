@@ -2,6 +2,7 @@ import { toast } from "@backpackapp-io/react-native-toast"
 import { QueryCache, QueryClient } from "@tanstack/react-query"
 import ErrorCopyToast from "@/components/errors/ErrorCopyToast"
 import { StatusError } from "./http"
+import { router } from "expo-router"
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +20,11 @@ export const queryClient = new QueryClient({
 
         // dont retry when error is not an error response from the backend or is status code 0 (inner network layer error, probably due to malformed url)
         if (!statusCode) {
+          return false
+        }
+
+        if (statusCode === 401) {
+          router.navigate('/sign-in')
           return false
         }
 
