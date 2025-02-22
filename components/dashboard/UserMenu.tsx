@@ -1,7 +1,7 @@
 import { useCurrentUser } from "@/lib/api/user"
 import { formatSmallAvatar } from "@/lib/formatters"
 import { router } from "expo-router"
-import { Text, TouchableOpacity } from "react-native"
+import { Text, TouchableOpacity, View } from "react-native"
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from "react-native-popup-menu"
 import colors from "tailwindcss/colors"
 import { Image } from 'expo-image'
@@ -62,11 +62,15 @@ export default function UserMenu() {
   return (
     <Menu>
       <MenuTrigger customStyles={{ TriggerTouchableComponent: TouchableOpacity }}>
-        <Image
-          className="rounded-full"
-          source={{ uri: formatSmallAvatar(me.avatar) }}
-          style={{ width: 40, height: 40 }}
-        />
+        <View
+          className="border border-gray-200/20 rounded-full"
+        >
+          <Image
+            className="rounded-full"
+            source={{ uri: formatSmallAvatar(me.avatar) }}
+            style={{ width: 40, height: 40 }}
+          />
+        </View>
         {anyBadge && (
           <Text className="absolute -top-1.5 -right-1.5 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
             {options.reduce((acc, option) => acc + (option.badge || 0), 0)}
