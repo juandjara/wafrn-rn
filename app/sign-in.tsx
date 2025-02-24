@@ -12,6 +12,7 @@ import useAsyncStorage from "@/lib/useLocalStorage"
 import { Toasts } from "@backpackapp-io/react-native-toast"
 import { showToastError, showToastSuccess } from "@/lib/interaction"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { isValidURL } from "@/lib/api/content"
 const bigW = require('@/assets/images/logo_w.png')
 
 export default function SignIn() {
@@ -36,8 +37,8 @@ export default function SignIn() {
     logout()
   }, [logout])
 
-  function connect() {
-    const url = instance || DEFAULT_INSTANCE
+  function connect(url: string) {
+    // const url = instance || DEFAULT_INSTANCE
     envMutation.mutate(url, {
       onSuccess: async () => {
         // the instance environment is valid, save the url to local storage
@@ -139,22 +140,32 @@ export default function SignIn() {
             <>
               <View className="my-3">
                 <Text className="text-sm text-gray-200 mb-2">
-                  please enter your instance URL
+                  please enter the URL of your WAFRN server
                 </Text>
                 <TextInput
                   readOnly={envMutation.isPending || !!savedInstance}
-                  placeholder={DEFAULT_INSTANCE}
+                  placeholder="https://"
                   style={{ color }}
                   className="p-3 border border-gray-500 rounded-md placeholder:text-gray-400"
                   value={instance}
                   onChangeText={setInstance}
                 />
+                {instance && !isValidURL(instance) && (
+                  <Text className="text-red-500 text-sm">
+                    Invalid URL
+                  </Text>
+                )}
               </View>
               <View className="mt-3">
                 <Button
-                  title={envMutation.isPending ? 'Loading...' : 'Next'}
+                  title={envMutation.isPending ? 'Loading...' : 'Connect'}
+                  disabled={envMutation.isPending || !!savedInstance || !isValidURL(instance)}
+                  onPress={() => connect(instance)}
+                />
+                <Button
+                  title={envMutation.isPending ? '...' : 'Use Main Server (app.wafrn.net)'}
                   disabled={envMutation.isPending || !!savedInstance}
-                  onPress={connect}
+                  onPress={() => connect(DEFAULT_INSTANCE)}
                 />
               </View>
             </>
