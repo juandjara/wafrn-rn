@@ -19,7 +19,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
-    const msg = `${JSON.stringify(json)} \nURL: ${params[0]}`
+    const msg = `API Error: ${JSON.stringify(json)} \nURL: ${params[0]}`
     console.error(msg)
     throw statusError(500, msg)
   }
@@ -55,7 +55,7 @@ export async function uploadFile({
   try {
     const json = JSON.parse(res?.body || '{}')
     if (isErrorResponse(json)) {
-      const msg = `${res?.body}\nURL: ${uploadUrl}`
+      const msg = `API Error: ${res?.body}\nURL: ${uploadUrl}`
       console.error(msg)
       throw statusError(500, msg)  
     }
