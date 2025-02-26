@@ -15,7 +15,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('Accept', 'application/json')
   const res = await fetch(...params)
   if (!res.ok) {
-    throw statusError(res.status, `${res.status} ${res.statusText} \n${await res.text()}\nURL: ${params[0]}`)
+    throw statusError(res.status, `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}`)
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
@@ -49,20 +49,20 @@ export async function uploadFile({
   const status = res?.status || 500
 
   if (status >= 400) {
-    throw statusError(status, `Network response not ok for url ${uploadUrl}: code ${status} \n${res?.body}`)
+    throw statusError(status, `HTTP Error Code ${status} \n${res?.body}\nURL: ${uploadUrl}`)
   }
 
   try {
     const json = JSON.parse(res?.body || '{}')
     if (isErrorResponse(json)) {
-      const msg = `Error response for URL ${uploadUrl}: ${res?.body}`
+      const msg = `${res?.body}\nURL: ${uploadUrl}`
       console.error(msg)
       throw statusError(500, msg)  
     }
     return json
   } catch (err) {
     console.error(err)
-    throw statusError(500, `Error parsing response body for URL ${uploadUrl}: ${res?.body}`)
+    throw statusError(500, `Error decoding JSON "${res?.body}"\nURL: ${uploadUrl}`)
   }
 }
 

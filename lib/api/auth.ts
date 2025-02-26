@@ -97,7 +97,8 @@ export function useEnvironment() {
       const env = await getInstanceEnvironment(value! || DEFAULT_INSTANCE)
       return env
     },
-    enabled: !!value
+    enabled: !!value,
+    throwOnError: true
   })
   return { data, isLoading: isLoading || loading }
 }
