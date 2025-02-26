@@ -15,11 +15,11 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('Accept', 'application/json')
   const res = await fetch(...params)
   if (!res.ok) {
-    throw statusError(res.status, `Network response not ok for url ${params[0]}: ${res.status} ${res.statusText} \n${await res.text()}`)
+    throw statusError(res.status, `${res.status} ${res.statusText} \n${await res.text()}\nURL: ${params[0]}`)
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
-    const msg = `Error response for URL ${params[0]}: ${JSON.stringify(json)}`
+    const msg = `${JSON.stringify(json)} \nURL: ${params[0]}`
     console.error(msg)
     throw statusError(500, msg)
   }
