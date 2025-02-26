@@ -5,14 +5,13 @@
   "scripts": {
     "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive --environment preview",
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
-    "build:preview": "npx eas-cli build --profile preview",
-    "build:dev": "npx eas-cli build --profile development",
-    "build:prod": "npx eas-cli build --profile production",
+    "build:dev": "npx eas-cli build --profile development --local",
+    "build:preview": "npx eas-cli build --profile preview --local",
+    "build:prod": "npx eas-cli build --profile production --local",
     "prebuild": "expo prebuild",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
     "test": "exit 0",
     "lint": "expo lint"
   },
