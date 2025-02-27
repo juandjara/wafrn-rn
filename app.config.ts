@@ -44,6 +44,7 @@ export default {
             {
               scheme: 'https',
               host: 'app.wafrn.net',
+              pathPattern: '^\/(fediverse|blog|post)\/.*'
             },
           ],
           category: ['BROWSABLE', 'DEFAULT'],
