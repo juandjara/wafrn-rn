@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { FlatList, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Platform, Pressable, TextInput, TouchableOpacity, View } from "react-native";
 import colors from "tailwindcss/colors";
 import Tenor from "tenor-gif-api";
 import Loading from "../Loading";
@@ -100,7 +100,10 @@ export default function GifSearch({ open, onClose, onSelect }: {
           <Loading />
         </View>
       )}
-      <View className="flex-1 p-2 bg-gray-800">
+      <View
+        style={{ paddingTop: Platform.OS === 'ios' ? sx.paddingTop : undefined }}
+        className="flex-1 p-2 bg-gray-800"
+      >
         <View className="flex-row items-center gap-2 mb-2 m-1">
           <TextInput
             value={search}
