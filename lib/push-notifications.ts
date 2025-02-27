@@ -83,14 +83,11 @@ type PushNotificationPayload = {
 export function usePushNotifications() {
   const { token: authToken } = useAuth()
   const { refetch: refetchBadges } = useNotificationBadges()
-  const { value: expoToken, loading, setValue: setExpoToken } = useAsyncStorage<string>('pushNotificationToken')
+  const { value: expoToken, loading: expoTokenLoading, setValue: setExpoToken } = useAsyncStorage<string>('pushNotificationToken')
+  const lastNotification = Notifications.useLastNotificationResponse()
 
   useEffect(() => {
-    if (!authToken || loading) {
-      return
-    }
-
-    if (!expoToken) {
+    if (authToken && !expoToken && !expoTokenLoading) {
       setupPushNotifications(authToken)
         .then((token) => setExpoToken(token))
         .catch((err) => {
@@ -103,8 +100,21 @@ export function usePushNotifications() {
         })
     }
 
-    // parse app link from notification
-    function processNotificationClick(data: PushNotificationPayload) {
+    const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      refetchBadges()
+    })
+
+    return () => {
+      Notifications.removeNotificationSubscription(subscription)
+    }
+  }, [authToken, refetchBadges, expoToken, expoTokenLoading, setExpoToken])
+
+  // react to last notification response independent of auth token or expo token loading state
+  useEffect(() => {
+    if (lastNotification && lastNotification.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+      const data = lastNotification.notification.request.content.data as PushNotificationPayload
+
+      // parse app link from notification
       if (data.notification.notificationType === 'FOLLOW') {
         const url = `/user/${data.context?.userUrl}`
         router.navigate(url)
@@ -114,19 +124,5 @@ export function usePushNotifications() {
         router.navigate(url)
       }
     }
-
-    const subscription = Notifications.addNotificationReceivedListener((notification) => {
-      refetchBadges()
-    })
-
-    const subscription2 = Notifications.addNotificationResponseReceivedListener((response) => {
-      const notif = response.notification.request.content.data as PushNotificationPayload
-      processNotificationClick(notif)
-    })
-
-    return () => {
-      Notifications.removeNotificationSubscription(subscription)
-      Notifications.removeNotificationSubscription(subscription2)
-    }
-  }, [authToken, refetchBadges, expoToken, loading, setExpoToken])
+  }, [lastNotification])
 }
