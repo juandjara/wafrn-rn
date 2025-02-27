@@ -310,7 +310,7 @@ export default function EditProfile() {
               >
                 <View className="flex-row items-center gap-2 mb-3">
                   <TextInput
-                    placeholder='Name'
+                    placeholder="custom field name"
                     placeholderTextColor={colors.gray[500]}
                     value={o.name}
                     onChangeText={(value) => updateCustomField(index, 'name', value)}
@@ -325,7 +325,7 @@ export default function EditProfile() {
                   </Pressable>
                 </View>
                 <TextInput
-                  placeholder='Value'
+                  placeholder='custom field value'
                   placeholderTextColor={colors.gray[500]}
                   value={o.value}
                   onChangeText={(value) => updateCustomField(index, 'value', value)}
