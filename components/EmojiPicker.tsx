@@ -1,4 +1,4 @@
-import { Modal, Text, View, Pressable, FlatList, useWindowDimensions, TextInput } from 'react-native'
+import { Modal, Text, View, Pressable, FlatList, useWindowDimensions, TextInput, Platform } from 'react-native'
 import { EmojiBase } from "@/lib/api/emojis"
 import { useSettings } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
@@ -76,9 +76,10 @@ export default function EmojiPicker({
       visible={open}
       animationType="slide"
       onRequestClose={() => setOpen(false)}
+      style={sx}
     >
-      <View style={sx} className='bg-indigo-950 flex-1'>
-        <View className='p-4 flex-row items-center justify-between'>
+      <View className='bg-indigo-950 flex-1'>
+        <View style={{ paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined }} className='p-4 flex-row items-center justify-between'>
           <Text className='text-white text-lg font-medium'>React with an emoji</Text>
           <Pressable onPress={() => setOpen(false)}>
             <MaterialCommunityIcons name='close' size={24} color={colors.white} />
