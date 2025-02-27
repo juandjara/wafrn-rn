@@ -76,6 +76,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
         onRequestClose={() => setOpenIndex(null)}
       >
         <ScrollView
+          automaticallyAdjustKeyboardInsets
           keyboardShouldPersistTaps="handled"
           contentContainerClassName="p-3 py-8"
           style={{ backgroundColor: Colors.dark.background }}
@@ -95,7 +96,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 removeImage(openIndex!)
               }}
             >
-              <Text className="text-sm text-red-700">Delete media</Text>
+              <Text className="text-sm font-medium text-red-700">Delete</Text>
               <MaterialIcons name="delete" color={colors.red[700]} size={20} />
             </Pressable>
           </View>
