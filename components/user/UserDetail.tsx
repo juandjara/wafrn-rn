@@ -1,7 +1,6 @@
 import { getRemoteInfo, useFollowers, User } from "@/lib/api/user";
 import { useSettings, AskOptionValue, getPublicOptionValue, PublicOptionNames } from "@/lib/api/settings";
 import { Pressable, Share, Text, useWindowDimensions, View } from "react-native";
-import { ThemedText } from "../ThemedText";
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import { useMemo } from "react";
 import { getUserNameHTML, isValidURL, replaceEmojis } from "@/lib/api/content";
@@ -143,7 +142,7 @@ export default function UserDetail({ user }: { user: User }) {
         <View className="flex-row">
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
-        <ThemedText className="text-xs text-center">{formatUserUrl(user)}</ThemedText>
+        <Text className="text-white text-lg text-center">{formatUserUrl(user)}</Text>
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (
             <Link href='/setting/edit-profile' className="text-indigo-400 bg-indigo-950 py-2 px-5 text-lg rounded-full">

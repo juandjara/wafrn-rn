@@ -11,7 +11,6 @@ import Thread from "../posts/Thread"
 import { PostThread } from "@/lib/api/posts.types"
 import { useLayoutData } from "@/lib/store"
 import { FLATLIST_PERFORMANCE_CONFIG } from "@/lib/api/posts"
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs"
 import { useSettings } from "@/lib/api/settings"
 
 function renderItem({ item }: { item: PostThread }) {
@@ -20,10 +19,12 @@ function renderItem({ item }: { item: PostThread }) {
 
 export default function Dashboard({
   mode = DashboardMode.FEED,
-  header
+  header,
+  bottomPadding,
 }: {
   mode: DashboardMode
   header?: React.ReactElement
+  bottomPadding?: number
 }) {
   const listRef = useRef<FlatList<PostThread>>(null)
   const {
@@ -32,7 +33,6 @@ export default function Dashboard({
     fetchNextPage,
     hasNextPage,
   } = useDashboard(mode)
-  const bottomTabBarHeight = useBottomTabBarHeight()
 
   const { data: settings } = useSettings()
   const { context, posts } = useMemo(() => {
@@ -85,11 +85,11 @@ export default function Dashboard({
         onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
-        contentInset={{ bottom: bottomTabBarHeight }}
+        contentInset={{ bottom: bottomPadding }}
         maintainVisibleContentPosition={{
           minIndexForVisible: 0,
         }}
-        progressViewOffset={isFetching ? bottomTabBarHeight : 0}
+        progressViewOffset={isFetching ? bottomPadding : 0}
         {...FLATLIST_PERFORMANCE_CONFIG}
       />
       {cornerButton}

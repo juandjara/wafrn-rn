@@ -8,6 +8,7 @@ import { NativeSyntheticEvent, StyleSheet, View } from "react-native";
 import Header from "@/components/Header";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { OnPageScrollEventData } from "react-native-pager-view/lib/typescript/specs/PagerViewNativeComponent";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const MODES = [
   DashboardMode.FEED,
@@ -19,6 +20,7 @@ export default function Index() {
   const sx = useSafeAreaPadding()
   const pagerRef = useRef<PagerView>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
+  const bottomTabBarHeight = useBottomTabBarHeight()
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
@@ -28,10 +30,10 @@ export default function Index() {
   const pages = useMemo(() => {
     return MODES.map((mode, index) => (
       <View key={index} style={{ flex: 1 }}>
-        <Dashboard mode={mode} />
+        <Dashboard mode={mode} bottomPadding={bottomTabBarHeight} />
       </View>
     ))
-  }, [])
+  }, [bottomTabBarHeight])
 
   const onPageScroll = useCallback((ev: NativeSyntheticEvent<OnPageScrollEventData>) => {
     const index = ev.nativeEvent.position
