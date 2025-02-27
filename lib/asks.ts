@@ -97,7 +97,7 @@ export function useAskMutation() {
   return useMutation({
     mutationKey: ['ask'],
     mutationFn: ({ anonymous, question, userAskedUrl }: AskPayload) => {
-      return ask(anonymous ? token! : '', { question, userAskedUrl })
+      return ask(anonymous ? '' : token!, { question, userAskedUrl })
     },
     onError: (err, variables, context) => {
       console.error(err)
