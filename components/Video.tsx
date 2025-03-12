@@ -25,6 +25,9 @@ export default function Video({ title, isAudioOnly = false, src, width, height }
     p.addListener('playToEnd', () => {
       p.showNowPlayingNotification = false
     })
+    p.bufferOptions = {
+      preferredForwardBufferDuration: 2 // only buffer the first 2 seconds
+    }
     return p
   })
 
