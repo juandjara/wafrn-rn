@@ -62,9 +62,12 @@ export default function ZoomableImage({
 
   function download() {
     let name = unfurlCacheUrl(src).split('/').pop() || ''
-    if (name?.startsWith('?cid=') && mimeType) {
-      const ext = extensionFromMimeType(mimeType)
-      name = `${name.replace('?cid=', '')}.${ext}`
+    if (name?.startsWith('?cid=')) {
+      name = name.replace('?cid=', '')
+      if (mimeType) {
+        const ext = extensionFromMimeType(mimeType)
+        name = `${name}.${ext}`
+      }
     }
 
     downloadFile(src, name)

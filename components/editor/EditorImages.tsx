@@ -20,6 +20,8 @@ import {
 } from "react-native"
 import colors from "tailwindcss/colors"
 import Video from "../Video"
+import { useParsedToken } from "@/lib/contexts/AuthContext"
+import { formatUserUrl } from "@/lib/formatters"
 
 export type EditorImage = {
   uri: string
@@ -46,6 +48,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
     select: m => m.state.variables as { uri: string }[]
   }).at(-1)
 
+  const me = useParsedToken()
   const theme = useTheme()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
@@ -106,6 +109,7 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
                 src={selectedImage.uri}
                 width={size}
                 height={size}
+                title={`${formatUserUrl(me!)} video`}
               />
             ) : (
               <Image

@@ -9,9 +9,10 @@ import MediaCloak from "./MediaCloak";
 import Video from "../Video";
 import { useState } from "react";
 
-export default function Media({ media, contentWidth }: {
+export default function Media({ media, contentWidth, userUrl }: {
   media: PostMedia
   contentWidth: number
+  userUrl?: string
 }) {
   const [showAlt, setShowAlt] = useState(false)
   const mime = media.mediaType
@@ -27,6 +28,7 @@ export default function Media({ media, contentWidth }: {
           src={src}
           width={contentWidth}
           height={height}
+          title={`${userUrl} video`}
         />
       </View>
     )
@@ -38,6 +40,7 @@ export default function Media({ media, contentWidth }: {
           width={contentWidth}
           height={80}
           isAudioOnly
+          title={`${userUrl} audio`}
         />
       </View>
     )
