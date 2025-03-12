@@ -34,7 +34,6 @@ export default function Video({ title, isAudioOnly = false, src, width, height }
       player={videoPlayer}
       allowsFullscreen
       allowsPictureInPicture
-      startsPictureInPictureAutomatically
     />
   )
 }
