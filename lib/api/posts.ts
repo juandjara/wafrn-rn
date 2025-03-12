@@ -259,8 +259,16 @@ export function useDeleteMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot deleted`)
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post)
+    // NOTE: not reutlizing the common function to avoid refetching a just-deleted post
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => (
+          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
+            || query.queryKey[0] === 'search'
+            || (query.queryKey[0] === 'post' && query.queryKey[1] === post.parentId)
+        )
+      })
+    }
   })
 }
 
