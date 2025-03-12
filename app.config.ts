@@ -21,6 +21,7 @@ export default {
       bundleIdentifier: 'dev.djara.wafrn-rn',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSPhotoLibraryAddUsageDescription: 'WAFRN requires write-only access to your library in order to download images and videos from posts'
       },
     },
     android: {
@@ -33,7 +34,6 @@ export default {
         'android.permission.READ_MEDIA_VIDEO',
         'android.permission.READ_MEDIA_AUDIO',
         'android.permission.RECORD_AUDIO',
-        'android.permission.MODIFY_AUDIO_SETTINGS',
       ],
       package: 'dev.djara.wafrn_rn',
       intentFilters: [
@@ -56,7 +56,10 @@ export default {
       'expo-router',
       'expo-secure-store',
       'expo-font',
-      'expo-video',
+      ['expo-video', {
+        supportsBackgroundPlayback: true,
+        supportsPictureInPicture: true
+      }],
     ],
     experiments: {
       typedRoutes: false,
