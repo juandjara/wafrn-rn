@@ -136,7 +136,7 @@ export type FullNotification = ReturnType<typeof getNotificationList>[number]
 
 export function getNotificationList(pages: NotificationsPage[]) {
   const list = pages.flatMap(page => {
-    return page.notifications.map(n => {
+    return page.notifications.filter(n => n?.notificationType).map(n => {
       if (n.notificationType === 'EMOJIREACT') {
         return {
           ...n,

@@ -114,14 +114,16 @@ export function usePushNotifications() {
     if (lastNotification && lastNotification.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
       const data = lastNotification.notification.request.content.data as PushNotificationPayload
 
-      // parse app link from notification
-      if (data.notification.notificationType === 'FOLLOW') {
-        const url = `/user/${data.context?.userUrl}`
-        router.navigate(url)
-      } else {
-        const postId = data.notification.postId
-        const url = `/post/${postId}`
-        router.navigate(url)
+      if (data.notification) {
+        // parse app link from notification
+        if (data.notification.notificationType === 'FOLLOW') {
+          const url = `/user/${data.context?.userUrl}`
+          router.navigate(url)
+        } else {
+          const postId = data.notification.postId
+          const url = `/post/${postId}`
+          router.navigate(url)
+        }
       }
     }
   }, [lastNotification])
