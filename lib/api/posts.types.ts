@@ -120,6 +120,7 @@ export type DashboardData = {
 }
 
 export type PostAsk = Timestamps & {
+  id: number
   apObject: string // full AP object encoded as JSON, not typed
   postId: string
   userAsked: string // ID

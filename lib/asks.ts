@@ -5,15 +5,14 @@ import { useAuth } from "./contexts/AuthContext";
 import { showToastError, showToastSuccess } from "./interaction";
 import { getEnvironmentStatic } from "./api/auth";
 
-export type UserAsk = { id: number } & Pick<PostAsk, 'apObject' | 'question' | 'userAsker'>
 export type UserAsksData = {
   users: PostUser[]
-  asks: UserAsk[]
+  asks: PostAsk[]
 }
 
-export async function getAsks(token: string) {
+export async function getAsks(token: string, answered: boolean) {
   const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/user/myAsks`, {
+  const json = await getJSON(`${env?.API_URL}/user/myAsks?answered=${answered ? 'true' : 'false'}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -21,20 +20,25 @@ export async function getAsks(token: string) {
   const data = json as UserAsksData
   return data.asks
     .map((ask) => {
-      const user = data.users.find(user => user.id === ask.userAsker)!
+      const user = data.users.find(user => user.id === ask.userAsker) || {
+        id: '',
+        name: '',
+        url: '@anon',
+        avatar: '',
+        remoteId: null,
+      } as PostUser
       return {
         ...ask,
         user
       }
     })
-    .filter(ask => ask.user)
 }
 
-export function useAsks() {
+export function useAsks(answered: boolean) {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['asks'],
-    queryFn: () => getAsks(token!),
+    queryKey: ['asks', answered],
+    queryFn: () => getAsks(token!, answered),
     enabled: !!token
   })
 }
