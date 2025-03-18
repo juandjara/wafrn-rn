@@ -47,7 +47,7 @@ export default function EditorView() {
   const { data: reply } = usePostDetail(replyId, false)
   const { data: quote } = usePostDetail(quoteId, false)
   const { data: editingPost } = usePostDetail(editId, false)
-  const { data: asks } = useAsks()
+  const { data: asks } = useAsks(false)
   const { data: settings } = useSettings()
 
   const disableForceAltText = useMemo(() => {
