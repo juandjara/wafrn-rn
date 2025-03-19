@@ -15,7 +15,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('Accept', 'application/json')
   const res = await fetch(...params)
   if (!res.ok) {
-    throw statusError(res.status, `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}`)
+    throw statusError(res.status, `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}\n`)
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
