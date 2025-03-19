@@ -15,8 +15,7 @@ import { PrivacyLevel } from "@/lib/api/privacy"
 import { getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
 import { HTMLToMarkdown, markdownToHTML } from "@/lib/markdown"
 import clsx from "clsx"
-import { launchImageLibraryAsync } from "expo-image-picker"
-import { MediaUploadPayload } from "@/lib/api/media"
+import { MediaUploadPayload, pickEditableImage } from "@/lib/api/media"
 import Header from "@/components/Header"
 import { Link } from "expo-router"
 
@@ -103,36 +102,16 @@ export default function EditProfile() {
   }
 
   async function pickAvatar() {
-    const result = await launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsEditing: true,
-      allowsMultipleSelection: false,
-      quality: 0.5,
-    })
-    if (!result.canceled) {
-      const img = result.assets[0]
-      setAvatar({
-        uri: img.uri,
-        name: img.fileName!,
-        type: img.mimeType!,
-      })
+    const image = await pickEditableImage()
+    if (image) {
+      setAvatar(image)
     }
   }
 
   async function pickHeaderImage() {
-    const result = await launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsEditing: true,
-      allowsMultipleSelection: false,
-      quality: 0.5,
-    })
-    if (!result.canceled) {
-      const img = result.assets[0]
-      setHeaderImage({
-        uri: img.uri,
-        name: img.fileName!,
-        type: img.mimeType!,
-      })
+    const image = await pickEditableImage()
+    if (image) {
+      setHeaderImage(image)
     }
   }
 

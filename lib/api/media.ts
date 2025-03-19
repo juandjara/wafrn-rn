@@ -7,6 +7,7 @@ import { showToastError, showToastSuccess } from "../interaction"
 import { uploadFile } from "../http"
 import { FileSystemUploadType } from "expo-file-system"
 import { getEnvironmentStatic } from "./auth"
+import { launchImageLibraryAsync } from "expo-image-picker"
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -131,4 +132,24 @@ export function extensionFromMimeType(mime: string) {
     ?.replace('jpeg', 'jpg')
     .replace('svg+xml', 'svg')
     .replace('x-icon', 'ico') || ''
+}
+
+// TODO: Add a switch to support uploading GIF files as avatars
+// android will convert gif files to png if allow editing or compression is enabled
+export async function pickEditableImage() {
+  const result = await launchImageLibraryAsync({
+    mediaTypes: 'images',
+    allowsEditing: true,
+    allowsMultipleSelection: false,
+    quality: 0.5,
+  })
+  if (result.canceled) {
+    return null
+  }
+  const img = result.assets[0]
+  return {
+    uri: img.uri,
+    name: img.fileName!,
+    type: img.mimeType!,
+  }
 }
