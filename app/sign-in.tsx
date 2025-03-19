@@ -128,10 +128,7 @@ export default function SignIn() {
               </View>
               <Text className="py-3 text-white">
                 Don't have an account?{' '}
-                <Link
-                  href={`${env?.BASE_URL}/register`}
-                  className="text-blue-500"
-                >
+                <Link href="/register" className="text-blue-500">
                   Register here
                 </Link>
               </Text>

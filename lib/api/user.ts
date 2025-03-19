@@ -396,3 +396,54 @@ export function useFollowAllMutation() {
     }
   })
 }
+
+type RegisterPayload = {
+  email: string
+  password: string
+  url: string // username
+  birthDate: string // date in ms
+  avatar?: MediaUploadPayload
+  description: string // bio
+}
+
+export async function register(token: string, payload: RegisterPayload) {
+  const formData = new FormData()
+  formData.append('email', payload.email)
+  formData.append('password', payload.password)
+  formData.append('url', payload.url)
+  formData.append('birthDate', payload.birthDate)
+  formData.append('description', payload.description)
+  if (payload.avatar) {
+    formData.append('avatar', payload.avatar as any)
+  }
+
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/register`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function useRegisterMutation() {
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['register'],
+    mutationFn: (payload: RegisterPayload) => register(token!, payload),
+    onError: (err) => {
+      console.error(err)
+      const code = (err as StatusError).status
+      if (code === 401) {
+        showToastError('This username or email already exists')
+      } else if (code === 400) {
+        showToastError('Invalid register form data')
+      } else {
+        showToastError(err.message)
+      }
+    },
+  })
+}
+
