@@ -4,6 +4,7 @@ import useAsyncStorage from "../useLocalStorage"
 import { queryClient } from "../queryClient"
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
+export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
 
 export type ParsedToken = {
   birthDate: string // ISO date
@@ -90,7 +91,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
 }
 
 export function useEnvironment() {
-  const { value, loading } = useAsyncStorage<string>('wafrn_instance_url')
+  const { value, loading } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const { data, isLoading } = useQuery({
     queryKey: ['environment'],
     queryFn: async () => {

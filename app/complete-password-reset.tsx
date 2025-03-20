@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router"
 import { Toasts } from "@backpackapp-io/react-native-toast"
 import { Image } from "expo-image"
 import { usePasswordChangeCompleteMutation } from "@/lib/api/user"
+import InstanceProvider from "@/components/InstanceProvider"
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -51,20 +52,22 @@ export default function CompletePasswordReset() {
             Write your new password
           </Text>
           <Text className="text-white mt-2 mb-3">And just log in after that!</Text>
-          <TextInput
-            secureTextEntry
-            autoCapitalize="none"
-            placeholder="Password"
-            style={{ color }}
-            className="p-3 my-6 border border-gray-500 rounded placeholder:text-gray-400"
-            value={password}
-            onChangeText={setPassword}
-          />
-          <Button
-            disabled={!password || mutation.isPending}
-            title="Change password"
-            onPress={submit}
-          />
+          <InstanceProvider>
+            <TextInput
+              secureTextEntry
+              autoCapitalize="none"
+              placeholder="Password"
+              style={{ color }}
+              className="p-3 my-6 border border-gray-500 rounded placeholder:text-gray-400"
+              value={password}
+              onChangeText={setPassword}
+            />
+            <Button
+              disabled={!password || mutation.isPending}
+              title="Change password"
+              onPress={submit}
+            />
+          </InstanceProvider>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
