@@ -104,6 +104,7 @@ export default function SignIn() {
               <View className="mt-3">
                 <TextInput
                   inputMode="email"
+                  autoCapitalize="none"
                   placeholder="Email"
                   style={{ color }}
                   className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
@@ -112,12 +113,16 @@ export default function SignIn() {
                 />
                 <TextInput
                   secureTextEntry
+                  autoCapitalize="none"
                   placeholder="Password"
                   style={{ color }}
                   className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
                   value={password}
                   onChangeText={setPassword}
                 />
+                <Link href="/password-reset" className="text-blue-500 pb-3">
+                  Forgot your password?
+                </Link>
               </View>
               <View className="py-3">
                 <Button

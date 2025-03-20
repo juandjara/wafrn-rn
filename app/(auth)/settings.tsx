@@ -26,6 +26,11 @@ export default function Settings() {
         link: '/setting/edit-profile'
       },
       {
+        icon: 'key' as const,
+        label: 'Change my password',
+        link: '/password-reset?origin=settings'
+      },
+      {
         icon: 'palette' as const,
         label: 'Options & Customizations',
         link: '/setting/options'

@@ -5,7 +5,7 @@ export default {
     newArchEnabled: true,
     name: 'Wafrn',
     slug: 'wafrn-rn',
-    version: '1.2.1',
+    version: '1.2.2',
     orientation: 'portrait',
     icon: './assets/images/logo_w.png',
     scheme: 'wafrn',
@@ -41,11 +41,8 @@ export default {
           action: 'VIEW',
           autoVerify: true,
           data: [
-            {
-              scheme: 'https',
-              host: 'app.wafrn.net',
-              pathPattern: '\/(fediverse|blog|post)\/.*'
-            },
+            { scheme: 'http', host: 'app.wafrn.net' },
+            { scheme: 'https', host: 'app.wafrn.net' },
           ],
           category: ['BROWSABLE', 'DEFAULT'],
         }

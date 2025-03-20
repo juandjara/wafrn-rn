@@ -11,6 +11,12 @@ export function redirectSystemPath({ path }: RedirectFnParams): Promise<string> 
     if (path.includes('blog/')) {
       path = path.replace('blog/', 'user/')
     }
+    if (path.includes('/resetPassword/')) {
+      const parts = path.split('/')
+      const code = parts.pop()
+      const email = decodeURIComponent(parts.pop() ?? '')
+      path = `/complete-password-reset?code=${code}&email=${email}`
+    }
   } catch (e) {
     console.error(e)
   }

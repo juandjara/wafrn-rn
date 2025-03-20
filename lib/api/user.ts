@@ -447,3 +447,68 @@ export function useRegisterMutation() {
   })
 }
 
+export async function requestPasswordChange(token: string, email: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/forgotPassword`, {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function usePasswordChangeRequestMutation() {
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['password-change-request'],
+    mutationFn: (email: string) => requestPasswordChange(token!, email),
+    onSuccess: () => {
+      showToastSuccess('Request sent! If your email address is correct, you should receive an email soon')
+    },
+    onError: (err) => {
+      console.error(err)
+      const code = (err as StatusError).status
+      if (code === 400) {
+        showToastError('Invalid email')
+      } else {
+        showToastError(err.message)
+      }
+    },
+  })
+}
+
+type PasswordChangePayload = {
+  email: string
+  password: string
+  code: string
+}
+
+async function completePasswordChange(token: string, payload: PasswordChangePayload) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/resetPassword`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  })
+}
+
+export function usePasswordChangeCompleteMutation() {
+  const { token } = useAuth()
+
+  return useMutation({
+    mutationKey: ['password-change-complete'],
+    mutationFn: (payload: PasswordChangePayload) => completePasswordChange(token!, payload),
+    onSuccess: () => {
+      showToastSuccess('Password changed!')
+    },
+    onError: (err) => {
+      showToastError('Password change failed')
+    },
+  })  
+}
