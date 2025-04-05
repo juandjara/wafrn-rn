@@ -12,6 +12,7 @@ export type UserForApproval = {
   avatar: string
   description: string
   email: string
+  registerIp: string
 }
 
 async function getUsersForApproval(token: string) {

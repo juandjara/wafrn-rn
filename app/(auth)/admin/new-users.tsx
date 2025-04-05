@@ -1,9 +1,10 @@
 import Header, { HEADER_HEIGHT } from "@/components/Header";
 import ZoomableImage from "@/components/posts/ZoomableImage";
 import { useNewUserMutation, useUsersForApproval } from "@/lib/api/admin";
-import { formatUserUrl } from "@/lib/formatters";
+import { formatMediaUrl, formatUserUrl } from "@/lib/formatters";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 
 export default function NewUsers() {
@@ -35,7 +36,7 @@ export default function NewUsers() {
             <View className="flex-row items-center gap-3 pb-8">
               <ZoomableImage
                 id={user.id}
-                src={user.avatar}
+                src={formatMediaUrl(user.avatar)}
                 width={80}
                 height={80}
                 className="rounded-xl border border-gray-600 bg-black"
@@ -48,6 +49,9 @@ export default function NewUsers() {
               </View>
             </View>
             <Text className="text-white">{user.description}</Text>
+            <Text className="text-white mt-4">
+              IP: {user.registerIp} <Link className="text-blue-400" href={`https://ipinfo.io/${user.registerIp}`}>Check on ipinfo.io</Link>
+            </Text>
             <View className="flex-row pt-8 gap-3 pr-3">
               <Pressable
                 disabled={mutation.isPending}
