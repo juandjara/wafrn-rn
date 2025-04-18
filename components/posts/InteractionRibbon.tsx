@@ -21,7 +21,11 @@ import { optionStyle } from '@/lib/styles'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import AnimatedIcon from './AnimatedIcon'
 import { useSharedValue, withSpring } from 'react-native-reanimated'
-import { useLikeMutation } from '@/lib/interaction'
+import {
+  showToastError,
+  showToastSuccess,
+  useLikeMutation,
+} from '@/lib/interaction'
 import { useEmojiReactMutation } from '@/lib/api/emojis'
 import {
   getRemotePostUrl,
@@ -33,6 +37,8 @@ import { useSettings } from '@/lib/api/settings'
 import ReportPostModal from './ReportPostModal'
 import { toggleCollapsed, usePostLayout } from '@/lib/store'
 import { BSKY_URL } from '@/lib/api/content'
+import * as Clipboard from 'expo-clipboard'
+import { DomUtils, parseDocument } from 'htmlparser2'
 
 export default function InteractionRibbon({
   post,
@@ -251,6 +257,24 @@ export default function InteractionRibbon({
           ? 'Open in Bluesky'
           : 'Open remote post',
         enabled: !!remoteUrl,
+      },
+      {
+        action: async () => {
+          try {
+            await Clipboard.setStringAsync(
+              DomUtils.textContent(
+                parseDocument(post.content.replaceAll('<br>', '\n')),
+              ),
+            )
+            showToastSuccess('Link copied!')
+          } catch (err) {
+            showToastError('Cannot copy link')
+            showToastError(String(err))
+          }
+        },
+        icon: <MaterialCommunityIcons name="content-copy" size={20} />,
+        label: 'Copy post text',
+        enabled: true,
       },
       {
         action: () => {
