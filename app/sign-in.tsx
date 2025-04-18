@@ -18,7 +18,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
-  const [mfaPayload, setMfaPayload] = useState('')
+  const [firstPassToken, setFirstPassToken] = useState('')
   const { setToken, env } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
@@ -37,7 +37,7 @@ export default function SignIn() {
       loginMutation.mutate({ email, password }, {
         onSuccess: async (firstPassResponse) => {
           if (firstPassResponse.mfaRequired) {
-            setMfaPayload(firstPassResponse.token)
+            setFirstPassToken(firstPassResponse.token)
           } else {
             await setToken(firstPassResponse.token)
             router.replace('/')
@@ -53,7 +53,7 @@ export default function SignIn() {
 
   function loginMfa() {
     if (env) {
-      loginMfaMutation.mutate({ firstPassToken: mfaPayload, mfaToken}, {
+      loginMfaMutation.mutate({ firstPassToken, mfaToken}, {
         onSuccess: async (response) => {
           await setToken(response)
           router.replace('/')
@@ -62,7 +62,7 @@ export default function SignIn() {
           console.error(error)
           showToastError('Invalid credentials')
           setMfaToken('')
-          setMfaPayload('')
+          setFirstPassToken('')
         }
       })
     }
@@ -91,7 +91,7 @@ export default function SignIn() {
           </Text>
           <InstanceProvider>
             {
-              (!mfaPayload) &&
+              (!firstPassToken) &&
               (
                 <>
                   <View className="mt-3">
@@ -134,7 +134,7 @@ export default function SignIn() {
               )
             }
             {
-              (mfaPayload) &&
+              (firstPassToken) &&
               (
                 <>
                  <Text className="py-3 text-white">
@@ -156,7 +156,7 @@ export default function SignIn() {
                   </View>
                   <View className="py-3">
                     <Button
-                      disabled={loginMfaMutation.isPending || !env || !email || !password}
+                      disabled={loginMfaMutation.isPending || !env || !mfaToken}
                       title={loginMfaMutation.isPending ? 'Loading...' : 'Sign in'}
                       onPress={loginMfa}
                     />

@@ -129,7 +129,7 @@ type LoginPayload = {
 
 type LoginMfaPayload = {
   firstPassToken: string,
-  mfaToken?: string
+  mfaToken: string
 }
 
 export async function login(env: Environment, { email, password }: LoginPayload) {
