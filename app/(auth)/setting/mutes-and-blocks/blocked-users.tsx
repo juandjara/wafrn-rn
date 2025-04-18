@@ -1,9 +1,9 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header"
-import { useBlocks } from "@/lib/api/blocks-and-mutes"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { Image } from "expo-image"
-import { Link } from "expo-router"
-import { FlatList, Pressable, Text, View } from "react-native"
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { useBlocks } from '@/lib/api/blocks-and-mutes'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Image } from 'expo-image'
+import { Link } from 'expo-router'
+import { FlatList, Pressable, Text, View } from 'react-native'
 
 export default function BlockedUsers() {
   const sx = useSafeAreaPadding()
@@ -34,9 +34,7 @@ export default function BlockedUsers() {
           </Link>
         )}
         ListEmptyComponent={
-          <Text className="text-center text-white my-6">
-            No blocked users
-          </Text>
+          <Text className="text-center text-white my-6">No blocked users</Text>
         }
       />
     </View>

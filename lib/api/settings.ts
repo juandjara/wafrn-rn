@@ -1,18 +1,19 @@
-import { useQuery } from "@tanstack/react-query"
-import { useAuth } from "../contexts/AuthContext"
-import { getJSON } from "../http"
-import { EmojiBase } from "./emojis"
-import { Timestamps } from "./types"
-import { PrivacyLevel } from "./privacy"
-import { getEnvironmentStatic } from "./auth"
+import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
+import { getJSON } from '../http'
+import { EmojiBase } from './emojis'
+import { Timestamps } from './types'
+import { PrivacyLevel } from './privacy'
+import { getEnvironmentStatic } from './auth'
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
   name: string
   comment: string | null
-  emojis: (EmojiBase & Timestamps & {
-    emojiCollectionId: string // refers to the `id` of the `EmojiGroupConfig` object
-  })[]
+  emojis: (EmojiBase &
+    Timestamps & {
+      emojiCollectionId: string // refers to the `id` of the `EmojiGroupConfig` object
+    })[]
 }
 
 export type SettingsOption = Timestamps & {
@@ -32,7 +33,7 @@ export enum PrivateOptionNames {
   DisableCW = 'wafrn.disableCW',
   OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
   DisableNSFWCloak = 'wafrn.disableNSFWCloak',
-  ThreadAncestorLimit = 'wafrn.threadAncestorLimit'
+  ThreadAncestorLimit = 'wafrn.threadAncestorLimit',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -59,7 +60,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisableCW]: false,
   [PrivateOptionNames.OriginalMarkdownBio]: '',
   [PrivateOptionNames.DisableNSFWCloak]: false,
-  [PrivateOptionNames.ThreadAncestorLimit]: 3
+  [PrivateOptionNames.ThreadAncestorLimit]: 3,
 }
 
 export type PrivateOption = SettingsOption & {
@@ -67,9 +68,9 @@ export type PrivateOption = SettingsOption & {
   optionName: PrivateOptionNames
 }
 
-export function getPrivateOptionValue<T extends PrivateOptionNames = PrivateOptionNames>(
-  options: PrivateOption[], key: T
-) {
+export function getPrivateOptionValue<
+  T extends PrivateOptionNames = PrivateOptionNames,
+>(options: PrivateOption[], key: T) {
   const defaultValue = DEFAULT_PRIVATE_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
@@ -84,17 +85,17 @@ export function getPrivateOptionValue<T extends PrivateOptionNames = PrivateOpti
 
 export enum PublicOptionNames {
   CustomFields = 'fediverse.public.attachment',
-  Asks = 'wafrn.public.asks'
+  Asks = 'wafrn.public.asks',
 }
 export enum AskOptionValue {
   AllowAnonAsks = 1,
   AllowIdentifiedAsks = 2,
-  AllowNoAsks = 3
+  AllowNoAsks = 3,
 }
 export const ASKS_LABELS = {
   [AskOptionValue.AllowAnonAsks]: 'Allow anonymous asks',
   [AskOptionValue.AllowIdentifiedAsks]: 'Only allow asks from identified users',
-  [AskOptionValue.AllowNoAsks]: 'Disable asks'
+  [AskOptionValue.AllowNoAsks]: 'Disable asks',
 } as const
 
 export type PublicOption = SettingsOption & {
@@ -114,10 +115,12 @@ export type PublicOptionTypeMap = {
 
 export const DEFAULT_PUBLIC_OPTIONS = {
   [PublicOptionNames.CustomFields]: [],
-  [PublicOptionNames.Asks]: AskOptionValue.AllowIdentifiedAsks
+  [PublicOptionNames.Asks]: AskOptionValue.AllowIdentifiedAsks,
 }
 
-export function getPublicOptionValue<T extends PublicOptionNames = PublicOptionNames>(options: PublicOption[], key: T) {
+export function getPublicOptionValue<
+  T extends PublicOptionNames = PublicOptionNames,
+>(options: PublicOption[], key: T) {
   const defaultValue = DEFAULT_PUBLIC_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
@@ -145,8 +148,8 @@ export async function getSettings(token: string) {
   const url = `${env?.API_URL}/my-ui-options`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   return json as Settings
 }
@@ -157,6 +160,6 @@ export function useSettings() {
     queryKey: ['settings'],
     queryFn: () => getSettings(token!),
     enabled: !!token,
-    staleTime: 1000 * 60 * 60 // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }

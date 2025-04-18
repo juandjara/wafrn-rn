@@ -1,7 +1,7 @@
-import { EmojiGroupConfig } from "./api/settings"
-import emojiData from "emoji-datasource"
+import { EmojiGroupConfig } from './api/settings'
+import emojiData from 'emoji-datasource'
 
-type Emoji = typeof emojiData[number]
+type Emoji = (typeof emojiData)[number]
 
 export const Categories = {
   // history: {
@@ -9,45 +9,45 @@ export const Categories = {
   //   name: "Recently used"
   // },
   emotion: {
-    symbol: "😀",
-    name: "Smileys & Emotion"
+    symbol: '😀',
+    name: 'Smileys & Emotion',
   },
   people: {
-    symbol: "🧑",
-    name: "People & Body"
+    symbol: '🧑',
+    name: 'People & Body',
   },
   nature: {
-    symbol: "🦄",
-    name: "Animals & Nature"
+    symbol: '🦄',
+    name: 'Animals & Nature',
   },
   food: {
-    symbol: "🍔",
-    name: "Food & Drink"
+    symbol: '🍔',
+    name: 'Food & Drink',
   },
   activities: {
-    symbol: "⚾️",
-    name: "Activities"
+    symbol: '⚾️',
+    name: 'Activities',
   },
   places: {
-    symbol: "✈️",
-    name: "Travel & Places"
+    symbol: '✈️',
+    name: 'Travel & Places',
   },
   objects: {
-    symbol: "💡",
-    name: "Objects"
+    symbol: '💡',
+    name: 'Objects',
   },
   symbols: {
-    symbol: "🔣",
-    name: "Symbols"
+    symbol: '🔣',
+    name: 'Symbols',
   },
   flags: {
-    symbol: "🏳️‍🌈",
-    name: "Flags"
-  }
+    symbol: '🏳️‍🌈',
+    name: 'Flags',
+  },
 }
 
 function charFromUtf16(utf16: string) {
-  return String.fromCodePoint(...utf16.split("-").map(u => Number("0x" + u)))
+  return String.fromCodePoint(...utf16.split('-').map((u) => Number('0x' + u)))
 }
 
 function charFromEmojiObject(e: Emoji) {
@@ -56,10 +56,10 @@ function charFromEmojiObject(e: Emoji) {
 
 export function getUnicodeEmojiGroups() {
   const categoryKeys = Object.keys(Categories) as (keyof typeof Categories)[]
-  return categoryKeys.map(key => {
+  return categoryKeys.map((key) => {
     const category = Categories[key]
     const emojis = emojiData
-      .filter(e => !e["obsoleted_by"] && e.category === category.name)
+      .filter((e) => !e['obsoleted_by'] && e.category === category.name)
       .sort((a, b) => a.sort_order - b.sort_order)
     return {
       id: category.symbol,
@@ -75,8 +75,8 @@ export function getUnicodeEmojiGroups() {
         external: true,
         url: '',
         createdAt: '',
-        updatedAt: ''
-      }))
+        updatedAt: '',
+      })),
     } satisfies EmojiGroupConfig
   })
 }

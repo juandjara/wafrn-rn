@@ -1,4 +1,3 @@
-
 /** transform a web pathname to a native pathname */
 export default function webPathToAppPath(webPath: string) {
   if (webPath.startsWith('/')) {

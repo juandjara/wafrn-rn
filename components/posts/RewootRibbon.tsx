@@ -1,18 +1,36 @@
-import { PostUser } from "@/lib/api/posts.types"
-import { formatSmallAvatar } from "@/lib/formatters"
-import { EvilIcons } from "@expo/vector-icons"
-import { Link } from "expo-router"
-import { Pressable, Text, View } from "react-native"
+import { PostUser } from '@/lib/api/posts.types'
+import { formatSmallAvatar } from '@/lib/formatters'
+import { EvilIcons } from '@expo/vector-icons'
+import { Link } from 'expo-router'
+import { Pressable, Text, View } from 'react-native'
 import { Image } from 'expo-image'
-import HtmlRenderer from "../HtmlRenderer"
-import clsx from "clsx"
+import HtmlRenderer from '../HtmlRenderer'
+import clsx from 'clsx'
 
-export default function RewootRibbon({ user, userNameHTML, className }: { user?: PostUser; userNameHTML: string; className?: string }) {
+export default function RewootRibbon({
+  user,
+  userNameHTML,
+  className,
+}: {
+  user?: PostUser
+  userNameHTML: string
+  className?: string
+}) {
   return (
     <Link href={`/user/${user?.url}`} asChild>
       <Pressable>
-        <View className={clsx(className, 'pl-1 p-2 flex-row gap-1 items-center bg-blue-950')}>
-          <EvilIcons name="retweet" size={20} color="white" className="mb-1 mx-1" />
+        <View
+          className={clsx(
+            className,
+            'pl-1 p-2 flex-row gap-1 items-center bg-blue-950',
+          )}
+        >
+          <EvilIcons
+            name="retweet"
+            size={20}
+            color="white"
+            className="mb-1 mx-1"
+          />
           <Image
             className="rounded-md border border-gray-500"
             style={{ width: 24, height: 24 }}

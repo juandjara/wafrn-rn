@@ -1,15 +1,38 @@
-import PrivacySelect from "@/components/PrivacySelect"
-import { PrivacyLevel } from "@/lib/api/privacy"
-import { AskOptionValue, ASKS_LABELS, DEFAULT_PRIVATE_OPTIONS, getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
-import { useCurrentUser, useEditProfileMutation } from "@/lib/api/user"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-import clsx from "clsx"
-import { router } from "expo-router"
-import { useState } from "react"
-import { ActivityIndicator, Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native"
-import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu"
-import colors from "tailwindcss/colors"
+import PrivacySelect from '@/components/PrivacySelect'
+import { PrivacyLevel } from '@/lib/api/privacy'
+import {
+  AskOptionValue,
+  ASKS_LABELS,
+  DEFAULT_PRIVATE_OPTIONS,
+  getPrivateOptionValue,
+  getPublicOptionValue,
+  PrivateOptionNames,
+  PublicOptionNames,
+  useSettings,
+} from '@/lib/api/settings'
+import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { router } from 'expo-router'
+import { useState } from 'react'
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+  renderers,
+} from 'react-native-popup-menu'
+import colors from 'tailwindcss/colors'
 
 type FormState = {
   manuallyAcceptsFollows: boolean
@@ -31,15 +54,39 @@ export default function Options() {
   const { data: me } = useCurrentUser()
   const [form, setForm] = useState<FormState>(() => {
     const opts = settings?.options || []
-    const defaultPostEditorPrivacy = getPrivateOptionValue(opts, PrivateOptionNames.DefaultPostPrivacy)
+    const defaultPostEditorPrivacy = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.DefaultPostPrivacy,
+    )
     const disableCW = getPrivateOptionValue(opts, PrivateOptionNames.DisableCW)
-    const disableNSFWCloak = getPrivateOptionValue(opts, PrivateOptionNames.DisableNSFWCloak)
-    const threadAncestorLimit = getPrivateOptionValue(opts, PrivateOptionNames.ThreadAncestorLimit)
-    const disableForceAltText = getPrivateOptionValue(opts, PrivateOptionNames.DisableForceAltText)
-    const federateWithThreads = getPrivateOptionValue(opts, PrivateOptionNames.FederateWithThreads)
-    const forceClassicLogo = getPrivateOptionValue(opts, PrivateOptionNames.ForceClassicLogo)
-    const forceOldEditor = getPrivateOptionValue(opts, PrivateOptionNames.ForceOldEditor)
-    const mutedWords = getPrivateOptionValue(opts, PrivateOptionNames.MutedWords)
+    const disableNSFWCloak = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.DisableNSFWCloak,
+    )
+    const threadAncestorLimit = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.ThreadAncestorLimit,
+    )
+    const disableForceAltText = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.DisableForceAltText,
+    )
+    const federateWithThreads = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.FederateWithThreads,
+    )
+    const forceClassicLogo = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.ForceClassicLogo,
+    )
+    const forceOldEditor = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.ForceOldEditor,
+    )
+    const mutedWords = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.MutedWords,
+    )
     const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
 
     return {
@@ -53,14 +100,18 @@ export default function Options() {
       forceClassicLogo,
       forceOldEditor,
       mutedWords,
-      asks
+      asks,
     }
   })
-  const parsedMutedWords = form.mutedWords.split(',').map(tag => tag.trim()).filter(Boolean)
-  const minThreadLimit = DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
-  const validThreadAncestorLimit = Number.isFinite(Number(form.threadAncestorLimit)) && (
+  const parsedMutedWords = form.mutedWords
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+  const minThreadLimit =
+    DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
+  const validThreadAncestorLimit =
+    Number.isFinite(Number(form.threadAncestorLimit)) &&
     Number(form.threadAncestorLimit) >= minThreadLimit
-  )
 
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -69,7 +120,7 @@ export default function Options() {
 
   function update<T extends keyof typeof form>(
     key: T,
-    value: typeof form[T] | ((prev: typeof form[T]) => typeof form[T])
+    value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
   ) {
     setForm((prev) => {
       const newValue = typeof value === 'function' ? value(prev[key]) : value
@@ -79,22 +130,46 @@ export default function Options() {
 
   function onSubmit() {
     const options = [
-      { name: PrivateOptionNames.DefaultPostPrivacy, value: JSON.stringify(form.defaultPostEditorPrivacy) },
-      { name: PrivateOptionNames.DisableCW, value: JSON.stringify(form.disableCW) },
-      { name: PrivateOptionNames.DisableNSFWCloak, value: JSON.stringify(form.disableNSFWCloak) },
-      { 
+      {
+        name: PrivateOptionNames.DefaultPostPrivacy,
+        value: JSON.stringify(form.defaultPostEditorPrivacy),
+      },
+      {
+        name: PrivateOptionNames.DisableCW,
+        value: JSON.stringify(form.disableCW),
+      },
+      {
+        name: PrivateOptionNames.DisableNSFWCloak,
+        value: JSON.stringify(form.disableNSFWCloak),
+      },
+      {
         name: PrivateOptionNames.ThreadAncestorLimit,
         value: JSON.stringify(
           validThreadAncestorLimit
             ? Number(form.threadAncestorLimit)
-            : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
-          )
+            : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit],
+        ),
       },
-      { name: PrivateOptionNames.DisableForceAltText, value: JSON.stringify(form.disableForceAltText) },
-      { name: PrivateOptionNames.FederateWithThreads, value: JSON.stringify(form.federateWithThreads) },
-      { name: PrivateOptionNames.ForceClassicLogo, value: JSON.stringify(form.forceClassicLogo) },
-      { name: PrivateOptionNames.ForceOldEditor, value: JSON.stringify(form.forceOldEditor) },
-      { name: PrivateOptionNames.MutedWords, value: JSON.stringify(form.mutedWords) },
+      {
+        name: PrivateOptionNames.DisableForceAltText,
+        value: JSON.stringify(form.disableForceAltText),
+      },
+      {
+        name: PrivateOptionNames.FederateWithThreads,
+        value: JSON.stringify(form.federateWithThreads),
+      },
+      {
+        name: PrivateOptionNames.ForceClassicLogo,
+        value: JSON.stringify(form.forceClassicLogo),
+      },
+      {
+        name: PrivateOptionNames.ForceOldEditor,
+        value: JSON.stringify(form.forceOldEditor),
+      },
+      {
+        name: PrivateOptionNames.MutedWords,
+        value: JSON.stringify(form.mutedWords),
+      },
       { name: PublicOptionNames.Asks, value: JSON.stringify(form.asks) },
     ]
     editMutation.mutate({
@@ -117,7 +192,12 @@ export default function Options() {
         >
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
-        <Text numberOfLines={1} className="text-white text-lg flex-grow flex-shrink">Options & Customizations</Text>
+        <Text
+          numberOfLines={1}
+          className="text-white text-lg flex-grow flex-shrink"
+        >
+          Options & Customizations
+        </Text>
         <Pressable
           onPress={onSubmit}
           className={clsx(
@@ -125,20 +205,27 @@ export default function Options() {
             {
               'bg-cyan-800 active:bg-cyan-700': canPublish,
               'bg-gray-400/25 opacity-50': !canPublish,
-            }
+            },
           )}
         >
           {editMutation.isPending ? (
-            <ActivityIndicator size="small" color="white" />            
+            <ActivityIndicator size="small" color="white" />
           ) : (
-            <MaterialCommunityIcons name="content-save-edit" size={20} color="white" />
+            <MaterialCommunityIcons
+              name="content-save-edit"
+              size={20}
+              color="white"
+            />
           )}
           <Text className="text-medium text-white">Save</Text>
         </Pressable>
       </View>
       <ScrollView
         style={{ marginTop: sx.paddingTop + 64 }}
-        contentContainerStyle={{ paddingTop: 12, paddingBottom: sx.paddingBottom + 20 }}
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingBottom: sx.paddingBottom + 20,
+        }}
       >
         <View className="p-4">
           <Text className="text-white mb-2">Ask privacy</Text>
@@ -146,22 +233,30 @@ export default function Options() {
             <MenuTrigger>
               <View
                 className={clsx(
-                  'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600'
+                  'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
                 )}
               >
-                <Text className="text-white text-sm px-1 flex-grow flex-shrink">{ASKS_LABELS[form.asks]}</Text>
-                <MaterialCommunityIcons name='chevron-down' color={colors.gray[600]} size={20} />
+                <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                  {ASKS_LABELS[form.asks]}
+                </Text>
+                <MaterialCommunityIcons
+                  name="chevron-down"
+                  color={colors.gray[600]}
+                  size={20}
+                />
               </View>
             </MenuTrigger>
-            <MenuOptions customStyles={{
-              optionsContainer: {
-                paddingBottom: sx.paddingBottom,
-              },
-            }}>
+            <MenuOptions
+              customStyles={{
+                optionsContainer: {
+                  paddingBottom: sx.paddingBottom,
+                },
+              }}
+            >
               {[
                 AskOptionValue.AllowIdentifiedAsks,
                 AskOptionValue.AllowAnonAsks,
-                AskOptionValue.AllowNoAsks
+                AskOptionValue.AllowNoAsks,
               ].map((value) => (
                 <MenuOption
                   key={value}
@@ -173,8 +268,17 @@ export default function Options() {
                     padding: 16,
                   }}
                 >
-                  <Text className="font-semibold flex-shrink flex-grow">{ASKS_LABELS[value]}</Text>
-                  {value === form.asks && <Ionicons className="flex-shrink-0" name='checkmark-sharp' color='black' size={24} />}
+                  <Text className="font-semibold flex-shrink flex-grow">
+                    {ASKS_LABELS[value]}
+                  </Text>
+                  {value === form.asks && (
+                    <Ionicons
+                      className="flex-shrink-0"
+                      name="checkmark-sharp"
+                      color="black"
+                      size={24}
+                    />
+                  )}
                 </MenuOption>
               ))}
             </MenuOptions>
@@ -187,7 +291,9 @@ export default function Options() {
             open={modalOpen}
             setOpen={setModalOpen}
             privacy={form.defaultPostEditorPrivacy}
-            setPrivacy={privacy => update('defaultPostEditorPrivacy', privacy)}
+            setPrivacy={(privacy) =>
+              update('defaultPostEditorPrivacy', privacy)
+            }
             options={[
               PrivacyLevel.PUBLIC,
               PrivacyLevel.UNLISTED,
@@ -198,11 +304,12 @@ export default function Options() {
         </View>
         <View className="p-4">
           <Text className="text-white mb-2">
-            Muted words <Text className="text-gray-200 text-sm">(comma-separated)</Text>
+            Muted words{' '}
+            <Text className="text-gray-200 text-sm">(comma-separated)</Text>
           </Text>
           <TextInput
             value={form.mutedWords}
-            onChangeText={text => update('mutedWords', text)}
+            onChangeText={(text) => update('mutedWords', text)}
             className="p-3 rounded-lg text-white border border-gray-600"
             placeholder="Muted words"
             placeholderTextColor={colors.gray[400]}
@@ -211,18 +318,26 @@ export default function Options() {
           {parsedMutedWords.length > 0 && (
             <View className="flex-row flex-wrap items-center gap-2 py-2">
               {parsedMutedWords.map((tag) => (
-                <Text key={tag} className="bg-gray-600 text-sm px-1.5 py-0.5 rounded-lg text-white">#{tag}</Text>
+                <Text
+                  key={tag}
+                  className="bg-gray-600 text-sm px-1.5 py-0.5 rounded-lg text-white"
+                >
+                  #{tag}
+                </Text>
               ))}
             </View>
           )}
         </View>
         <View className="p-4">
           <Text className="text-white mb-2">
-            Thread collapse limit <Text className="text-gray-200 text-sm">(minimum is {minThreadLimit})</Text>
+            Thread collapse limit{' '}
+            <Text className="text-gray-200 text-sm">
+              (minimum is {minThreadLimit})
+            </Text>
           </Text>
           <TextInput
             value={form.threadAncestorLimit}
-            onChangeText={text => update('threadAncestorLimit', text)}
+            onChangeText={(text) => update('threadAncestorLimit', text)}
             className={clsx('p-3 rounded-lg text-white border', {
               'border-gray-600': validThreadAncestorLimit,
               'border-red-200': !validThreadAncestorLimit,
@@ -236,7 +351,7 @@ export default function Options() {
           )}
         </View>
         <Pressable
-          onPress={() => update('manuallyAcceptsFollows', prev => !prev)}
+          onPress={() => update('manuallyAcceptsFollows', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -244,13 +359,15 @@ export default function Options() {
           </Text>
           <Switch
             value={form.manuallyAcceptsFollows}
-            onValueChange={flag => update('manuallyAcceptsFollows', flag)}
+            onValueChange={(flag) => update('manuallyAcceptsFollows', flag)}
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={form.manuallyAcceptsFollows ? colors.cyan[600] : colors.gray[300]}
+            thumbColor={
+              form.manuallyAcceptsFollows ? colors.cyan[600] : colors.gray[300]
+            }
           />
         </Pressable>
         <Pressable
-          onPress={() => update('disableCW', prev => !prev)}
+          onPress={() => update('disableCW', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -258,13 +375,13 @@ export default function Options() {
           </Text>
           <Switch
             value={form.disableCW}
-            onValueChange={flag => update('disableCW', flag)}
+            onValueChange={(flag) => update('disableCW', flag)}
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
             thumbColor={form.disableCW ? colors.cyan[600] : colors.gray[300]}
           />
         </Pressable>
         <Pressable
-          onPress={() => update('disableNSFWCloak', prev => !prev)}
+          onPress={() => update('disableNSFWCloak', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -272,12 +389,14 @@ export default function Options() {
           </Text>
           <Switch
             value={form.disableNSFWCloak}
-            onValueChange={flag => update('disableNSFWCloak', flag)}
+            onValueChange={(flag) => update('disableNSFWCloak', flag)}
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]}
+            thumbColor={
+              form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]
+            }
           />
         </Pressable>
-        
+
         {/* <Pressable
           onPress={() => update('forceOldEditor', prev => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
@@ -293,7 +412,7 @@ export default function Options() {
           />
         </Pressable> */}
         <Pressable
-          onPress={() => update('forceClassicLogo', prev => !prev)}
+          onPress={() => update('forceClassicLogo', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -301,13 +420,15 @@ export default function Options() {
           </Text>
           <Switch
             value={form.forceClassicLogo}
-            onValueChange={flag => update('forceClassicLogo', flag)}
+            onValueChange={(flag) => update('forceClassicLogo', flag)}
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={form.forceClassicLogo ? colors.cyan[600] : colors.gray[300]}
+            thumbColor={
+              form.forceClassicLogo ? colors.cyan[600] : colors.gray[300]
+            }
           />
         </Pressable>
         <Pressable
-          onPress={() => update('disableForceAltText', prev => !prev)}
+          onPress={() => update('disableForceAltText', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
           <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -318,9 +439,11 @@ export default function Options() {
           </Text>
           <Switch
             value={form.disableForceAltText}
-            onValueChange={flag => update('disableForceAltText', flag)}
+            onValueChange={(flag) => update('disableForceAltText', flag)}
             trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={form.disableForceAltText ? colors.cyan[600] : colors.gray[300]}
+            thumbColor={
+              form.disableForceAltText ? colors.cyan[600] : colors.gray[300]
+            }
           />
         </Pressable>
         {/* <Pressable

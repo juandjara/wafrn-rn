@@ -18,7 +18,8 @@ export const PRIVACY_DESCRIPTIONS = {
   [PrivacyLevel.PUBLIC]: 'Visible to everyone',
   [PrivacyLevel.FOLLOWERS_ONLY]: 'Visible to your followers only',
   [PrivacyLevel.INSTANCE_ONLY]: 'Visible to users on this instance only',
-  [PrivacyLevel.UNLISTED]: 'Visible to everyone but does not appear in searches or public feeds',
+  [PrivacyLevel.UNLISTED]:
+    'Visible to everyone but does not appear in searches or public feeds',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Visible to mentioned users only',
 }
 

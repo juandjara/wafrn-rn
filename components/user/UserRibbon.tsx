@@ -1,13 +1,13 @@
-import { AVATAR_SIZE } from "@/lib/api/posts"
-import { PostUser } from "@/lib/api/posts.types"
-import { useSettings } from "@/lib/api/settings"
-import { formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
-import { Image } from "expo-image"
-import { Link } from "expo-router"
-import { Text, TouchableOpacity, View } from "react-native"
-import HtmlRenderer from "../HtmlRenderer"
-import { useFollowMutation } from "@/lib/interaction"
-import clsx from "clsx"
+import { AVATAR_SIZE } from '@/lib/api/posts'
+import { PostUser } from '@/lib/api/posts.types'
+import { useSettings } from '@/lib/api/settings'
+import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { Image } from 'expo-image'
+import { Link } from 'expo-router'
+import { Text, TouchableOpacity, View } from 'react-native'
+import HtmlRenderer from '../HtmlRenderer'
+import { useFollowMutation } from '@/lib/interaction'
+import clsx from 'clsx'
 
 export default function UserRibbon({
   user,
@@ -38,7 +38,7 @@ export default function UserRibbon({
           className="rounded-md border border-gray-500"
         />
       </Link>
-      <View id='user-name-and-url' className="flex-grow">
+      <View id="user-name-and-url" className="flex-grow">
         <View className="flex-row gap-2 mt-3">
           {userName && (
             <View className="flex-row">

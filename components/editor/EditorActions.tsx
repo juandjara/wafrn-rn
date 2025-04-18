@@ -1,13 +1,13 @@
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import { useState } from "react"
-import { Pressable, ScrollView, View } from "react-native"
-import colors from "tailwindcss/colors"
-import ColorPicker from "./ColorPicker"
-import { launchImageLibraryAsync } from "expo-image-picker"
-import { EditorImage } from "./EditorImages"
-import EditorCanvas from "./EditorCanvas"
-import EmojiPicker from "../EmojiPicker"
-import GifSearch from "./GifSearch"
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { useState } from 'react'
+import { Pressable, ScrollView, View } from 'react-native'
+import colors from 'tailwindcss/colors'
+import ColorPicker from './ColorPicker'
+import { launchImageLibraryAsync } from 'expo-image-picker'
+import { EditorImage } from './EditorImages'
+import EditorCanvas from './EditorCanvas'
+import EmojiPicker from '../EmojiPicker'
+import GifSearch from './GifSearch'
 
 export type EditorActionProps = {
   actions: {
@@ -85,43 +85,51 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           onPress={() => actions.insertCharacter('@')}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons name='at' color='white' size={24} />
+          <MaterialCommunityIcons name="at" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowEmojiPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialIcons name="emoji-emotions" size={24} color='white' />
+          <MaterialIcons name="emoji-emotions" size={24} color="white" />
         </Pressable>
         <Pressable
           onPress={actions.toggleCW}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons name="message-alert" size={24} color={cwOpen ? colors.yellow[500] : 'white'} />
+          <MaterialCommunityIcons
+            name="message-alert"
+            size={24}
+            color={cwOpen ? colors.yellow[500] : 'white'}
+          />
         </Pressable>
         <Pressable
           onPress={pickImages}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons name='image' color='white' size={24} />
+          <MaterialCommunityIcons name="image" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowGifPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialIcons name='gif' color='white' size={24} />
+          <MaterialIcons name="gif" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+          <MaterialCommunityIcons
+            name="format-color-text"
+            color="white"
+            size={24}
+          />
         </Pressable>
         <Pressable
           onPress={() => setShowCanvas(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons name='brush' color='white' size={24} />
+          <MaterialCommunityIcons name="brush" color="white" size={24} />
         </Pressable>
       </ScrollView>
     </View>

@@ -1,16 +1,32 @@
-import Header from "@/components/Header";
-import { optionStyleDark } from "@/lib/styles";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import colors from "tailwindcss/colors";
+import Header from '@/components/Header'
+import { optionStyleDark } from '@/lib/styles'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { router } from 'expo-router'
+import { Pressable, ScrollView, Text, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 const options = [
-  { label: 'Muted posts', link: '/setting/mutes-and-blocks/muted-posts', icon: 'bell-off' },
-  { label: 'Muted users', link: '/setting/mutes-and-blocks/muted-users', icon: 'volume-off' },
-  { label: 'Blocked users', link: '/setting/mutes-and-blocks/blocked-users', icon: 'account-off-outline' },
-  { label: 'Blocked servers', link: '/setting/mutes-and-blocks/blocked-servers', icon: 'server-off' },
+  {
+    label: 'Muted posts',
+    link: '/setting/mutes-and-blocks/muted-posts',
+    icon: 'bell-off',
+  },
+  {
+    label: 'Muted users',
+    link: '/setting/mutes-and-blocks/muted-users',
+    icon: 'volume-off',
+  },
+  {
+    label: 'Blocked users',
+    link: '/setting/mutes-and-blocks/blocked-users',
+    icon: 'account-off-outline',
+  },
+  {
+    label: 'Blocked servers',
+    link: '/setting/mutes-and-blocks/blocked-servers',
+    icon: 'server-off',
+  },
 ] as const
 
 export default function MutesAndBlock() {
@@ -27,7 +43,11 @@ export default function MutesAndBlock() {
               style={optionStyleDark(i)}
               onPress={() => router.navigate(opt.link)}
             >
-              <MaterialCommunityIcons name={opt.icon} size={24} color={colors.gray[200]} />
+              <MaterialCommunityIcons
+                name={opt.icon}
+                size={24}
+                color={colors.gray[200]}
+              />
               <Text className="text-white">{opt.label}</Text>
             </Pressable>
           ))}

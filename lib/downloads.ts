@@ -1,7 +1,16 @@
-import { cacheDirectory, makeDirectoryAsync, getInfoAsync, downloadAsync } from 'expo-file-system'
+import {
+  cacheDirectory,
+  makeDirectoryAsync,
+  getInfoAsync,
+  downloadAsync,
+} from 'expo-file-system'
 import { showToastError, showToastSuccess } from './interaction'
-import { saveToLibraryAsync, getPermissionsAsync, requestPermissionsAsync } from 'expo-media-library'
-import * as Device from 'expo-device';
+import {
+  saveToLibraryAsync,
+  getPermissionsAsync,
+  requestPermissionsAsync,
+} from 'expo-media-library'
+import * as Device from 'expo-device'
 
 const CACHE_DIR = `${cacheDirectory}WAFRN/`
 
@@ -18,7 +27,9 @@ async function saveFileToGallery(localUrl: string) {
     const prevPerm = await getPermissionsAsync(true)
     if (!prevPerm.granted) {
       if (!prevPerm.canAskAgain) {
-        throw new Error('Download permission missing. Check the write storage permission for this app in the settings of your device')
+        throw new Error(
+          'Download permission missing. Check the write storage permission for this app in the settings of your device',
+        )
       }
       const newPerm = await requestPermissionsAsync(true)
       if (!newPerm.granted) {
@@ -29,7 +40,11 @@ async function saveFileToGallery(localUrl: string) {
   await saveToLibraryAsync(localUrl)
 }
 
-export async function downloadFile(url: string, name: string, saveToGallery = true) {
+export async function downloadFile(
+  url: string,
+  name: string,
+  saveToGallery = true,
+) {
   try {
     await ensureDownloadDirectory()
     const file = await downloadAsync(url, `${CACHE_DIR}${name}`)

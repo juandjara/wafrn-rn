@@ -1,4 +1,8 @@
-export default function pluralize(count: number, singular: string, plural?: string) {
+export default function pluralize(
+  count: number,
+  singular: string,
+  plural?: string,
+) {
   if (!plural) {
     plural = `${singular}s`
   }

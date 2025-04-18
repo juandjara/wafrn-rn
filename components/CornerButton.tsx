@@ -2,12 +2,12 @@ import Reanimated, {
   AnimatedStyle,
   Easing,
   useAnimatedScrollHandler,
-   useAnimatedStyle,
+  useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from "react-native-reanimated"
-import { Pressable, ViewStyle } from "react-native"
-import { MaterialIcons } from "@expo/vector-icons"
+} from 'react-native-reanimated'
+import { Pressable, ViewStyle } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
 
 export function useCornerButtonAnimation() {
   const lastContentOffset = useSharedValue(0)
@@ -30,31 +30,34 @@ export function useCornerButtonAnimation() {
     },
     onEndDrag: () => {
       isScrolling.value = false
-    }
+    },
   })
 
   const buttonStyle = useAnimatedStyle(() => ({
-    transform: [{
-      translateY: withTiming(translateY.value, {
-        duration: 300,
-        easing: Easing.inOut(Easing.ease),
-      })
-    }],
+    transform: [
+      {
+        translateY: withTiming(translateY.value, {
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      },
+    ],
   }))
 
   return { scrollHandler, buttonStyle }
 }
 
-export function CornerButton({ buttonStyle, onClick }: {
+export function CornerButton({
+  buttonStyle,
+  onClick,
+}: {
   onClick: () => void
   buttonStyle: AnimatedStyle<ViewStyle>
 }) {
   return (
     <Reanimated.View
-      style={[
-        buttonStyle,
-        { position: 'absolute', bottom: 12, right: 12 }
-      ]}>
+      style={[buttonStyle, { position: 'absolute', bottom: 12, right: 12 }]}
+    >
       <Pressable
         className="p-3 rounded-full bg-white border border-gray-300"
         onPress={onClick}

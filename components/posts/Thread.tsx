@@ -1,14 +1,14 @@
-import { PostThread } from "@/lib/api/posts.types"
-import { View } from "react-native"
-import PostFragment from "../dashboard/PostFragment"
-import { useDashboardContext } from "@/lib/contexts/DashboardContext"
-import clsx from "clsx"
-import RewootRibbon from "./RewootRibbon"
-import InteractionRibbon from "./InteractionRibbon"
-import { Link } from "expo-router"
-import ReplyRibbon from "./ReplyRibbon"
-import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
-import { memo } from "react"
+import { PostThread } from '@/lib/api/posts.types'
+import { View } from 'react-native'
+import PostFragment from '../dashboard/PostFragment'
+import { useDashboardContext } from '@/lib/contexts/DashboardContext'
+import clsx from 'clsx'
+import RewootRibbon from './RewootRibbon'
+import InteractionRibbon from './InteractionRibbon'
+import { Link } from 'expo-router'
+import ReplyRibbon from './ReplyRibbon'
+import { useHiddenUserIds } from '@/lib/api/blocks-and-mutes'
+import { memo } from 'react'
 
 function _Thread({ thread }: { thread: PostThread }) {
   const context = useDashboardContext()
@@ -22,11 +22,12 @@ function _Thread({ thread }: { thread: PostThread }) {
     interactionPost,
     ancestors,
     postHidden,
-    ancestorLimitReached
+    ancestorLimitReached,
   } = context.threadData[thread.id]
 
-  const userHidden = hiddenUserIds.includes(thread.userId)
-    || ancestors.some((a) => hiddenUserIds.includes(a.userId))
+  const userHidden =
+    hiddenUserIds.includes(thread.userId) ||
+    ancestors.some((a) => hiddenUserIds.includes(a.userId))
 
   if (postHidden || userHidden) {
     return null
@@ -57,7 +58,10 @@ function _Thread({ thread }: { thread: PostThread }) {
         <>
           <PostFragment post={ancestors[0]} />
           <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
-            <Link href={`/post/${interactionPost.id}`} className="text-sm text-white p-2">
+            <Link
+              href={`/post/${interactionPost.id}`}
+              className="text-sm text-white p-2"
+            >
               ...{thread.ancestors.length - 2} more posts
             </Link>
           </View>
@@ -73,9 +77,11 @@ function _Thread({ thread }: { thread: PostThread }) {
           </View>
         ))
       )}
-      <View className={clsx({
-        'border-t border-slate-600': !isRewoot && ancestors.length > 0
-      })}>
+      <View
+        className={clsx({
+          'border-t border-slate-600': !isRewoot && ancestors.length > 0,
+        })}
+      >
         <PostFragment post={thread} />
       </View>
       <InteractionRibbon post={interactionPost} />

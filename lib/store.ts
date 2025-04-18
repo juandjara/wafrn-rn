@@ -8,32 +8,32 @@ type PostLayoutState = {
 
 export const postStore = createStore({
   context: {
-    layout: {} as Record<string, PostLayoutState | undefined>
+    layout: {} as Record<string, PostLayoutState | undefined>,
   },
   on: {
     toggleCollapsed: {
       layout: (context, payload: { id: string; flag: boolean }) => {
-        const layout = context.layout[payload.id] || {} as PostLayoutState
+        const layout = context.layout[payload.id] || ({} as PostLayoutState)
         return {
           ...context.layout,
           [payload.id]: {
             ...layout,
-            collapsed: payload.flag
-          }
+            collapsed: payload.flag,
+          },
         }
-      }
+      },
     },
     toggleCwOpen: {
-      layout: (context, payload: { id: string; flag: boolean  }) => {
-        const layout = context.layout[payload.id] || {} as PostLayoutState
+      layout: (context, payload: { id: string; flag: boolean }) => {
+        const layout = context.layout[payload.id] || ({} as PostLayoutState)
         return {
           ...context.layout,
           [payload.id]: {
             ...layout,
-            cwOpen: payload.flag
-          }
+            cwOpen: payload.flag,
+          },
         }
-      }
+      },
     },
   },
 })

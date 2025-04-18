@@ -1,13 +1,15 @@
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Post, PostUser } from "./api/posts.types"
-import { useAuth } from "./contexts/AuthContext"
-import { getJSON } from "./http"
-import { toast } from "@backpackapp-io/react-native-toast"
-import colors from "tailwindcss/colors"
-import { getEnvironmentStatic } from "./api/auth"
+import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Post, PostUser } from './api/posts.types'
+import { useAuth } from './contexts/AuthContext'
+import { getJSON } from './http'
+import { toast } from '@backpackapp-io/react-native-toast'
+import colors from 'tailwindcss/colors'
+import { getEnvironmentStatic } from './api/auth'
 
 export async function toggleLikePost({
-  token, postId, isLiked
+  token,
+  postId,
+  isLiked,
 }: {
   token: string
   postId: string
@@ -18,9 +20,9 @@ export async function toggleLikePost({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ postId })
+    body: JSON.stringify({ postId }),
   })
 }
 
@@ -28,13 +30,13 @@ export function showToastSuccess(message: string) {
   toast.success(message, {
     styles: {
       text: {
-        color: colors.green[900]
+        color: colors.green[900],
       },
       view: {
         backgroundColor: colors.green[100],
-        borderRadius: 8
+        borderRadius: 8,
       },
-    }
+    },
   })
 }
 
@@ -42,13 +44,13 @@ export function showToastError(message: string) {
   toast.error(message, {
     styles: {
       text: {
-        color: colors.red[900]
+        color: colors.red[900],
       },
       view: {
         backgroundColor: colors.red[100],
-        borderRadius: 8
+        borderRadius: 8,
       },
-    }
+    },
   })
 }
 
@@ -58,11 +60,12 @@ export function useLikeMutation(post: Post) {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['like', post.id],
-    mutationFn: variables => toggleLikePost({
-      token: token!,
-      postId: post.id,
-      isLiked: variables
-    }),
+    mutationFn: (variables) =>
+      toggleLikePost({
+        token: token!,
+        postId: post.id,
+        isLiked: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}like woot`)
@@ -71,12 +74,14 @@ export function useLikeMutation(post: Post) {
       showToastSuccess(`Woot ${variables ? 'un' : ''}liked`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post)
+    onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
 export async function toggleFollowUser({
-  token, userId, isFollowing
+  token,
+  userId,
+  isFollowing,
 }: {
   token: string
   userId: string
@@ -87,9 +92,9 @@ export async function toggleFollowUser({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   })
 }
 
@@ -102,11 +107,12 @@ export function useFollowMutation(user: {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['follow', user.id],
-    mutationFn: variables => toggleFollowUser({
-      token: token!,
-      userId: user.id,
-      isFollowing: variables
-    }),
+    mutationFn: (variables) =>
+      toggleFollowUser({
+        token: token!,
+        userId: user.id,
+        isFollowing: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}follow user`)
@@ -116,20 +122,18 @@ export function useFollowMutation(user: {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'settings'
-        )
+        predicate: (query) => query.queryKey[0] === 'settings',
       })
-    }
+    },
   })
 }
 
 export async function invalidatePostQueries(qc: QueryClient, post: Post) {
   await qc.invalidateQueries({
-    predicate: (query) => (
-      query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-        || query.queryKey[0] === 'search'
-        || (query.queryKey[0] === 'post' && (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId))
-    )
+    predicate: (query) =>
+      query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
+      query.queryKey[0] === 'search' ||
+      (query.queryKey[0] === 'post' &&
+        (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId)),
   })
 }

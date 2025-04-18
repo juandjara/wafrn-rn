@@ -1,10 +1,10 @@
-import { PostUser } from "@/lib/api/posts.types"
-import { formatSmallAvatar } from "@/lib/formatters"
-import { Link } from "expo-router"
-import { Pressable, Text, View } from "react-native"
+import { PostUser } from '@/lib/api/posts.types'
+import { formatSmallAvatar } from '@/lib/formatters'
+import { Link } from 'expo-router'
+import { Pressable, Text, View } from 'react-native'
 import { Image } from 'expo-image'
-import clsx from "clsx";
-import HtmlRenderer from "./HtmlRenderer"
+import clsx from 'clsx'
+import HtmlRenderer from './HtmlRenderer'
 
 export default function GenericRibbon({
   user,
@@ -14,16 +14,21 @@ export default function GenericRibbon({
   label = '',
   icon,
 }: {
-  user: PostUser;
-  userNameHTML: string;
-  link?: string;
-  className?: string;
-  label?: string;
+  user: PostUser
+  userNameHTML: string
+  link?: string
+  className?: string
+  label?: string
   icon: React.ReactNode
 }) {
   const avatar = formatSmallAvatar(user?.avatar)
   const content = (
-    <View className={clsx(className, 'pl-1 p-2 flex-row gap-1 items-center bg-blue-950')}>
+    <View
+      className={clsx(
+        className,
+        'pl-1 p-2 flex-row gap-1 items-center bg-blue-950',
+      )}
+    >
       {icon}
       <Image
         className="rounded-md border border-gray-500"
@@ -39,9 +44,9 @@ export default function GenericRibbon({
 
   return link ? (
     <Link href={link} asChild>
-      <Pressable>
-        {content}
-      </Pressable>
+      <Pressable>{content}</Pressable>
     </Link>
-  ) : content
+  ) : (
+    content
+  )
 }

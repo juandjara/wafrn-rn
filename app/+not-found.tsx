@@ -14,10 +14,8 @@ export default function NotFoundScreen() {
             not found: {pathname}
           </ThemedText>
         </View>
-        <ThemedText type="title">
-          This screen doesn't exist
-        </ThemedText>
-        <ThemedText type='default'>yet</ThemedText>
+        <ThemedText type="title">This screen doesn't exist</ThemedText>
+        <ThemedText type="default">yet</ThemedText>
         {router.canGoBack() ? (
           <Link href=".." style={styles.link}>
             <ThemedText type="link">Go back</ThemedText>

@@ -1,13 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "../contexts/AuthContext"
-import { getJSON, statusError, StatusError } from "../http"
-import { DashboardData, Post, PostUser } from "./posts.types"
-import { Timestamps } from "./types"
-import { PrivacyLevel } from "./privacy"
-import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
-import { EditorImage } from "@/components/editor/EditorImages"
-import { BSKY_URL } from "./content"
-import { getEnvironmentStatic } from "./auth"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
+import { getJSON, statusError, StatusError } from '../http'
+import { DashboardData, Post, PostUser } from './posts.types'
+import { Timestamps } from './types'
+import { PrivacyLevel } from './privacy'
+import {
+  invalidatePostQueries,
+  showToastError,
+  showToastSuccess,
+} from '../interaction'
+import { EditorImage } from '@/components/editor/EditorImages'
+import { BSKY_URL } from './content'
+import { getEnvironmentStatic } from './auth'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 0,
@@ -24,7 +28,7 @@ export const FLATLIST_PERFORMANCE_CONFIG = {
   windowSize: 9,
   removeClippedSubviews: true,
   updateCellsBatchingPeriod: 100,
-  maxToRenderPerBatch: 5
+  maxToRenderPerBatch: 5,
 }
 
 const LAYOUT_MARGIN = 24
@@ -36,8 +40,8 @@ export async function getPostDetail(token: string, id: string) {
     const env = getEnvironmentStatic()
     const json = await getJSON(`${env?.API_URL}/v2/post/${id}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
     const data = json as DashboardData
     return data
@@ -62,7 +66,7 @@ export function usePostDetail(id: string, includeReplies = true) {
       const [post, replies] = await Promise.all(promises)
       return {
         post,
-        replies
+        replies,
       }
     },
     enabled: !!token && !!id,
@@ -86,8 +90,8 @@ export async function getPostReplies(token: string, id: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   const data = json as DashboardData
   return data
@@ -96,7 +100,7 @@ export async function getPostReplies(token: string, id: string) {
 export async function requestMoreRemoteReplies(token: string, id: string) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/loadRemoteResponses?id=${id}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   })
 }
 
@@ -126,7 +130,7 @@ export type CreatePostPayload = {
 }
 
 export async function wait(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 /** wait for the estimated time the post queue takes to process creating a post */
 export async function arbitraryWaitPostQueue() {
@@ -139,7 +143,7 @@ export async function createPost(token: string, payload: CreatePostPayload) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       content: payload.content,
@@ -151,11 +155,11 @@ export async function createPost(token: string, payload: CreatePostPayload) {
       idPostToEdit: payload.editingPostId,
       postToQuote: payload.quotedPostId,
       ask: payload.askId,
-      mentionedUserIds: payload.mentionedUserIds
-    })
+      mentionedUserIds: payload.mentionedUserIds,
+    }),
   })
   await arbitraryWaitPostQueue()
-  
+
   const json = data as { id: string }
   return json.id
 }
@@ -179,12 +183,12 @@ export function useCreatePostMutation() {
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async (data, error, variables) => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || (query.queryKey[0] === 'post' && query.queryKey[1] === variables.parentId)
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
+          (query.queryKey[0] === 'post' &&
+            query.queryKey[1] === variables.parentId),
       })
-    }
+    },
   })
 }
 
@@ -203,8 +207,8 @@ export async function deleteRewoot(token: string, postId: string) {
   await getJSON(`${env?.API_URL}/deleteRewoots?id=${postId}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -229,7 +233,7 @@ export function useRewootMutation(post: Post) {
       showToastSuccess(`Woot ${variables ? 'un' : ''}rewooted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post)
+    onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
@@ -238,8 +242,8 @@ export async function deletePost(token: string, postId: string) {
   await getJSON(`${env?.API_URL}/deletePost?id=${postId}`, {
     method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -262,25 +266,28 @@ export function useDeleteMutation(post: Post) {
     // NOTE: not reutlizing the common function to avoid refetching a just-deleted post
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'dashboard' // this catches both dashboard and user feeds
-            || query.queryKey[0] === 'search'
-            || (query.queryKey[0] === 'post' && query.queryKey[1] === post.parentId)
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
+          query.queryKey[0] === 'search' ||
+          (query.queryKey[0] === 'post' && query.queryKey[1] === post.parentId),
       })
-    }
+    },
   })
 }
 
-export async function voteOnPoll(token: string, pollId: number, votes: number[]) {
+export async function voteOnPoll(
+  token: string,
+  pollId: number,
+  votes: number[],
+) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/v2/pollVote/${pollId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ votes })
+    body: JSON.stringify({ votes }),
   })
 }
 
@@ -303,7 +310,7 @@ export function useVoteMutation(pollId: number | null, post: Post) {
       showToastSuccess(`Poll voted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post)
+    onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 

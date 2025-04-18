@@ -1,13 +1,17 @@
-import GenericRibbon from "@/components/GenericRibbon";
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { useBlocklists } from "@/lib/api/admin";
-import { formatCachedUrl, formatMediaUrl, formatUserUrl } from "@/lib/formatters";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
-import colors from "tailwindcss/colors";
+import GenericRibbon from '@/components/GenericRibbon'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { useBlocklists } from '@/lib/api/admin'
+import {
+  formatCachedUrl,
+  formatMediaUrl,
+  formatUserUrl,
+} from '@/lib/formatters'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { Link } from 'expo-router'
+import { FlatList, Pressable, Text, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 export default function UserBlocklists() {
   const sx = useSafeAreaPadding()
@@ -35,22 +39,26 @@ export default function UserBlocklists() {
                     <MaterialCommunityIcons
                       className="mx-1"
                       name="account-cancel-outline"
-                      color='white'
+                      color="white"
                       size={24}
                     />
                   }
                 />
-                <Link href={`/user/${item.blockedUser.url}`} asChild>                
+                <Link href={`/user/${item.blockedUser.url}`} asChild>
                   <Pressable className="rounded-b-xl p-2 bg-gray-800 active:bg-gray-700 flex-row items-center gap-3">
                     <Image
                       recyclingKey={item.blockedUser.id}
-                      source={{ uri: formatCachedUrl(formatMediaUrl(item.blockedUser.avatar)) }}
+                      source={{
+                        uri: formatCachedUrl(
+                          formatMediaUrl(item.blockedUser.avatar),
+                        ),
+                      }}
                       style={{
                         width: 40,
                         height: 40,
                         borderRadius: 8,
                         borderColor: colors.gray[500],
-                        borderWidth: 1
+                        borderWidth: 1,
                       }}
                     />
                     <Text className="text-white flex-grow flex-shrink">
@@ -74,14 +82,18 @@ export default function UserBlocklists() {
                     <MaterialCommunityIcons
                       className="mx-1"
                       name="server-off"
-                      color='white'
+                      color="white"
                       size={24}
                     />
                   }
                 />
                 <View className="p-2 bg-gray-800 rounded-b-xl">
-                  <Text className="text-gray-200 text-sm mb-2">Server blocked:</Text>
-                  <Text className="text-white font-medium text-lg">{item.blockedServer.displayName}</Text>
+                  <Text className="text-gray-200 text-sm mb-2">
+                    Server blocked:
+                  </Text>
+                  <Text className="text-white font-medium text-lg">
+                    {item.blockedServer.displayName}
+                  </Text>
                 </View>
               </View>
             )

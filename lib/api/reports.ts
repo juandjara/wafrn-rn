@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { getJSON } from "../http"
-import { Post, PostUser } from "./posts.types"
-import { Timestamps } from "./types"
-import { useAuth } from "../contexts/AuthContext"
-import { showToastError, showToastSuccess } from "../interaction"
-import { getEnvironmentStatic } from "./auth"
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getJSON } from '../http'
+import { Post, PostUser } from './posts.types'
+import { Timestamps } from './types'
+import { useAuth } from '../contexts/AuthContext'
+import { showToastError, showToastSuccess } from '../interaction'
+import { getEnvironmentStatic } from './auth'
 
 export enum ReportSeverity {
   SPAM = 1,
@@ -29,8 +29,10 @@ export const REPORT_SEVERITY_LABELS = {
 
 export const REPORT_SEVERITY_DESCRIPTIONS = {
   [ReportSeverity.SPAM]: 'This post is spam, unwanted commercial content',
-  [ReportSeverity.UNLABELED_NSFW]: 'This post contains NSFW media and is not labelled as such',
-  [ReportSeverity.HATEFUL_CONTENT]: 'This post is inciting hate against a person or collective',
+  [ReportSeverity.UNLABELED_NSFW]:
+    'This post contains NSFW media and is not labelled as such',
+  [ReportSeverity.HATEFUL_CONTENT]:
+    'This post is inciting hate against a person or collective',
   [ReportSeverity.ILLEGAL_CONTENT]: 'This post contains illegal content',
 } as const
 
@@ -59,9 +61,9 @@ async function reportPost(token: string, payload: ReportPayload) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   })
 }
 
@@ -80,9 +82,10 @@ export function useReportPostMutation() {
     },
     onSettled: () => {
       qc.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === 'report-list' || query.queryKey[0] === 'notificationsBadge'
+        predicate: (query) =>
+          query.queryKey[0] === 'report-list' ||
+          query.queryKey[0] === 'notificationsBadge',
       })
-    }
+    },
   })
 }
-

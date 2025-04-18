@@ -1,6 +1,6 @@
-import { EmojiBase, PostEmojiRelation, UserEmojiRelation } from "./emojis"
-import { PrivacyLevel } from "./privacy"
-import { Timestamps } from "./types"
+import { EmojiBase, PostEmojiRelation, UserEmojiRelation } from './emojis'
+import { PrivacyLevel } from './privacy'
+import { Timestamps } from './types'
 
 export type Post = {
   id: string

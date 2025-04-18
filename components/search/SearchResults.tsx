@@ -1,17 +1,21 @@
-import Thread from "@/components/posts/Thread"
-import UserRibbon from "@/components/user/UserRibbon"
-import { dedupeById, dedupePosts, getDashboardContext } from "@/lib/api/dashboard"
-import { SearchView, useSearch } from "@/lib/api/search"
-import { useSettings } from "@/lib/api/settings"
-import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
-import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
-import { useLayoutData } from "@/lib/store"
-import { FlashList } from "@shopify/flash-list"
-import { useQueryClient } from "@tanstack/react-query"
-import clsx from "clsx"
-import { useEffect, useMemo, useState } from "react"
-import { Pressable, Text, useWindowDimensions, View } from "react-native"
-import { TabView } from "react-native-tab-view"
+import Thread from '@/components/posts/Thread'
+import UserRibbon from '@/components/user/UserRibbon'
+import {
+  dedupeById,
+  dedupePosts,
+  getDashboardContext,
+} from '@/lib/api/dashboard'
+import { SearchView, useSearch } from '@/lib/api/search'
+import { useSettings } from '@/lib/api/settings'
+import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { useLayoutData } from '@/lib/store'
+import { FlashList } from '@shopify/flash-list'
+import { useQueryClient } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { useEffect, useMemo, useState } from 'react'
+import { Pressable, Text, useWindowDimensions, View } from 'react-native'
+import { TabView } from 'react-native-tab-view'
 
 const TABS = [
   { key: SearchView.Posts, title: 'Posts' },
@@ -29,44 +33,51 @@ export default function SearchResults({ query }: { query: string }) {
 
   const layoutData = useLayoutData()
   const { width } = useWindowDimensions()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query, view)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(
+    query,
+    view,
+  )
 
   const qc = useQueryClient()
   const refresh = async () => {
     await qc.resetQueries({
-      queryKey: ['search', query]
+      queryKey: ['search', query],
     })
   }
 
   const { data: settings } = useSettings()
   const context = useMemo(
-    () => getDashboardContext(
-      (data?.pages || []).map((page) => page.posts),
-      settings,
-    ),
-    [data?.pages, settings]
+    () =>
+      getDashboardContext(
+        (data?.pages || []).map((page) => page.posts),
+        settings,
+      ),
+    [data?.pages, settings],
   )
   const deduped = useMemo(
-    () => (
-      dedupePosts((data?.pages || [])
-        .map((page) => page.posts))
-    ),
-    [data?.pages]
+    () => dedupePosts((data?.pages || []).map((page) => page.posts)),
+    [data?.pages],
   )
 
   const users = useMemo(() => {
     const emojis = data?.pages.flatMap((page) => page.users.emojis) || []
-    const emojiUserRelation = data?.pages.flatMap((page) => page.users.userEmojiRelation) || []
-    const users = dedupeById(data?.pages.flatMap((page) => page.users.foundUsers) || [])
+    const emojiUserRelation =
+      data?.pages.flatMap((page) => page.users.userEmojiRelation) || []
+    const users = dedupeById(
+      data?.pages.flatMap((page) => page.users.foundUsers) || [],
+    )
     return users.map((user) => {
-      const ids = emojiUserRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) || []
+      const ids =
+        emojiUserRelation
+          .filter((e) => e.userId === user.id)
+          .map((e) => e.emojiId) || []
       const userEmojis = emojis.filter((e) => ids.includes(e.id)) || []
       let userName = user.name
       if (userName) {
         for (const emoji of userEmojis) {
           userName = userName.replaceAll(
             emoji.name,
-            `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`
+            `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`,
           )
         }
       }
@@ -102,7 +113,7 @@ export default function SearchResults({ query }: { query: string }) {
         )}
         navigationState={{
           index: view === SearchView.Posts ? 0 : 1,
-          routes: TABS
+          routes: TABS,
         }}
         onIndexChange={(index) => {
           setView(index === 1 ? SearchView.Users : SearchView.Posts)
@@ -121,13 +132,18 @@ export default function SearchResults({ query }: { query: string }) {
                 onEndReachedThreshold={2}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => <Thread thread={item} />}
-                onEndReached={() => (
-                  view === SearchView.Posts && hasNextPage && !isFetching && fetchNextPage()
-                )}
+                onEndReached={() =>
+                  view === SearchView.Posts &&
+                  hasNextPage &&
+                  !isFetching &&
+                  fetchNextPage()
+                }
                 ListFooterComponent={
                   <View>
                     {!isFetching && deduped.length === 0 && (
-                      <Text className="text-white text-center py-4">No posts found</Text>
+                      <Text className="text-white text-center py-4">
+                        No posts found
+                      </Text>
                     )}
                   </View>
                 }
@@ -148,13 +164,18 @@ export default function SearchResults({ query }: { query: string }) {
                     <UserRibbon user={item.user} userName={item.userName} />
                   </View>
                 )}
-                onEndReached={() => (
-                  view === SearchView.Users && hasNextPage && !isFetching && fetchNextPage()
-                )}
+                onEndReached={() =>
+                  view === SearchView.Users &&
+                  hasNextPage &&
+                  !isFetching &&
+                  fetchNextPage()
+                }
                 ListFooterComponent={
                   <View>
                     {!isFetching && users.length === 0 && (
-                      <Text className="text-white text-center py-4">No users found</Text>
+                      <Text className="text-white text-center py-4">
+                        No users found
+                      </Text>
                     )}
                   </View>
                 }
@@ -188,9 +209,11 @@ function SearchViewSelect({
             { 'opacity-50': numPosts === 0 },
             view === SearchView.Posts
               ? 'text-indigo-500 bg-indigo-500/20'
-              : 'text-gray-300'
+              : 'text-gray-300',
           )}
-        >Posts</Text>
+        >
+          Posts
+        </Text>
       </Pressable>
       <Pressable onPress={() => setView(SearchView.Users)}>
         <Text
@@ -199,9 +222,11 @@ function SearchViewSelect({
             { 'opacity-50': numUsers === 0 },
             view === SearchView.Users
               ? 'text-indigo-500 bg-indigo-500/20'
-              : 'text-gray-300'
+              : 'text-gray-300',
           )}
-        >Users</Text>
+        >
+          Users
+        </Text>
       </Pressable>
     </View>
   )

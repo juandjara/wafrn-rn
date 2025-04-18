@@ -1,8 +1,8 @@
-import { EmojiGroup } from "@/lib/api/content"
-import ReactionDetailsMenu from "./ReactionDetailsMenu"
-import { Text, View } from "react-native"
-import { Image } from "expo-image"
-import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
+import { EmojiGroup } from '@/lib/api/content'
+import ReactionDetailsMenu from './ReactionDetailsMenu'
+import { Text, View } from 'react-native'
+import { Image } from 'expo-image'
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 
 export default function PostReaction({ reaction }: { reaction: EmojiGroup }) {
   if (typeof reaction.emoji === 'string') {
@@ -25,21 +25,23 @@ export default function PostReaction({ reaction }: { reaction: EmojiGroup }) {
         key={reaction.id}
         users={reaction.users}
         reactionName={reaction.emoji.name}
-        reaction={(
+        reaction={
           <Image
-            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
+            source={{
+              uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)),
+            }}
             style={{ resizeMode: 'contain', width: 20, height: 20 }}
           />
-        )}
+        }
       >
         <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
           <Image
-            source={{ uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)) }}
+            source={{
+              uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)),
+            }}
             style={{ resizeMode: 'contain', width: 20, height: 20 }}
           />
-          <Text className="text-gray-200">
-            {reaction.users.length}
-          </Text>
+          <Text className="text-gray-200">{reaction.users.length}</Text>
         </View>
       </ReactionDetailsMenu>
     )

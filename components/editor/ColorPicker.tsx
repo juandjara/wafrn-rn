@@ -1,8 +1,8 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import clsx from "clsx"
-import { useState } from "react"
-import { Modal, Pressable, ScrollView, Text, View } from "react-native"
-import colors from "tailwindcss/colors"
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { useState } from 'react'
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 const COLORS = [
   'slate',
@@ -29,15 +29,21 @@ const COLORS = [
   'rose',
 ] as const
 
-const INTENSITIES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const
+const INTENSITIES = [
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+] as const
 const EXTRA_COLORS = ['#FFFFFF', '#000000']
 
-export default function ColorPicker({ open, setOpen, selectColor }: {
-  open: boolean,
-  setOpen: (open: boolean) => void,
+export default function ColorPicker({
+  open,
+  setOpen,
+  selectColor,
+}: {
+  open: boolean
+  setOpen: (open: boolean) => void
   selectColor: (color: string) => void
 }) {
-  const [intensity, setIntensity] = useState<typeof INTENSITIES[number]>(500)
+  const [intensity, setIntensity] = useState<(typeof INTENSITIES)[number]>(500)
 
   return (
     <Modal
@@ -47,9 +53,14 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
       transparent
     >
       <View className="flex-1">
-        <Pressable className="bg-black/50 flex-grow" onPress={() => setOpen(false)} />
+        <Pressable
+          className="bg-black/50 flex-grow"
+          onPress={() => setOpen(false)}
+        />
         <View className="bg-indigo-950 p-2">
-          <Text className="text-white text-sm font-medium">Color intensity</Text>
+          <Text className="text-white text-sm font-medium">
+            Color intensity
+          </Text>
           <ScrollView
             contentContainerClassName="gap-3"
             className="flex-shrink-0 flex-grow-0 pt-2 pb-4"
@@ -65,7 +76,11 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
                   intensity === i ? 'bg-white' : '',
                 )}
               >
-                <Text className={intensity === i ? 'text-gray-700' : 'text-white'}>{i}</Text>
+                <Text
+                  className={intensity === i ? 'text-gray-700' : 'text-white'}
+                >
+                  {i}
+                </Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -86,7 +101,11 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
                   setOpen(false)
                 }}
               >
-                <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+                <MaterialCommunityIcons
+                  name="format-color-text"
+                  color="white"
+                  size={24}
+                />
               </Pressable>
             ))}
             {COLORS.map((color) => (
@@ -99,7 +118,11 @@ export default function ColorPicker({ open, setOpen, selectColor }: {
                 style={{ backgroundColor: colors[color][intensity] }}
                 className={`p-2 rounded-full`}
               >
-                <MaterialCommunityIcons name='format-color-text' color='white' size={24} />
+                <MaterialCommunityIcons
+                  name="format-color-text"
+                  color="white"
+                  size={24}
+                />
               </Pressable>
             ))}
           </ScrollView>

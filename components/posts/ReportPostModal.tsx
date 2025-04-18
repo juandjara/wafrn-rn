@@ -1,14 +1,34 @@
-import { Post } from "@/lib/api/posts.types";
-import { REPORT_SEVERITY_DESCRIPTIONS, REPORT_SEVERITY_LABELS, REPORT_SEVERITY_ORDER, ReportSeverity, useReportPostMutation } from "@/lib/api/reports";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { Toasts } from "@backpackapp-io/react-native-toast";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import clsx from "clsx";
-import { useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import colors from "tailwindcss/colors";
+import { Post } from '@/lib/api/posts.types'
+import {
+  REPORT_SEVERITY_DESCRIPTIONS,
+  REPORT_SEVERITY_LABELS,
+  REPORT_SEVERITY_ORDER,
+  ReportSeverity,
+  useReportPostMutation,
+} from '@/lib/api/reports'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Toasts } from '@backpackapp-io/react-native-toast'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { useState } from 'react'
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import colors from 'tailwindcss/colors'
 
-export default function ReportPostModal({ open, onClose, post }: {
+export default function ReportPostModal({
+  open,
+  onClose,
+  post,
+}: {
   open: boolean
   onClose: () => void
   post: Post
@@ -19,17 +39,20 @@ export default function ReportPostModal({ open, onClose, post }: {
   const mutation = useReportPostMutation()
 
   function onSubmit() {
-    mutation.mutate({
-      postId: post.id,
-      severity,
-      description
-    }, {
-      onSettled: () => {
-        onClose()
-      }
-    })
+    mutation.mutate(
+      {
+        postId: post.id,
+        severity,
+        description,
+      },
+      {
+        onSettled: () => {
+          onClose()
+        },
+      },
+    )
   }
-  
+
   return (
     <Modal
       transparent
@@ -43,20 +66,21 @@ export default function ReportPostModal({ open, onClose, post }: {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Toasts />
-        <Pressable className="bg-black/50 flex-grow" onPress={onClose}></Pressable>
+        <Pressable
+          className="bg-black/50 flex-grow"
+          onPress={onClose}
+        ></Pressable>
         <View className="bg-indigo-950 pb-4">
           <ScrollView>
-            <View className='p-4 pb-0 flex-row items-center justify-between'>
+            <View className="p-4 pb-0 flex-row items-center justify-between">
               <View className="flex-row flex-wrap flex-grow flex-shrink">
                 <Text className="text-white text-lg">Report post</Text>
               </View>
               <Pressable className="flex-shrink-0" onPress={onClose}>
-                <MaterialCommunityIcons name='close' size={24} color='white' />
+                <MaterialCommunityIcons name="close" size={24} color="white" />
               </Pressable>
             </View>
-            <Text className="text-gray-300 text-sm p-4">
-              Report severity:
-            </Text>
+            <Text className="text-gray-300 text-sm p-4">Report severity:</Text>
             <ScrollView horizontal contentContainerClassName="gap-3 px-4">
               {REPORT_SEVERITY_ORDER.map((key) => (
                 <Pressable
@@ -64,7 +88,7 @@ export default function ReportPostModal({ open, onClose, post }: {
                   onPress={() => setSeverity(key)}
                   className={clsx(
                     'flex-row items-center gap-1 rounded-xl p-2',
-                    severity === key ? 'bg-cyan-500/25' : 'bg-gray-700'
+                    severity === key ? 'bg-cyan-500/25' : 'bg-gray-700',
                   )}
                 >
                   <Text className="text-white text-sm px-1 flex-grow flex-shrink">
@@ -98,7 +122,11 @@ export default function ReportPostModal({ open, onClose, post }: {
               {mutation.isPending ? (
                 <ActivityIndicator color={colors.cyan[200]} />
               ) : (
-                <MaterialCommunityIcons name='send' size={24} color={colors.cyan[200]} />
+                <MaterialCommunityIcons
+                  name="send"
+                  size={24}
+                  color={colors.cyan[200]}
+                />
               )}
             </Pressable>
           </ScrollView>

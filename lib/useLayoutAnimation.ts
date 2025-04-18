@@ -1,5 +1,5 @@
-import { useRef } from "react"
-import { LayoutAnimation } from "react-native"
+import { useRef } from 'react'
+import { LayoutAnimation } from 'react-native'
 
 export default function useLayoutAnimation() {
   const animIsRunning = useRef(false)
@@ -11,9 +11,13 @@ export default function useLayoutAnimation() {
   function animate() {
     if (!animIsRunning.current) {
       animIsRunning.current = true
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut, unlockAnim, unlockAnim)
+      LayoutAnimation.configureNext(
+        LayoutAnimation.Presets.easeInEaseOut,
+        unlockAnim,
+        unlockAnim,
+      )
     }
   }
-  
+
   return animate
 }

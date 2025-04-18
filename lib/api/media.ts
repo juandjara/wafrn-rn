@@ -1,13 +1,13 @@
-import { PostMedia } from "./posts.types"
-import { useMutation } from "@tanstack/react-query"
-import { isValidURL } from "./content"
-import { Timestamps } from "./types"
-import { useAuth } from "../contexts/AuthContext"
-import { showToastError, showToastSuccess } from "../interaction"
-import { uploadFile } from "../http"
-import { FileSystemUploadType } from "expo-file-system"
-import { getEnvironmentStatic } from "./auth"
-import { launchImageLibraryAsync } from "expo-image-picker"
+import { PostMedia } from './posts.types'
+import { useMutation } from '@tanstack/react-query'
+import { isValidURL } from './content'
+import { Timestamps } from './types'
+import { useAuth } from '../contexts/AuthContext'
+import { showToastError, showToastSuccess } from '../interaction'
+import { uploadFile } from '../http'
+import { FileSystemUploadType } from 'expo-file-system'
+import { getEnvironmentStatic } from './auth'
+import { launchImageLibraryAsync } from 'expo-image-picker'
 
 const AUDIO_EXTENSIONS = [
   'aac',
@@ -17,12 +17,9 @@ const AUDIO_EXTENSIONS = [
   'ogg',
   'opus',
   'wav',
-  'weba'
+  'weba',
 ]
-const VIDEO_EXTENSIONS = [
-  'mp4',
-  'webm'
-]
+const VIDEO_EXTENSIONS = ['mp4', 'webm']
 const IMG_EXTENSIONS = [
   'bmp',
   'gif',
@@ -34,16 +31,22 @@ const IMG_EXTENSIONS = [
   'webp',
   'avif',
   'blob', // weird ¿misskey? thing
-  'jfif' // I dont know what this is but it's in the wild
+  'jfif', // I dont know what this is but it's in the wild
 ]
 
 export function isVideo(mime: string | undefined, url: string) {
   if (!isValidURL(url)) return false
-  return mime?.startsWith('video') || VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  return (
+    mime?.startsWith('video') ||
+    VIDEO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  )
 }
 export function isAudio(mime: string | undefined, url: string) {
   if (!isValidURL(url)) return false
-  return mime?.startsWith('audio') || AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  return (
+    mime?.startsWith('audio') ||
+    AUDIO_EXTENSIONS.some((ext) => url.endsWith(ext))
+  )
 }
 export function isNotAV(mime: string | undefined, url: string) {
   return !isVideo(mime, url) && !isAudio(mime, url) && !isImage(mime, url)
@@ -51,7 +54,7 @@ export function isNotAV(mime: string | undefined, url: string) {
 export function isSVG(url: string) {
   if (!isValidURL(url)) return false
   return url.endsWith('svg')
-} 
+}
 export function isImage(mime: string | undefined, url: string) {
   if (!isValidURL(url)) {
     return false
@@ -65,12 +68,15 @@ export function isImage(mime: string | undefined, url: string) {
   const env = getEnvironmentStatic()
   const isCDN = fullUrl.host === env?.CACHE_HOST
   if (isCDN) {
-    url =  decodeURIComponent(fullUrl.searchParams.get('media') || '')
+    url = decodeURIComponent(fullUrl.searchParams.get('media') || '')
     if (!isValidURL(url)) return false
     fullUrl = new URL(url)
   }
   const hasExtension = fullUrl.pathname.includes('.')
-  return !hasExtension || IMG_EXTENSIONS.some((ext) => fullUrl.pathname.endsWith(ext))
+  return (
+    !hasExtension ||
+    IMG_EXTENSIONS.some((ext) => fullUrl.pathname.endsWith(ext))
+  )
 }
 
 export function getAspectRatio(media: PostMedia) {
@@ -94,9 +100,9 @@ export async function uploadMedia(token: string, payload: MediaUploadPayload) {
     mimeType: payload.type,
     uploadType: FileSystemUploadType.MULTIPART,
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
-    }
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
   })
   const data = res as MediaUploadResponse[]
 
@@ -107,31 +113,33 @@ export function useMediaUploadMutation() {
   const { token } = useAuth()
   return useMutation({
     mutationKey: ['mediaUpload'],
-    mutationFn: (medias: MediaUploadPayload[]) => Promise.all(medias.map(m => uploadMedia(token!, m))),
+    mutationFn: (medias: MediaUploadPayload[]) =>
+      Promise.all(medias.map((m) => uploadMedia(token!, m))),
     onSuccess: () => {
       showToastSuccess('Media uploaded')
     },
     onError: (err) => {
       console.error(err)
       showToastError('Failed to upload media')
-    }
+    },
   })
 }
 
-export type MediaUploadResponse = Timestamps
-  & Omit<PostMedia, 'posts' | 'description' | 'aspectRatio'>
-  & {
+export type MediaUploadResponse = Timestamps &
+  Omit<PostMedia, 'posts' | 'description' | 'aspectRatio'> & {
     userId: string
     ipUpload: string
   }
 
 export function extensionFromMimeType(mime: string) {
-  return mime
-    .split('/')
-    .pop()
-    ?.replace('jpeg', 'jpg')
-    .replace('svg+xml', 'svg')
-    .replace('x-icon', 'ico') || ''
+  return (
+    mime
+      .split('/')
+      .pop()
+      ?.replace('jpeg', 'jpg')
+      .replace('svg+xml', 'svg')
+      .replace('x-icon', 'ico') || ''
+  )
 }
 
 // TODO: Add a switch to support uploading GIF files as avatars

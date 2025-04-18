@@ -1,10 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../contexts/AuthContext";
-import { getJSON } from "../http";
-import { showToastSuccess } from "../interaction";
-import type { Report } from "./reports";
-import { getEnvironmentStatic } from "./auth";
-import { Timestamps } from "./types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
+import { getJSON } from '../http'
+import { showToastSuccess } from '../interaction'
+import type { Report } from './reports'
+import { getEnvironmentStatic } from './auth'
+import { Timestamps } from './types'
 
 export type UserForApproval = {
   id: string
@@ -20,8 +20,8 @@ async function getUsersForApproval(token: string) {
   const url = `${env?.API_URL}/admin/getPendingApprovalUsers`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   return json as UserForApproval[]
 }
@@ -41,9 +41,9 @@ async function activateUser(token: string, userId: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: userId })
+    body: JSON.stringify({ id: userId }),
   })
 }
 
@@ -54,9 +54,9 @@ async function requireEmailConfirmation(token: string, userId: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: userId })
+    body: JSON.stringify({ id: userId }),
   })
 }
 
@@ -65,7 +65,13 @@ export function useNewUserMutation() {
   const { token } = useAuth()
   return useMutation({
     mutationKey: ['new-user'],
-    mutationFn: async ({ userId, activate }: { userId: string; activate: boolean }) => {
+    mutationFn: async ({
+      userId,
+      activate,
+    }: {
+      userId: string
+      activate: boolean
+    }) => {
       if (activate) {
         await activateUser(token!, userId)
         showToastSuccess('User activated')
@@ -74,9 +80,10 @@ export function useNewUserMutation() {
         showToastSuccess('Email sent to user')
       }
     },
-    onSettled: () => qc.invalidateQueries({
-      queryKey: ['users-for-approval']
-    })
+    onSettled: () =>
+      qc.invalidateQueries({
+        queryKey: ['users-for-approval'],
+      }),
   })
 }
 
@@ -85,8 +92,8 @@ async function getReportList(token: string) {
   const url = `${env?.API_URL}/admin/reportList`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   const data = json as Report[]
   return data.sort((a, b) => {
@@ -99,7 +106,7 @@ export function useReportList() {
   return useQuery({
     queryKey: ['report-list'],
     queryFn: () => getReportList(token!),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
@@ -110,9 +117,9 @@ async function ignoreReport(token: string, reportId: number) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: reportId })
+    body: JSON.stringify({ id: reportId }),
   })
 }
 
@@ -124,9 +131,12 @@ export function useIgnoreReportMutation() {
     mutationFn: async (reportId: number) => {
       await ignoreReport(token!, reportId)
     },
-    onSettled: () => qc.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === 'report-list' || query.queryKey[0] === 'notificationsBadge'
-    }),
+    onSettled: () =>
+      qc.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'report-list' ||
+          query.queryKey[0] === 'notificationsBadge',
+      }),
   })
 }
 
@@ -137,8 +147,8 @@ async function banList(token: string) {
   const url = `${env?.API_URL}/admin/getBannedUsers`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   const data = json as {
     users: { id: string; url: string; avatar: string }[]
@@ -151,16 +161,18 @@ export function useBanList() {
   return useQuery({
     queryKey: ['ban-list'],
     queryFn: () => banList(token!),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
 async function toggleBanUser({
-  token, userId, isBanned
+  token,
+  userId,
+  isBanned,
 }: {
-  token: string;
-  userId: string;
-  isBanned: boolean;
+  token: string
+  userId: string
+  isBanned: boolean
 }) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/admin/${isBanned ? 'unbanUser' : 'banUser'}`
@@ -168,15 +180,15 @@ async function toggleBanUser({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: userId })
+    body: JSON.stringify({ id: userId }),
   })
 }
 
 type BanPayload = {
-  userId: string;
-  isBanned: boolean;
+  userId: string
+  isBanned: boolean
 }
 
 export function useToggleBanUserMutation() {
@@ -188,12 +200,15 @@ export function useToggleBanUserMutation() {
       await toggleBanUser({
         token: token!,
         userId,
-        isBanned
+        isBanned,
       })
     },
-    onSettled: () => qc.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === 'ban-list' || query.queryKey[0] === 'notificationsBadge'
-    }),
+    onSettled: () =>
+      qc.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'ban-list' ||
+          query.queryKey[0] === 'notificationsBadge',
+      }),
   })
 }
 
@@ -226,8 +241,8 @@ async function getUserBlocklist(token: string) {
   const url = `${env?.API_URL}/admin/userBlockList`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   const data = json as BlockList
   const blockedUsers = data.userBlocks.map((b) => ({
@@ -239,12 +254,12 @@ async function getUserBlocklist(token: string) {
     user: {
       id: b.blockerId,
       url: b.blocker.url,
-      avatar: b.blocker.avatar
+      avatar: b.blocker.avatar,
     },
     blockedUser: {
       id: b.blockedId,
       url: b.blocked.url,
-      avatar: b.blocked.avatar
+      avatar: b.blocked.avatar,
     },
   }))
   const blockedServers = data.userServerBlocks.map((b) => ({
@@ -256,12 +271,12 @@ async function getUserBlocklist(token: string) {
     user: {
       id: b.userBlockerId,
       url: b.userBlocker.url,
-      avatar: b.userBlocker.avatar
+      avatar: b.userBlocker.avatar,
     },
     blockedServer: {
       id: b.blockedServerId,
-      displayName: b.blockedServer.displayName
-    }
+      displayName: b.blockedServer.displayName,
+    },
   }))
   const list = [...blockedUsers, ...blockedServers].sort(sortByTimestamp)
   return list
@@ -272,7 +287,7 @@ export function useBlocklists() {
   return useQuery({
     queryKey: ['blocklists'],
     queryFn: () => getUserBlocklist(token!),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
@@ -291,12 +306,14 @@ async function serverList(token: string, query: string) {
   const url = `${env?.API_URL}/admin/server-list`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   const data = json as { servers: ServerListItem[] }
   return data.servers
-    .filter((s) => s ? s.displayName.toLowerCase().includes(query.toLowerCase()) : true)
+    .filter((s) =>
+      s ? s.displayName.toLowerCase().includes(query.toLowerCase()) : true,
+    )
     .sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     })
@@ -307,7 +324,7 @@ export function useServerList(query: string) {
   return useQuery({
     queryKey: ['server-list', query],
     queryFn: () => serverList(token!, query),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
@@ -354,8 +371,8 @@ async function getQueueStats(token: string) {
   const url = `${env?.API_URL}/status/workerStats`
   const json = await getJSON(url, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
   return json as QueueStats
 }
@@ -369,6 +386,6 @@ export function useServerStats() {
       const nodeInfo = await getWellKnownNodeInfo()
       return { queueStats, nodeInfo }
     },
-    enabled: !!token
+    enabled: !!token,
   })
 }

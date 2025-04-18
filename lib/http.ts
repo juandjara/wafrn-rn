@@ -1,11 +1,13 @@
-import { createUploadTask, FileSystemUploadOptions } from "expo-file-system"
+import { createUploadTask, FileSystemUploadOptions } from 'expo-file-system'
 
 export type ErrorResponse = {
   success: false
   errorMessage: string
 }
 
-export function isErrorResponse<T extends { success: boolean }>(res: ErrorResponse | T): res is ErrorResponse {
+export function isErrorResponse<T extends { success: boolean }>(
+  res: ErrorResponse | T,
+): res is ErrorResponse {
   return res.success === false
 }
 
@@ -15,7 +17,10 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('Accept', 'application/json')
   const res = await fetch(...params)
   if (!res.ok) {
-    throw statusError(res.status, `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}\n`)
+    throw statusError(
+      res.status,
+      `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}\n`,
+    )
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
@@ -49,7 +54,10 @@ export async function uploadFile({
   const status = res?.status || 500
 
   if (status >= 400) {
-    throw statusError(status, `HTTP Error Code ${status} \n${res?.body}\nURL: ${uploadUrl}`)
+    throw statusError(
+      status,
+      `HTTP Error Code ${status} \n${res?.body}\nURL: ${uploadUrl}`,
+    )
   }
 
   try {
@@ -57,12 +65,14 @@ export async function uploadFile({
     if (isErrorResponse(json)) {
       const msg = `API Error: ${res?.body}\nURL: ${uploadUrl}`
       console.error(msg)
-      throw statusError(500, msg)  
+      throw statusError(500, msg)
     }
     return json
   } catch (err) {
     console.error(err)
-    throw statusError(500, `Error decoding JSON "${res?.body}"\nURL: ${uploadUrl}`)
+    throw statusError(
+      500,
+      `Error decoding JSON "${res?.body}"\nURL: ${uploadUrl}`,
+    )
   }
 }
-

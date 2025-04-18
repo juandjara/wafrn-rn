@@ -1,20 +1,18 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { SAVED_INSTANCE_KEY } from "@/lib/api/auth";
-import { useAdminCheck, useLogout } from "@/lib/contexts/AuthContext";
-import { optionStyleDark } from "@/lib/styles";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import useAsyncStorage from "@/lib/useLocalStorage";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useMemo } from "react";
-import { ScrollView, Text, Pressable, View } from "react-native";
-import colors from "tailwindcss/colors";
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
+import { useAdminCheck, useLogout } from '@/lib/contexts/AuthContext'
+import { optionStyleDark } from '@/lib/styles'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import useAsyncStorage from '@/lib/useLocalStorage'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { router } from 'expo-router'
+import { useMemo } from 'react'
+import { ScrollView, Text, Pressable, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
-  const {
-    value: savedInstance
-  } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const { value: savedInstance } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const isAdmin = useAdminCheck()
   const logout = useLogout()
 
@@ -23,61 +21,61 @@ export default function Settings() {
       {
         icon: 'account-multiple-plus-outline' as const,
         label: 'Import follows',
-        link: '/setting/import-follows'
+        link: '/setting/import-follows',
       },
       {
         icon: 'account-edit-outline' as const,
         label: 'Edit my profile',
-        link: '/setting/edit-profile'
+        link: '/setting/edit-profile',
       },
       {
         icon: 'key' as const,
         label: 'Change my password',
-        link: '/password-reset?origin=settings'
+        link: '/password-reset?origin=settings',
       },
       {
         icon: 'two-factor-authentication' as const,
         label: 'Set up two factor auth',
-        link: `${savedInstance}/mfaSetup`
+        link: `${savedInstance}/mfaSetup`,
       },
       {
         icon: 'palette' as const,
         label: 'Options & Customizations',
-        link: '/setting/options'
+        link: '/setting/options',
       },
       {
         icon: 'server-off' as const,
         label: 'Mutes & Blocks',
-        link: '/setting/mutes-and-blocks'
+        link: '/setting/mutes-and-blocks',
       },
       {
         icon: 'eye-off-outline' as const,
         label: 'Privacy policy',
-        link: '/setting/privacy'
+        link: '/setting/privacy',
       },
       {
         icon: 'shield-outline' as const,
         label: 'Admin settings',
         link: '/admin',
-        hidden: !isAdmin
+        hidden: !isAdmin,
       },
       {
         icon: 'code-braces' as const,
         label: 'Check the source code',
-        link: 'https://github.com/gabboman/wafrn'
+        link: 'https://github.com/gabboman/wafrn',
       },
       {
         icon: 'cash-multiple' as const,
         label: 'Give us some money on Patreon',
-        link: 'https://patreon.com/wafrn'
+        link: 'https://patreon.com/wafrn',
       },
       {
         icon: 'cash-plus' as const,
         label: 'Give us some money on Ko-fi',
-        link: 'https://ko-fi.com/wafrn'
-      }
+        link: 'https://ko-fi.com/wafrn',
+      },
     ]
-    const filteredOptions = opts.filter(option => {
+    const filteredOptions = opts.filter((option) => {
       if ('hidden' in option) {
         return option.hidden === false
       }
@@ -95,7 +93,11 @@ export default function Settings() {
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >
-          <MaterialCommunityIcons name='logout' size={24} color={colors.red[400]} />
+          <MaterialCommunityIcons
+            name="logout"
+            size={24}
+            color={colors.red[400]}
+          />
           <Text className="text-red-400">Log out</Text>
         </Pressable>
         {options.map((option, i) => (
@@ -107,7 +109,11 @@ export default function Settings() {
               router.push(option.link)
             }}
           >
-            <MaterialCommunityIcons name={option.icon} size={24} color={colors.gray[200]} />
+            <MaterialCommunityIcons
+              name={option.icon}
+              size={24}
+              color={colors.gray[200]}
+            />
             <Text className="text-white">{option.label}</Text>
           </Pressable>
         ))}

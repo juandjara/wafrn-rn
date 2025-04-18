@@ -1,9 +1,9 @@
-import { Colors } from "@/constants/Colors"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import clsx from "clsx"
-import { router } from "expo-router"
-import { View, Text, Pressable, ViewStyle } from "react-native"
+import { Colors } from '@/constants/Colors'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { router } from 'expo-router'
+import { View, Text, Pressable, ViewStyle } from 'react-native'
 
 export const HEADER_HEIGHT = 64
 
@@ -28,11 +28,14 @@ export default function Header({
         'absolute right-0 left-0 z-10 px-3 py-2 flex-row gap-4 items-center',
         // !transparent && 'border-b border-gray-700',
       )}
-      style={[{
-        minHeight: HEADER_HEIGHT,
-        marginTop: sx.paddingTop,
-        backgroundColor: transparent ? 'transparent' : Colors.dark.background
-      }, style]}
+      style={[
+        {
+          minHeight: HEADER_HEIGHT,
+          marginTop: sx.paddingTop,
+          backgroundColor: transparent ? 'transparent' : Colors.dark.background,
+        },
+        style,
+      ]}
     >
       {left ?? (
         <Pressable
@@ -47,7 +50,9 @@ export default function Header({
           <Text numberOfLines={1} className="text-white text-lg">
             {title}
           </Text>
-        ) : title}
+        ) : (
+          title
+        )}
       </View>
       {right}
     </View>

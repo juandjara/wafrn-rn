@@ -1,10 +1,10 @@
-import { Platform, TextStyle, ViewStyle } from "react-native";
-import colors from "tailwindcss/colors";
-import { DashboardContextData } from "../contexts/DashboardContext";
+import { Platform, TextStyle, ViewStyle } from 'react-native'
+import colors from 'tailwindcss/colors'
+import { DashboardContextData } from '../contexts/DashboardContext'
 import { ChildNode, Element } from 'domhandler'
-import { formatCachedUrl, formatMediaUrl } from "../formatters";
-import { PostMedia } from "./posts.types";
-import { getEnvironmentStatic } from "./auth";
+import { formatCachedUrl, formatMediaUrl } from '../formatters'
+import { PostMedia } from './posts.types'
+import { getEnvironmentStatic } from './auth'
 
 export const BR = '\n'
 
@@ -39,14 +39,14 @@ export const HTML_BLOCK_STYLES = {
     padding: 8,
     paddingTop: 0,
     marginBottom: 8,
-  }
+  },
 } satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
-const boldStyle = {fontWeight: 'bold' as const};
-const italicStyle = {fontStyle: 'italic' as const};
-const underlineStyle = {textDecorationLine: 'underline' as const};
-const strikethroughStyle = {textDecorationLine: 'line-through' as const};
-const codeStyle = {fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace'};
+const boldStyle = { fontWeight: 'bold' as const }
+const italicStyle = { fontStyle: 'italic' as const }
+const underlineStyle = { textDecorationLine: 'underline' as const }
+const strikethroughStyle = { textDecorationLine: 'line-through' as const }
+const codeStyle = { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }
 
 export const HTML_INLINE_STYLES = {
   b: boldStyle,
@@ -62,18 +62,18 @@ export const HTML_INLINE_STYLES = {
   a: {
     color: colors.cyan[400],
   },
-  h1: {fontWeight: 'bold', fontSize: 56, lineHeight: 64, },
-  h2: {fontWeight: 'bold', fontSize: 44, lineHeight: 52, },
-  h3: {fontWeight: 'bold', fontSize: 36, lineHeight: 44, },
-  h4: {fontWeight: 'bold', fontSize: 32, lineHeight: 40, },
-  h5: {fontWeight: 'bold', fontSize: 28, lineHeight: 36, },
-  h6: {fontWeight: 'bold', fontSize: 24, lineHeight: 32, },
+  h1: { fontWeight: 'bold', fontSize: 56, lineHeight: 64 },
+  h2: { fontWeight: 'bold', fontSize: 44, lineHeight: 52 },
+  h3: { fontWeight: 'bold', fontSize: 36, lineHeight: 44 },
+  h4: { fontWeight: 'bold', fontSize: 32, lineHeight: 40 },
+  h5: { fontWeight: 'bold', fontSize: 28, lineHeight: 36 },
+  h6: { fontWeight: 'bold', fontSize: 24, lineHeight: 32 },
   small: { fontSize: 12, lineHeight: 18 },
   text: {
     color: 'white',
     fontSize: 16,
     lineHeight: 24,
-  }
+  },
 } satisfies Record<string, TextStyle> as Record<string, TextStyle>
 
 const BLOCK_TAGS = [
@@ -119,7 +119,7 @@ export function isDisplayBlock(node: ChildNode) {
   if (!node.attribs) {
     return false
   }
-  const style = (node.attribs.style as string || '')
+  const style = (node.attribs.style as string) || ''
   return style.includes('display: block')
 }
 
@@ -128,18 +128,21 @@ function getNodeStyle(node: ChildNode) {
     return {}
   }
 
-  const styleText = node.attribs.style as string || ''
+  const styleText = (node.attribs.style as string) || ''
   if (!styleText) {
     return {}
   }
 
-  const style = styleText.split(';').reduce((acc, style) => {
-    const [key, value] = style.split(':')
-    if (key && value) {
-      acc[key.trim()] = value.trim()
-    }
-    return acc
-  }, {} as Record<string, string>)
+  const style = styleText.split(';').reduce(
+    (acc, style) => {
+      const [key, value] = style.split(':')
+      if (key && value) {
+        acc[key.trim()] = value.trim()
+      }
+      return acc
+    },
+    {} as Record<string, string>,
+  )
   const filteredStyle = {} as TextStyle
   if (style.color) {
     filteredStyle.color = style.color
@@ -172,9 +175,9 @@ export function inheritedStyle(node: ChildNode | null): TextStyle | null {
   }
   const tagStyle = getTagStyle(node)
   const nodeStyle = getNodeStyle(node)
-  const style = {...tagStyle, ...nodeStyle}
+  const style = { ...tagStyle, ...nodeStyle }
   const parentStyle = inheritedStyle(node.parent)
-  return {...parentStyle, ...style}
+  return { ...parentStyle, ...style }
 }
 
 export function replaceHref(node: ChildNode, context: DashboardContextData) {
@@ -192,7 +195,9 @@ export function replaceHref(node: ChildNode, context: DashboardContextData) {
   }
 
   const env = getEnvironmentStatic()
-  const isWafrnMentionLink = node.attribs['href'].startsWith(`${env?.BASE_URL}/blog/`)
+  const isWafrnMentionLink = node.attribs['href'].startsWith(
+    `${env?.BASE_URL}/blog/`,
+  )
   if (isWafrnMentionLink || className?.includes('mention')) {
     return replaceMentionLink(node, context)
   }
@@ -219,7 +224,7 @@ function replaceMentionLink(node: Element, context: DashboardContextData) {
         const handle = buildFullHandle(
           child.data || '',
           new URL(link, env!.BASE_URL).host,
-          new URL(env!.BASE_URL).host
+          new URL(env!.BASE_URL).host,
         )
         const user = context.users.find((u) => u.url === handle)
         if (user) {
@@ -230,14 +235,15 @@ function replaceMentionLink(node: Element, context: DashboardContextData) {
     if (node.children.length === 2) {
       const [part1, part2] = node.children
       const firstPartIsAt = part1 && part1.type === 'text' && part1.data === '@'
-      const secondPartIsSpan = part2 && part2.type === 'tag' && part2.name === 'span'
+      const secondPartIsSpan =
+        part2 && part2.type === 'tag' && part2.name === 'span'
       if (firstPartIsAt && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {
           const handle = buildFullHandle(
             `@${spanText.data}`,
             new URL(link, env!.BASE_URL).host,
-            new URL(env!.BASE_URL).host
+            new URL(env!.BASE_URL).host,
           )
           const user = context.users.find((u) => u.url === handle)
           if (user) {
@@ -280,8 +286,10 @@ function replaceHashtagLink(node: Element, context: DashboardContextData) {
     }
     if (node.children.length === 2) {
       const [part1, part2] = node.children
-      const firstPartIsHash = part1 && part1.type === 'text' && part1.data === '#'
-      const secondPartIsSpan = part2 && part2.type === 'tag' && part2.name === 'span'
+      const firstPartIsHash =
+        part1 && part1.type === 'text' && part1.data === '#'
+      const secondPartIsSpan =
+        part2 && part2.type === 'tag' && part2.name === 'span'
       if (firstPartIsHash && secondPartIsSpan) {
         const spanText = part2.children[0]
         if (spanText.type === 'text') {
@@ -296,13 +304,17 @@ function replaceHashtagLink(node: Element, context: DashboardContextData) {
   }
 }
 
-export function replaceInlineImages(html: string, medias: PostMedia[], contentWidth: number) {
+export function replaceInlineImages(
+  html: string,
+  medias: PostMedia[],
+  contentWidth: number,
+) {
   medias.forEach((media, index) => {
     const ratio = (media.height || 1) / (media.width || 1)
     const src = formatCachedUrl(formatMediaUrl(media.url))
     html = html.replace(
       `![media-${index + 1}]`,
-      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" /></figure><figcaption><small>${media.description}</small></figcaption>`
+      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
     )
   })
   return html

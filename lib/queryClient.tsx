@@ -1,8 +1,8 @@
-import { toast } from "@backpackapp-io/react-native-toast"
-import { QueryCache, QueryClient } from "@tanstack/react-query"
-import ErrorCopyToast from "@/components/errors/ErrorCopyToast"
-import { StatusError } from "./http"
-import { router } from "expo-router"
+import { toast } from '@backpackapp-io/react-native-toast'
+import { QueryCache, QueryClient } from '@tanstack/react-query'
+import ErrorCopyToast from '@/components/errors/ErrorCopyToast'
+import { StatusError } from './http'
+import { router } from 'expo-router'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,8 +35,8 @@ export const queryClient = new QueryClient({
 
         // dont retry on 400, 401, 403 and 3xx status codes
         return false
-      }
-    }
+      },
+    },
   },
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -45,14 +45,9 @@ export const queryClient = new QueryClient({
         id: query.queryKey.join('|'),
         duration: Infinity,
         customToast: (toast) => {
-          return (
-            <ErrorCopyToast
-              toast={toast}
-              error={error}
-            />
-          )
-        }
+          return <ErrorCopyToast toast={toast} error={error} />
+        },
       })
-    }
-  })
+    },
+  }),
 })

@@ -1,20 +1,28 @@
-import GenericRibbon from "@/components/GenericRibbon";
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import UserRibbon from "@/components/user/UserRibbon";
-import { useIgnoreReportMutation, useReportList, useToggleBanUserMutation } from "@/lib/api/admin";
-import { Report, REPORT_SEVERITY_DESCRIPTIONS, REPORT_SEVERITY_LABELS } from "@/lib/api/reports";
-import { formatUserUrl } from "@/lib/formatters";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { FlashList } from "@shopify/flash-list";
-import clsx from "clsx";
-import { Link } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import GenericRibbon from '@/components/GenericRibbon'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import UserRibbon from '@/components/user/UserRibbon'
+import {
+  useIgnoreReportMutation,
+  useReportList,
+  useToggleBanUserMutation,
+} from '@/lib/api/admin'
+import {
+  Report,
+  REPORT_SEVERITY_DESCRIPTIONS,
+  REPORT_SEVERITY_LABELS,
+} from '@/lib/api/reports'
+import { formatUserUrl } from '@/lib/formatters'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FlashList } from '@shopify/flash-list'
+import clsx from 'clsx'
+import { Link } from 'expo-router'
+import { Pressable, Text, View } from 'react-native'
 
 export default function ReportList() {
   const sx = useSafeAreaPadding()
   const { data, refetch, isFetching } = useReportList()
-  
+
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Reports" />
@@ -23,10 +31,8 @@ export default function ReportList() {
         onRefresh={refetch}
         refreshing={isFetching}
         estimatedItemSize={500}
-        keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => (
-          <ReportListItem report={item} />
-        )}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => <ReportListItem report={item} />}
       />
     </View>
   )
@@ -35,15 +41,16 @@ export default function ReportList() {
 function ReportListItem({ report }: { report: Report }) {
   const ignoreReportMutation = useIgnoreReportMutation()
   const banMutation = useToggleBanUserMutation()
-  const actionDisabled = ignoreReportMutation.isPending || banMutation.isPending || report.resolved
+  const actionDisabled =
+    ignoreReportMutation.isPending || banMutation.isPending || report.resolved
 
   function banUser() {
     banMutation.mutate({
       isBanned: false, // assume user is not banned previously
-      userId: report.post.userId
+      userId: report.post.userId,
     })
   }
-  
+
   return (
     <View className="p-3 bg-gray-800 rounded-lg mb-3">
       <GenericRibbon
@@ -56,7 +63,7 @@ function ReportListItem({ report }: { report: Report }) {
           <MaterialCommunityIcons
             className="mx-1"
             name="alert-box-outline"
-            color='white'
+            color="white"
             size={24}
           />
         }
@@ -69,13 +76,18 @@ function ReportListItem({ report }: { report: Report }) {
           showFollowButtons={false}
         />
       </View>
-      <Link href={`/post/${report.post.id}`} className="text-blue-400 active:text-blue-600">
+      <Link
+        href={`/post/${report.post.id}`}
+        className="text-blue-400 active:text-blue-600"
+      >
         See post
       </Link>
       <View className="mt-4 mb-2">
         <Text className="text-white mb-2">
           Severity:{' '}
-          <Text className="text-gray-300">{REPORT_SEVERITY_LABELS[report.severity]}</Text>
+          <Text className="text-gray-300">
+            {REPORT_SEVERITY_LABELS[report.severity]}
+          </Text>
         </Text>
         <View className="py-2 px-3 bg-gray-700 rounded-md">
           {/* <Text className="text-white text-sm mb-2">{}</Text> */}
@@ -121,9 +133,7 @@ function ReportListItem({ report }: { report: Report }) {
           onPress={banUser}
         >
           <MaterialCommunityIcons name="close" size={20} color="white" />
-          <Text className="text-white">
-            Ban user
-          </Text>
+          <Text className="text-white">Ban user</Text>
         </Pressable>
       </View>
     </View>

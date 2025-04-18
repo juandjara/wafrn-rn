@@ -1,18 +1,42 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useState } from "react"
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native"
-import HtmlRenderer from "../HtmlRenderer"
-import colors from "tailwindcss/colors"
-import { Collapsible } from "../Collapsible"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { User } from "@/lib/api/user"
-import { AskOptionValue, getPublicOptionValue, PublicOptionNames } from "@/lib/api/settings"
-import { useAskMutation } from "@/lib/asks"
-import clsx from "clsx"
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useState } from 'react'
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import HtmlRenderer from '../HtmlRenderer'
+import colors from 'tailwindcss/colors'
+import { Collapsible } from '../Collapsible'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { User } from '@/lib/api/user'
+import {
+  AskOptionValue,
+  getPublicOptionValue,
+  PublicOptionNames,
+} from '@/lib/api/settings'
+import { useAskMutation } from '@/lib/asks'
+import clsx from 'clsx'
 
-export default function AskModal({ user, userName }: { user: User; userName: string }) {
+export default function AskModal({
+  user,
+  userName,
+}: {
+  user: User
+  userName: string
+}) {
   const sx = useSafeAreaPadding()
-  const askOptionValue = getPublicOptionValue(user.publicOptions, PublicOptionNames.Asks)
+  const askOptionValue = getPublicOptionValue(
+    user.publicOptions,
+    PublicOptionNames.Asks,
+  )
   const canAskAnonymously = askOptionValue === AskOptionValue.AllowAnonAsks
   const [open, setOpen] = useState(false)
   const [anonymous, setAnonymous] = useState(false)
@@ -20,15 +44,18 @@ export default function AskModal({ user, userName }: { user: User; userName: str
   const mutation = useAskMutation()
 
   function onSubmit() {
-    mutation.mutate({
-      userAskedUrl: user.url,
-      question,
-      anonymous
-    }, {
-      onSettled: () => {
-        setOpen(false)
-      }
-    })
+    mutation.mutate(
+      {
+        userAskedUrl: user.url,
+        question,
+        anonymous,
+      },
+      {
+        onSettled: () => {
+          setOpen(false)
+        },
+      },
+    )
   }
 
   return (
@@ -45,16 +72,26 @@ export default function AskModal({ user, userName }: { user: User; userName: str
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
-            <Pressable className="bg-black/50 flex-grow" onPress={() => setOpen(false)}></Pressable>
+            <Pressable
+              className="bg-black/50 flex-grow"
+              onPress={() => setOpen(false)}
+            ></Pressable>
             <View className="bg-indigo-950">
               <ScrollView>
-                <View className='p-4 pb-0 flex-row items-center justify-between'>
+                <View className="p-4 pb-0 flex-row items-center justify-between">
                   <View className="flex-row flex-wrap flex-grow flex-shrink">
                     <Text className="text-white">Ask a question to </Text>
                     <HtmlRenderer renderTextRoot html={userName} />
                   </View>
-                  <Pressable className="flex-shrink-0" onPress={() => setOpen(false)}>
-                    <MaterialCommunityIcons name='close' size={24} color='white' />
+                  <Pressable
+                    className="flex-shrink-0"
+                    onPress={() => setOpen(false)}
+                  >
+                    <MaterialCommunityIcons
+                      name="close"
+                      size={24}
+                      color="white"
+                    />
                   </Pressable>
                 </View>
                 <TextInput
@@ -69,7 +106,7 @@ export default function AskModal({ user, userName }: { user: User; userName: str
                 />
                 {canAskAnonymously ? (
                   <Pressable
-                    onPress={() => setAnonymous(prev => !prev)}
+                    onPress={() => setAnonymous((prev) => !prev)}
                     className="flex-row items-center rounded-lg gap-4 mx-4 mb-2 px-2 active:bg-white/10"
                   >
                     <Text className="text-white text-base leading-6 flex-grow flex-shrink">
@@ -77,9 +114,14 @@ export default function AskModal({ user, userName }: { user: User; userName: str
                     </Text>
                     <Switch
                       value={anonymous}
-                      onValueChange={flag => setAnonymous(flag)}
-                      trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-                      thumbColor={anonymous ? colors.cyan[600] : colors.gray[300]}
+                      onValueChange={(flag) => setAnonymous(flag)}
+                      trackColor={{
+                        false: colors.gray[700],
+                        true: colors.cyan[900],
+                      }}
+                      thumbColor={
+                        anonymous ? colors.cyan[600] : colors.gray[300]
+                      }
                     />
                   </Pressable>
                 ) : (
@@ -94,7 +136,7 @@ export default function AskModal({ user, userName }: { user: User; userName: str
                     'bg-cyan-500/25 py-2 px-3 text-lg rounded-lg text-center mx-4 flex-row items-center justify-center gap-3',
                     {
                       'active:bg-cyan-500/50': question && !mutation.isPending,
-                      'opacity-50': !question
+                      'opacity-50': !question,
                     },
                   )}
                 >
@@ -102,14 +144,27 @@ export default function AskModal({ user, userName }: { user: User; userName: str
                   {mutation.isPending ? (
                     <ActivityIndicator color={colors.cyan[200]} />
                   ) : (
-                    <MaterialCommunityIcons name='send' size={24} color={colors.cyan[200]} />
+                    <MaterialCommunityIcons
+                      name="send"
+                      size={24}
+                      color={colors.cyan[200]}
+                    />
                   )}
-                </Pressable>      
-                <Collapsible className="px-3 pt-4 pb-5" title='How to ask from your fedi instance?'>
-                  <Text className="text-white text-sm" style={{ marginLeft: 2 }}>
-                    To ask a question (non anonymous) to this user from other fedi instances, send a DM to this user with the following format:
-                    "!ask @{user.url} {'<your question here>'}" (only one mention per message).
-                    Emojis and other media will be removed from the displayed question text but the DM content will be kept as is in the federated message.
+                </Pressable>
+                <Collapsible
+                  className="px-3 pt-4 pb-5"
+                  title="How to ask from your fedi instance?"
+                >
+                  <Text
+                    className="text-white text-sm"
+                    style={{ marginLeft: 2 }}
+                  >
+                    To ask a question (non anonymous) to this user from other
+                    fedi instances, send a DM to this user with the following
+                    format: "!ask @{user.url} {'<your question here>'}" (only
+                    one mention per message). Emojis and other media will be
+                    removed from the displayed question text but the DM content
+                    will be kept as is in the federated message.
                   </Text>
                 </Collapsible>
               </ScrollView>
@@ -121,9 +176,7 @@ export default function AskModal({ user, userName }: { user: User; userName: str
         onPress={() => setOpen(true)}
         className="my-4 mx-auto bg-cyan-500/25 active:bg-cyan-500/50 py-2 px-6 rounded-full text-center"
       >
-        <Text className="text-cyan-500 text-lg">
-          Ask a question
-        </Text>
+        <Text className="text-cyan-500 text-lg">Ask a question</Text>
       </Pressable>
     </>
   )

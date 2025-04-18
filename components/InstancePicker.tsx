@@ -1,17 +1,19 @@
-import { Colors } from "@/constants/Colors";
-import { DEFAULT_INSTANCE, SAVED_INSTANCE_KEY, useEnvCheckMutation } from "@/lib/api/auth";
-import { isValidURL } from "@/lib/api/content";
-import { showToastError, showToastSuccess } from "@/lib/interaction";
-import useAsyncStorage from "@/lib/useLocalStorage";
-import { useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import { Colors } from '@/constants/Colors'
+import {
+  DEFAULT_INSTANCE,
+  SAVED_INSTANCE_KEY,
+  useEnvCheckMutation,
+} from '@/lib/api/auth'
+import { isValidURL } from '@/lib/api/content'
+import { showToastError, showToastSuccess } from '@/lib/interaction'
+import useAsyncStorage from '@/lib/useLocalStorage'
+import { useState } from 'react'
+import { Button, Text, TextInput, View } from 'react-native'
 
 export default function InstancePicker() {
   const [instance, setInstance] = useState('')
-  const {
-    value: savedInstance,
-    setValue: setSavedInstance
-  } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const { value: savedInstance, setValue: setSavedInstance } =
+    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const color = Colors.dark.text
 
   const envMutation = useEnvCheckMutation()
@@ -27,7 +29,7 @@ export default function InstancePicker() {
       onError: (error) => {
         console.error('Error fetching environment', error)
         showToastError(error.message)
-      }
+      },
     })
   }
 
@@ -46,19 +48,21 @@ export default function InstancePicker() {
           onChangeText={setInstance}
         />
         {instance && !isValidURL(instance) && (
-          <Text className="text-red-500 text-sm">
-            Invalid URL
-          </Text>
+          <Text className="text-red-500 text-sm">Invalid URL</Text>
         )}
       </View>
       <View className="mt-3">
         <Button
           title={envMutation.isPending ? 'Loading...' : 'Connect'}
-          disabled={envMutation.isPending || !!savedInstance || !isValidURL(instance)}
+          disabled={
+            envMutation.isPending || !!savedInstance || !isValidURL(instance)
+          }
           onPress={() => connect(instance)}
         />
         <Button
-          title={envMutation.isPending ? '...' : 'Use Main Server (app.wafrn.net)'}
+          title={
+            envMutation.isPending ? '...' : 'Use Main Server (app.wafrn.net)'
+          }
           disabled={envMutation.isPending || !!savedInstance}
           onPress={() => connect(DEFAULT_INSTANCE)}
         />

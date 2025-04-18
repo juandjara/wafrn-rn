@@ -1,5 +1,14 @@
-import { Modal, Text, View, Pressable, FlatList, useWindowDimensions, TextInput, Platform } from 'react-native'
-import { EmojiBase } from "@/lib/api/emojis"
+import {
+  Modal,
+  Text,
+  View,
+  Pressable,
+  FlatList,
+  useWindowDimensions,
+  TextInput,
+  Platform,
+} from 'react-native'
+import { EmojiBase } from '@/lib/api/emojis'
 import { useSettings } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
 import { getUnicodeEmojiGroups } from '@/lib/emojis'
@@ -21,7 +30,7 @@ const ucGroups = getUnicodeEmojiGroups()
 export default function EmojiPicker({
   open,
   setOpen,
-  onPick
+  onPick,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
@@ -78,50 +87,66 @@ export default function EmojiPicker({
       onRequestClose={() => setOpen(false)}
       style={sx}
     >
-      <View className='bg-indigo-950 flex-1'>
-        <View style={{ paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined }} className='p-4 flex-row items-center justify-between'>
-          <Text className='text-white text-lg font-medium'>React with an emoji</Text>
+      <View className="bg-indigo-950 flex-1">
+        <View
+          style={{
+            paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined,
+          }}
+          className="p-4 flex-row items-center justify-between"
+        >
+          <Text className="text-white text-lg font-medium">
+            React with an emoji
+          </Text>
           <Pressable onPress={() => setOpen(false)}>
-            <MaterialCommunityIcons name='close' size={24} color={colors.white} />
+            <MaterialCommunityIcons
+              name="close"
+              size={24}
+              color={colors.white}
+            />
           </Pressable>
         </View>
-        <View className='m-3 mt-0 pl-2 bg-indigo-900 rounded-lg flex-row items-center justify-between'>
-          <MaterialCommunityIcons name='magnify' size={24} color={colors.gray[400]} />
+        <View className="m-3 mt-0 pl-2 bg-indigo-900 rounded-lg flex-row items-center justify-between">
+          <MaterialCommunityIcons
+            name="magnify"
+            size={24}
+            color={colors.gray[400]}
+          />
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder='Search emoji'
-            inputMode='search'
+            placeholder="Search emoji"
+            inputMode="search"
             placeholderTextColor={colors.gray[400]}
-            className='text-white p-2 flex-1'
+            className="text-white p-2 flex-1"
           />
         </View>
         <FlatList
-          className='border-b border-t border-gray-600'
+          className="border-b border-t border-gray-600"
           style={{ maxHeight: 48 }}
           data={headers}
           horizontal
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           fadingEdgeLength={100}
           renderItem={({ item }) => (
             <Pressable
-              className='p-3'
+              className="p-3"
               onPress={() => {
-                listRef.current?.scrollToIndex({ index: item.index, animated: true })
+                listRef.current?.scrollToIndex({
+                  index: item.index,
+                  animated: true,
+                })
               }}
             >
               {item.emoji.content ? (
-                <Text className='text-lg'>{item.emoji.content}</Text>
-              ) : (
-                item.emoji.url
-                  ? (
-                    <Image
-                      source={{ uri: formatCachedUrl(formatMediaUrl(item.emoji.url)) }}
-                      style={{ resizeMode: 'contain', width: 24, height: 24 }}
-                    />
-                  )
-                  : null
-              )}
+                <Text className="text-lg">{item.emoji.content}</Text>
+              ) : item.emoji.url ? (
+                <Image
+                  source={{
+                    uri: formatCachedUrl(formatMediaUrl(item.emoji.url)),
+                  }}
+                  style={{ resizeMode: 'contain', width: 24, height: 24 }}
+                />
+              ) : null}
             </Pressable>
           )}
         />
@@ -129,14 +154,17 @@ export default function EmojiPicker({
           ref={listRef}
           data={emojiList}
           getItemType={() => 'emoji'}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           estimatedItemSize={48}
           numColumns={columns}
           renderItem={({ item }) => {
             return (
-              <Pressable className='active:bg-indigo-900 rounded-lg py-2 px-4 h-[48px]' onPress={() => onPick(item)}>
+              <Pressable
+                className="active:bg-indigo-900 rounded-lg py-2 px-4 h-[48px]"
+                onPress={() => onPick(item)}
+              >
                 {item.content ? (
-                  <Text className='text-2xl'>{item.content}</Text>
+                  <Text className="text-2xl">{item.content}</Text>
                 ) : (
                   <Image
                     recyclingKey={item.url}

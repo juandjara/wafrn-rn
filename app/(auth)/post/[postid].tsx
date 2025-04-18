@@ -1,69 +1,79 @@
-import PostFragment from "@/components/dashboard/PostFragment"
-import ErrorView from "@/components/errors/ErrorView"
-import Header from "@/components/Header"
-import Loading from "@/components/Loading"
-import InteractionRibbon from "@/components/posts/InteractionRibbon"
-import RewootRibbon from "@/components/posts/RewootRibbon"
-import { useHiddenUserIds } from "@/lib/api/blocks-and-mutes"
-import { getUserNameHTML, isEmptyRewoot, sortPosts } from "@/lib/api/content"
-import { getDashboardContext } from "@/lib/api/dashboard"
-import { FLATLIST_PERFORMANCE_CONFIG, MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG, usePostDetail, useRemoteRepliesMutation } from "@/lib/api/posts"
-import { Post, PostThread, PostUser } from "@/lib/api/posts.types"
-import { useSettings } from "@/lib/api/settings"
-import { DashboardContextProvider } from "@/lib/contexts/DashboardContext"
-import { formatUserUrl } from "@/lib/formatters"
-import pluralize from "@/lib/pluralize"
-import { useLayoutData } from "@/lib/store"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import clsx from "clsx"
-import { Link, useLocalSearchParams } from "expo-router"
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Dimensions, FlatList, Text, View } from "react-native"
-import Reanimated from "react-native-reanimated"
+import PostFragment from '@/components/dashboard/PostFragment'
+import ErrorView from '@/components/errors/ErrorView'
+import Header from '@/components/Header'
+import Loading from '@/components/Loading'
+import InteractionRibbon from '@/components/posts/InteractionRibbon'
+import RewootRibbon from '@/components/posts/RewootRibbon'
+import { useHiddenUserIds } from '@/lib/api/blocks-and-mutes'
+import { getUserNameHTML, isEmptyRewoot, sortPosts } from '@/lib/api/content'
+import { getDashboardContext } from '@/lib/api/dashboard'
+import {
+  FLATLIST_PERFORMANCE_CONFIG,
+  MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
+  usePostDetail,
+  useRemoteRepliesMutation,
+} from '@/lib/api/posts'
+import { Post, PostThread, PostUser } from '@/lib/api/posts.types'
+import { useSettings } from '@/lib/api/settings'
+import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
+import { formatUserUrl } from '@/lib/formatters'
+import pluralize from '@/lib/pluralize'
+import { useLayoutData } from '@/lib/store'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { Link, useLocalSearchParams } from 'expo-router'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Dimensions, FlatList, Text, View } from 'react-native'
+import Reanimated from 'react-native-reanimated'
 
 const POST_HEADER_HEIGHT = 72
 
-type PostDetailItemData = {
-  type: 'go-to-bottom'
-  data: null
-} | {
-  type: 'post'
-  data: {
-    post: Post
-    className: string
-  } 
-} | {
-  type: 'stats'
-  data: string
-} | {
-  type: 'interaction-ribbon'
-  data: PostThread
-} | {
-  type: 'rewoot'
-  data: {
-    user: PostUser
-    userName: string
-  }
-} | {
-  type: 'reply'
-  data: {
-    post: PostThread
-  }
-} | {
-  type: 'error'
-  data: Error | null
-}
+type PostDetailItemData =
+  | {
+      type: 'go-to-bottom'
+      data: null
+    }
+  | {
+      type: 'post'
+      data: {
+        post: Post
+        className: string
+      }
+    }
+  | {
+      type: 'stats'
+      data: string
+    }
+  | {
+      type: 'interaction-ribbon'
+      data: PostThread
+    }
+  | {
+      type: 'rewoot'
+      data: {
+        user: PostUser
+        userName: string
+      }
+    }
+  | {
+      type: 'reply'
+      data: {
+        post: PostThread
+      }
+    }
+  | {
+      type: 'error'
+      data: Error | null
+    }
 
 export default function PostDetail() {
   const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
-  const {
-    data,
-    isFetching,
-    refetch,
-    error
-  } = usePostDetail(postid as string, true)
+  const { data, isFetching, refetch, error } = usePostDetail(
+    postid as string,
+    true,
+  )
 
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const hiddenUserIds = useHiddenUserIds()
@@ -71,94 +81,96 @@ export default function PostDetail() {
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<PostDetailItemData>>(null)
 
-  const {
-    mainPost,
-    mainUser,
-    postCount,
-    replyCount,
-    listData,
-    context,
-  } = useMemo(() => {
-    const postData = data?.post
-    const repliesData = data?.replies
-    
-    const context = getDashboardContext(
-      [postData, repliesData].filter(d => !!d),
-      settings,
-    )
+  const { mainPost, mainUser, postCount, replyCount, listData, context } =
+    useMemo(() => {
+      const postData = data?.post
+      const repliesData = data?.replies
 
-    const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
-    const userNames = Object.fromEntries(context.users.map((u) => [u.id, getUserNameHTML(u, context)]))
-    const replies = (
-      repliesData?.posts || []
-    ).filter((p) => !hiddenUserIds.includes(p.userId))
-    const numRewoots = replies.filter((p) => isEmptyRewoot(p, context) && p.parentId === postid).length
-    const numReplies = replies.filter((p) => !isEmptyRewoot(p, context)).length
-    const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
-
-    const mainPost = postData?.posts?.[0]
-    const mainUser = mainPost && userMap[mainPost.userId]
-    const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
-    const ancestors = mainPost?.ancestors
-      .filter((a) => !hiddenUserIds.includes(a.userId))
-      .sort(sortPosts)  
-      .map((a) => ({ post: a, className: 'border-t border-slate-600' })) || []
-
-    const mainFragment = mainPost && {
-      post: mainPost,
-      className: clsx('border-slate-600', {
-        'border-b': mainIsRewoot,
-        'border-t': !mainIsRewoot && ancestors.length > 0
-      }),
-    }
-
-    const thread = mainFragment 
-      ? (
-        mainIsRewoot 
-          ? [mainFragment, ...ancestors] 
-          : [...ancestors, mainFragment]
+      const context = getDashboardContext(
+        [postData, repliesData].filter((d) => !!d),
+        settings,
       )
-      : []
 
-    const fullReplies = replies
-      // only show rewoots from the top post
-      .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
-      .sort(sortPosts)
-      .map((p) => {
-        if (isEmptyRewoot(p, context)) {
-          return {
-            type: 'rewoot' as const,
-            data: {
-              user: userMap[p.userId],
-              userName: userNames[p.userId],
-            },
+      const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
+      const userNames = Object.fromEntries(
+        context.users.map((u) => [u.id, getUserNameHTML(u, context)]),
+      )
+      const replies = (repliesData?.posts || []).filter(
+        (p) => !hiddenUserIds.includes(p.userId),
+      )
+      const numRewoots = replies.filter(
+        (p) => isEmptyRewoot(p, context) && p.parentId === postid,
+      ).length
+      const numReplies = replies.filter(
+        (p) => !isEmptyRewoot(p, context),
+      ).length
+      const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
+
+      const mainPost = postData?.posts?.[0]
+      const mainUser = mainPost && userMap[mainPost.userId]
+      const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
+      const ancestors =
+        mainPost?.ancestors
+          .filter((a) => !hiddenUserIds.includes(a.userId))
+          .sort(sortPosts)
+          .map((a) => ({ post: a, className: 'border-t border-slate-600' })) ||
+        []
+
+      const mainFragment = mainPost && {
+        post: mainPost,
+        className: clsx('border-slate-600', {
+          'border-b': mainIsRewoot,
+          'border-t': !mainIsRewoot && ancestors.length > 0,
+        }),
+      }
+
+      const thread = mainFragment
+        ? mainIsRewoot
+          ? [mainFragment, ...ancestors]
+          : [...ancestors, mainFragment]
+        : []
+
+      const fullReplies = replies
+        // only show rewoots from the top post
+        .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
+        .sort(sortPosts)
+        .map((p) => {
+          if (isEmptyRewoot(p, context)) {
+            return {
+              type: 'rewoot' as const,
+              data: {
+                user: userMap[p.userId],
+                userName: userNames[p.userId],
+              },
+            }
+          } else {
+            return {
+              type: 'reply' as const,
+              data: { post: p },
+            }
           }
-        } else {
-          return {
-            type: 'reply' as const,
-            data: { post: p },
-          }
-        }
-      })
+        })
 
-    const replyCount = fullReplies.length
-    const postCount = thread.length
+      const replyCount = fullReplies.length
+      const postCount = thread.length
 
-    const listData = mainPost ? [
-      ...thread.map((post) => ({ type: 'post' as const, data: post })),
-      { type: 'interaction-ribbon' as const, data: mainPost },
-      { type: 'stats' as const, data: statsText },
-      ...fullReplies,
-    ].filter(l => !!l) : []
+      const listData = mainPost
+        ? [
+            ...thread.map((post) => ({ type: 'post' as const, data: post })),
+            { type: 'interaction-ribbon' as const, data: mainPost },
+            { type: 'stats' as const, data: statsText },
+            ...fullReplies,
+          ].filter((l) => !!l)
+        : []
 
-    return { mainPost, mainUser, postCount, replyCount, listData, context }
-  }, [settings, data, postid, hiddenUserIds])
+      return { mainPost, mainUser, postCount, replyCount, listData, context }
+    }, [settings, data, postid, hiddenUserIds])
 
   // Pagination strategy copied and adapted from https://github.com/bluesky-social/social-app/blob/main/src/view/com/post-thread/PostThread.tsx#L377
 
   const PARENTS_CHUNK_SIZE = 10
   const REPLIES_CHUNK_SIZE = 20
-  
+
   // start with no parents so we show the main post first
   const [maxParents, setMaxParents] = useState(0)
   const [maxReplies, setMaxReplies] = useState(REPLIES_CHUNK_SIZE)
@@ -170,17 +182,17 @@ export default function PostDetail() {
 
     const numAncestors = postCount - 1
 
-    const clampMaxParents = maxParents > numAncestors ? numAncestors : maxParents
+    const clampMaxParents =
+      maxParents > numAncestors ? numAncestors : maxParents
     const clampMaxReplies = maxReplies > replyCount ? replyCount : maxReplies
 
     let startIndex = numAncestors - clampMaxParents
 
     // +3 for the main post, then the interaction ribbon, then the stats
     let endIndex = postCount + 3 + clampMaxReplies
-    
+
     return listData.slice(startIndex, endIndex)
   }, [listData, maxParents, maxReplies, postCount, replyCount])
-
 
   // We reveal parents in chunks. Although they're all already
   // loaded and FlatList already has its own virtualization, unfortunately FlatList
@@ -204,21 +216,24 @@ export default function PostDetail() {
     if (isFetching || replyCount < maxReplies) {
       return
     }
-    setMaxReplies(prev => prev + 50)
+    setMaxReplies((prev) => prev + 50)
   }, [isFetching, maxReplies, replyCount])
 
   const bumpMaxParentsIfNeeded = useCallback(() => {
     if (needsBumpMaxParents.current) {
       needsBumpMaxParents.current = false
-      setMaxParents(n => n + PARENTS_CHUNK_SIZE)
+      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
     }
   }, [])
 
   const onScrollToTop = bumpMaxParentsIfNeeded
- 
-  const renderItem = useCallback(({ item }: { item: PostDetailItemData, index: number }) => (
-    <PostDetailItem item={item} />
-  ), [])
+
+  const renderItem = useCallback(
+    ({ item }: { item: PostDetailItemData; index: number }) => (
+      <PostDetailItem item={item} />
+    ),
+    [],
+  )
 
   useEffect(() => {
     // reset pagination when a new post is fetched
@@ -234,7 +249,7 @@ export default function PostDetail() {
         listRef.current?.scrollToIndex({ index: 0, animated: false })
       }, 100)
     }
-  
+
     // react on "data" to run this effect everytime a new post is fetched
     // like when navigating between posts on a thread
   }, [data, bumpMaxParentsIfNeeded])
@@ -242,16 +257,14 @@ export default function PostDetail() {
   const header = (
     <Header
       style={{ height: POST_HEADER_HEIGHT }}
-      title={(
+      title={
         <View>
-          <Text className="text-white text-2xl font-semibold">
-            Woot
-          </Text>
+          <Text className="text-white text-2xl font-semibold">Woot</Text>
           <Text numberOfLines={1} className="text-gray-200 text-base">
             {formatUserUrl(mainUser)}
           </Text>
         </View>
-      )}
+      }
     />
   )
 
@@ -280,7 +293,7 @@ export default function PostDetail() {
           style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: 80,
-            minHeight: Dimensions.get('screen').height + 80
+            minHeight: Dimensions.get('screen').height + 80,
           }}
           keyExtractor={(item) => {
             if (item.type === 'post' || item.type === 'reply') {
@@ -294,7 +307,9 @@ export default function PostDetail() {
             }
             return item.type
           }}
-          maintainVisibleContentPosition={isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG}
+          maintainVisibleContentPosition={
+            isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+          }
           refreshing={isFetching}
           onRefresh={refetch}
           scrollEventThrottle={1}
@@ -304,37 +319,44 @@ export default function PostDetail() {
           onEndReachedThreshold={0.1}
           onMomentumScrollEnd={bumpMaxParentsIfNeeded}
           onScrollToTop={onScrollToTop} // only on iOS
-          ListHeaderComponent={maxParents < (postCount - 1) ? (
-            <Loading />
-          ) : null}
-          ListFooterComponent={maxReplies < replyCount ? (
-            <Loading />
-          ) : (
-            <View collapsable={false} className="my-8">
-              {postCount > 1 && (
-                <Link
-                  href={`/post/${(listData[0].data as { post: Post }).post.id}`}
-                  className="mb-4 text-center items-center mx-4 py-3 rounded-full text-blue-400 bg-blue-950 active:bg-blue-900"
-                >
-                  Go to initial post
-                </Link>
-              )}
-              {mainPost?.remotePostId && (
-                remoteRepliesMutation.isPending ? <Loading /> : (
-                  <Text
-                    onPress={() => remoteRepliesMutation.mutate()}
-                    className={clsx(
-                      'text-center items-center mx-4 py-3 rounded-full',
-                      { 'opacity-50 text-gray-300 bg-gray-600/50': remoteRepliesMutation.isPending },
-                      { 'text-indigo-400 bg-indigo-950 active:bg-indigo-900': remoteRepliesMutation.isIdle }
-                    )}
+          ListHeaderComponent={maxParents < postCount - 1 ? <Loading /> : null}
+          ListFooterComponent={
+            maxReplies < replyCount ? (
+              <Loading />
+            ) : (
+              <View collapsable={false} className="my-8">
+                {postCount > 1 && (
+                  <Link
+                    href={`/post/${(listData[0].data as { post: Post }).post.id}`}
+                    className="mb-4 text-center items-center mx-4 py-3 rounded-full text-blue-400 bg-blue-950 active:bg-blue-900"
                   >
-                    Fetch more replies from remote instance
-                  </Text>
-                )
-              )}
-            </View>
-          )}
+                    Go to initial post
+                  </Link>
+                )}
+                {mainPost?.remotePostId &&
+                  (remoteRepliesMutation.isPending ? (
+                    <Loading />
+                  ) : (
+                    <Text
+                      onPress={() => remoteRepliesMutation.mutate()}
+                      className={clsx(
+                        'text-center items-center mx-4 py-3 rounded-full',
+                        {
+                          'opacity-50 text-gray-300 bg-gray-600/50':
+                            remoteRepliesMutation.isPending,
+                        },
+                        {
+                          'text-indigo-400 bg-indigo-950 active:bg-indigo-900':
+                            remoteRepliesMutation.isIdle,
+                        },
+                      )}
+                    >
+                      Fetch more replies from remote instance
+                    </Text>
+                  ))}
+              </View>
+            )
+          }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
@@ -376,11 +398,7 @@ function _PostDetailItem({ item }: { item: PostDetailItemData }) {
       <View className="my-2 relative bg-blue-950">
         <PostFragment post={post} />
         <View className="bg-indigo-700 p-0.5 absolute rounded-full top-1 left-1">
-          <MaterialCommunityIcons
-            name="reply"
-            size={16}
-            color="white"
-          />
+          <MaterialCommunityIcons name="reply" size={16} color="white" />
         </View>
       </View>
     )

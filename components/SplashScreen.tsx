@@ -1,7 +1,7 @@
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { Image } from "react-native"
-import { ThemedView } from "./ThemedView"
-import { ThemedText } from "./ThemedText"
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Image } from 'react-native'
+import { ThemedView } from './ThemedView'
+import { ThemedText } from './ThemedText'
 
 export default function SplashScreen() {
   const sx = useSafeAreaPadding()

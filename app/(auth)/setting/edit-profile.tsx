@@ -1,23 +1,37 @@
-import { useCurrentUser, useEditProfileMutation } from "@/lib/api/user"
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Text, useWindowDimensions, View } from "react-native"
-import { ScrollView } from "react-native"
-import colors from "tailwindcss/colors"
+import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native'
+import { ScrollView } from 'react-native'
+import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
-import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters"
-import { TextInput } from "react-native-gesture-handler"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useEffect, useMemo, useState } from "react"
-import { EDITOR_TRIGGERS_CONFIG } from "@/lib/api/content"
-import { useMentions } from "react-native-more-controlled-mentions"
-import EditorInput from "@/components/editor/EditorInput"
-import { PrivacyLevel } from "@/lib/api/privacy"
-import { getPrivateOptionValue, getPublicOptionValue, PrivateOptionNames, PublicOptionNames, useSettings } from "@/lib/api/settings"
-import { HTMLToMarkdown, markdownToHTML } from "@/lib/markdown"
-import clsx from "clsx"
-import { MediaUploadPayload, pickEditableImage } from "@/lib/api/media"
-import Header from "@/components/Header"
-import { Link } from "expo-router"
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { TextInput } from 'react-native-gesture-handler'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useEffect, useMemo, useState } from 'react'
+import { EDITOR_TRIGGERS_CONFIG } from '@/lib/api/content'
+import { useMentions } from 'react-native-more-controlled-mentions'
+import EditorInput from '@/components/editor/EditorInput'
+import { PrivacyLevel } from '@/lib/api/privacy'
+import {
+  getPrivateOptionValue,
+  getPublicOptionValue,
+  PrivateOptionNames,
+  PublicOptionNames,
+  useSettings,
+} from '@/lib/api/settings'
+import { HTMLToMarkdown, markdownToHTML } from '@/lib/markdown'
+import clsx from 'clsx'
+import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
+import Header from '@/components/Header'
+import { Link } from 'expo-router'
 
 type FormState = {
   name: string
@@ -35,26 +49,35 @@ export default function EditProfile() {
     content: me?.description || '',
   })
   const [avatar, setAvatar] = useState<string | MediaUploadPayload>(
-    formatCachedUrl(formatMediaUrl(me?.avatar || ''))
+    formatCachedUrl(formatMediaUrl(me?.avatar || '')),
   )
   const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
-    formatCachedUrl(formatMediaUrl(me?.headerImage || ''))
+    formatCachedUrl(formatMediaUrl(me?.headerImage || '')),
   )
 
   const savedCustomFields = useMemo(() => {
-    const options = getPublicOptionValue(settings?.options || [], PublicOptionNames.CustomFields)
+    const options = getPublicOptionValue(
+      settings?.options || [],
+      PublicOptionNames.CustomFields,
+    )
     return options.map((o) => ({
       name: o.name,
       value: o.value,
     }))
   }, [settings])
 
-  const [customFields, setCustomFields] = useState<{
-    name: string,
-    value: string
-  }[]>(savedCustomFields)
+  const [customFields, setCustomFields] = useState<
+    {
+      name: string
+      value: string
+    }[]
+  >(savedCustomFields)
 
-  function updateCustomField(index: number, key: 'name' | 'value', value: string) {
+  function updateCustomField(
+    index: number,
+    key: 'name' | 'value',
+    value: string,
+  ) {
     setCustomFields((prev) => {
       const newFields = [...prev]
       newFields[index] = { ...newFields[index], [key]: value }
@@ -67,7 +90,10 @@ export default function EditProfile() {
       return ''
     }
 
-    const mdBio = getPrivateOptionValue(settings?.options, PrivateOptionNames.OriginalMarkdownBio)
+    const mdBio = getPrivateOptionValue(
+      settings?.options,
+      PrivateOptionNames.OriginalMarkdownBio,
+    )
     if (!mdBio) {
       return HTMLToMarkdown(me.description)
     }
@@ -92,9 +118,12 @@ export default function EditProfile() {
   const canPublish = form.name.trim().length > 0 && !editMutation.isPending
 
   type FormKey = keyof typeof form
-  type FormValue = typeof form[FormKey]
+  type FormValue = (typeof form)[FormKey]
 
-  function update(key: FormKey, value: FormValue | ((prev: FormValue) => FormValue)) {
+  function update(
+    key: FormKey,
+    value: FormValue | ((prev: FormValue) => FormValue),
+  ) {
     setForm((prev) => {
       const newValue = typeof value === 'function' ? value(prev[key]) : value
       return { ...prev, [key]: newValue }
@@ -125,56 +154,62 @@ export default function EditProfile() {
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
         options: settings?.options,
       }
-      const htmlDescription = payload.description ? markdownToHTML(payload.description) : ''
+      const htmlDescription = payload.description
+        ? markdownToHTML(payload.description)
+        : ''
 
       let descriptionOptionFound = false
       let customFieldsOptionFound = false
-      const editOptions = (payload.options || []).map(o => {
+      const editOptions = (payload.options || []).map((o) => {
         if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
           descriptionOptionFound = true
           return {
             name: o.optionName,
-            value: JSON.stringify(payload.description || '')
+            value: JSON.stringify(payload.description || ''),
           }
         }
         if (o.optionName === (PublicOptionNames.CustomFields as any)) {
           customFieldsOptionFound = true
           return {
             name: o.optionName,
-            value: JSON.stringify(customFields.map((field) => ({
-              name: field.name,
-              value: field.value,
-              type: "PropertyValue"              
-            })))
+            value: JSON.stringify(
+              customFields.map((field) => ({
+                name: field.name,
+                value: field.value,
+                type: 'PropertyValue',
+              })),
+            ),
           }
         }
         return {
           name: o.optionName,
-          value: o.optionValue
+          value: o.optionValue,
         }
       })
 
       if (!descriptionOptionFound) {
         editOptions.push({
           name: PrivateOptionNames.OriginalMarkdownBio,
-          value: JSON.stringify(payload.description || '')
+          value: JSON.stringify(payload.description || ''),
         })
       }
       if (!customFieldsOptionFound) {
         editOptions.push({
           name: PublicOptionNames.CustomFields as any,
-          value: JSON.stringify(customFields.map((field) => ({
-            name: field.name,
-            value: field.value,
-            type: "PropertyValue"              
-          })))
+          value: JSON.stringify(
+            customFields.map((field) => ({
+              name: field.name,
+              value: field.value,
+              type: 'PropertyValue',
+            })),
+          ),
         })
       }
 
       editMutation.mutate({
         ...payload,
         description: htmlDescription,
-        options: editOptions
+        options: editOptions,
       })
     }
   }
@@ -183,7 +218,7 @@ export default function EditProfile() {
     <>
       <Header
         transparent
-        title='Edit Profile'
+        title="Edit Profile"
         right={
           <Pressable
             onPress={onSubmit}
@@ -192,13 +227,17 @@ export default function EditProfile() {
               {
                 'bg-cyan-800 active:bg-cyan-700': canPublish,
                 'bg-gray-400/25 opacity-50': !canPublish,
-              }
+              },
             )}
           >
             {editMutation.isPending ? (
-              <ActivityIndicator size="small" color="white" />            
+              <ActivityIndicator size="small" color="white" />
             ) : (
-              <MaterialCommunityIcons name="content-save-edit" size={20} color="white" />
+              <MaterialCommunityIcons
+                name="content-save-edit"
+                size={20}
+                color="white"
+              />
             )}
             <Text className="text-medium text-white">Save</Text>
           </Pressable>
@@ -215,7 +254,11 @@ export default function EditProfile() {
         >
           <Pressable
             onPress={pickHeaderImage}
-            style={{ minHeight: width * 0.5, width: '100%', backgroundColor: colors.gray[800] }}
+            style={{
+              minHeight: width * 0.5,
+              width: '100%',
+              backgroundColor: colors.gray[800],
+            }}
           >
             {headerImage ? (
               <Image
@@ -228,7 +271,7 @@ export default function EditProfile() {
               <MaterialCommunityIcons name="camera" size={24} color="white" />
             </View>
           </Pressable>
-          <View className='items-center my-4 rounded-md -mt-12'>
+          <View className="items-center my-4 rounded-md -mt-12">
             <Pressable
               className="relative bg-black rounded-lg border border-gray-500"
               onPress={pickAvatar}
@@ -279,35 +322,42 @@ export default function EditProfile() {
             />
           </View>
           <View className="m-4">
-            <Text className="text-white text-sm mb-2">
-              Custom fields
-            </Text>
+            <Text className="text-white text-sm mb-2">Custom fields</Text>
             {customFields.map((o, index) => (
-              <View
-                key={index}
-                className="mb-4 rounded-md"
-              >
+              <View key={index} className="mb-4 rounded-md">
                 <View className="flex-row items-center gap-2 mb-3">
                   <TextInput
                     placeholder="custom field name"
                     placeholderTextColor={colors.gray[500]}
                     value={o.name}
-                    onChangeText={(value) => updateCustomField(index, 'name', value)}
+                    onChangeText={(value) =>
+                      updateCustomField(index, 'name', value)
+                    }
                     numberOfLines={1}
                     className="flex-grow text-lg text-white rounded-md p-2 border border-gray-600"
                   />
                   <Pressable
-                    onPress={() => setCustomFields((prev) => prev.filter((_, i) => i !== index))}
+                    onPress={() =>
+                      setCustomFields((prev) =>
+                        prev.filter((_, i) => i !== index),
+                      )
+                    }
                     className="bg-red-700/30 active:bg-red-700/50 rounded-md p-2"
                   >
-                    <MaterialCommunityIcons name="close" size={24} color="white" />
+                    <MaterialCommunityIcons
+                      name="close"
+                      size={24}
+                      color="white"
+                    />
                   </Pressable>
                 </View>
                 <TextInput
-                  placeholder='custom field value'
+                  placeholder="custom field value"
                   placeholderTextColor={colors.gray[500]}
                   value={o.value}
-                  onChangeText={(value) => updateCustomField(index, 'value', value)}
+                  onChangeText={(value) =>
+                    updateCustomField(index, 'value', value)
+                  }
                   numberOfLines={1}
                   className="text-lg text-white rounded-md p-2 border border-gray-600"
                 />
@@ -315,7 +365,9 @@ export default function EditProfile() {
             ))}
             <View>
               <Pressable
-                onPress={() => setCustomFields((prev) => [...prev, { name: '', value: '' }])}
+                onPress={() =>
+                  setCustomFields((prev) => [...prev, { name: '', value: '' }])
+                }
                 className="w-48 flex-row items-center gap-3 py-1 px-2 bg-cyan-700/50 active:bg-cyan-700/75 rounded-xl"
               >
                 <MaterialCommunityIcons name="plus" size={24} color="white" />
@@ -323,10 +375,10 @@ export default function EditProfile() {
               </Pressable>
             </View>
           </View>
-          <Link href='/setting/options' asChild>
+          <Link href="/setting/options" asChild>
             <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
-              <MaterialCommunityIcons name="cog" size={24} color='white' />
-              <Text className='text-white'>More customization options</Text>
+              <MaterialCommunityIcons name="cog" size={24} color="white" />
+              <Text className="text-white">More customization options</Text>
             </Pressable>
           </Link>
         </ScrollView>

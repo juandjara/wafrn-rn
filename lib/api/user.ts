@@ -1,16 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getJSON, statusError, StatusError, uploadFile } from "../http";
-import { getEnvironmentStatic, parseToken } from "./auth";
-import { EmojiBase, UserEmojiRelation } from "./emojis";
-import { Timestamps } from "./types";
-import { useAuth, useParsedToken } from "../contexts/AuthContext";
-import { PostUser } from "./posts.types";
-import { PrivateOptionNames, PublicOption, PublicOptionNames } from "./settings";
-import { BSKY_URL } from "./content";
-import { showToastError, showToastSuccess, toggleFollowUser } from "../interaction";
-import type { MediaUploadPayload } from "./media";
-import { FileSystemUploadType } from 'expo-file-system';
-import { formatUserUrl } from "../formatters";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getJSON, statusError, StatusError, uploadFile } from '../http'
+import { getEnvironmentStatic, parseToken } from './auth'
+import { EmojiBase, UserEmojiRelation } from './emojis'
+import { Timestamps } from './types'
+import { useAuth, useParsedToken } from '../contexts/AuthContext'
+import { PostUser } from './posts.types'
+import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
+import { BSKY_URL } from './content'
+import {
+  showToastError,
+  showToastSuccess,
+  toggleFollowUser,
+} from '../interaction'
+import type { MediaUploadPayload } from './media'
+import { FileSystemUploadType } from 'expo-file-system'
+import { formatUserUrl } from '../formatters'
 
 export type User = {
   createdAt: string // iso date
@@ -46,10 +50,11 @@ export type User = {
   manuallyAcceptsFollows: boolean
   postCount: number
 }
-export type UserEmoji = EmojiBase & Timestamps & {
-  emojiCollectionId: string | null
-  userEmojiRelations: Timestamps & UserEmojiRelation
-}
+export type UserEmoji = EmojiBase &
+  Timestamps & {
+    emojiCollectionId: string | null
+    userEmojiRelations: Timestamps & UserEmojiRelation
+  }
 
 export async function getUser(token: string, handle?: string) {
   if (!handle) {
@@ -60,8 +65,8 @@ export async function getUser(token: string, handle?: string) {
     const env = getEnvironmentStatic()
     const json = await getJSON(`${env?.API_URL}/user?id=${handle}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
     return json as User
   } catch (e) {
@@ -78,7 +83,7 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: ['currentUser', token],
     queryFn: () => getUser(token!),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
@@ -102,20 +107,26 @@ export type Follow = Omit<PostUser, 'remoteId'> & {
 
 export async function getFollowers(token: string, handle: string) {
   const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/user/${handle}/follows?followers=false`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
+  const json = await getJSON(
+    `${env?.API_URL}/user/${handle}/follows?followers=false`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
   return json as Follow[]
 }
 export async function getFollowed(token: string, handle: string) {
   const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/user/${handle}/follows?followers=true`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
+  const json = await getJSON(
+    `${env?.API_URL}/user/${handle}/follows?followers=true`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
   return json as Follow[]
 }
 
@@ -124,7 +135,7 @@ export function useFollowers(handle?: string) {
   return useQuery({
     queryKey: ['followers', handle],
     queryFn: () => getFollowers(token!, handle!),
-    enabled: !!token && !!handle
+    enabled: !!token && !!handle,
   })
 }
 
@@ -133,7 +144,7 @@ export function useFollowed(handle?: string) {
   return useQuery({
     queryKey: ['followed', handle],
     queryFn: () => getFollowed(token!, handle!),
-    enabled: !!token && !!handle
+    enabled: !!token && !!handle,
   })
 }
 
@@ -141,13 +152,13 @@ export function getRemoteInfo(user: User) {
   if (user.remoteId) {
     return {
       href: user.remoteId,
-      name: user.federatedHost?.displayName
+      name: user.federatedHost?.displayName,
     }
   }
   if (user.bskyDid && user.url.startsWith('@')) {
     return {
       href: `${BSKY_URL}/profile/${user.bskyDid}`,
-      name: 'bsky.app'
+      name: 'bsky.app',
     }
   }
   return null
@@ -160,7 +171,7 @@ export type EditProfilePayload = {
   description?: string // html, not markdown
   manuallyAcceptsFollows?: boolean
   options?: {
-    name: PrivateOptionNames | PublicOptionNames;
+    name: PrivateOptionNames | PublicOptionNames
     value: string // result of JSON.stringify
   }[]
 }
@@ -169,7 +180,10 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
   const formData = new FormData()
   formData.append('name', payload.name)
   formData.append('description', payload.description || '')
-  formData.append('manuallyAcceptsFollows', payload.manuallyAcceptsFollows ? 'true' : 'false')
+  formData.append(
+    'manuallyAcceptsFollows',
+    payload.manuallyAcceptsFollows ? 'true' : 'false',
+  )
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
     formData.append('avatar', payload.avatar as any)
@@ -183,8 +197,8 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
     method: 'POST',
     body: formData,
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -205,9 +219,11 @@ export function useEditProfileMutation() {
     // after either error or success, refetch the settings to account for new options
     onSettled: () => {
       return qc.invalidateQueries({
-        predicate: query => query.queryKey[0] === 'settings' || query.queryKey[0] === 'currentUser',
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          query.queryKey[0] === 'currentUser',
       })
-    }
+    },
   })
 }
 
@@ -215,7 +231,7 @@ async function approveFollow(token: string, followId: string) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/user/approveFollow/${followId}`, {
     headers: {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
 }
@@ -237,14 +253,15 @@ export function useApproveFollowMutation() {
     },
     onSettled: () => {
       return qc.invalidateQueries({
-        predicate: query => {
-          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
+        predicate: (query) => {
+          const query1 =
+            query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
           const query2 = query.queryKey[0] === 'settings'
           const query3 = query.queryKey[0] === 'notificationsBadge'
-          return query1 || query2  || query3
+          return query1 || query2 || query3
         },
       })
-    }
+    },
   })
 }
 
@@ -252,7 +269,7 @@ async function deleteFollow(token: string, followId: string) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/user/deleteFollow/${followId}`, {
     headers: {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
 }
@@ -274,20 +291,21 @@ export function useDeleteFollowMutation() {
     },
     onSettled: () => {
       return qc.invalidateQueries({
-        predicate: query => {
-          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
+        predicate: (query) => {
+          const query1 =
+            query.queryKey[0] === 'followers' && query.queryKey[1] === me?.url
           const query2 = query.queryKey[0] === 'settings'
           const query3 = query.queryKey[0] === 'notificationsBadge'
           return query1 || query2 || query3
         },
       })
-    }
+    },
   })
 }
 
 type MastodonCSVParseResponse = {
-  foundUsers: Omit<PostUser, 'remoteId'>[];
-  notFoundUsers: string[];
+  foundUsers: Omit<PostUser, 'remoteId'>[]
+  notFoundUsers: string[]
 }
 
 async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
@@ -301,9 +319,9 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
     mimeType: 'text/csv',
     uploadType: FileSystemUploadType.MULTIPART,
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
-    }
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
   })
 
   const data = json as MastodonCSVParseResponse
@@ -317,7 +335,7 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
     users: [
       ...notFound.map((u) => ({ type: 'notFound' as const, username: u })),
       ...found.map((u) => ({ type: 'found' as const, user: u })),
-    ]
+    ],
   }
 }
 
@@ -327,7 +345,8 @@ export function useFollowsParserMutation() {
 
   return useMutation({
     mutationKey: ['importFollows'],
-    mutationFn: (localFileUri: string) => loadMastodonFollowersCSV(token!, localFileUri),
+    mutationFn: (localFileUri: string) =>
+      loadMastodonFollowersCSV(token!, localFileUri),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError('CSV Follows read failed')
@@ -337,14 +356,15 @@ export function useFollowsParserMutation() {
     },
     onSettled: () => {
       return qc.invalidateQueries({
-        predicate: query => {
-          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
+        predicate: (query) => {
+          const query1 =
+            query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
           const query2 = query.queryKey[0] === 'settings'
           const query3 = query.queryKey[0] === 'notificationsBadge'
           return query1 || query2 || query3
         },
       })
-    }
+    },
   })
 }
 
@@ -354,8 +374,11 @@ export function useFollowAllMutation() {
 
   return useMutation({
     mutationKey: ['followAll'],
-    mutationFn: async ({ users, progressCallback }: {
-      users: { id: string; url: string }[],
+    mutationFn: async ({
+      users,
+      progressCallback,
+    }: {
+      users: { id: string; url: string }[]
       progressCallback: (ev: number) => void
     }) => {
       let count = 0
@@ -386,14 +409,15 @@ export function useFollowAllMutation() {
     },
     onSettled: () => {
       return qc.invalidateQueries({
-        predicate: query => {
-          const query1 = query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
+        predicate: (query) => {
+          const query1 =
+            query.queryKey[0] === 'followers' && query.queryKey[1] === 'me'
           const query2 = query.queryKey[0] === 'settings'
           const query3 = query.queryKey[0] === 'notificationsBadge'
           return query1 || query2 || query3
         },
       })
-    }
+    },
   })
 }
 
@@ -422,8 +446,8 @@ export async function register(token: string, payload: RegisterPayload) {
     method: 'POST',
     body: formData,
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -454,8 +478,8 @@ export async function requestPasswordChange(token: string, email: string) {
     body: JSON.stringify({ email }),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -466,7 +490,9 @@ export function usePasswordChangeRequestMutation() {
     mutationKey: ['password-change-request'],
     mutationFn: (email: string) => requestPasswordChange(token!, email),
     onSuccess: () => {
-      showToastSuccess('Request sent! If your email address is correct, you should receive an email soon')
+      showToastSuccess(
+        'Request sent! If your email address is correct, you should receive an email soon',
+      )
     },
     onError: (err) => {
       console.error(err)
@@ -486,15 +512,18 @@ type PasswordChangePayload = {
   code: string
 }
 
-async function completePasswordChange(token: string, payload: PasswordChangePayload) {
+async function completePasswordChange(
+  token: string,
+  payload: PasswordChangePayload,
+) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/resetPassword`, {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   })
 }
 
@@ -503,12 +532,13 @@ export function usePasswordChangeCompleteMutation() {
 
   return useMutation({
     mutationKey: ['password-change-complete'],
-    mutationFn: (payload: PasswordChangePayload) => completePasswordChange(token!, payload),
+    mutationFn: (payload: PasswordChangePayload) =>
+      completePasswordChange(token!, payload),
     onSuccess: () => {
       showToastSuccess('Password changed!')
     },
     onError: (err) => {
       showToastError('Password change failed')
     },
-  })  
+  })
 }

@@ -1,12 +1,20 @@
-import { Button, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native"
-import { Colors } from "@/constants/Colors"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { useState } from "react"
-import { router, useLocalSearchParams } from "expo-router"
-import { Toasts } from "@backpackapp-io/react-native-toast"
-import { Image } from "expo-image"
-import { usePasswordChangeCompleteMutation } from "@/lib/api/user"
-import InstanceProvider from "@/components/InstanceProvider"
+import {
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native'
+import { Colors } from '@/constants/Colors'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { useState } from 'react'
+import { router, useLocalSearchParams } from 'expo-router'
+import { Toasts } from '@backpackapp-io/react-native-toast'
+import { Image } from 'expo-image'
+import { usePasswordChangeCompleteMutation } from '@/lib/api/user'
+import InstanceProvider from '@/components/InstanceProvider'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -14,20 +22,26 @@ export default function CompletePasswordReset() {
   const sx = useSafeAreaPadding()
   const color = Colors.dark.text
   const [password, setPassword] = useState('')
-  const { code, email } = useLocalSearchParams<{ code: string; email: string }>()
+  const { code, email } = useLocalSearchParams<{
+    code: string
+    email: string
+  }>()
 
   const mutation = usePasswordChangeCompleteMutation()
 
   function submit() {
-    mutation.mutate({
-      email,
-      password,
-      code
-    }, {
-      onSuccess: () => {
-        router.navigate('/sign-in')
-      }
-    })
+    mutation.mutate(
+      {
+        email,
+        password,
+        code,
+      },
+      {
+        onSuccess: () => {
+          router.navigate('/sign-in')
+        },
+      },
+    )
   }
 
   return (
@@ -35,7 +49,7 @@ export default function CompletePasswordReset() {
       className="flex-1 mx-4"
       style={{
         ...sx,
-        backgroundColor: Colors.dark.background
+        backgroundColor: Colors.dark.background,
       }}
     >
       <Toasts />
@@ -46,12 +60,19 @@ export default function CompletePasswordReset() {
         <ScrollView>
           <Image
             source={bigW}
-            style={{ marginTop: 48, width: 120, height: 120, alignSelf: 'center' }}
+            style={{
+              marginTop: 48,
+              width: 120,
+              height: 120,
+              alignSelf: 'center',
+            }}
           />
           <Text className="font-semibold text-xl text-white mt-3">
             Write your new password
           </Text>
-          <Text className="text-white mt-2 mb-3">And just log in after that!</Text>
+          <Text className="text-white mt-2 mb-3">
+            And just log in after that!
+          </Text>
           <InstanceProvider>
             <TextInput
               secureTextEntry

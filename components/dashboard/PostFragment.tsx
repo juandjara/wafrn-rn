@@ -1,23 +1,27 @@
-import type { Post } from "@/lib/api/posts.types"
-import { Pressable, Text, useWindowDimensions, View } from "react-native"
+import type { Post } from '@/lib/api/posts.types'
+import { Pressable, Text, useWindowDimensions, View } from 'react-native'
 import { Image } from 'expo-image'
-import { formatDate, formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
-import { useDashboardContext } from "@/lib/contexts/DashboardContext"
-import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from "@/lib/api/posts"
-import Media from "../posts/Media"
-import { Link, useLocalSearchParams } from "expo-router"
-import { isEmptyRewoot } from "@/lib/api/content"
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import colors from "tailwindcss/colors"
-import { PRIVACY_ICONS, PRIVACY_LABELS } from "@/lib/api/privacy"
-import PostHtmlRenderer from "../posts/PostHtmlRenderer"
-import UserRibbon from "../user/UserRibbon"
-import Poll from "../posts/Poll"
-import HtmlRenderer from "../HtmlRenderer"
-import clsx from "clsx"
-import InteractionRibbon from "../posts/InteractionRibbon"
-import PostReaction from "../posts/PostReaction"
-import { toggleCollapsed, toggleCwOpen, usePostLayout } from "@/lib/store"
+import { formatDate, formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { useDashboardContext } from '@/lib/contexts/DashboardContext'
+import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
+import Media from '../posts/Media'
+import { Link, useLocalSearchParams } from 'expo-router'
+import { isEmptyRewoot } from '@/lib/api/content'
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
+import colors from 'tailwindcss/colors'
+import { PRIVACY_ICONS, PRIVACY_LABELS } from '@/lib/api/privacy'
+import PostHtmlRenderer from '../posts/PostHtmlRenderer'
+import UserRibbon from '../user/UserRibbon'
+import Poll from '../posts/Poll'
+import HtmlRenderer from '../HtmlRenderer'
+import clsx from 'clsx'
+import InteractionRibbon from '../posts/InteractionRibbon'
+import PostReaction from '../posts/PostReaction'
+import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
 
 // const HEIGHT_LIMIT = 462
 
@@ -83,14 +87,17 @@ export default function PostFragment({
   function toggleCW() {
     toggleCwOpen(post.id, !cwOpen)
   }
-  
+
   if (isEmptyRewoot(post, context)) {
     return null
   }
 
   if (post.isDeleted) {
     return (
-      <View className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3" style={{ maxHeight: 300, maxWidth: width }}>
+      <View
+        className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3"
+        style={{ maxHeight: 300, maxWidth: width }}
+      >
         <MaterialIcons name="delete" color="white" size={24} />
         <Text className="text-gray-300 text-center text-sm p-4">
           This post has been deleted
@@ -102,7 +109,9 @@ export default function PostFragment({
   return (
     <Link href={`/post/${post.id}`} asChild>
       <Root
-        className={clsx('px-3 bg-indigo-950 relative', { 'rounded-lg': isQuote })}
+        className={clsx('px-3 bg-indigo-950 relative', {
+          'rounded-lg': isQuote,
+        })}
         android_ripple={{
           color: `${colors.cyan[700]}40`,
         }}
@@ -114,28 +123,44 @@ export default function PostFragment({
           </View>
         )}
         {user && <UserRibbon user={user} userName={userName} />}
-        <View id='date-line' className="flex-row gap-1 items-center">
-          {isEdited && <MaterialCommunityIcons name="pencil" color='white' size={16} />}
-          <Text className="text-xs text-gray-200">{formatDate(post.updatedAt)}</Text>
-          <MaterialCommunityIcons className="ml-0.5" name={PRIVACY_ICONS[post.privacy]} color='white' size={16} />
-          <Text className="text-xs text-gray-400">{PRIVACY_LABELS[post.privacy]}</Text>
+        <View id="date-line" className="flex-row gap-1 items-center">
+          {isEdited && (
+            <MaterialCommunityIcons name="pencil" color="white" size={16} />
+          )}
+          <Text className="text-xs text-gray-200">
+            {formatDate(post.updatedAt)}
+          </Text>
+          <MaterialCommunityIcons
+            className="ml-0.5"
+            name={PRIVACY_ICONS[post.privacy]}
+            color="white"
+            size={16}
+          />
+          <Text className="text-xs text-gray-400">
+            {PRIVACY_LABELS[post.privacy]}
+          </Text>
         </View>
         {collapsed ? (
           <Pressable
             className="rounded-xl my-4 p-3 bg-gray-600/75 active:bg-gray-800/75"
             onPress={collapsePost}
           >
-            <Text className="text-white">This post is collapsed. Click to expand.</Text>
+            <Text className="text-white">
+              This post is collapsed. Click to expand.
+            </Text>
           </Pressable>
         ) : (
           <>
-            <View id='content' className={clsx('relative', {
-              'border border-yellow-500 rounded-xl my-4': !!contentWarning,
-            })}>
+            <View
+              id="content"
+              className={clsx('relative', {
+                'border border-yellow-500 rounded-xl my-4': !!contentWarning,
+              })}
+            >
               {contentWarning && (
                 <View
-                  id='content-warning-indicator'
-                  className='flex-row items-start gap-3 p-2'
+                  id="content-warning-indicator"
+                  className="flex-row items-start gap-3 p-2"
                 >
                   <View className="ml-1 gap-1">
                     <Ionicons
@@ -145,27 +170,29 @@ export default function PostFragment({
                     />
                     {medias.length > 0 && (
                       <MaterialCommunityIcons
-                        name='image'
-                        color='white'
+                        name="image"
+                        color="white"
                         size={24}
                       />
                     )}
                     {showQuotedPost && (
                       <MaterialIcons
-                        name='format-quote'
+                        name="format-quote"
                         size={24}
                         color={colors.gray[200]}
                       />
                     )}
                   </View>
                   <View className="flex-shrink flex-grow gap-2">
-                    <Text className="text-yellow-100 leading-5">{contentWarning}</Text>
+                    <Text className="text-yellow-100 leading-5">
+                      {contentWarning}
+                    </Text>
                     <Pressable
-                      id='content-warning-toggle'
+                      id="content-warning-toggle"
                       className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
                       onPress={toggleCW}
                     >
-                      <Text className='text-indigo-500 text-center text-base'>
+                      <Text className="text-indigo-500 text-center text-base">
                         {cwOpen ? 'Hide' : 'Show'} content
                       </Text>
                     </Pressable>
@@ -173,7 +200,7 @@ export default function PostFragment({
                 </View>
               )}
               <View
-                id='content-inner'
+                id="content-inner"
                 style={[
                   { height: cwOpen ? 'auto' : 0 },
                   { paddingHorizontal: contentWarning ? 12 : 0 },
@@ -185,7 +212,10 @@ export default function PostFragment({
                 ]}
               >
                 {ask && (
-                  <View id='ask' className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                  <View
+                    id="ask"
+                    className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
+                  >
                     <View className="flex-row gap-2 mb-4 items-center">
                       <Link href={`/user/${ask.user?.url}`}>
                         <Image
@@ -211,10 +241,7 @@ export default function PostFragment({
                   />
                 </View>
                 {medias.length > 0 && (
-                  <View 
-                    id='media-list'
-                    className='pt-4 pb-2'
-                  >
+                  <View id="media-list" className="pt-4 pb-2">
                     {medias.map((media, index) => (
                       <Media
                         key={`${media.id}-${index}`}
@@ -249,15 +276,23 @@ export default function PostFragment({
                   </View>
                 )}
                 {showQuotedPost && (
-                  <View id='quoted-post' className="my-2 border border-gray-500 rounded-xl bg-gray-500/10">
+                  <View
+                    id="quoted-post"
+                    className="my-2 border border-gray-500 rounded-xl bg-gray-500/10"
+                  >
                     <PostFragment isQuote post={quotedPost} />
                   </View>
                 )}
               </View>
             </View>
             {reactions.length > 0 && (
-              <View id='reactions' className="my-2 flex-row flex-wrap items-center gap-2">
-                {reactions.map((r) => <PostReaction key={r.id} reaction={r} />)}
+              <View
+                id="reactions"
+                className="my-2 flex-row flex-wrap items-center gap-2"
+              >
+                {reactions.map((r) => (
+                  <PostReaction key={r.id} reaction={r} />
+                ))}
               </View>
             )}
           </>

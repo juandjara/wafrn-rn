@@ -1,8 +1,8 @@
-import Dashboard from "@/components/dashboard/Dashboard";
-import Header from "@/components/Header";
-import { DashboardMode } from "@/lib/api/dashboard";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { View } from "react-native";
+import Dashboard from '@/components/dashboard/Dashboard'
+import Header from '@/components/Header'
+import { DashboardMode } from '@/lib/api/dashboard'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { View } from 'react-native'
 
 export default function MutedPosts() {
   const sx = useSafeAreaPadding()

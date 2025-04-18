@@ -1,17 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getJSON } from "../http"
-import { useAuth } from "../contexts/AuthContext"
-import { showToastError, showToastSuccess } from "../interaction"
-import { Post, PostUser } from "./posts.types"
-import { useMemo } from "react"
-import { getEnvironmentStatic } from "./auth"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getJSON } from '../http'
+import { useAuth } from '../contexts/AuthContext'
+import { showToastError, showToastSuccess } from '../interaction'
+import { Post, PostUser } from './posts.types'
+import { useMemo } from 'react'
+import { getEnvironmentStatic } from './auth'
 
 /*
  * USER BLOCKS
  */
 
 export async function toggleBlockUser({
-  token, userId, isBlocked
+  token,
+  userId,
+  isBlocked,
 }: {
   token: string
   userId: string
@@ -22,9 +24,9 @@ export async function toggleBlockUser({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   })
 }
 
@@ -34,11 +36,12 @@ export function useBlockMutation(user: PostUser) {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['block', user.id],
-    mutationFn: variables => toggleBlockUser({
-      token: token!,
-      userId: user.id,
-      isBlocked: variables
-    }),
+    mutationFn: (variables) =>
+      toggleBlockUser({
+        token: token!,
+        userId: user.id,
+        isBlocked: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}block user`)
@@ -48,12 +51,11 @@ export function useBlockMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
       })
-    }
+    },
   })
 }
 
@@ -67,14 +69,14 @@ async function getBlocks(token: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myBlocks`, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
   const data = json as Block[]
   return data.map((d) => ({
     reason: d.reason,
     createdAt: d.createdAt,
-    user: d.blocked
+    user: d.blocked,
   }))
 }
 
@@ -84,7 +86,7 @@ export function useBlocks() {
     queryKey: ['blocks'],
     queryFn: () => getBlocks(token!),
     enabled: !!token,
-    staleTime: 1000 * 60 * 60 // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }
 
@@ -93,7 +95,9 @@ export function useBlocks() {
  */
 
 export async function toggleMuteUser({
-  token, userId, isMuted
+  token,
+  userId,
+  isMuted,
 }: {
   token: string
   userId: string
@@ -104,9 +108,9 @@ export async function toggleMuteUser({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId }),
   })
 }
 
@@ -116,11 +120,12 @@ export function useMuteMutation(user: PostUser) {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['mute', user.id],
-    mutationFn: variables => toggleMuteUser({
-      token: token!,
-      userId: user.id,
-      isMuted: variables
-    }),
+    mutationFn: (variables) =>
+      toggleMuteUser({
+        token: token!,
+        userId: user.id,
+        isMuted: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}mute user`)
@@ -130,12 +135,11 @@ export function useMuteMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
       })
-    }
+    },
   })
 }
 
@@ -149,14 +153,14 @@ async function getMutes(token: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myMutes`, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
   const data = json as Mute[]
   return data.map((d) => ({
     reason: d.reason,
     createdAt: d.createdAt,
-    user: d.muted
+    user: d.muted,
   }))
 }
 
@@ -166,7 +170,7 @@ export function useMutes() {
     queryKey: ['mutes'],
     queryFn: () => getMutes(token!),
     enabled: !!token,
-    staleTime: 1000 * 60 * 60 // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }
 
@@ -175,24 +179,29 @@ export function useMutes() {
  */
 
 export async function toggleSilencePost({
-  token, postId, isSilenced
+  token,
+  postId,
+  isSilenced,
 }: {
   token: string
   postId: string
   isSilenced: boolean
 }) {
   const env = getEnvironmentStatic()
-  await getJSON(`${env?.API_URL}/v2/${isSilenced ? 'unsilencePost' : 'silencePost'}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+  await getJSON(
+    `${env?.API_URL}/v2/${isSilenced ? 'unsilencePost' : 'silencePost'}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        postId,
+        superMute: 'true',
+      }),
     },
-    body: JSON.stringify({
-      postId,
-      superMute: 'true'
-    })
-  })
+  )
 }
 
 export function useSilenceMutation(post: Post) {
@@ -201,11 +210,12 @@ export function useSilenceMutation(post: Post) {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['silence', post.id],
-    mutationFn: variables => toggleSilencePost({
-      token: token!,
-      postId: post.id,
-      isSilenced: variables
-    }),
+    mutationFn: (variables) =>
+      toggleSilencePost({
+        token: token!,
+        postId: post.id,
+        isSilenced: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}silence woot`)
@@ -215,28 +225,33 @@ export function useSilenceMutation(post: Post) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({ queryKey: ['settings'] })
-    }
+    },
   })
 }
 
 // NOTE: to get a list of muted posts, use `DashboardMode.MUTED_POSTS` as `mode` parameter in `getDashboard`
 
 async function toggleServerBlock({
-  token, userId, isBlocked
+  token,
+  userId,
+  isBlocked,
 }: {
   token: string
   userId: string
   isBlocked: boolean
 }) {
   const env = getEnvironmentStatic()
-  await getJSON(`${env?.API_URL}/${isBlocked ? 'unblockServer' : 'blockUserServer'}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+  await getJSON(
+    `${env?.API_URL}/${isBlocked ? 'unblockServer' : 'blockUserServer'}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId }),
     },
-    body: JSON.stringify({ userId })
-  })
+  )
 }
 
 export function useServerBlockMutation(user: PostUser) {
@@ -245,11 +260,12 @@ export function useServerBlockMutation(user: PostUser) {
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['serverBlock', user.id],
-    mutationFn: variables => toggleServerBlock({
-      token: token!,
-      userId: user.id,
-      isBlocked: variables
-    }),
+    mutationFn: (variables) =>
+      toggleServerBlock({
+        token: token!,
+        userId: user.id,
+        isBlocked: variables,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to ${variables ? 'un' : ''}block server`)
@@ -259,12 +275,11 @@ export function useServerBlockMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'settings'
-            || (query.queryKey[0] === 'user' && query.queryKey[1] === user.url)
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
       })
-    }
+    },
   })
 }
 
@@ -280,7 +295,7 @@ async function getServerBlocks(token: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myServerBlocks`, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
   const data = json as ServerBlock[]
@@ -296,7 +311,7 @@ export function useServerBlocks() {
     queryKey: ['serverBlocks'],
     queryFn: () => getServerBlocks(token!),
     enabled: !!token,
-    staleTime: 1000 * 60 * 60 // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }
 
@@ -306,9 +321,9 @@ async function unblockServer(token: string, serverId: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: serverId })
+    body: JSON.stringify({ id: serverId }),
   })
 }
 
@@ -318,7 +333,7 @@ export function useUnblockServerMutation() {
 
   return useMutation<void, Error, string>({
     mutationKey: ['unblockServer'],
-    mutationFn: serverId => unblockServer(token!, serverId),
+    mutationFn: (serverId) => unblockServer(token!, serverId),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError(`Failed to unblock server`)
@@ -328,12 +343,11 @@ export function useUnblockServerMutation() {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => (
-          query.queryKey[0] === 'settings'
-            || query.queryKey[0] === 'serverBlocks'
-        )
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          query.queryKey[0] === 'serverBlocks',
       })
-    }
+    },
   })
 }
 
@@ -342,9 +356,9 @@ export function useHiddenUserIds() {
   const { data: blocks } = useBlocks()
 
   return useMemo(() => {
-    const mutedIds = mutes?.map(m => m.user.id) || []
-    const blockedIds = blocks?.map(b => b.user.id) || []
-  
+    const mutedIds = mutes?.map((m) => m.user.id) || []
+    const blockedIds = blocks?.map((b) => b.user.id) || []
+
     return [...mutedIds, ...blockedIds]
   }, [mutes, blocks])
 }

@@ -1,4 +1,4 @@
-import type { ExpoConfig } from 'expo/config';
+import type { ExpoConfig } from 'expo/config'
 
 export default {
   expo: {
@@ -21,7 +21,8 @@ export default {
       bundleIdentifier: 'dev.djara.wafrn-rn',
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSPhotoLibraryAddUsageDescription: 'WAFRN requires write-only access to your library in order to download images and videos from posts'
+        NSPhotoLibraryAddUsageDescription:
+          'WAFRN requires write-only access to your library in order to download images and videos from posts',
       },
     },
     android: {
@@ -45,18 +46,22 @@ export default {
             { scheme: 'https', host: 'app.wafrn.net' },
           ],
           category: ['BROWSABLE', 'DEFAULT'],
-        }
+        },
       ],
-      googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
+      googleServicesFile:
+        process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
     plugins: [
       'expo-router',
       'expo-secure-store',
       'expo-font',
-      ['expo-video', {
-        supportsBackgroundPlayback: true,
-        supportsPictureInPicture: true
-      }],
+      [
+        'expo-video',
+        {
+          supportsBackgroundPlayback: true,
+          supportsPictureInPicture: true,
+        },
+      ],
     ],
     experiments: {
       typedRoutes: false,

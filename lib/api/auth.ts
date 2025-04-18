@@ -1,7 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { getJSON } from "../http"
-import useAsyncStorage from "../useLocalStorage"
-import { queryClient } from "../queryClient"
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { getJSON } from '../http'
+import useAsyncStorage from '../useLocalStorage'
+import { queryClient } from '../queryClient'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
@@ -70,15 +70,20 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const env = res as EnvironmenResponse
 
   if (env.maintenance) {
-    throw new Error('Sorry, this instance is in maintenance mode. Check back soon')
+    throw new Error(
+      'Sorry, this instance is in maintenance mode. Check back soon',
+    )
   }
 
-  const isValid = isValidURL(env.baseUrl, instanceURL)
-     && isValidURL(env.baseMediaUrl, instanceURL)
-     && isValidURL(env.externalCacheurl, instanceURL)
+  const isValid =
+    isValidURL(env.baseUrl, instanceURL) &&
+    isValidURL(env.baseMediaUrl, instanceURL) &&
+    isValidURL(env.externalCacheurl, instanceURL)
 
   if (!isValid) {
-    throw new Error('Invalid environment response. baseUrl, baseMediaUrl, and externalCacheurl must be valid URLs')
+    throw new Error(
+      'Invalid environment response. baseUrl, baseMediaUrl, and externalCacheurl must be valid URLs',
+    )
   }
 
   const API_URL = new URL(env.baseUrl, instanceURL).href
@@ -99,7 +104,7 @@ export function useEnvironment() {
       return env
     },
     enabled: !!value,
-    throwOnError: true
+    throwOnError: true,
   })
   return { data, isLoading: isLoading || loading }
 }
@@ -117,8 +122,8 @@ export function useEnvCheckMutation() {
 
 type TokenResponse = {
   success: true
-  mfaRequired?: boolean,
-  mfaOptions?: string[],
+  mfaRequired?: boolean
+  mfaOptions?: string[]
   token: string
 }
 
@@ -128,11 +133,14 @@ type LoginPayload = {
 }
 
 type LoginMfaPayload = {
-  firstPassToken: string,
+  firstPassToken: string
   mfaToken: string
 }
 
-export async function login(env: Environment, { email, password }: LoginPayload) {
+export async function login(
+  env: Environment,
+  { email, password }: LoginPayload,
+) {
   const url = `${env.API_URL}/login`
   const res = await getJSON(url, {
     method: 'POST',
@@ -151,7 +159,7 @@ export async function loginMfa(env: Environment, mfaPayload: LoginMfaPayload) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${mfaPayload.firstPassToken}`
+      Authorization: `Bearer ${mfaPayload.firstPassToken}`,
     },
     body: JSON.stringify({ token: mfaPayload.mfaToken }),
   })
@@ -162,10 +170,12 @@ export async function loginMfa(env: Environment, mfaPayload: LoginMfaPayload) {
 export function useLoginMutation() {
   const { data: env } = useEnvironment()
 
-  return useMutation<TokenResponse, Error, { email: string; password: string }>({
-    mutationKey: ['signIn'],
-    mutationFn: (body) => login(env!, body),
-  })
+  return useMutation<TokenResponse, Error, { email: string; password: string }>(
+    {
+      mutationKey: ['signIn'],
+      mutationFn: (body) => login(env!, body),
+    },
+  )
 }
 
 export function useLoginMfaMutation() {

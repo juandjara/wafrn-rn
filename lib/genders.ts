@@ -45,7 +45,7 @@ export const GENDERS = [
   'Gay Ranger',
   "I don't have one, where can I get one of those?",
   "I don't have one and I am not interested",
-  'Nah-uh I don\'t do those',
+  "Nah-uh I don't do those",
   'I have been clean of gender for over a year now',
   'STOP CALLING ME I DONT WANT ANY OF THOSE GENDERS I AM NOT INTERESTED I SWEAR TO GOO',
   'Piss',

@@ -1,10 +1,10 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header"
-import { useServerList } from "@/lib/api/admin"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { useState } from "react"
-import { FlatList, Pressable, Text, TextInput, View } from "react-native"
-import colors from "tailwindcss/colors"
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { useServerList } from '@/lib/api/admin'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useState } from 'react'
+import { FlatList, Pressable, Text, TextInput, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 export default function ServerList() {
   const sx = useSafeAreaPadding()
@@ -31,7 +31,7 @@ export default function ServerList() {
         className="flex-shrink-0 bg-black/30 rounded-full p-2"
         onPress={() => setShowSearch(true)}
       >
-        <MaterialCommunityIcons name='magnify' size={20} color='white' />
+        <MaterialCommunityIcons name="magnify" size={20} color="white" />
       </Pressable>
     </>
   )
@@ -55,9 +55,7 @@ export default function ServerList() {
           inputMode="search"
           onSubmitEditing={(e) => search(e.nativeEvent.text)}
         />
-        <Pressable
-          onPress={clear}
-        >
+        <Pressable onPress={clear}>
           <MaterialCommunityIcons
             className="px-3"
             name="close"
@@ -80,7 +78,9 @@ export default function ServerList() {
         renderItem={({ item }) => (
           <View className="rounded-lg p-3 bg-gray-800 mb-3 flex-row items-center">
             <View className="flex-grow">
-              <Text className="text-white font-medium text-lg">{item.displayName}</Text>
+              <Text className="text-white font-medium text-lg">
+                {item.displayName}
+              </Text>
               <Text className="text-gray-200 text-sm mb-2">{item.detail}</Text>
             </View>
             {item.blocked && (
@@ -96,9 +96,7 @@ export default function ServerList() {
           </View>
         )}
         ListEmptyComponent={
-          <Text className="text-center text-white my-6">
-            No servers
-          </Text>
+          <Text className="text-center text-white my-6">No servers</Text>
         }
       />
     </View>

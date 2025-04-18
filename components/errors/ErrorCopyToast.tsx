@@ -1,6 +1,6 @@
-import { toast, Toast } from "@backpackapp-io/react-native-toast"
-import { Pressable, Text, View } from "react-native"
-import colors from "tailwindcss/colors"
+import { toast, Toast } from '@backpackapp-io/react-native-toast'
+import { Pressable, Text, View } from 'react-native'
+import colors from 'tailwindcss/colors'
 import * as Clipboard from 'expo-clipboard'
 
 export default function ErrorCopyToast({
@@ -26,13 +26,13 @@ export default function ErrorCopyToast({
             toast.success('Error details copied!', {
               styles: {
                 text: {
-                  color: colors.green[900]
+                  color: colors.green[900],
                 },
                 view: {
                   backgroundColor: colors.green[100],
-                  borderRadius: 8
+                  borderRadius: 8,
                 },
-              }
+              },
             })
           }
         }}

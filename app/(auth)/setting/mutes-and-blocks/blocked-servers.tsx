@@ -1,9 +1,18 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header"
-import { useServerBlocks, useUnblockServerMutation } from "@/lib/api/blocks-and-mutes"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native"
-import clsx from "clsx"
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import {
+  useServerBlocks,
+  useUnblockServerMutation,
+} from '@/lib/api/blocks-and-mutes'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
+} from 'react-native'
+import clsx from 'clsx'
 
 export default function BlockedServers() {
   const sx = useSafeAreaPadding()
@@ -32,11 +41,11 @@ export default function BlockedServers() {
                 {
                   'bg-red-800 active:bg-red-700': !mutation.isPending,
                   'bg-gray-400/25 opacity-50': mutation.isPending,
-                }
+                },
               )}
             >
               {mutation.isPending ? (
-                <ActivityIndicator size="small" color="white" />            
+                <ActivityIndicator size="small" color="white" />
               ) : (
                 <MaterialCommunityIcons name="close" size={20} color="white" />
               )}

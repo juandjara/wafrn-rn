@@ -1,11 +1,11 @@
-import { Colors } from "@/constants/Colors"
-import { isVideo } from "@/lib/api/media"
-import { MaterialIcons } from "@expo/vector-icons"
-import { useTheme } from "@react-navigation/native"
-import { useMutationState } from "@tanstack/react-query"
-import clsx from "clsx"
-import { Image } from "expo-image"
-import { useState } from "react"
+import { Colors } from '@/constants/Colors'
+import { isVideo } from '@/lib/api/media'
+import { MaterialIcons } from '@expo/vector-icons'
+import { useTheme } from '@react-navigation/native'
+import { useMutationState } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { Image } from 'expo-image'
+import { useState } from 'react'
 import {
   ActivityIndicator,
   Modal,
@@ -16,12 +16,12 @@ import {
   Text,
   TextInput,
   useWindowDimensions,
-  View
-} from "react-native"
-import colors from "tailwindcss/colors"
-import Video from "../Video"
-import { useParsedToken } from "@/lib/contexts/AuthContext"
-import { formatUserUrl } from "@/lib/formatters"
+  View,
+} from 'react-native'
+import colors from 'tailwindcss/colors'
+import Video from '../Video'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
+import { formatUserUrl } from '@/lib/formatters'
 
 export type EditorImage = {
   uri: string
@@ -36,16 +36,20 @@ export type EditorImage = {
 
 const COMMON_MEDIA_LIMIT = 4
 
-export default function ImageList({ images, setImages, disableForceAltText }: {
+export default function ImageList({
+  images,
+  setImages,
+  disableForceAltText,
+}: {
   images: EditorImage[]
   setImages: (images: EditorImage[]) => void
   disableForceAltText: boolean
 }) {
   const mutationParams = useMutationState({
     filters: {
-      mutationKey: ['mediaUpload'], 
+      mutationKey: ['mediaUpload'],
     },
-    select: m => m.state.variables as { uri: string }[]
+    select: (m) => m.state.variables as { uri: string }[],
   }).at(-1)
 
   const me = useParsedToken()
@@ -54,17 +58,19 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
   const selectedImage = images[openIndex ?? 0]
   const { width } = useWindowDimensions()
   const size = width - 24
-  
+
   if (!images.length) {
     return null
   }
 
   function updateOpenImage(update: Partial<EditorImage>) {
-    setImages(images.map((img, i) => i === openIndex ? { ...img, ...update } : img))
+    setImages(
+      images.map((img, i) => (i === openIndex ? { ...img, ...update } : img)),
+    )
   }
 
   function isLoading(img: EditorImage) {
-    return mutationParams?.some(v => v.uri === img.uri)
+    return mutationParams?.some((v) => v.uri === img.uri)
   }
 
   function removeImage(index: number) {
@@ -89,7 +95,11 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
               className="p-1 bg-white/10 rounded-full mr-3"
               onPress={() => setOpenIndex(null)}
             >
-              <MaterialIcons name="arrow-back" color={theme.colors.text} size={24} />
+              <MaterialIcons
+                name="arrow-back"
+                color={theme.colors.text}
+                size={24}
+              />
             </Pressable>
             <Text className="text-white flex-grow text-lg">Editing media</Text>
             <Pressable
@@ -127,9 +137,11 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
             </Text>
             <Switch
               value={selectedImage.NSFW}
-              onValueChange={NSFW => updateOpenImage({ NSFW })}
+              onValueChange={(NSFW) => updateOpenImage({ NSFW })}
               trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={selectedImage.NSFW ? colors.cyan[600] : colors.gray[300]}
+              thumbColor={
+                selectedImage.NSFW ? colors.cyan[600] : colors.gray[300]
+              }
             />
           </Pressable>
           <View className="mt-3">
@@ -138,13 +150,13 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
               multiline
               numberOfLines={4}
               value={selectedImage.description}
-              onChangeText={description => updateOpenImage({ description })}
+              onChangeText={(description) => updateOpenImage({ description })}
               placeholder="Please enter a brief description"
               className={clsx(
                 'color-white w-full border bg-white/5 p-2 mt-1 rounded-md',
-                (selectedImage.description || disableForceAltText)
+                selectedImage.description || disableForceAltText
                   ? 'border-transparent placeholder:text-gray-500'
-                  : 'border-red-500 placeholder:text-red-300/50'
+                  : 'border-red-500 placeholder:text-red-300/50',
               )}
             />
           </View>
@@ -152,17 +164,22 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
             onPress={() => setOpenIndex(null)}
             className="bg-cyan-800 active:bg-cyan-700 flex-row gap-2 justify-center items-center p-2 mt-4 rounded-md"
           >
-            <MaterialIcons name="done" color='white' size={24} />
+            <MaterialIcons name="done" color="white" size={24} />
             <Text className="text-white text-lg">Done</Text>
           </Pressable>
         </ScrollView>
       </Modal>
       {images.length > COMMON_MEDIA_LIMIT && (
         <Text className="text-white text-sm p-3">
-          Note: Only the first {COMMON_MEDIA_LIMIT} images will be displayed in platforms like Mastodon
+          Note: Only the first {COMMON_MEDIA_LIMIT} images will be displayed in
+          platforms like Mastodon
         </Text>
       )}
-      <ScrollView horizontal style={{ flex: 0 }} contentContainerStyle={{ flex: 0 }}>
+      <ScrollView
+        horizontal
+        style={{ flex: 0 }}
+        contentContainerStyle={{ flex: 0 }}
+      >
         {images.map((img, index) => (
           <View className="relative" key={img.uri}>
             <Pressable
@@ -179,20 +196,20 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
               disabled={isLoading(img)}
               className={clsx(
                 'absolute top-0 right-0 bg-white rounded-full p-1',
-                { 'opacity-0': isLoading(img) }
+                { 'opacity-0': isLoading(img) },
               )}
               onPress={() => removeImage(index)}
             >
-              <MaterialIcons name="close" color='black' size={20} />
+              <MaterialIcons name="close" color="black" size={20} />
             </Pressable>
-            {(img.description || disableForceAltText) ? null : (
+            {img.description || disableForceAltText ? null : (
               <View
                 className={clsx(
                   'absolute bottom-0 right-0 p-1.5 rounded-full bg-red-700',
-                  { 'opacity-0': isLoading(img) }
+                  { 'opacity-0': isLoading(img) },
                 )}
               >
-                <MaterialIcons name='warning' color='white' size={16} />
+                <MaterialIcons name="warning" color="white" size={16} />
               </View>
             )}
             {isLoading(img) ? (
@@ -204,10 +221,8 @@ export default function ImageList({ images, setImages, disableForceAltText }: {
               </View>
             ) : null}
             {isVideo(img.mimeType, img.uri) ? (
-              <View
-                className="absolute bottom-3 left-3 p-1.5 rounded-full bg-black/50"
-              >
-                <MaterialIcons name='videocam' color='white' size={16} />
+              <View className="absolute bottom-3 left-3 p-1.5 rounded-full bg-black/50">
+                <MaterialIcons name="videocam" color="white" size={16} />
               </View>
             ) : null}
           </View>

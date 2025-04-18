@@ -1,6 +1,7 @@
-import colors from "tailwindcss/colors"
+import colors from 'tailwindcss/colors'
 
-export const buttonCN = 'text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full'
+export const buttonCN =
+  'text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full'
 export const optionStyle = (i: number) => ({
   padding: 12,
   borderTopWidth: i > 0 ? 1 : 0,

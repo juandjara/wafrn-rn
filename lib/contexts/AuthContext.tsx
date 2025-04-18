@@ -1,8 +1,14 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useMemo } from "react";
-import useAsyncStorage from "../useLocalStorage";
-import { UseMutateAsyncFunction } from "@tanstack/react-query";
-import { Environment, parseToken, useEnvironment } from "../api/auth";
-import { deleteItemAsync } from "expo-secure-store";
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react'
+import useAsyncStorage from '../useLocalStorage'
+import { UseMutateAsyncFunction } from '@tanstack/react-query'
+import { Environment, parseToken, useEnvironment } from '../api/auth'
+import { deleteItemAsync } from 'expo-secure-store'
 
 export enum UserRoles {
   Admin = 10,
@@ -15,10 +21,10 @@ export function useAdminCheck() {
 }
 
 type AuthContextData = {
-  token: string | null;
-  setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>;
-  isLoading: boolean;
-  env: Environment | null;
+  token: string | null
+  setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>
+  isLoading: boolean
+  env: Environment | null
 }
 
 const AuthContext = createContext<AuthContextData>({
@@ -26,7 +32,7 @@ const AuthContext = createContext<AuthContextData>({
   setToken: async () => {},
   isLoading: true,
   env: null,
-});
+})
 
 const AUTH_TOKEN_KEY = 'wafrn_token'
 
@@ -35,7 +41,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const {
     value: token,
     setValue: setToken,
-    loading: tokenLoading
+    loading: tokenLoading,
   } = useAsyncStorage<string>(AUTH_TOKEN_KEY)
   const context = useMemo(() => {
     const parsed = parseToken(token)
@@ -46,11 +52,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       isLoading: tokenLoading || envLoading,
     }
   }, [token, setToken, env, tokenLoading, envLoading])
-  return (
-    <AuthContext.Provider value={context}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

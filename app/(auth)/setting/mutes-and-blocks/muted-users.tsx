@@ -1,9 +1,9 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { useMutes } from "@/lib/api/blocks-and-mutes";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { useMutes } from '@/lib/api/blocks-and-mutes'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Image } from 'expo-image'
+import { Link } from 'expo-router'
+import { FlatList, Pressable, Text, View } from 'react-native'
 
 export default function MutedUsers() {
   const sx = useSafeAreaPadding()
@@ -34,9 +34,7 @@ export default function MutedUsers() {
           </Link>
         )}
         ListEmptyComponent={
-          <Text className="text-center text-white my-6">
-            No muted users
-          </Text>
+          <Text className="text-center text-white my-6">No muted users</Text>
         }
       />
     </View>

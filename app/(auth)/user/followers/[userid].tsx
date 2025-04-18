@@ -1,24 +1,35 @@
-import Header, { HEADER_HEIGHT } from "@/components/Header"
-import Loading from "@/components/Loading"
-import FollowRibbon from "@/components/user/FollowRibbon"
-import { useApproveFollowMutation, useDeleteFollowMutation, useFollowers } from "@/lib/api/user"
-import { useParsedToken } from "@/lib/contexts/AuthContext"
-import { timeAgo } from "@/lib/formatters"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
-import clsx from "clsx"
-import { router, useLocalSearchParams } from "expo-router"
-import { useMemo } from "react"
-import { Alert, FlatList, Pressable, Text, View } from "react-native"
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Loading from '@/components/Loading'
+import FollowRibbon from '@/components/user/FollowRibbon'
+import {
+  useApproveFollowMutation,
+  useDeleteFollowMutation,
+  useFollowers,
+} from '@/lib/api/user'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
+import { timeAgo } from '@/lib/formatters'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useMemo } from 'react'
+import { Alert, FlatList, Pressable, Text, View } from 'react-native'
 
 export default function Followers() {
   const me = useParsedToken()
   const sx = useSafeAreaPadding()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowers(userid as string)
-  const sorted = useMemo(() => data?.sort((a, b) => {
-    return new Date(b.follows.createdAt).getTime() - new Date(a.follows.createdAt).getTime()
-  }), [data])
+  const sorted = useMemo(
+    () =>
+      data?.sort((a, b) => {
+        return (
+          new Date(b.follows.createdAt).getTime() -
+          new Date(a.follows.createdAt).getTime()
+        )
+      }),
+    [data],
+  )
 
   const approveMutation = useApproveFollowMutation()
   const deleteMutation = useDeleteFollowMutation()
@@ -27,17 +38,26 @@ export default function Followers() {
     if (userid !== me?.url) {
       return
     }
-    Alert.alert('Delete follow', 'Are you sure you want to remove this user as your follower?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => {
-        deleteMutation.mutate(id)
-      } }
-    ], { cancelable: true })
+    Alert.alert(
+      'Delete follow',
+      'Are you sure you want to remove this user as your follower?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteMutation.mutate(id)
+          },
+        },
+      ],
+      { cancelable: true },
+    )
   }
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
-      <Header title='Followers' />
+      <Header title="Followers" />
       <FlatList
         data={sorted}
         onRefresh={refetch}
@@ -51,23 +71,31 @@ export default function Followers() {
             >
               <FollowRibbon follow={item} />
               <View className="absolute top-2 right-3">
-                <Text className="text-gray-300 text-xs font-medium">{timeAgo(item.follows.createdAt)}</Text>
+                <Text className="text-gray-300 text-xs font-medium">
+                  {timeAgo(item.follows.createdAt)}
+                </Text>
               </View>
               {userid === me?.url && (
                 <View className="flex-row gap-3 mt-6 m-3 ml-0">
                   <Pressable
                     onPress={() => approveMutation.mutate(item.id)}
-                    disabled={approveMutation.isPending || item.follows.accepted}
+                    disabled={
+                      approveMutation.isPending || item.follows.accepted
+                    }
                     className={clsx(
                       'bg-cyan-700/50',
                       { 'active:bg-cyan-700/75': !item.follows.accepted },
                       'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3',
-                      { 'opacity-50': item.follows.accepted }
+                      { 'opacity-50': item.follows.accepted },
                     )}
                   >
-                    <MaterialCommunityIcons name="check" size={20} color="white" />
+                    <MaterialCommunityIcons
+                      name="check"
+                      size={20}
+                      color="white"
+                    />
                     <Text className="text-white">
-                      {item.follows.accepted ? 'Accepted' : 'Accept'} 
+                      {item.follows.accepted ? 'Accepted' : 'Accept'}
                     </Text>
                   </Pressable>
                   <Pressable
@@ -75,7 +103,7 @@ export default function Followers() {
                     disabled={deleteMutation.isPending}
                     className={clsx(
                       'bg-red-700/50 active:bg-red-700/75',
-                      'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3'
+                      'w-full basis-1/2 px-3 py-2 rounded-lg flex-row items-center gap-3',
                     )}
                   >
                     <MaterialIcons name="delete" size={20} color="white" />

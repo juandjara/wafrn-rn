@@ -8,7 +8,7 @@ const markdownConverter = new Converter({
   strikethrough: true,
   simpleLineBreaks: true,
   openLinksInNewWindow: true,
-  emoji: true
+  emoji: true,
 })
 
 export function HTMLToMarkdown(content: string) {

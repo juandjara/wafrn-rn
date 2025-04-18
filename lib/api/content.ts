@@ -1,11 +1,20 @@
-import { DashboardContextData } from "../contexts/DashboardContext"
-import { Post, PostThread, PostUser } from "./posts.types"
-import { formatCachedUrl, formatMediaUrl } from "../formatters"
-import { EmojiBase } from "./emojis"
-import { isTriggerConfig, TriggersConfig, useMentions } from "react-native-more-controlled-mentions"
-import { getPrivateOptionValue, type PrivateOption, PrivateOptionNames, type Settings } from "./settings"
-import { PrivacyLevel } from "./privacy"
-import { Timestamps } from "./types"
+import { DashboardContextData } from '../contexts/DashboardContext'
+import { Post, PostThread, PostUser } from './posts.types'
+import { formatCachedUrl, formatMediaUrl } from '../formatters'
+import { EmojiBase } from './emojis'
+import {
+  isTriggerConfig,
+  TriggersConfig,
+  useMentions,
+} from 'react-native-more-controlled-mentions'
+import {
+  getPrivateOptionValue,
+  type PrivateOption,
+  PrivateOptionNames,
+  type Settings,
+} from './settings'
+import { PrivacyLevel } from './privacy'
+import { Timestamps } from './types'
 
 export const BSKY_URL = 'https://bsky.app'
 
@@ -40,7 +49,7 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
     const url = formatCachedUrl(formatMediaUrl(emoji.url))
     text = text.replaceAll(
       emoji.name,
-      `<img width="24" height="24" src="${url}" />`
+      `<img width="24" height="24" src="${url}" />`,
     )
   }
   return text
@@ -48,17 +57,23 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
 
 export function processPostContent(post: Post, context: DashboardContextData) {
   const content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
-  const ids = context.emojiRelations.postEmojiRelation
-    .filter((e) => e.postId === post.id)
-    .map((e) => e.emojiId) ?? []
-  const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  const ids =
+    context.emojiRelations.postEmojiRelation
+      .filter((e) => e.postId === post.id)
+      .map((e) => e.emojiId) ?? []
+  const emojis =
+    context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
   return replaceEmojis(content, emojis)
 }
 
 export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
   if (!user) return ''
-  const ids = context.emojiRelations.userEmojiRelation.filter((e) => e.userId === user.id).map((e) => e.emojiId) ?? []
-  const emojis = context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  const ids =
+    context.emojiRelations.userEmojiRelation
+      .filter((e) => e.userId === user.id)
+      .map((e) => e.emojiId) ?? []
+  const emojis =
+    context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
   return replaceEmojis(user.name, emojis)
 }
 
@@ -77,7 +92,7 @@ export function isUnicodeHeart(emoji: unknown) {
 
 export function getReactions(post: Post, context: DashboardContextData) {
   const emojis = Object.fromEntries(
-    context.emojiRelations.emojis.map((e) => [e.id, e])
+    context.emojiRelations.emojis.map((e) => [e.id, e]),
   )
   type Reaction = {
     id: string
@@ -97,7 +112,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
       reactions.push({
         id: `${r.emojiId}-${r.userId}`,
         user,
-        emoji
+        emoji,
       })
     }
   }
@@ -125,7 +140,7 @@ export function isValidURL(str: string) {
   }
 }
 
-const YT_HOSTS = ['youtube.com','youtu.be']
+const YT_HOSTS = ['youtube.com', 'youtu.be']
 export function isValidYTLink(href: string) {
   if (!isValidURL(href)) {
     return false
@@ -163,7 +178,7 @@ type MentionApi = ReturnType<typeof useMentions>
 
 export function clearSelectionRangeFormat(
   state: MentionApi['mentionState'],
-  selection: { start: number; end: number }
+  selection: { start: number; end: number },
 ) {
   const rangesWithFormat = state.parts.filter((part) => {
     const start = part.position.start
@@ -183,24 +198,36 @@ export function clearSelectionRangeFormat(
         }
       }
       return part
-    })
+    }),
   }
 }
 
-export function processContentWarning(post: Post, context: DashboardContextData, options: PrivateOption[]) {
-  const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
+export function processContentWarning(
+  post: Post,
+  context: DashboardContextData,
+  options: PrivateOption[],
+) {
+  const mutedWordsLine = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.MutedWords,
+  )
   const disableCW = getPrivateOptionValue(options, PrivateOptionNames.DisableCW)
 
   const medias = context.medias.filter((m) => m.postId === post.id)
-  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
-  const mutedWords = mutedWordsLine.split(',')
+  const tags = context.tags
+    .filter((t) => t.postId === post.id)
+    .map((t) => t.tagName)
+  const mutedWords = mutedWordsLine
+    .split(',')
     .map((w) => w.trim().toLocaleLowerCase())
     .filter((w) => w.length > 0)
 
   const filteredWords = mutedWords.filter((m) => {
     const contentCheck = post.content?.toLocaleLowerCase().includes(m)
     const tagsCheck = tags.some((t) => t.toLocaleLowerCase().includes(m))
-    const mediaCheck = medias.some((media) => media.description?.toLocaleLowerCase().includes(m))
+    const mediaCheck = medias.some((media) =>
+      media.description?.toLocaleLowerCase().includes(m),
+    )
     return contentCheck || tagsCheck || mediaCheck
   })
 
@@ -217,10 +244,13 @@ export function processContentWarning(post: Post, context: DashboardContextData,
   return { contentWarning, initialCWOpen }
 }
 
-export function getTextFromMentionState(mentionState: MentionApi['mentionState']) {
+export function getTextFromMentionState(
+  mentionState: MentionApi['mentionState'],
+) {
   let text = ''
   for (const part of mentionState.parts) {
-    const trigger = part.config && isTriggerConfig(part.config) && part.config.trigger
+    const trigger =
+      part.config && isTriggerConfig(part.config) && part.config.trigger
     if (trigger === '@') {
       text += part.data?.name || part.text
       continue
@@ -260,12 +290,12 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
       }
       const name = first.replace('[', '')
       const id = last.replace(')', '')
-      return ({
+      return {
         trigger: '@',
         original: match,
         name,
         id,
-      });
+      }
     },
     getTriggerValue: (suggestion) => `[${suggestion.name}](${suggestion.id})`,
     getPlainString: (triggerData) => triggerData.name,
@@ -279,12 +309,12 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
       color: 'deepskyblue',
     },
     getTriggerData: (match) => {
-      return ({
+      return {
         trigger: ':',
         original: match,
         name: match,
         id: match,
-      });
+      }
     },
     getTriggerValue: (suggestion) => suggestion.name,
     getPlainString: (triggerData) => triggerData.name,
@@ -297,13 +327,13 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
     },
     // How to parse regex match and get required for data for internal logic
     getTriggerData: (match) => {
-      const text = match.replace(/\*\*/g, '');
-      return ({
+      const text = match.replace(/\*\*/g, '')
+      return {
         original: match,
         trigger: '**',
         name: text,
         id: text,
-      });
+      }
     },
 
     // How to generate internal mention value from selected suggestion
@@ -322,17 +352,18 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
     getTriggerData: (match) => {
       const [first, last] = match.split('](')
       const color = first.replace('[fg=', '')
-      const text = last.replace(')', '');
-      return ({
+      const text = last.replace(')', '')
+      return {
         original: match,
         trigger: '#?',
         name: text,
         id: color,
-      });
+      }
     },
 
     // How to generate internal mention value from selected suggestion
-    getTriggerValue: (suggestion) => `[fg=${suggestion.id}](${suggestion.name})`,
+    getTriggerValue: (suggestion) =>
+      `[fg=${suggestion.id}](${suggestion.name})`,
 
     // How the highlighted mention will appear in TextInput for user
     getPlainString: (triggerData) => triggerData.name,
@@ -342,23 +373,30 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
     pattern: HTTP_LINK_REGEX,
     textStyle: {
       color: 'deepskyblue',
-      fontWeight: 'medium'
+      fontWeight: 'medium',
     },
     getTriggerData: (match) => {
-      return ({
+      return {
         trigger: 'http',
         original: match,
         name: match,
         id: match,
-      });
+      }
     },
     getTriggerValue: (suggestion) => suggestion.name,
     getPlainString: (triggerData) => triggerData.name,
   },
 }
 
-export function separateInlineMedias(post: Post, context: DashboardContextData, options: PrivateOption[]) {
-  const disableNSFWCloak = getPrivateOptionValue(options, PrivateOptionNames.DisableNSFWCloak)
+export function separateInlineMedias(
+  post: Post,
+  context: DashboardContextData,
+  options: PrivateOption[],
+) {
+  const disableNSFWCloak = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.DisableNSFWCloak,
+  )
   const medias = context.medias
     .filter((m) => m.postId === post.id)
     .map((m) => ({
@@ -411,11 +449,13 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   }
 
   if (likeUsers.length) {
-    return [{
-      id: `${post.id}-likes`,
-      emoji: '❤️' as any,
-      users: likeUsers,
-    }].concat(fullReactions)
+    return [
+      {
+        id: `${post.id}-likes`,
+        emoji: '❤️' as any,
+        users: likeUsers,
+      },
+    ].concat(fullReactions)
   }
 
   return fullReactions
@@ -437,28 +477,42 @@ export type DerivedPostData = ReturnType<typeof getDerivedPostState>
 export function getDerivedPostState(
   post: Post,
   context: DashboardContextData,
-  settings?: Settings
+  settings?: Settings,
 ) {
   const options = settings?.options || []
   const user = context.users.find((u) => u.id === post.userId)
-  const userName = replaceEmojis(user?.name || '', context.emojiRelations.emojis)
+  const userName = replaceEmojis(
+    user?.name || '',
+    context.emojiRelations.emojis,
+  )
   const postContent = processPostContent(post, context)
-  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => t.tagName)
+  const tags = context.tags
+    .filter((t) => t.postId === post.id)
+    .map((t) => t.tagName)
 
   // this processes the option "wafrn.disableNSFWCloak"
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)
-  
-  const quotedPostId = /* !isQuote &&  */ context.quotes.find((q) => q.quoterPostId === post.id)?.quotedPostId
-  const quotedPost = quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
+
+  const quotedPostId = /* !isQuote &&  */ context.quotes.find(
+    (q) => q.quoterPostId === post.id,
+  )?.quotedPostId
+  const quotedPost =
+    quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
   const ask = getAskData(post, context)
   const poll = context.polls.find((p) => p.postId === post.id)
   const reactions = groupPostReactions(post, context)
 
   // edition is considered if the post was updated more than 1 minute after it was created
-  const isEdited = new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() > (1000 * 60)
+  const isEdited =
+    new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() >
+    1000 * 60
 
   // this proccesses the options "wafrn.disableCW" and "wafrn.mutedWords"
-  const { contentWarning, initialCWOpen } = processContentWarning(post, context, options)
+  const { contentWarning, initialCWOpen } = processContentWarning(
+    post,
+    context,
+    options,
+  )
 
   return {
     user,
@@ -477,23 +531,27 @@ export function getDerivedPostState(
   }
 }
 
-export type DerivedThreadData = ReturnType<typeof getDerivedThreadState> 
+export type DerivedThreadData = ReturnType<typeof getDerivedThreadState>
 
-export function getDerivedThreadState(thread: Post | PostThread, context: DashboardContextData, settings?: Settings) {
+export function getDerivedThreadState(
+  thread: Post | PostThread,
+  context: DashboardContextData,
+  settings?: Settings,
+) {
   const isRewoot = isEmptyRewoot(thread, context)
   const isReply = !!thread.parentId && !isRewoot
   const postUser = context.users.find((u) => u.id === thread.userId)
   const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
 
-  const threadAncestorLimit = getPrivateOptionValue(settings?.options || [], PrivateOptionNames.ThreadAncestorLimit)
+  const threadAncestorLimit = getPrivateOptionValue(
+    settings?.options || [],
+    PrivateOptionNames.ThreadAncestorLimit,
+  )
 
   let ancestors = ((thread as PostThread).ancestors || []).sort(sortPosts)
   const ancestorLimitReached = ancestors.length >= threadAncestorLimit
   if (ancestorLimitReached) {
-    ancestors = [
-      ancestors[0],
-      ancestors[ancestors.length - 1]
-    ].filter(Boolean)
+    ancestors = [ancestors[0], ancestors[ancestors.length - 1]].filter(Boolean)
   }
 
   let interactionPost = thread as Post
@@ -520,6 +578,6 @@ export function getDerivedThreadState(thread: Post | PostThread, context: Dashbo
     interactionPost,
     postHidden,
     ancestors,
-    ancestorLimitReached
+    ancestorLimitReached,
   }
 }

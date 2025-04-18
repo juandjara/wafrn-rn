@@ -1,13 +1,21 @@
-import { Colors } from "@/constants/Colors"
-import { usePasswordChangeRequestMutation } from "@/lib/api/user"
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { Toasts } from "@backpackapp-io/react-native-toast"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { Image } from "expo-image"
-import { router, useLocalSearchParams } from "expo-router"
-import { useState } from "react"
-import { Button, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native"
-import { TextInput } from "react-native-gesture-handler"
+import { Colors } from '@/constants/Colors'
+import { usePasswordChangeRequestMutation } from '@/lib/api/user'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Toasts } from '@backpackapp-io/react-native-toast'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useState } from 'react'
+import {
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -24,7 +32,7 @@ export default function RecoverPassword() {
       className="flex-1 mx-4"
       style={{
         ...sx,
-        backgroundColor: Colors.dark.background
+        backgroundColor: Colors.dark.background,
       }}
     >
       <Toasts />
@@ -35,15 +43,25 @@ export default function RecoverPassword() {
         <ScrollView>
           <Image
             source={bigW}
-            style={{ marginTop: 48, width: 120, height: 120, alignSelf: 'center' }}
+            style={{
+              marginTop: 48,
+              width: 120,
+              height: 120,
+              alignSelf: 'center',
+            }}
           />
-          <Pressable className="flex-row items-center gap-3 mt-6" onPress={() => router.back()}>
+          <Pressable
+            className="flex-row items-center gap-3 mt-6"
+            onPress={() => router.back()}
+          >
             <View className="bg-black/30 rounded-full p-2">
-              <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
+              <MaterialCommunityIcons
+                name="arrow-left"
+                size={20}
+                color="white"
+              />
             </View>
-            <Text className="text-gray-200">
-              Back
-            </Text>
+            <Text className="text-gray-200">Back</Text>
           </Pressable>
           <Text className="font-semibold text-xl text-white mt-3">
             {origin === 'settings'
@@ -51,7 +69,8 @@ export default function RecoverPassword() {
               : `Don't worry! We forgot a lot of things too!`}
           </Text>
           <Text className="text-white mt-2 mb-3">
-            An email will be sent your direction with a link allowing you to change your password
+            An email will be sent your direction with a link allowing you to
+            change your password
           </Text>
           <TextInput
             inputMode="email"
@@ -67,7 +86,8 @@ export default function RecoverPassword() {
             onPress={() => mutation.mutate(email)}
           />
           <Text className="text-xs text-white mt-6 mb-12">
-            If you didn't have your password stored, you may consider using a password manager next time.
+            If you didn't have your password stored, you may consider using a
+            password manager next time.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

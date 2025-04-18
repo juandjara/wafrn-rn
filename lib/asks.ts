@@ -1,9 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PostAsk, PostUser } from "./api/posts.types";
-import { getJSON } from "./http";
-import { useAuth } from "./contexts/AuthContext";
-import { showToastError, showToastSuccess } from "./interaction";
-import { getEnvironmentStatic } from "./api/auth";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { PostAsk, PostUser } from './api/posts.types'
+import { getJSON } from './http'
+import { useAuth } from './contexts/AuthContext'
+import { showToastError, showToastSuccess } from './interaction'
+import { getEnvironmentStatic } from './api/auth'
 
 export type UserAsksData = {
   users: PostUser[]
@@ -12,26 +12,30 @@ export type UserAsksData = {
 
 export async function getAsks(token: string, answered: boolean) {
   const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/user/myAsks?answered=${answered ? 'true' : 'false'}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
+  const json = await getJSON(
+    `${env?.API_URL}/user/myAsks?answered=${answered ? 'true' : 'false'}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
   const data = json as UserAsksData
-  return data.asks
-    .map((ask) => {
-      const user = data.users.find(user => user.id === ask.userAsker) || {
+  return data.asks.map((ask) => {
+    const user =
+      data.users.find((user) => user.id === ask.userAsker) ||
+      ({
         id: '',
         name: '',
         url: '@anon',
         avatar: '',
         remoteId: null,
-      } as PostUser
-      return {
-        ...ask,
-        user
-      }
-    })
+      } as PostUser)
+    return {
+      ...ask,
+      user,
+    }
+  })
 }
 
 export function useAsks(answered: boolean) {
@@ -39,7 +43,7 @@ export function useAsks(answered: boolean) {
   return useQuery({
     queryKey: ['asks', answered],
     queryFn: () => getAsks(token!, answered),
-    enabled: !!token
+    enabled: !!token,
   })
 }
 
@@ -49,9 +53,9 @@ async function deleteAsk(token: string, askId: number) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ id: askId })
+    body: JSON.stringify({ id: askId }),
   })
 }
 
@@ -70,9 +74,11 @@ export function useDeleteAskMutation() {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === 'asks' || query.queryKey[0] === 'notificationsBadge'
+        predicate: (query) =>
+          query.queryKey[0] === 'asks' ||
+          query.queryKey[0] === 'notificationsBadge',
       })
-    }
+    },
   })
 }
 
@@ -89,9 +95,9 @@ async function ask(token: string, payload: Omit<AskPayload, 'anonymous'>) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : ''
+      Authorization: token ? `Bearer ${token}` : '',
     },
-    body: JSON.stringify({ question: payload.question })
+    body: JSON.stringify({ question: payload.question }),
   })
 }
 
@@ -112,8 +118,10 @@ export function useAskMutation() {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === 'asks' || query.queryKey[0] === 'notificationsBadge'
+        predicate: (query) =>
+          query.queryKey[0] === 'asks' ||
+          query.queryKey[0] === 'notificationsBadge',
       })
-    }
+    },
   })
 }

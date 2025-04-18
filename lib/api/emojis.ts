@@ -1,9 +1,13 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "../contexts/AuthContext"
-import { getJSON } from "../http"
-import { invalidatePostQueries, showToastError, showToastSuccess } from "../interaction"
-import { Post } from "./posts.types"
-import { getEnvironmentStatic } from "./auth"
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../contexts/AuthContext'
+import { getJSON } from '../http'
+import {
+  invalidatePostQueries,
+  showToastError,
+  showToastSuccess,
+} from '../interaction'
+import { Post } from './posts.types'
+import { getEnvironmentStatic } from './auth'
 
 export type EmojiBase = {
   external: boolean
@@ -26,14 +30,17 @@ type EmojiReactPayload = {
   emojiName: string
 }
 
-export async function emojiReact(token: string, { post, emojiName }: EmojiReactPayload) {
+export async function emojiReact(
+  token: string,
+  { post, emojiName }: EmojiReactPayload,
+) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/emojiReact`, {
     method: 'POST',
     body: JSON.stringify({ postId: post.id, emojiName }),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   })
 }
@@ -53,6 +60,6 @@ export function useEmojiReactMutation(post: Post) {
       showToastSuccess(`Reaction sent`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post)
+    onSettled: () => invalidatePostQueries(qc, post),
   })
 }

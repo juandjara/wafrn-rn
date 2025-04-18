@@ -1,12 +1,18 @@
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
-import { router, useLocalSearchParams } from "expo-router"
-import { useEffect, useState } from "react"
-import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from "react-native"
-import colors from "tailwindcss/colors"
-import SearchResults from "@/components/search/SearchResults"
-import SearchIndex from "@/components/search/SearchIndex"
-import useAsyncStorage from "@/lib/useLocalStorage"
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { router, useLocalSearchParams } from 'expo-router'
+import { useEffect, useState } from 'react'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import colors from 'tailwindcss/colors'
+import SearchResults from '@/components/search/SearchResults'
+import SearchIndex from '@/components/search/SearchIndex'
+import useAsyncStorage from '@/lib/useLocalStorage'
 
 const HISTORY_LIMIT = 20
 
@@ -17,7 +23,7 @@ export default function Search() {
   const {
     value: recent,
     setValue: setRecent,
-    loading: loadingRecent
+    loading: loadingRecent,
   } = useAsyncStorage<string[]>('searchHistory', [])
 
   useEffect(() => {
@@ -37,7 +43,7 @@ export default function Search() {
     router.navigate('/search')
   }
 
-  return (    
+  return (
     <KeyboardAvoidingView
       style={{ marginTop: sx.paddingTop, flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -74,11 +80,7 @@ export default function Search() {
         </TouchableOpacity>
       </View>
       <View className="flex-1">
-        {q ? (
-          <SearchResults query={q} />
-        ) : (
-          <SearchIndex onSearch={search} />
-        )}
+        {q ? <SearchResults query={q} /> : <SearchIndex onSearch={search} />}
       </View>
     </KeyboardAvoidingView>
   )

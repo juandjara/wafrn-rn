@@ -1,21 +1,31 @@
-import { useUserSearch } from "@/lib/api/search"
-import { useSettings } from "@/lib/api/settings"
-import { getUnicodeEmojiGroups } from "@/lib/emojis"
-import useDebounce from "@/lib/useDebounce"
-import { useMemo } from "react"
-import { Emoji } from "../EmojiPicker"
-import { SuggestionsProvidedProps } from "react-native-more-controlled-mentions"
-import { Pressable, Text, View } from "react-native"
-import { PostUser } from "@/lib/api/posts.types"
-import { Image } from "expo-image"
-import { formatCachedUrl, formatMediaUrl, formatSmallAvatar, formatUserUrl } from "@/lib/formatters"
+import { useUserSearch } from '@/lib/api/search'
+import { useSettings } from '@/lib/api/settings'
+import { getUnicodeEmojiGroups } from '@/lib/emojis'
+import useDebounce from '@/lib/useDebounce'
+import { useMemo } from 'react'
+import { Emoji } from '../EmojiPicker'
+import { SuggestionsProvidedProps } from 'react-native-more-controlled-mentions'
+import { Pressable, Text, View } from 'react-native'
+import { PostUser } from '@/lib/api/posts.types'
+import { Image } from 'expo-image'
+import {
+  formatCachedUrl,
+  formatMediaUrl,
+  formatSmallAvatar,
+  formatUserUrl,
+} from '@/lib/formatters'
 
 const SUGGESTION_DEBOUNCE_TIME = 300 // ms
 const ucGroups = getUnicodeEmojiGroups()
 
-function useSuggestions(keyword: string | undefined, type: 'mention' | 'emoji') {
+function useSuggestions(
+  keyword: string | undefined,
+  type: 'mention' | 'emoji',
+) {
   const debouncedKeyword = useDebounce(keyword, SUGGESTION_DEBOUNCE_TIME)
-  const { data: users, isLoading: usersLoading } = useUserSearch(debouncedKeyword || '')
+  const { data: users, isLoading: usersLoading } = useUserSearch(
+    debouncedKeyword || '',
+  )
   const { data: settings, isLoading: settingsLoading } = useSettings()
 
   const emojis = useMemo(() => {
@@ -34,7 +44,7 @@ function useSuggestions(keyword: string | undefined, type: 'mention' | 'emoji') 
       })
       .slice(0, 100)
   }, [settings, debouncedKeyword, type])
-  
+
   let data = null
   let isLoading = false
   if (debouncedKeyword) {
@@ -64,21 +74,25 @@ export default function EditorSuggestions({
   }
 
   if (!data) return null
-  
+
   if (!data.length) {
     return <Text className="text-white p-2">No suggestions found</Text>
   }
 
   return (
     <View>
-      {data.map(s => (
+      {data.map((s) => (
         <SuggestionItem key={s.id} onSelect={onSelect} type={type} item={s} />
       ))}
     </View>
   )
 }
 
-function SuggestionItem({ item, type, onSelect }: {
+function SuggestionItem({
+  item,
+  type,
+  onSelect,
+}: {
   item: Emoji | PostUser
   type: 'mention' | 'emoji'
   onSelect: (item: Emoji | PostUser) => void
@@ -87,18 +101,25 @@ function SuggestionItem({ item, type, onSelect }: {
     const emoji = item as Emoji
     return (
       <Pressable
-        className='p-2 flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600'
-        onPress={() => onSelect({ ...emoji, name: emoji.name.includes(':') ? emoji.name : emoji.content || emoji.name })}
+        className="p-2 flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600"
+        onPress={() =>
+          onSelect({
+            ...emoji,
+            name: emoji.name.includes(':')
+              ? emoji.name
+              : emoji.content || emoji.name,
+          })
+        }
       >
         {emoji.content ? (
-          <Text className='text-2xl'>{emoji.content}</Text>
+          <Text className="text-2xl">{emoji.content}</Text>
         ) : (
           <Image
             source={{ uri: formatCachedUrl(formatMediaUrl(emoji.url)) }}
             style={{ resizeMode: 'contain', width: 32, height: 32 }}
           />
         )}
-        <Text className='text-white'>{emoji.name}</Text>
+        <Text className="text-white">{emoji.name}</Text>
       </Pressable>
     )
   }

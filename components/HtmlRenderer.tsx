@@ -29,46 +29,46 @@ import { Image } from 'expo-image'
 const LINK_TAG = 'a'
 const IMG_TAG = 'img'
 const TAG_STYLES = {
-  'p': {
+  p: {
     marginBottom: 8,
   },
-  'strong': {
+  strong: {
     fontWeight: 'bold',
   },
-  'em': {
+  em: {
     fontStyle: 'italic',
   },
-  'u': {
+  u: {
     textDecorationLine: 'underline',
   },
-  'i': {
+  i: {
     fontStyle: 'italic',
   },
-  'b': {
+  b: {
     fontWeight: 'bold',
   },
-  'del': {
+  del: {
     textDecorationLine: 'line-through',
   },
-  'code': {
+  code: {
     fontFamily: 'monospace',
   },
-  'var': {
+  var: {
     fontFamily: 'monospace',
   },
-  'samp': {
+  samp: {
     fontFamily: 'monospace',
   },
-  'kbd': {
+  kbd: {
     fontFamily: 'monospace',
   },
-  'br': {
+  br: {
     height: 8,
   },
-  'text': {
+  text: {
     color: 'white',
   },
-  'a': {
+  a: {
     color: 'blue',
     textDecorationLine: 'underline',
   },
@@ -76,12 +76,12 @@ const TAG_STYLES = {
 
 type DomNode = ReturnType<typeof parseDocument>['children'][0]
 type DataNode = DomNode & { data: string }
-type ElementNode = DomNode & { 
+type ElementNode = DomNode & {
   children: DomNode[]
-  name: string;
+  name: string
   attribs: {
-    [name: string]: string;
-  };
+    [name: string]: string
+  }
 }
 /**
 This renderer is only used for simple inline html rendering
@@ -95,10 +95,10 @@ export default HtmlRenderer
 function _HtmlRenderer({
   html,
   color,
-  renderTextRoot
+  renderTextRoot,
 }: {
-  html: string;
-  color?: string;
+  html: string
+  color?: string
   renderTextRoot?: boolean
 }) {
   if (!html) {
@@ -106,11 +106,7 @@ function _HtmlRenderer({
   }
   const document = parseDocument(html)
   const children = document.children.map((n, i) => renderNode(n, i, color))
-  return renderTextRoot ? (
-    <>{children}</>
-  ) : (
-    <View>{children}</View>
-  )
+  return renderTextRoot ? <>{children}</> : <View>{children}</View>
 }
 
 function renderNode(node: DomNode, index: number, color?: string) {
@@ -126,9 +122,13 @@ function renderNode(node: DomNode, index: number, color?: string) {
 function renderTextNode(node: DataNode, index: number, color?: string) {
   const style = {
     ...TAG_STYLES.text,
-    color: color || (TAG_STYLES.text as TextStyle).color
+    color: color || (TAG_STYLES.text as TextStyle).color,
   }
-  return <Text style={style} key={index}>{node.data}</Text>
+  return (
+    <Text style={style} key={index}>
+      {node.data}
+    </Text>
+  )
 }
 function renderElement(node: ElementNode, index: number, color?: string) {
   if (node.name === LINK_TAG) {
@@ -146,7 +146,11 @@ function renderElement(node: ElementNode, index: number, color?: string) {
     }
     return (
       <Image
-        style={{ width: Number(width), height: Number(height), resizeMode: 'contain' }}
+        style={{
+          width: Number(width),
+          height: Number(height),
+          resizeMode: 'contain',
+        }}
         key={index}
         source={src}
       />
@@ -161,20 +165,23 @@ function renderElement(node: ElementNode, index: number, color?: string) {
   }
   if (node.name === 'blockquote') {
     return (
-      <View key={index} className='border-l border-gray-300 py-1 ml-8 my-2 pl-4'>
+      <View
+        key={index}
+        className="border-l border-gray-300 py-1 ml-8 my-2 pl-4"
+      >
         {node.children.map((c, i) => renderNode(c, i, color))}
       </View>
     )
   }
   if (node.name === 'br') {
     return (
-      <View key={index} className='flex-grow'>
+      <View key={index} className="flex-grow">
         {/* <Text className='bg-white'>BR</Text> */}
       </View>
     )
   }
   return (
-    <View className='flex-row flex-wrap flex-1' key={index}>
+    <View className="flex-row flex-wrap flex-1" key={index}>
       {node.children.map((c, i) => renderNode(c, i, color))}
     </View>
   )

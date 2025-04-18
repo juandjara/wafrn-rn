@@ -1,6 +1,6 @@
-import dayjs from "dayjs"
+import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { getEnvironmentStatic } from "./api/auth"
+import { getEnvironmentStatic } from './api/auth'
 
 dayjs.extend(relativeTime)
 
@@ -23,10 +23,10 @@ export function formatMediaUrl(url?: string) {
   }
 
   const env = getEnvironmentStatic()
-  if (url.startsWith("http")) {
+  if (url.startsWith('http')) {
     return url
   }
-  if (url.startsWith("?")) {
+  if (url.startsWith('?')) {
     return url
   }
   return `${env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
@@ -49,12 +49,13 @@ export function formatUserUrl(user?: { url: string }) {
   if (!user?.url) {
     return ''
   }
-  return user.url.startsWith("@") ? user.url : `@${user.url}`
+  return user.url.startsWith('@') ? user.url : `@${user.url}`
 }
 
 export function timeAgo(date: string) {
   const day = dayjs(new Date(date))
-  const timeAgo = day.fromNow()
+  const timeAgo = day
+    .fromNow()
     .replace(/ years?/, 'y')
     .replace(/ months?/, 'mo')
     .replace(/ days?/, 'd')

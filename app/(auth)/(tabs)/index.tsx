@@ -1,14 +1,16 @@
-import Dashboard from "@/components/dashboard/Dashboard";
-import { DashboardMode } from "@/lib/api/dashboard";
-import { useCallback, useMemo, useRef, useState } from "react";
-import UserMenu from "@/components/dashboard/UserMenu";
-import DashboardModeMenu, { PublicDashboardMode } from "@/components/dashboard/DashboardModeMenu";
-import PagerView from "react-native-pager-view";
-import { NativeSyntheticEvent, StyleSheet, View } from "react-native";
-import Header from "@/components/Header";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { OnPageScrollEventData } from "react-native-pager-view/lib/typescript/specs/PagerViewNativeComponent";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import Dashboard from '@/components/dashboard/Dashboard'
+import { DashboardMode } from '@/lib/api/dashboard'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import UserMenu from '@/components/dashboard/UserMenu'
+import DashboardModeMenu, {
+  PublicDashboardMode,
+} from '@/components/dashboard/DashboardModeMenu'
+import PagerView from 'react-native-pager-view'
+import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
+import Header from '@/components/Header'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { OnPageScrollEventData } from 'react-native-pager-view/lib/typescript/specs/PagerViewNativeComponent'
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 
 const MODES = [
   DashboardMode.FEED,
@@ -35,15 +37,22 @@ export default function Index() {
     ))
   }, [bottomTabBarHeight])
 
-  const onPageScroll = useCallback((ev: NativeSyntheticEvent<OnPageScrollEventData>) => {
-    const index = ev.nativeEvent.position
-    setMode(MODES[index])
-  }, [])
+  const onPageScroll = useCallback(
+    (ev: NativeSyntheticEvent<OnPageScrollEventData>) => {
+      const index = ev.nativeEvent.position
+      setMode(MODES[index])
+    },
+    [],
+  )
 
-  const styles = useMemo(() => StyleSheet.create({
-    flex: { flex: 1 },
-    root: { flex: 1, paddingTop: sx.paddingTop + 60 }
-  }), [sx.paddingTop])
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        flex: { flex: 1 },
+        root: { flex: 1, paddingTop: sx.paddingTop + 60 },
+      }),
+    [sx.paddingTop],
+  )
 
   return (
     <View style={styles.root}>

@@ -1,16 +1,20 @@
-import { PostUser } from "@/lib/api/posts.types"
-import { PrivacyLevel } from "@/lib/api/privacy"
-import useDebounce from "@/lib/useDebounce"
-import { MaterialIcons } from "@expo/vector-icons"
-import { useLocalSearchParams } from "expo-router"
-import { useMemo } from "react"
-import { Text, TextInput, View } from "react-native"
-import { generateValueFromMentionStateAndChangedText, Suggestion, useMentions } from "react-native-more-controlled-mentions"
-import colors from "tailwindcss/colors"
-import EditorSuggestions from "./EditorSuggestions"
-import { EditorImage } from "./EditorImages"
-import { clearSelectionRangeFormat, MENTION_REGEX } from "@/lib/api/content"
-import { useAuth } from "@/lib/contexts/AuthContext"
+import { PostUser } from '@/lib/api/posts.types'
+import { PrivacyLevel } from '@/lib/api/privacy'
+import useDebounce from '@/lib/useDebounce'
+import { MaterialIcons } from '@expo/vector-icons'
+import { useLocalSearchParams } from 'expo-router'
+import { useMemo } from 'react'
+import { Text, TextInput, View } from 'react-native'
+import {
+  generateValueFromMentionStateAndChangedText,
+  Suggestion,
+  useMentions,
+} from 'react-native-more-controlled-mentions'
+import colors from 'tailwindcss/colors'
+import EditorSuggestions from './EditorSuggestions'
+import { EditorImage } from './EditorImages'
+import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
+import { useAuth } from '@/lib/contexts/AuthContext'
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -26,7 +30,10 @@ export type EditorFormState = {
 type Selection = { start: number; end: number }
 type EditorProps = MentionApi & {
   formState: EditorFormState
-  updateFormState: (key: keyof EditorFormState, value: EditorFormState[keyof EditorFormState]) => void
+  updateFormState: (
+    key: keyof EditorFormState,
+    value: EditorFormState[keyof EditorFormState],
+  ) => void
   selection: Selection
   mentionState: MentionApi['mentionState']
   showTags?: boolean
@@ -45,12 +52,15 @@ export default function EditorInput({
 }: EditorProps) {
   const { env } = useAuth()
   const tagsLine = formState.tags
-  const parsedTags = tagsLine.split(',').map((t) => t.trim()).filter(Boolean)
+  const parsedTags = tagsLine
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
   const { type } = useLocalSearchParams<{ type: 'reply' | 'ask' | 'quote' }>()
   const placeholderTypeMap = {
-    'reply': 'Write your reply',
-    'ask': 'Write your answer',
-    'quote': 'Write your quote',
+    reply: 'Write your reply',
+    ask: 'Write your answer',
+    quote: 'Write your quote',
   }
   const placeholder = type ? placeholderTypeMap[type] : 'How are you feeling?'
 
@@ -61,7 +71,7 @@ export default function EditorInput({
     const MAX_CHARACTER_LOOKUP = 300
     const textBeforeCursor = debouncedText.substring(
       Math.max(0, debouncedSelectionStart - MAX_CHARACTER_LOOKUP),
-      debouncedSelectionStart
+      debouncedSelectionStart,
     )
     const regex = new RegExp(MENTION_REGEX.source + '$', 'gi')
     const match = textBeforeCursor.match(regex)
@@ -71,30 +81,29 @@ export default function EditorInput({
 
   function selectMentionUser(data: Suggestion) {
     const id = (data as PostUser).id
-    const remoteId = (data as PostUser).remoteId || `${env?.BASE_URL}/blog/${(data as PostUser).url}`
+    const remoteId =
+      (data as PostUser).remoteId ||
+      `${env?.BASE_URL}/blog/${(data as PostUser).url}`
     const newText = mentionState.plainText.replace(
       `@${debouncedMentionKeyword}`,
-      `[${data.name}](${remoteId}?id=${id}) `
+      `[${data.name}](${remoteId}?id=${id}) `,
     )
     updateFormState(
       'content',
       generateValueFromMentionStateAndChangedText(
         clearSelectionRangeFormat(mentionState, selection),
-        newText
-      )
+        newText,
+      ),
     )
   }
 
   return (
-    <View
-      id="editor"
-      className="border border-gray-600 rounded-lg mx-2"
-    >
+    <View id="editor" className="border border-gray-600 rounded-lg mx-2">
       {formState.contentWarningOpen && (
         <View className="border border-yellow-500 pl-8 rounded-md m-0.5">
           <MaterialIcons
             className="absolute left-2 top-2"
-            name='warning-amber'
+            name="warning-amber"
             color={colors.yellow[500]}
             size={24}
           />
@@ -124,9 +133,9 @@ export default function EditorInput({
       <EditorSuggestions
         onSelect={selectMentionUser}
         keyword={debouncedMentionKeyword}
-        type='mention'
+        type="mention"
       />
-      <EditorSuggestions {...triggers.emoji} type='emoji' />
+      <EditorSuggestions {...triggers.emoji} type="emoji" />
       {showTags && (
         <View className="overflow-hidden border-t border-gray-600">
           <TextInput
@@ -140,7 +149,12 @@ export default function EditorInput({
           {parsedTags.length > 0 && (
             <View className="flex-row flex-wrap items-center gap-2 p-2">
               {parsedTags.map((tag) => (
-                <Text key={tag} className="bg-gray-600 px-1 rounded-lg text-white">#{tag}</Text>
+                <Text
+                  key={tag}
+                  className="bg-gray-600 px-1 rounded-lg text-white"
+                >
+                  #{tag}
+                </Text>
               ))}
             </View>
           )}

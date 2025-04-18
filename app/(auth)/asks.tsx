@@ -1,14 +1,14 @@
-import GenericRibbon from "@/components/GenericRibbon";
-import Header, { HEADER_HEIGHT } from "@/components/Header";
-import { useAsks, useDeleteAskMutation } from "@/lib/asks";
-import { timeAgo } from "@/lib/formatters";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import clsx from "clsx";
-import { Link } from "expo-router";
-import { useRef, useState } from "react";
-import { FlatList, Pressable, Text, TouchableOpacity, View } from "react-native";
-import PagerView from "react-native-pager-view";
+import GenericRibbon from '@/components/GenericRibbon'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
+import { useAsks, useDeleteAskMutation } from '@/lib/asks'
+import { timeAgo } from '@/lib/formatters'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import clsx from 'clsx'
+import { Link } from 'expo-router'
+import { useRef, useState } from 'react'
+import { FlatList, Pressable, Text, TouchableOpacity, View } from 'react-native'
+import PagerView from 'react-native-pager-view'
 
 export default function Asks() {
   const sx = useSafeAreaPadding()
@@ -22,7 +22,7 @@ export default function Asks() {
         <TouchableOpacity
           onPress={() => pagerRef.current?.setPage(0)}
           className={clsx('basis-1/2 p-3 border-b', {
-            'border-white': page === 0
+            'border-white': page === 0,
           })}
         >
           <Text className="text-white text-center">Not answered</Text>
@@ -30,7 +30,7 @@ export default function Asks() {
         <TouchableOpacity
           onPress={() => pagerRef.current?.setPage(1)}
           className={clsx('basis-1/2 p-3 border-b', {
-            'border-white': page === 1
+            'border-white': page === 1,
           })}
         >
           <Text className="text-white text-center">Answered</Text>
@@ -61,22 +61,38 @@ function AskList({ answered }: { answered: boolean }) {
 
   const deleteAskMutation = useDeleteAskMutation()
 
-  function renderItem({ item: ask }: { item: NonNullable<typeof data>[number] }) {
+  function renderItem({
+    item: ask,
+  }: {
+    item: NonNullable<typeof data>[number]
+  }) {
     return (
-      <View className={clsx(
-        'bg-blue-950 mb-4 relative',
-        { 'opacity-50': deleteAskMutation.isPending }
-      )}>
+      <View
+        className={clsx('bg-blue-950 mb-4 relative', {
+          'opacity-50': deleteAskMutation.isPending,
+        })}
+      >
         <GenericRibbon
           label="asked"
           user={ask.user}
-          userNameHTML={ask.user.url.startsWith('@') ? ask.user.url : `@${ask.user.url}`}
+          userNameHTML={
+            ask.user.url.startsWith('@') ? ask.user.url : `@${ask.user.url}`
+          }
           link={ask.user.url === '@anon' ? '' : `/user/${ask.user.url}`}
-          icon={<MaterialCommunityIcons className="mx-1" name="chat-question" size={24} color="white" />}
+          icon={
+            <MaterialCommunityIcons
+              className="mx-1"
+              name="chat-question"
+              size={24}
+              color="white"
+            />
+          }
           className="border-b border-slate-600"
         />
         <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
-          <Text className="text-gray-300 text-xs">{timeAgo(ask.createdAt)}</Text>
+          <Text className="text-gray-300 text-xs">
+            {timeAgo(ask.createdAt)}
+          </Text>
         </View>
         <Text className="text-lg text-white p-3">{ask.question}</Text>
         <View className="flex-row gap-3 p-3 mt-3">
@@ -97,7 +113,11 @@ function AskList({ answered }: { answered: boolean }) {
                   disabled={deleteAskMutation.isPending}
                   className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
                 >
-                  <MaterialCommunityIcons name="pencil" size={20} color="white" />
+                  <MaterialCommunityIcons
+                    name="pencil"
+                    size={20}
+                    color="white"
+                  />
                   <Text className="text-white">Answer</Text>
                 </Pressable>
               </Link>
@@ -122,7 +142,7 @@ function AskList({ answered }: { answered: boolean }) {
       style={{ flex: 1 }}
       onRefresh={refetch}
       refreshing={isFetching}
-      keyExtractor={item => String(item.id)}
+      keyExtractor={(item) => String(item.id)}
       renderItem={renderItem}
     />
   )

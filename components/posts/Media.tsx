@@ -1,15 +1,20 @@
-import { PostMedia } from "@/lib/api/posts.types";
-import { formatCachedUrl, formatMediaUrl } from "@/lib/formatters";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { getAspectRatio, isAudio, isImage, isVideo } from "@/lib/api/media";
-import ZoomableImage from "./ZoomableImage";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import MediaCloak from "./MediaCloak";
-import Video from "../Video";
-import { useState } from "react";
+import { PostMedia } from '@/lib/api/posts.types'
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { Pressable, ScrollView, Text, View } from 'react-native'
+import { getAspectRatio, isAudio, isImage, isVideo } from '@/lib/api/media'
+import ZoomableImage from './ZoomableImage'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Link } from 'expo-router'
+import MediaCloak from './MediaCloak'
+import Video from '../Video'
+import { useState } from 'react'
+import LinkPreviewCard from './LinkPreviewCard'
 
-export default function Media({ media, contentWidth, userUrl }: {
+export default function Media({
+  media,
+  contentWidth,
+  userUrl,
+}: {
   media: PostMedia
   contentWidth: number
   userUrl?: string
@@ -45,17 +50,19 @@ export default function Media({ media, contentWidth, userUrl }: {
       </View>
     )
   } else if (isImage(mime, src)) {
-    content = (<ZoomableImage
-      id={media.id}
-      src={src}
-      mimeType={mime}
-      width={contentWidth}
-      height={height}
-      contentFit="cover"
-      className="max-w-full"
-      alt={media.description}
-      blurHash={media.blurhash || ''}
-    />)
+    content = (
+      <ZoomableImage
+        id={media.id}
+        src={src}
+        mimeType={mime}
+        width={contentWidth}
+        height={height}
+        contentFit="cover"
+        className="max-w-full"
+        alt={media.description}
+        blurHash={media.blurhash || ''}
+      />
+    )
   } else {
     content = (
       <View className="flex-row gap-2">
@@ -68,9 +75,15 @@ export default function Media({ media, contentWidth, userUrl }: {
         <Link
           href={media.url}
           className="text-cyan-400 my-2 flex-grow flex-shrink"
-        >{media.url}</Link>
+        >
+          {media.url}
+        </Link>
       </View>
     )
+  }
+
+  if (mime === 'text/html') {
+    return <LinkPreviewCard media={media} />
   }
 
   return (
@@ -81,20 +94,24 @@ export default function Media({ media, contentWidth, userUrl }: {
         backgroundImage={{
           src,
           width: contentWidth,
-          aspectRatio
+          aspectRatio,
         }}
       >
         {content}
       </MediaCloak>
       <Pressable
-        onPress={() => setShowAlt(prev => !prev)}
+        onPress={() => setShowAlt((prev) => !prev)}
         className="absolute top-0 left-0 rounded-br-md bg-indigo-950/75 p-2"
       >
         <Text className="text-white text-xs font-semibold">ALT</Text>
       </Pressable>
       {showAlt && (
         <View
-          style={{ maxHeight: '50%', paddingBottom: 4, backgroundColor: 'rgba(0,0,0,0.75)' }}
+          style={{
+            maxHeight: '50%',
+            paddingBottom: 4,
+            backgroundColor: 'rgba(0,0,0,0.75)',
+          }}
           className="absolute z-10 bottom-0 left-0 right-0 py-2 px-3"
         >
           <ScrollView>

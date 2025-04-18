@@ -1,10 +1,10 @@
-import { Colors, getRootStyles } from "@/constants/Colors"
-import { useNotificationBadges } from "@/lib/notifications"
-import { usePushNotifications } from "@/lib/push-notifications"
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
-import { Tabs } from "expo-router"
-import { useColorScheme } from "react-native"
-import colors from "tailwindcss/colors"
+import { Colors, getRootStyles } from '@/constants/Colors'
+import { useNotificationBadges } from '@/lib/notifications'
+import { usePushNotifications } from '@/lib/push-notifications'
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { Tabs } from 'expo-router'
+import { useColorScheme } from 'react-native'
+import colors from 'tailwindcss/colors'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -19,31 +19,39 @@ export default function TabsLayout() {
   usePushNotifications()
 
   return (
-    <Tabs screenOptions={{
-      ...rootStyles,
-      headerShown: false,
-      headerStyle: {
-        backgroundColor: Colors.dark.background,
-      },
-      tabBarStyle: {
-        backgroundColor: colors.blue[950],
-      },
-      tabBarInactiveTintColor: colors.indigo[300],
-      tabBarActiveTintColor: colors.gray[200],
-      tabBarInactiveBackgroundColor: colors.blue[950],
-      tabBarActiveBackgroundColor: colors.blue[950],
-      tabBarLabelStyle: {
-        fontWeight: 'bold',
-      },
-      freezeOnBlur: true,
-      lazy: true,
-    }}>
+    <Tabs
+      screenOptions={{
+        ...rootStyles,
+        headerShown: false,
+        headerStyle: {
+          backgroundColor: Colors.dark.background,
+        },
+        tabBarStyle: {
+          backgroundColor: colors.blue[950],
+        },
+        tabBarInactiveTintColor: colors.indigo[300],
+        tabBarActiveTintColor: colors.gray[200],
+        tabBarInactiveBackgroundColor: colors.blue[950],
+        tabBarActiveBackgroundColor: colors.blue[950],
+        tabBarLabelStyle: {
+          fontWeight: 'bold',
+        },
+        freezeOnBlur: true,
+        lazy: true,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           href: '/',
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home-variant" size={size} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="home-variant"
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -51,7 +59,9 @@ export default function TabsLayout() {
         options={{
           href: '/search',
           title: 'Search',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="magnify" size={size} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="magnify" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -64,7 +74,13 @@ export default function TabsLayout() {
             backgroundColor: colors.cyan[600],
             color: colors.white,
           },
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="bell-outline"
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -72,7 +88,9 @@ export default function TabsLayout() {
         options={{
           href: '/messages',
           title: 'Messages',
-          tabBarIcon: ({ color, size }) => <FontAwesome name="envelope-o" size={size} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="envelope-o" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

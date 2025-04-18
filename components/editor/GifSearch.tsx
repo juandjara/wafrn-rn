@@ -1,14 +1,22 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { FlatList, Modal, Platform, Pressable, TextInput, TouchableOpacity, View } from "react-native";
-import colors from "tailwindcss/colors";
-import Tenor from "tenor-gif-api";
-import Loading from "../Loading";
-import { Image } from "expo-image";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { downloadFile } from "@/lib/downloads";
-import { EditorImage } from "./EditorImages";
+import { MaterialIcons } from '@expo/vector-icons'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import {
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import colors from 'tailwindcss/colors'
+import Tenor from 'tenor-gif-api'
+import Loading from '../Loading'
+import { Image } from 'expo-image'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { downloadFile } from '@/lib/downloads'
+import { EditorImage } from './EditorImages'
 
 const TenorClient = new Tenor(process.env.EXPO_PUBLIC_TENOR_KEY)
 
@@ -20,7 +28,22 @@ type GifMediaFormat = {
   url: string
 }
 
-type MediaFormatKey = 'gif' | 'gifpreview' | 'loopedmp4' | 'mediumgif' | 'mp4' | 'nanogif' | 'nanogifpreview' | 'nanomp4' | 'nanowebm' | 'tinygif' | 'tinygifpreview' | 'tinymp4' | 'tinywebm' | 'webm' | 'webp'
+type MediaFormatKey =
+  | 'gif'
+  | 'gifpreview'
+  | 'loopedmp4'
+  | 'mediumgif'
+  | 'mp4'
+  | 'nanogif'
+  | 'nanogifpreview'
+  | 'nanomp4'
+  | 'nanowebm'
+  | 'tinygif'
+  | 'tinygifpreview'
+  | 'tinymp4'
+  | 'tinywebm'
+  | 'webm'
+  | 'webp'
 
 type GifResponse = {
   id: string
@@ -36,7 +59,11 @@ type GifResponse = {
   url: string
 }
 
-export default function GifSearch({ open, onClose, onSelect }: {
+export default function GifSearch({
+  open,
+  onClose,
+  onSelect,
+}: {
   open: boolean
   onClose: () => void
   onSelect: (gif: EditorImage) => void
@@ -53,14 +80,14 @@ export default function GifSearch({ open, onClose, onSelect }: {
           q: query,
           limit: 10,
           contentfilter: 'off',
-          media_filter: 'webp'
+          media_filter: 'webp',
         })
         return data.results as GifResponse[]
       } else {
         const data = await TenorClient.featured.getFeatured({
           limit: 10,
           contentfilter: 'off',
-          media_filter: 'webp'
+          media_filter: 'webp',
         })
         return data.results as GifResponse[]
       }
@@ -74,7 +101,7 @@ export default function GifSearch({ open, onClose, onSelect }: {
       const file = await downloadFile(
         gif.media_formats.webp.url,
         filename,
-        false
+        false,
       )
       if (file) {
         onSelect({
@@ -86,7 +113,7 @@ export default function GifSearch({ open, onClose, onSelect }: {
           fileName: filename,
         })
       }
-    }
+    },
   })
 
   function handleSelect(gif: GifResponse) {
@@ -101,7 +128,9 @@ export default function GifSearch({ open, onClose, onSelect }: {
         </View>
       )}
       <View
-        style={{ paddingTop: Platform.OS === 'ios' ? sx.paddingTop : undefined }}
+        style={{
+          paddingTop: Platform.OS === 'ios' ? sx.paddingTop : undefined,
+        }}
         className="flex-1 p-2 bg-gray-800"
       >
         <View className="flex-row items-center gap-2 mb-2 m-1">
@@ -126,7 +155,10 @@ export default function GifSearch({ open, onClose, onSelect }: {
           keyExtractor={(item) => item.id}
           numColumns={2}
           renderItem={({ item }) => (
-            <TouchableOpacity className="p-1 w-1/2 rounded-xl" onPress={() => handleSelect(item)}>
+            <TouchableOpacity
+              className="p-1 w-1/2 rounded-xl"
+              onPress={() => handleSelect(item)}
+            >
               <Image
                 source={{ uri: item.media_formats.webp.url }}
                 className="rounded-xl"

@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useContext } from "react"
-import { DashboardData } from "../api/posts.types"
-import type { DerivedPostData, DerivedThreadData } from "../api/content"
+import { createContext, PropsWithChildren, useContext } from 'react'
+import { DashboardData } from '../api/posts.types'
+import type { DerivedPostData, DerivedThreadData } from '../api/content'
 
 export type DashboardContextData = Omit<DashboardData, 'posts'> & {
   postsData: Record<string, DerivedPostData>
@@ -27,12 +27,17 @@ const DashboardContext = createContext<DashboardContextData>({
   threadData: {},
 })
 
-export function DashboardContextProvider({ data, children }: {
+export function DashboardContextProvider({
+  data,
+  children,
+}: {
   data: DashboardContextData
   children: PropsWithChildren['children']
 }) {
   return (
-    <DashboardContext.Provider value={data}>{children}</DashboardContext.Provider>
+    <DashboardContext.Provider value={data}>
+      {children}
+    </DashboardContext.Provider>
   )
 }
 
