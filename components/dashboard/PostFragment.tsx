@@ -237,7 +237,7 @@ export default function PostFragment({
                     html={postContent}
                     inlineMedias={inlineMedias}
                     contentWidth={contentWidth}
-                    disableWhitespaceCollapsing
+                    hiddenLink={quotedPost?.remotePostId ?? undefined}
                   />
                 </View>
                 {medias.length > 0 && (

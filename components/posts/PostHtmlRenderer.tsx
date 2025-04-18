@@ -7,7 +7,6 @@ import {
   HTML_BLOCK_STYLES,
   replaceInlineImages,
 } from '@/lib/api/html'
-import { isValidYTLink, getYoutubeImage } from '@/lib/api/content'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
@@ -18,7 +17,7 @@ import { Text, View } from 'react-native'
 import { decodeHTML } from 'entities'
 import { crush } from 'html-crush'
 import { PostMedia } from '@/lib/api/posts.types'
-import YTPreviewCard from './YTPreviewCard'
+import LinkPreviewCard from './LinkPreviewCard'
 
 function onLinkPress(url: string) {
   if (url.startsWith('wafrn://')) {
@@ -32,19 +31,17 @@ function _PostHtmlRenderer({
   html,
   inlineMedias,
   contentWidth,
-  hidden,
-  disableWhitespaceCollapsing = false,
+  hiddenLink,
 }: {
   html: string
   inlineMedias?: PostMedia[]
   contentWidth: number
-  hidden?: boolean
-  disableWhitespaceCollapsing?: boolean
+  hiddenLink?: string
 }) {
   const context = useDashboardContext()
   const renderContext = useRef({} as Record<string, any>)
 
-  const { renderedHtml, ytLinks } = useMemo(() => {
+  const { renderedHtml, links } = useMemo(() => {
     const miniHtml = crush(html || '', {
       removeLineBreaks: true,
       lineLengthLimit: Infinity,
@@ -59,7 +56,10 @@ function _PostHtmlRenderer({
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
         const href = node.attribs.href
-        return isValidYTLink(href)
+        if (href === hiddenLink) {
+          return false
+        }
+        return DomUtils.textContent(node) === href
       }
       return false
     }, dom.children)
@@ -70,16 +70,10 @@ function _PostHtmlRenderer({
     const uniqueLinks = Array.from(
       new Set(links.map((node) => node.attribs.href)),
     )
-    const ytLinks = uniqueLinks
-      .map((link) => ({
-        href: link,
-        image: getYoutubeImage(link),
-      }))
-      .filter((link) => link.image)
 
     return {
       renderedHtml,
-      ytLinks,
+      links: uniqueLinks,
     }
     // ignore dependency on 'renderDom' function
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,14 +206,11 @@ function _PostHtmlRenderer({
   return (
     <>
       <View id="html-content">{renderedHtml}</View>
-      <View id="yt-link-cards">
-        {ytLinks.map(({ href, image }) => (
-          <YTPreviewCard
-            key={href}
-            href={href}
-            image={image!}
-            width={contentWidth}
-          />
+      <View id="link-cards">
+        {links.map((link) => (
+          <View key={link} className="my-1">
+            <LinkPreviewCard url={link} width={contentWidth} />
+          </View>
         ))}
       </View>
     </>

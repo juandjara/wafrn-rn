@@ -506,7 +506,7 @@ export function getDerivedPostState(
     (q) => q.quoterPostId === post.id,
   )?.quotedPostId
   const quotedPost =
-    quotedPostId && context.quotedPosts.find((p) => p.id === quotedPostId)
+    quotedPostId ? context.quotedPosts.find((p) => p.id === quotedPostId) : undefined
   const ask = getAskData(post, context)
   const poll = context.polls.find((p) => p.postId === post.id)
   const reactions = groupPostReactions(post, context)
