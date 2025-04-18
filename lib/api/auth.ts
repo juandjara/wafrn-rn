@@ -27,7 +27,7 @@ function isValidURL(str: string, base?: string) {
 
 export function parseToken(token: string | null) {
   if (!token) return null
-  
+
   try {
     const decoed = JSON.parse(atob(token.split('.')[1])) as ParsedToken
     const expMs = decoed.exp * 1000
@@ -117,12 +117,19 @@ export function useEnvCheckMutation() {
 
 type TokenResponse = {
   success: true
+  mfaRequired?: boolean,
+  mfaOptions?: string[],
   token: string
 }
 
 type LoginPayload = {
   email: string
   password: string
+}
+
+type LoginMfaPayload = {
+  firstPassToken: string,
+  mfaToken: string
 }
 
 export async function login(env: Environment, { email, password }: LoginPayload) {
@@ -135,19 +142,42 @@ export async function login(env: Environment, { email, password }: LoginPayload)
     body: JSON.stringify({ email, password }),
   })
   const json = res as TokenResponse
+  return json
+}
+
+export async function loginMfa(env: Environment, mfaPayload: LoginMfaPayload) {
+  const url = `${env.API_URL}/login/mfa`
+  const res = await getJSON(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${mfaPayload.firstPassToken}`
+    },
+    body: JSON.stringify({ token: mfaPayload.mfaToken }),
+  })
+  const json = res as TokenResponse
   return json.token
 }
 
 export function useLoginMutation() {
   const { data: env } = useEnvironment()
 
-  return useMutation<string, Error, { email: string; password: string }>({
+  return useMutation<TokenResponse, Error, { email: string; password: string }>({
     mutationKey: ['signIn'],
     mutationFn: (body) => login(env!, body),
   })
 }
 
-// NOTE: using static access to query client here to get the environment outside of a React component 
+export function useLoginMfaMutation() {
+  const { data: env } = useEnvironment()
+
+  return useMutation<string, Error, LoginMfaPayload>({
+    mutationKey: ['signIn'],
+    mutationFn: (body) => loginMfa(env!, body),
+  })
+}
+
+// NOTE: using static access to query client here to get the environment outside of a React component
 // this can be undefined and is not reactive so be careful
 export function getEnvironmentStatic() {
   const env = queryClient.getQueryData<Environment>(['environment'])
