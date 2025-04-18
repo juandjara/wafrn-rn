@@ -1,5 +1,4 @@
 import { getYoutubeImage, isValidYTLink } from '@/lib/api/content'
-import type { PostMedia } from '@/lib/api/posts.types'
 import { Pressable, Text, View } from 'react-native'
 import YTPreviewCard from './YTPreviewCard'
 import { useLinkPreview } from '@/lib/api/media'
@@ -9,26 +8,24 @@ import * as Clipboard from 'expo-clipboard'
 import { showToastError, showToastSuccess } from '@/lib/interaction'
 
 export default function LinkPreviewCard({
-  media,
+  url,
+  description: _description,
   width,
 }: {
-  media: PostMedia
+  url: string
+  description?: string
   width: number
 }) {
-  const isYTLink = isValidYTLink(media.url)
-  const { data } = useLinkPreview(isYTLink ? null : media.url)
+  const isYTLink = isValidYTLink(url)
+  const { data } = useLinkPreview(isYTLink ? null : url)
 
   if (isYTLink) {
     return (
       <View>
-        <YTPreviewCard
-          href={media.url}
-          width={width}
-          image={getYoutubeImage(media.url)!}
-        />
-        {media.description && (
+        <YTPreviewCard href={url} width={width} image={getYoutubeImage(url)!} />
+        {_description && (
           <View className="px-2 py-1">
-            <Text className="text-white">{media.description}</Text>
+            <Text className="text-white">{_description}</Text>
           </View>
         )}
       </View>
@@ -37,11 +34,11 @@ export default function LinkPreviewCard({
 
   const image = data?.images[0] || data?.favicons[0]
   const title = data?.title ?? data?.siteName
-  const description = media?.description ?? data?.description
+  const description = _description ?? data?.description
 
   async function copyLink() {
     try {
-      await Clipboard.setStringAsync(media.url)
+      await Clipboard.setStringAsync(url)
       showToastSuccess('Link copied!')
     } catch (err) {
       showToastError('Cannot copy link')
@@ -50,7 +47,7 @@ export default function LinkPreviewCard({
   }
 
   return (
-    <Link asChild href={media.url}>
+    <Link asChild href={url}>
       <Pressable
         onLongPress={copyLink}
         className="bg-black/20 flex-row items-start rounded-lg"

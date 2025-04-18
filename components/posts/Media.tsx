@@ -36,7 +36,13 @@ export default function Media({
   const mime = isExternalGIF ? 'image/gif' : media.mediaType
 
   if (mime === 'text/html') {
-    return <LinkPreviewCard media={media} width={contentWidth} />
+    return (
+      <LinkPreviewCard
+        url={media.url}
+        description={media.description}
+        width={contentWidth}
+      />
+    )
   }
 
   let content = null
