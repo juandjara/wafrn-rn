@@ -1,7 +1,13 @@
 import { PostMedia } from '@/lib/api/posts.types'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-import { getAspectRatio, isAudio, isImage, isVideo } from '@/lib/api/media'
+import {
+  getAspectRatio,
+  getGIFAspectRatio,
+  isAudio,
+  isImage,
+  isVideo,
+} from '@/lib/api/media'
 import ZoomableImage from './ZoomableImage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
@@ -9,6 +15,7 @@ import MediaCloak from './MediaCloak'
 import Video from '../Video'
 import { useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
+import { isTenorLink } from '@/lib/api/content'
 
 export default function Media({
   media,
@@ -20,10 +27,17 @@ export default function Media({
   userUrl?: string
 }) {
   const [showAlt, setShowAlt] = useState(false)
-  const mime = media.mediaType
   const src = formatCachedUrl(formatMediaUrl(media.url))
-  const aspectRatio = getAspectRatio(media)
+  const isExternalGIF = isTenorLink(media.url)
+  const aspectRatio = isExternalGIF
+    ? getGIFAspectRatio(media)
+    : getAspectRatio(media)
   const height = contentWidth * aspectRatio
+  const mime = isExternalGIF ? 'image/gif' : media.mediaType
+
+  if (mime === 'text/html') {
+    return <LinkPreviewCard media={media} width={contentWidth} />
+  }
 
   let content = null
   if (isVideo(mime, src)) {
@@ -80,10 +94,6 @@ export default function Media({
         </Link>
       </View>
     )
-  }
-
-  if (mime === 'text/html') {
-    return <LinkPreviewCard media={media} />
   }
 
   return (

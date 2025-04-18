@@ -140,15 +140,24 @@ export function isValidURL(str: string) {
   }
 }
 
-const YT_HOSTS = ['youtube.com', 'youtu.be']
-export function isValidYTLink(href: string) {
+function matchHosts(href: string, hosts: string[]) {
   if (!isValidURL(href)) {
     return false
   }
-  return YT_HOSTS.some((h) => {
-    const host = new URL(href).host
+  const host = new URL(href).host
+  return hosts.some((h) => {
     return host === h || host.endsWith(`.${h}`)
   })
+}
+
+const YT_HOSTS = ['youtube.com', 'youtu.be']
+export function isValidYTLink(href: string) {
+  return matchHosts(href, YT_HOSTS)
+}
+
+const TENOR_HOSTS = ['media.tenor.com']
+export function isTenorLink(href: string) {
+  return matchHosts(href, TENOR_HOSTS)
 }
 
 export function getYoutubeImage(ytLink: string) {

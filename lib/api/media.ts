@@ -1,10 +1,10 @@
 import { PostMedia } from './posts.types'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { isValidURL } from './content'
 import { Timestamps } from './types'
 import { useAuth } from '../contexts/AuthContext'
 import { showToastError, showToastSuccess } from '../interaction'
-import { uploadFile } from '../http'
+import { getJSON, uploadFile } from '../http'
 import { FileSystemUploadType } from 'expo-file-system'
 import { getEnvironmentStatic } from './auth'
 import { launchImageLibraryAsync } from 'expo-image-picker'
@@ -77,6 +77,13 @@ export function isImage(mime: string | undefined, url: string) {
     !hasExtension ||
     IMG_EXTENSIONS.some((ext) => fullUrl.pathname.endsWith(ext))
   )
+}
+
+export function getGIFAspectRatio(media: PostMedia) {
+  const sp = new URL(media.url).searchParams
+  const h = sp.get('hh') ? Number(sp.get('hh')) : media.width
+  const w = sp.get('ww') ? Number(sp.get('ww')) : media.height
+  return w && h ? (w / h) : 1
 }
 
 export function getAspectRatio(media: PostMedia) {
@@ -160,4 +167,28 @@ export async function pickEditableImage() {
     name: img.fileName!,
     type: img.mimeType!,
   }
+}
+
+export type LinkPreview = {
+  images: string[]
+  videos: string[]
+  favicons: string[]
+  siteName?: string
+  title?: string
+  description?: string
+  url?: string
+}
+
+export async function getLinkPreview(link: string) {
+  const env = getEnvironmentStatic()
+  const data = await getJSON(`${env?.API_URL}/linkPreview/?url=${encodeURIComponent(link)}`)
+  return data as LinkPreview
+}
+
+export function useLinkPreview(link: string | null) {
+  return useQuery({
+    queryKey: ['linkPreview', link],
+    queryFn: () => getLinkPreview(link!),
+    enabled: !!link
+  })
 }
