@@ -3,7 +3,7 @@ import { PrivacyLevel } from '@/lib/api/privacy'
 import useDebounce from '@/lib/useDebounce'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Text, TextInput, View } from 'react-native'
 import {
   generateValueFromMentionStateAndChangedText,
@@ -40,6 +40,8 @@ type EditorProps = MentionApi & {
   autoFocus?: boolean
 }
 
+const EDITOR_MIN_HEIGHT = 140
+
 export default function EditorInput({
   textInputProps,
   triggers,
@@ -63,7 +65,7 @@ export default function EditorInput({
     quote: 'Write your quote',
   }
   const placeholder = type ? placeholderTypeMap[type] : 'How are you feeling?'
-
+  const [height, setHeight] = useState(EDITOR_MIN_HEIGHT)
   const debouncedText = useDebounce(mentionState.plainText, 300)
   const debouncedSelectionStart = useDebounce(selection.start, 300)
 
@@ -122,11 +124,17 @@ export default function EditorInput({
         <TextInput
           autoFocus={autoFocus}
           multiline
-          numberOfLines={10}
           textAlignVertical="top"
           placeholderTextColor={colors.gray[500]}
-          className="text-white py-2 px-3 min-h-[140px]"
+          className="text-white py-2 px-3"
+          style={{
+            minHeight: EDITOR_MIN_HEIGHT,
+            height: Math.max(height, EDITOR_MIN_HEIGHT),
+          }}
           placeholder={placeholder}
+          onContentSizeChange={(ev) =>
+            setHeight(ev.nativeEvent.contentSize.height)
+          }
           {...textInputProps}
         />
       </View>
