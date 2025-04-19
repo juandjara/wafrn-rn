@@ -321,7 +321,11 @@ export default function UserDetail({ user }: { user: User }) {
         </View>
         <View style={{ maxWidth: width - 48 }}>
           <View style={{ paddingVertical: 8 }}>
-            <PostHtmlRenderer html={description} contentWidth={width - 48} />
+            <PostHtmlRenderer
+              html={description}
+              contentWidth={width - 48}
+              disableLinkCards
+            />
           </View>
           <View id="custom-fields">
             {customFields.map((field, i) => (
@@ -348,6 +352,7 @@ export default function UserDetail({ user }: { user: User }) {
                     <PostHtmlRenderer
                       html={field.value}
                       contentWidth={width - 48}
+                      disableLinkCards
                     />
                   )}
                 </View>
