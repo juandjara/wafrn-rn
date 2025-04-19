@@ -32,7 +32,7 @@ export default function LinkPreviewCard({
     )
   }
 
-  const image = data?.images[0] || data?.favicons[0]
+  const image = data?.images?.[0] || data?.favicons?.[0]
   const title = data?.title ?? data?.siteName
   const description = _description ?? data?.description
 
@@ -64,10 +64,12 @@ export default function LinkPreviewCard({
             <Text className="text-white text-lg">{description}</Text>
           ) : null}
           <View className="flex-row gap-2 mt-1">
-            <Image
-              style={{ width: 16, height: 16, marginTop: 4 }}
-              source={{ uri: data?.favicons[0] }}
-            />
+            {data?.favicons?.[0] ? (
+              <Image
+                style={{ width: 16, height: 16, marginTop: 4 }}
+                source={{ uri: data?.favicons?.[0] }}
+              />
+            ) : null}
             <Text numberOfLines={1} className="text-gray-400 text-sm">
               {data?.url}
             </Text>
