@@ -5,16 +5,15 @@ import { registerUnifiedPush, unregisterUnifiedPush, useNotificationBadges } fro
 import { subscribeDistributorMessages } from 'expo-unified-push/build/ExpoUnifiedPushModule'
 import useAsyncStorage from '../useLocalStorage'
 
-const SERVER_VAPID_KEY = process.env.EXPO_PUBLIC_SERVER_VAPID_KEY
-
 export function usePushNotifications() {
   const tokenData = useParsedToken()
-  const { token: authToken } = useAuth()
+  const { token: authToken, env } = useAuth()
   const {
     value: upData,
     setValue: setUpData
   } = useAsyncStorage<RegisteredPayload>(`UnifiedPushData-${tokenData?.userId}`)
   const { refetch: refetchBadges } = useNotificationBadges()
+  const SERVER_VAPID_KEY = env?.SERVER_VAPID_KEY
 
   useEffect(() => {
     async function checkNotificationPermissions() {
@@ -53,7 +52,7 @@ export function usePushNotifications() {
         console.error('Error checking notification permissions: ', error)
       })
     }
-  }, [tokenData?.userId])
+  }, [SERVER_VAPID_KEY, tokenData?.userId])
 
   useEffect(() => {
     return subscribeDistributorMessages(async (message) => {

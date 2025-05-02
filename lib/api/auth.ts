@@ -55,6 +55,7 @@ type EnvironmenResponse = {
   disablePWA: boolean
   maintenance: boolean
   maintenanceMessage: string
+  webpushPublicKey: string
 }
 export type Environment = {
   API_URL: string
@@ -62,6 +63,7 @@ export type Environment = {
   CACHE_URL: string
   BASE_URL: string
   CACHE_HOST: string
+  SERVER_VAPID_KEY: string
 }
 
 export async function getInstanceEnvironment(instanceURL: string) {
@@ -86,13 +88,14 @@ export async function getInstanceEnvironment(instanceURL: string) {
     )
   }
 
+  const SERVER_VAPID_KEY = env.webpushPublicKey
   const API_URL = new URL(env.baseUrl, instanceURL).href
   const MEDIA_URL = new URL(env.baseMediaUrl, instanceURL).href
   const CACHE_URL = new URL(env.externalCacheurl, instanceURL).href
   const BASE_URL = new URL(env.baseUrl, instanceURL).origin
   const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
 
-  return { API_URL, MEDIA_URL, CACHE_URL, BASE_URL, CACHE_HOST }
+  return { API_URL, MEDIA_URL, CACHE_URL, BASE_URL, CACHE_HOST, SERVER_VAPID_KEY }
 }
 
 export function useEnvironment() {
