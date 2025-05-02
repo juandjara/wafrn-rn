@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getJSON } from './http'
-import { useAuth } from './contexts/AuthContext'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useAuth, useParsedToken } from './contexts/AuthContext'
+import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
 import {
   DashboardData,
   Post,
@@ -14,6 +14,7 @@ import {
 } from './api/posts.types'
 import { Timestamps } from './api/types'
 import { getEnvironmentStatic } from './api/auth'
+import { deleteItemAsync, getItemAsync } from 'expo-secure-store'
 
 type NotificationsBadges = {
   asks: number
@@ -204,4 +205,97 @@ export function getNotificationList(pages: NotificationsPage[]) {
       })
   })
   return list
+}
+
+export async function registerPushNotificationToken(
+  authToken: string,
+  expoToken: string,
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v3/registerNotificationToken`, {
+    method: 'POST',
+    body: JSON.stringify({ token: expoToken }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  })
+}
+
+export async function unregisterPushNotificationToken(
+  authToken: string,
+  expoToken: string,
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v3/unregisterNotificationToken`, {
+    method: 'POST',
+    body: JSON.stringify({ token: expoToken }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  })
+}
+
+type RegisteredPayload = {
+  url: string;
+  pubKey: string;
+  auth: string;
+  instance: string;
+}
+
+export async function registerUnifiedPush(authToken: string, data: RegisteredPayload) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v3/registerUnifiedPushData`, {
+    method: 'POST',
+    body: JSON.stringify({
+      endpoint: data.url,
+      devicePublicKey: data.pubKey,
+      deviceAuth: data.auth,
+      // not saving the `data.instance` (the userId) because it can be already obtained from the authToken
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  })
+}
+
+export async function unregisterUnifiedPush(authToken: string, data: RegisteredPayload) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v3/unregisterUnifiedPushData`, {
+    method: 'POST',
+    body: JSON.stringify({
+      endpoint: data.url,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authToken}`,
+    },
+  })
+}
+
+const PUSH_TOKEN_KEY = 'pushNotificationToken'
+
+export function useNotificationTokensCleanup() {
+  const { token } = useAuth()
+  const tokenData = useParsedToken()
+
+  const mutation = useMutation({
+    mutationKey: ['notificationCleanup', token],
+    mutationFn: async () => {
+      const expoToken = await getItemAsync(PUSH_TOKEN_KEY)
+      if (expoToken) {
+        await unregisterPushNotificationToken(token!, expoToken)
+        await deleteItemAsync(PUSH_TOKEN_KEY)
+      }
+      const upData = await getItemAsync(`UnifiedPushData-${tokenData?.userId}`)
+      if (upData) {
+        await unregisterUnifiedPush(token!, JSON.parse(upData))
+        await deleteItemAsync(`UnifiedPushData-${tokenData?.userId}`)
+      }
+    },
+  })
+
+  return mutation.mutateAsync
 }

@@ -5,7 +5,7 @@ export default {
     newArchEnabled: true,
     name: 'Wafrn',
     slug: 'wafrn-rn',
-    version: '1.2.2',
+    version: '1.3.0',
     orientation: 'portrait',
     icon: './assets/images/logo_w.png',
     scheme: 'wafrn',
@@ -48,8 +48,6 @@ export default {
           category: ['BROWSABLE', 'DEFAULT'],
         },
       ],
-      googleServicesFile:
-        process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
     plugins: [
       'expo-router',

@@ -10,8 +10,8 @@
     "build:prod": "npx eas-cli build --profile production --local",
     "prebuild": "expo prebuild",
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "test": "exit 0",
     "lint": "expo lint"
   },
@@ -52,6 +52,7 @@
     "expo-splash-screen": "~0.29.18",
     "expo-status-bar": "~2.0.0",
     "expo-system-ui": "~4.0.6",
+    "expo-unified-push": "^0.2.0",
     "expo-updates": "~0.26.10",
     "expo-video": "~2.0.3",
     "houseform": "^1.13.0",

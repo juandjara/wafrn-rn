@@ -1,6 +1,6 @@
 import { Colors, getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
-import { usePushNotifications } from '@/lib/push-notifications'
+import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useColorScheme } from 'react-native'

@@ -3,13 +3,11 @@ import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'
 import { useEffect } from 'react'
-import { showToastError } from './interaction'
-import { useAuth } from './contexts/AuthContext'
-import { getEnvironmentStatic } from './api/auth'
-import { getJSON } from './http'
-import { Notification, useNotificationBadges } from './notifications'
+import { showToastError } from '../interaction'
+import { useAuth } from '../contexts/AuthContext'
+import { Notification, registerPushNotificationToken, useNotificationBadges } from '../notifications'
 import { router } from 'expo-router'
-import useAsyncStorage from './useLocalStorage'
+import useAsyncStorage from '../useLocalStorage'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -18,21 +16,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 })
-
-async function registerPushNotificationToken(
-  authToken: string,
-  expoToken: string,
-) {
-  const env = getEnvironmentStatic()
-  await getJSON(`${env?.API_URL}/v3/registerNotificationToken`, {
-    method: 'POST',
-    body: JSON.stringify({ token: expoToken }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${authToken}`,
-    },
-  })
-}
 
 async function setupPushNotifications(authToken: string) {
   if (Platform.OS === 'android') {
