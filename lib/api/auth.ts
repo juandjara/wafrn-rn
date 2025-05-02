@@ -99,16 +99,23 @@ export async function getInstanceEnvironment(instanceURL: string) {
 }
 
 export function useEnvironment() {
-  const { value, loading } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const { value, loading, setValue } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const { data, isLoading } = useQuery({
     queryKey: ['environment'],
     queryFn: async () => {
-      const env = await getInstanceEnvironment(value! || DEFAULT_INSTANCE)
-      return env
+      try {
+        const env = await getInstanceEnvironment(value! || DEFAULT_INSTANCE)
+        return env
+      } catch (error) {
+        console.error('Error getting instance environment', error)
+        setValue(null)
+        return null
+      }
     },
     enabled: !!value,
-    throwOnError: true,
+    throwOnError: false,
   })
+
   return { data, isLoading: isLoading || loading }
 }
 
