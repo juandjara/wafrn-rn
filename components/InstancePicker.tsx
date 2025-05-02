@@ -59,9 +59,11 @@ export default function InstancePicker() {
           }
           onPress={() => connect(instance)}
         />
+      </View>
+      <View className="mt-3">
         <Button
           title={
-            envMutation.isPending ? '...' : 'Use Main Server (app.wafrn.net)'
+            envMutation.isPending ? '...' : 'Use Main Server: app.wafrn.net'
           }
           disabled={envMutation.isPending || !!savedInstance}
           onPress={() => connect(DEFAULT_INSTANCE)}
