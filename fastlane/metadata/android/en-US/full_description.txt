@@ -1,0 +1,1 @@
+Wafrn is a social media app inspired by Tumblr that connects you with your friends all over the world. No matter which platform, wafrn can connect with all fediverse software and also Bluesky. Join us and help us make the internet a better place for everyone.
