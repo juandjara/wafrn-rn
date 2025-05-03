@@ -7,7 +7,7 @@
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
     "build:dev": "npx eas-cli build --profile development --local",
     "build:preview": "npx eas-cli build --profile preview --local",
-    "build:prod:ios": "NODE_ENV=production npx eas-cli build --profile production --local",
+    "build:prod:ios": "NODE_ENV=production npx eas-cli build --profile production --local --platform ios",
     "build:prod:android": "bash ./build_android_production.sh",
     "prebuild": "expo prebuild",
     "start": "expo start",
