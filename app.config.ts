@@ -1,11 +1,12 @@
 import type { ExpoConfig } from 'expo/config'
+import pkg from './package.json'
 
 export default {
   expo: {
     newArchEnabled: true,
     name: 'Wafrn',
     slug: 'wafrn-rn',
-    version: '1.3.0',
+    version: pkg.version,
     orientation: 'portrait',
     icon: './assets/images/logo_w.png',
     scheme: 'wafrn',
