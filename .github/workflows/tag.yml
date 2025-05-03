@@ -1,6 +1,12 @@
 name: Tag
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   Tag:
