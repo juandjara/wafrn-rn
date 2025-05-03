@@ -10,6 +10,8 @@ npm un expo-notifications
 ./android/gradlew app:assembleRelease
 
 echo 'now we will install expo-notifications again to not break the iOS build'
+
+# TODO: get the previous version from package.json
 npm i expo-notifications@0.29.13
 
 echo 'APKs created in ./android/app/build/outputs/apk/release'
