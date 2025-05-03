@@ -9,12 +9,19 @@ import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View } from 'react-native'
 import colors from 'tailwindcss/colors'
+import { useNotificationTokensCleanup } from '@/lib/notifications'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
   const { value: savedInstance } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const isAdmin = useAdminCheck()
   const logout = useLogout()
+  const notificationCleanup = useNotificationTokensCleanup()
+
+  function handleLogout() {
+    logout()
+    notificationCleanup({ deleteExpo: true, deleteUP: true })
+  }
 
   const options = useMemo(() => {
     const opts = [
@@ -89,7 +96,7 @@ export default function Settings() {
       <Header title="Settings" />
       <ScrollView>
         <Pressable
-          onPress={logout}
+          onPress={handleLogout}
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >

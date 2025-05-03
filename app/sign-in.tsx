@@ -18,6 +18,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { showToastError } from '@/lib/interaction'
 import InstanceProvider from '@/components/InstanceProvider'
+import { useNotificationTokensCleanup } from '@/lib/notifications'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -33,11 +34,13 @@ export default function SignIn() {
   const loginMfaMutation = useLoginMfaMutation()
   const loginMutation = useLoginMutation()
   const logout = useLogout()
+  const notificationCleanup = useNotificationTokensCleanup()
 
   useEffect(() => {
     // reset local storage when entering sign in screen
     logout()
-  }, [logout])
+    notificationCleanup({ deleteExpo: true, deleteUP: true })
+  }, [logout, notificationCleanup])
 
   function login() {
     if (env) {

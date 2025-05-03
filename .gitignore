@@ -21,7 +21,7 @@ ios/
 
 # credentials
 credentials.json
-google-services.json
+google-services.json*
 
 # build artifacts (compiled applications from build commands)
 *.apk

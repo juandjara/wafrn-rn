@@ -1,3 +1,4 @@
+import useAsyncStorage from '../useLocalStorage'
 import {
   createContext,
   PropsWithChildren,
@@ -5,10 +6,8 @@ import {
   useContext,
   useMemo,
 } from 'react'
-import useAsyncStorage from '../useLocalStorage'
 import { UseMutateAsyncFunction } from '@tanstack/react-query'
 import { Environment, parseToken, useEnvironment } from '../api/auth'
-import { deleteItemAsync } from 'expo-secure-store'
 
 export enum UserRoles {
   Admin = 10,
@@ -71,12 +70,9 @@ export function useParsedToken() {
   return useMemo(() => parseToken(token), [token])
 }
 
-const PUSH_TOKEN_KEY = 'pushNotificationToken'
-
 export function useLogout() {
   const { setToken } = useAuth()
   return useCallback(() => {
     setToken(null)
-    deleteItemAsync(PUSH_TOKEN_KEY)
   }, [setToken])
 }

@@ -1,11 +1,12 @@
 import type { ExpoConfig } from 'expo/config'
+import pkg from './package.json'
 
 export default {
   expo: {
     newArchEnabled: true,
     name: 'Wafrn',
     slug: 'wafrn-rn',
-    version: '1.2.2',
+    version: pkg.version,
     orientation: 'portrait',
     icon: './assets/images/logo_w.png',
     scheme: 'wafrn',
@@ -48,8 +49,6 @@ export default {
           category: ['BROWSABLE', 'DEFAULT'],
         },
       ],
-      googleServicesFile:
-        process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
     plugins: [
       'expo-router',
