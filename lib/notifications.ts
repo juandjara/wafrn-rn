@@ -275,7 +275,7 @@ export async function unregisterUnifiedPush(authToken: string, data: RegisteredP
   })
 }
 
-const PUSH_TOKEN_KEY = 'pushNotificationToken'
+export const PUSH_TOKEN_KEY = 'pushNotificationToken'
 
 export function useNotificationTokensCleanup() {
   const { token } = useAuth()
@@ -283,14 +283,20 @@ export function useNotificationTokensCleanup() {
 
   const mutation = useMutation({
     mutationKey: ['notificationCleanup', token],
-    mutationFn: async () => {
+    mutationFn: async ({
+      deleteExpo = true,
+      deleteUP = true
+    }: {
+      deleteExpo?: boolean
+      deleteUP?: boolean
+    }) => {
       const expoToken = await getItemAsync(PUSH_TOKEN_KEY)
-      if (expoToken) {
+      if (expoToken && deleteExpo) {
         await unregisterPushNotificationToken(token!, expoToken)
         await deleteItemAsync(PUSH_TOKEN_KEY)
       }
       const upData = await getItemAsync(`UnifiedPushData-${tokenData?.userId}`)
-      if (upData) {
+      if (upData && deleteUP) {
         await unregisterUnifiedPush(token!, JSON.parse(upData))
         await deleteItemAsync(`UnifiedPushData-${tokenData?.userId}`)
       }

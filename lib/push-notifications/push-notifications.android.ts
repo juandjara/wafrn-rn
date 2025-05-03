@@ -1,7 +1,7 @@
 import ExpoUnifiedPushModule, { checkPermissions, RegisteredPayload, requestPermissions } from 'expo-unified-push'
 import { useEffect } from 'react'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
-import { registerUnifiedPush, unregisterUnifiedPush, useNotificationBadges } from '../notifications'
+import { registerUnifiedPush, unregisterUnifiedPush, useNotificationBadges, useNotificationTokensCleanup } from '../notifications'
 import { subscribeDistributorMessages } from 'expo-unified-push/build/ExpoUnifiedPushModule'
 import useAsyncStorage from '../useLocalStorage'
 
@@ -14,6 +14,7 @@ export function usePushNotifications() {
   } = useAsyncStorage<RegisteredPayload>(`UnifiedPushData-${tokenData?.userId}`)
   const { refetch: refetchBadges } = useNotificationBadges()
   const SERVER_VAPID_KEY = env?.SERVER_VAPID_KEY
+  const notificationCleanup = useNotificationTokensCleanup()
 
   useEffect(() => {
     async function checkNotificationPermissions() {
@@ -39,12 +40,13 @@ export function usePushNotifications() {
     
     if (tokenData?.userId) {
       if (!SERVER_VAPID_KEY) {
-        throw new Error('SERVER_VAPID_KEY is not set')
+        throw new Error('webpush public key not found in instance env')
       }
 
-      checkNotificationPermissions().then((granted) => {
+      checkNotificationPermissions().then(async (granted) => {
+        notificationCleanup({ deleteExpo: true, deleteUP: false })
         if (granted) {
-          ExpoUnifiedPushModule.registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
+          await ExpoUnifiedPushModule.registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
         } else {
           console.error('Notification permissions not granted')
         }
@@ -52,7 +54,7 @@ export function usePushNotifications() {
         console.error('Error checking notification permissions: ', error)
       })
     }
-  }, [SERVER_VAPID_KEY, tokenData?.userId])
+  }, [SERVER_VAPID_KEY, tokenData?.userId, notificationCleanup])
 
   useEffect(() => {
     return subscribeDistributorMessages(async (message) => {

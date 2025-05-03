@@ -5,7 +5,7 @@ import Constants from 'expo-constants'
 import { useEffect } from 'react'
 import { showToastError } from '../interaction'
 import { useAuth } from '../contexts/AuthContext'
-import { Notification, registerPushNotificationToken, useNotificationBadges } from '../notifications'
+import { type Notification, PUSH_TOKEN_KEY, registerPushNotificationToken, useNotificationBadges } from '../notifications'
 import { router } from 'expo-router'
 import useAsyncStorage from '../useLocalStorage'
 
@@ -74,7 +74,7 @@ export function usePushNotifications() {
     value: expoToken,
     loading: expoTokenLoading,
     setValue: setExpoToken,
-  } = useAsyncStorage<string>('pushNotificationToken')
+  } = useAsyncStorage<string>(PUSH_TOKEN_KEY)
   const lastNotification = Notifications.useLastNotificationResponse()
 
   useEffect(() => {

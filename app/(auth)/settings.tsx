@@ -20,7 +20,7 @@ export default function Settings() {
 
   function handleLogout() {
     logout()
-    notificationCleanup()
+    notificationCleanup({ deleteExpo: true, deleteUP: true })
   }
 
   const options = useMemo(() => {

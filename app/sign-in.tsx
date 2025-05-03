@@ -39,7 +39,7 @@ export default function SignIn() {
   useEffect(() => {
     // reset local storage when entering sign in screen
     logout()
-    notificationCleanup()
+    notificationCleanup({ deleteExpo: true, deleteUP: true })
   }, [logout, notificationCleanup])
 
   function login() {
