@@ -14,7 +14,6 @@ web-build/
 .DS_Store
 
 # ignore build folders created by expo prebuild
-android/
 ios/
 
 .env*.local
