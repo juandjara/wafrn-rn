@@ -1,10 +1,10 @@
-name: Tag
+name: Create new version
 
 on:
   workflow_dispatch:
 
 jobs:
-  Tag:
+  version:
     runs-on: ubuntu-latest
     permissions:
       contents: write
