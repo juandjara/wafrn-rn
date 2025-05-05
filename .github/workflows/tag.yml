@@ -1,15 +1,10 @@
 name: Tag
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - labeled
+  workflow_dispatch:
 
 jobs:
   Tag:
-    if: ${{ github.event.label.name == 'auto-tag' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,6 +31,12 @@ jobs:
       - name: Update native versions
         run: |
           ./scripts/updateVersion.ts ${{ steps.get_version.outputs.version }}
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Update native versions"
+          git push
 
       - name: Remove existing tag if exists
         run: |
