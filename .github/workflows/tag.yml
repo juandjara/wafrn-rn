@@ -1,15 +1,15 @@
 name: Tag
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+    types:
+      - labeled
 
 jobs:
   Tag:
+    if: ${{ github.event.label.name == 'auto-tag' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
