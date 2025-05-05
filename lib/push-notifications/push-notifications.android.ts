@@ -28,9 +28,7 @@ export function usePushNotifications() {
     }
 
     const savedDistributor = ExpoUnifiedPushModule.getSavedDistributor()
-    console.log('savedDistributor: ', savedDistributor)
     const distributors = ExpoUnifiedPushModule.getDistributors()
-    console.log('distributors: ', distributors.map((d) => d.id))
 
     if (!savedDistributor) {
       // NOTE: initial implementation will always use the first distributor,
@@ -60,32 +58,32 @@ export function usePushNotifications() {
     return subscribeDistributorMessages(async (message) => {
       if (authToken) {
         if (message.action === 'registered') {
-          console.log('[EUP] registered: ', message.data)
+          console.log(`[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`)
           try {
             await registerUnifiedPush(authToken, message.data)
             setUpData(message.data)
           } catch (error) {
-            console.error('[EUP] error in registerUnifiedPush: ', error)
+            console.error('[expo-unified-push] error in registerUnifiedPush: ', error)
           }
         }
         if (message.action === 'unregistered' && upData) {
-          console.log('[EUP] unregistered: ', message.data)
+          console.log(`[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`)
           try {
             await unregisterUnifiedPush(authToken, upData)
             setUpData(null)
           } catch (error) {
-            console.error('[EUP] error in unregisterUnifiedPush: ', error)
+            console.error('[expo-unified-push] error in unregisterUnifiedPush: ', error)
           }
         }
       }
       if (message.action === 'error') {
-        console.error('[EUP] error: ', message.data)
+        console.error('[expo-unified-push] error: ', message.data)
       }
       if (message.action === 'registrationFailed') {
-        console.error('[EUP] registrationFailed: ', message.data)
+        console.error('[expo-unified-push] registrationFailed: ', message.data)
       }
       if (message.action === 'message') {
-        console.log('[EUP] message: ', message)
+        console.log('[expo-unified-push] message: ', message)
         refetchBadges()
       }
     })
