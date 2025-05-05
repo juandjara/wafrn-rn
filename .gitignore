@@ -23,6 +23,3 @@ google-services.json*
 *.apk
 *.aab
 *.ipa
-
-# ignore scripts folder
-scripts/

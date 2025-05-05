@@ -33,6 +33,10 @@ jobs:
             echo "Tag v${{ steps.get_version.outputs.version }} already exists"
           fi
 
+      - name: Update native versions
+        run: |
+          ./scripts/updateVersion.ts ${{ steps.get_version.outputs.version }}
+
       - name: Remove existing tag if exists
         run: |
           if git rev-parse v${{ steps.get_version.outputs.version }} >/dev/null 2>&1; then
