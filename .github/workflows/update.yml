@@ -1,3 +1,5 @@
+name: Send code to Expo Updates
+
 on:
   push:
     branches:
