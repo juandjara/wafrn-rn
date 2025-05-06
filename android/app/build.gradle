@@ -159,6 +159,12 @@ android {
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
+    dependenciesInfo {
+        // Disable including dependency metadata when building APKs
+        includeInApk = false
+        // Disable including dependency metadata when building Android App Bundles
+        includeInBundle = false
+    }
 }
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`
