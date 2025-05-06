@@ -9,7 +9,7 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
-PREV_VERSION = $(node -p "require('./package.json').dependencies['expo-notifications']")
+export PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-notifications']")
 
 npm un expo-notifications
 
