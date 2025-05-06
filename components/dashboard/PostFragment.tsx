@@ -54,6 +54,7 @@ export default function PostFragment({
     isEdited,
     contentWarning,
     initialCWOpen,
+    hiddenLinks,
   } = derivedState
 
   const showQuotedPost = quotedPost && !isQuote
@@ -237,7 +238,7 @@ export default function PostFragment({
                     html={postContent}
                     inlineMedias={inlineMedias}
                     contentWidth={contentWidth}
-                    hiddenLink={quotedPost?.remotePostId ?? undefined}
+                    hiddenLinks={hiddenLinks}
                   />
                 </View>
                 {medias.length > 0 && (

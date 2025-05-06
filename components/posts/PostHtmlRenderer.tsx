@@ -31,13 +31,13 @@ function _PostHtmlRenderer({
   html,
   inlineMedias,
   contentWidth,
-  hiddenLink,
+  hiddenLinks,
   disableLinkCards,
 }: {
   html: string
   inlineMedias?: PostMedia[]
   contentWidth: number
-  hiddenLink?: string
+  hiddenLinks?: string[]
   disableLinkCards?: boolean
 }) {
   const context = useDashboardContext()
@@ -61,7 +61,7 @@ function _PostHtmlRenderer({
         if (disableLinkCards) {
           return false
         }
-        if (href === hiddenLink) {
+        if (hiddenLinks?.includes(href)) {
           return false
         }
         return DomUtils.textContent(node) === href

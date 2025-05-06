@@ -523,6 +523,11 @@ export function getDerivedPostState(
     options,
   )
 
+  const hiddenLinks = medias.filter((m) => m.mediaType === 'text/html').map((m) => m.url)
+  if (quotedPost?.remotePostId) {
+    hiddenLinks.push(quotedPost.remotePostId)
+  }
+
   return {
     user,
     userName,
@@ -537,6 +542,7 @@ export function getDerivedPostState(
     isEdited,
     contentWarning,
     initialCWOpen,
+    hiddenLinks,
   }
 }
 
