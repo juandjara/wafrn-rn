@@ -11,12 +11,13 @@ import {
   Canvas,
   ImageFormat,
   Path,
+  Rect,
   Skia,
   SkPath,
   useCanvasRef,
 } from '@shopify/react-native-skia'
 import { useMemo, useState } from 'react'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
 import ColorPicker from './ColorPicker'
 import clsx from 'clsx'
 import Animated, { useSharedValue } from 'react-native-reanimated'
@@ -60,6 +61,15 @@ export default function EditorCanvas({
   const canvasRef = useCanvasRef()
   const currentPath = useSharedValue<SkPath>(Skia.Path.Make().moveTo(0, 0))
   const sx = useSafeAreaPadding()
+  const [background, setBackground] = useState<string | null>(null)
+  const [size, setSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  })
+
+  function setBackgroundColor() {
+    setBackground(background ? null : color)
+  }
 
   async function confirmDrawing() {
     const image = await canvasRef.current?.makeImageSnapshotAsync()
@@ -134,7 +144,25 @@ export default function EditorCanvas({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={rootStyle}>
           <View collapsable={false} className="rounded-md bg-white flex-1">
-            <Canvas ref={canvasRef} style={{ flex: 1 }}>
+            <Canvas
+              ref={canvasRef}
+              style={{ flex: 1 }}
+              onLayout={(ev) => {
+                setSize({
+                  width: ev.nativeEvent.layout.width,
+                  height: ev.nativeEvent.layout.height,
+                })
+              }}
+            >
+              {background && (
+                <Rect
+                  x={0}
+                  y={0}
+                  width={size.width}
+                  height={size.height}
+                  color={background}
+                />
+              )}
               {paths.map((p, index) => (
                 <Path
                   key={index}
@@ -159,7 +187,7 @@ export default function EditorCanvas({
           <GestureDetector gesture={gesture}>
             <Animated.View style={StyleSheet.absoluteFill} />
           </GestureDetector>
-          <View className="px-5 pt-2 pb-4 flex-row justify-end items-center gap-3">
+          <View className="px-3 pt-2 pb-4 flex-row justify-end items-center gap-2">
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
@@ -193,6 +221,19 @@ export default function EditorCanvas({
                 size={20}
                 name="eraser"
                 color={mode === EditModes.CLEAR ? 'black' : 'white'}
+              />
+            </Pressable>
+            <Pressable
+              onPress={setBackgroundColor}
+              className={clsx(
+                'p-2 rounded-full',
+                background ? 'bg-white' : 'active:bg-white/50 bg-white/15',
+              )}
+            >
+              <Foundation
+                name="paint-bucket"
+                color={background ? 'black' : 'white'}
+                size={20}
               />
             </Pressable>
             <Pressable
