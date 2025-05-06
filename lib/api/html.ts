@@ -314,7 +314,7 @@ export function replaceInlineImages(
     const src = formatCachedUrl(formatMediaUrl(media.url))
     html = html.replace(
       `![media-${index + 1}]`,
-      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
+      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" alt="${media.description}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
     )
   })
   return html

@@ -75,9 +75,10 @@ export default function SearchResults({ query }: { query: string }) {
       let userName = user.name
       if (userName) {
         for (const emoji of userEmojis) {
+          const url = formatCachedUrl(formatMediaUrl(emoji.url))
           userName = userName.replaceAll(
             emoji.name,
-            `<img width="24" height="24" src="${formatCachedUrl(formatMediaUrl(emoji.url))}" />`,
+            `<img width="24" height="24" src="${url}" alt="${emoji.name}" />`,
           )
         }
       }

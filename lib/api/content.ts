@@ -49,7 +49,7 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
     const url = formatCachedUrl(formatMediaUrl(emoji.url))
     text = text.replaceAll(
       emoji.name,
-      `<img width="24" height="24" src="${url}" />`,
+      `<img width="24" height="24" src="${url}" alt="${emoji.name}" />`,
     )
   }
   return text
