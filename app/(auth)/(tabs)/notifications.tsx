@@ -153,7 +153,8 @@ function NotificationItem({
     )
   }
   if (notification.notificationType === 'EMOJIREACT') {
-    const id = notification.emoji.emojiId
+    const id =
+      'emojiId' in notification.emoji ? notification.emoji.emojiId : null
     const emojis = Object.fromEntries(
       context.emojiRelations.emojis.map((e) => [e.id, e]),
     )

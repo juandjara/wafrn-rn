@@ -147,7 +147,7 @@ export function useNotifications() {
     },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       const dates = lastPage.notifications.map((n) =>
-        new Date(n.createdAt).getTime(),
+        new Date(n.updatedAt).getTime(),
       )
       const endDate = Math.min(...dates)
       return {
@@ -188,7 +188,7 @@ export function getNotificationList(pages: NotificationsPage[]) {
             post: page.posts.find((p) => p.id === n.postId)!,
             emoji: page.emojiRelations.postEmojiReactions.find(
               (e) => e.id === n.emojiReactionId,
-            )!,
+            ) || { content: '∅' },
           }
         }
         if (n.notificationType === 'FOLLOW') {
