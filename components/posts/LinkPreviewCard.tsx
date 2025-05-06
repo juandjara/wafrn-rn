@@ -6,22 +6,25 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import { showToastError, showToastSuccess } from '@/lib/interaction'
+import clsx from 'clsx'
 
 export default function LinkPreviewCard({
   url,
   description: _description,
   width,
+  className,
 }: {
   url: string
   description?: string
   width: number
+  className?: string
 }) {
   const isYTLink = isValidYTLink(url)
   const { data } = useLinkPreview(isYTLink ? null : url)
 
   if (isYTLink) {
     return (
-      <View>
+      <View className={className}>
         <YTPreviewCard href={url} width={width} image={getYoutubeImage(url)!} />
         {_description && (
           <View className="px-2 py-1">
@@ -35,6 +38,9 @@ export default function LinkPreviewCard({
   const image = data?.images?.[0] || data?.favicons?.[0]
   const title = data?.title ?? data?.siteName
   const description = _description ?? data?.description
+  const favicon = data?.favicons?.[0]
+
+  const isEmpty = !image && !favicon && !title && !description
 
   async function copyLink() {
     try {
@@ -46,11 +52,18 @@ export default function LinkPreviewCard({
     }
   }
 
+  if (isEmpty) {
+    return null
+  }
+
   return (
     <Link asChild href={url}>
       <Pressable
         onLongPress={copyLink}
-        className="bg-black/20 flex-row items-start rounded-lg"
+        className={clsx(
+          className,
+          'bg-black/20 flex-row items-start rounded-lg',
+        )}
       >
         <View className="p-4 flex-shrink-0">
           <Image
@@ -64,10 +77,10 @@ export default function LinkPreviewCard({
             <Text className="text-white text-lg">{description}</Text>
           ) : null}
           <View className="flex-row gap-2 mt-1">
-            {data?.favicons?.[0] ? (
+            {favicon ? (
               <Image
                 style={{ width: 16, height: 16, marginTop: 4 }}
-                source={{ uri: data?.favicons?.[0] }}
+                source={{ uri: favicon }}
               />
             ) : null}
             <Text numberOfLines={1} className="text-gray-400 text-sm">

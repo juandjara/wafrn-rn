@@ -213,9 +213,12 @@ function _PostHtmlRenderer({
       <View id="html-content">{renderedHtml}</View>
       <View id="link-cards">
         {links.map((link) => (
-          <View key={link} className="my-1">
-            <LinkPreviewCard url={link} width={contentWidth} />
-          </View>
+          <LinkPreviewCard
+            url={link}
+            width={contentWidth}
+            className="my-1"
+            key={link}
+          />
         ))}
       </View>
     </>
