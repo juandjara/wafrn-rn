@@ -205,6 +205,8 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
 export function useEditProfileMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const data = useParsedToken()
+  const handle = data?.url
 
   return useMutation({
     mutationKey: ['editProfile'],
@@ -221,7 +223,8 @@ export function useEditProfileMutation() {
       return qc.invalidateQueries({
         predicate: (query) =>
           query.queryKey[0] === 'settings' ||
-          query.queryKey[0] === 'currentUser',
+          query.queryKey[0] === 'currentUser' ||
+          query.queryKey[0] === 'user' && query.queryKey[1] === handle,
       })
     },
   })
