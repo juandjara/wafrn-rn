@@ -94,9 +94,6 @@ export default function EditorCanvas({
           currentPath.modify((lastPath) => {
             'worklet'
             const lastPoint = lastPath.getLastPt()
-            console.log(lastPoint.x, lastPoint.y, ev.x, ev.y)
-            // const xHalf = (ev.x + lastPoint.x) / 2
-            // const yHalf = (ev.y + lastPoint.y) / 2
             lastPath.quadTo(lastPoint.x, lastPoint.y, ev.x, ev.y)
             return lastPath
           }, true)
