@@ -94,9 +94,10 @@ export default function EditorCanvas({
           currentPath.modify((lastPath) => {
             'worklet'
             const lastPoint = lastPath.getLastPt()
-            const xHalf = (ev.x + lastPoint.x) / 2
-            const yHalf = (ev.y + lastPoint.y) / 2
-            lastPath.quadTo(lastPoint.x, lastPoint.y, xHalf, yHalf)
+            console.log(lastPoint.x, lastPoint.y, ev.x, ev.y)
+            // const xHalf = (ev.x + lastPoint.x) / 2
+            // const yHalf = (ev.y + lastPoint.y) / 2
+            lastPath.quadTo(lastPoint.x, lastPoint.y, ev.x, ev.y)
             return lastPath
           }, true)
         })
@@ -135,7 +136,7 @@ export default function EditorCanvas({
     <Modal animationType="slide" visible={open} onRequestClose={close}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={rootStyle}>
-          <View collapsable={false} className="m-4 rounded-md bg-white flex-1">
+          <View collapsable={false} className="rounded-md bg-white flex-1">
             <Canvas ref={canvasRef} style={{ flex: 1 }}>
               {paths.map((p, index) => (
                 <Path
@@ -161,7 +162,7 @@ export default function EditorCanvas({
           <GestureDetector gesture={gesture}>
             <Animated.View style={StyleSheet.absoluteFill} />
           </GestureDetector>
-          <View className="px-5 pb-4 flex-row justify-end items-center gap-3">
+          <View className="px-5 pt-2 pb-4 flex-row justify-end items-center gap-3">
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
