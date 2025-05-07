@@ -122,10 +122,7 @@ export default function Media({
         >
           <Text className="text-white text-xs font-semibold">ALT</Text>
         </Pressable>
-        <Link
-          href={formatMediaUrl(media.url)}
-          className="rounded-md bg-indigo-950/75 p-1.5"
-        >
+        <Link href={src} className="rounded-md bg-indigo-950/75 p-1.5">
           <Feather name="external-link" color="white" size={16} />
         </Link>
       </View>
