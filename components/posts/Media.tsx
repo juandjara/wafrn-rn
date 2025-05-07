@@ -9,7 +9,7 @@ import {
   isVideo,
 } from '@/lib/api/media'
 import ZoomableImage from './ZoomableImage'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import MediaCloak from './MediaCloak'
 import Video from '../Video'
@@ -115,12 +115,20 @@ export default function Media({
       >
         {content}
       </MediaCloak>
-      <Pressable
-        onPress={() => setShowAlt((prev) => !prev)}
-        className="absolute top-0 left-0 rounded-br-md bg-indigo-950/75 p-2"
-      >
-        <Text className="text-white text-xs font-semibold">ALT</Text>
-      </Pressable>
+      <View className="absolute top-0 left-0 flex-row gap-1 p-1">
+        <Pressable
+          onPress={() => setShowAlt((prev) => !prev)}
+          className="rounded-md bg-indigo-950/75 p-2"
+        >
+          <Text className="text-white text-xs font-semibold">ALT</Text>
+        </Pressable>
+        <Link
+          href={formatMediaUrl(media.url)}
+          className="rounded-md bg-indigo-950/75 p-1.5"
+        >
+          <Feather name="external-link" color="white" size={16} />
+        </Link>
+      </View>
       {showAlt && (
         <View
           style={{

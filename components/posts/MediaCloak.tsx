@@ -66,7 +66,7 @@ export default function MediaCloak({
       {children}
       <Pressable
         onPress={() => setHidden(true)}
-        className="absolute top-0 right-0 rounded-bl-md bg-indigo-950/75 p-2"
+        className="absolute top-1 right-2 rounded-md bg-indigo-950/75 p-2"
       >
         <MaterialCommunityIcons name="eye-off" color="white" size={16} />
       </Pressable>
