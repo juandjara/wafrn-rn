@@ -175,7 +175,7 @@ export function useCreatePostMutation() {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToastError('Failed to create woot')
+      showToastError(`Failed to create woot: ${err.message}`)
     },
     onSuccess: (data, variables) => {
       showToastSuccess('Woot Created')
@@ -227,7 +227,7 @@ export function useRewootMutation(post: Post) {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToastError(`Failed to ${variables ? 'un' : ''}rewoot`)
+      showToastError(`Failed to ${variables ? 'un' : ''}rewoot: ${err.message}`)
     },
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot ${variables ? 'un' : ''}rewooted`)

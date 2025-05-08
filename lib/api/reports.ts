@@ -75,7 +75,7 @@ export function useReportPostMutation() {
     mutationFn: async (payload: ReportPayload) => reportPost(token!, payload),
     onError: (err, variables, context) => {
       console.error(err)
-      showToastError(`Failed to report post`)
+      showToastError(`Failed to report post: ${err.message}`)
     },
     onSuccess: (data, variables) => {
       showToastSuccess(`Report created`)

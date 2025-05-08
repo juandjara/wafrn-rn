@@ -2,7 +2,7 @@ import { createUploadTask, FileSystemUploadOptions } from 'expo-file-system'
 
 export type ErrorResponse = {
   success: false
-  errorMessage: string
+  message: string
 }
 
 export function isErrorResponse<T extends { success: boolean }>(
@@ -24,7 +24,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
-    const msg = `API Error: ${JSON.stringify(json)} \nURL: ${params[0]}`
+    const msg = `API Error: ${json.message ? json.message : JSON.stringify(json)} \nURL: ${params[0]}`
     console.error(msg)
     throw statusError(500, msg)
   }
