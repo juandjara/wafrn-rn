@@ -322,7 +322,12 @@ export default function EditProfile() {
             />
           </View>
           <View className="m-4">
-            <Text className="text-white text-sm mb-2">Custom fields</Text>
+            <Text className="text-white text-sm mb-2">
+              Custom fields{' '}
+              <Text className="text-gray-300 text-xs">
+                (only for the fediverse)
+              </Text>
+            </Text>
             {customFields.map((o, index) => (
               <View key={index} className="mb-4 rounded-md">
                 <View className="flex-row items-center gap-2 mb-3">
