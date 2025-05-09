@@ -223,14 +223,14 @@ export default function EditorView() {
 
       update('content', content)
       update('tags', tags.join(', '))
-      update('privacy', Math.max(post.privacy, defaultPrivacy))
+      update('privacy', post.privacy)
       update('contentWarning', post.content_warning)
       update('contentWarningOpen', !!post.content_warning)
       update('medias', medias)
     }
     // NOTE: not including 'update' here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingPost, defaultPrivacy])
+  }, [editingPost])
 
   useEffect(() => {
     const replyPost = reply?.post.posts[0]
