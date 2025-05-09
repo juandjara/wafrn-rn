@@ -14,7 +14,6 @@ import {
   isTriggerConfig,
   useMentions,
 } from 'react-native-more-controlled-mentions'
-import { PrivacyLevel } from '@/lib/api/privacy'
 import { useCreatePostMutation, usePostDetail } from '@/lib/api/posts'
 import { useAsks } from '@/lib/asks'
 import { getDashboardContext } from '@/lib/api/dashboard'
@@ -51,15 +50,6 @@ type EditorSearchParams = {
 }
 
 export default function EditorView() {
-  const [form, setForm] = useState<EditorFormState>({
-    content: '',
-    contentWarning: '',
-    contentWarningOpen: false,
-    tags: '',
-    privacy: PrivacyLevel.PUBLIC,
-    medias: [] as EditorImage[],
-  })
-
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const { replyId, askId, quoteId, editId } =
     useLocalSearchParams<EditorSearchParams>()
@@ -78,6 +68,22 @@ export default function EditorView() {
       PrivateOptionNames.DisableForceAltText,
     )
   }, [settings?.options])
+
+  const defaultPrivacy = useMemo(() => {
+    return getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.DefaultPostPrivacy,
+    )
+  }, [settings])
+
+  const [form, setForm] = useState<EditorFormState>({
+    content: '',
+    contentWarning: '',
+    contentWarningOpen: false,
+    tags: '',
+    privacy: defaultPrivacy,
+    medias: [] as EditorImage[],
+  })
 
   const { mentionsPrefix, mentionedUserIds } = useMemo(() => {
     if (!reply) {
@@ -174,6 +180,14 @@ export default function EditorView() {
   }, [mentionsPrefix])
 
   useEffect(() => {
+    if (defaultPrivacy) {
+      update('privacy', defaultPrivacy)
+    }
+    // NOTE: not including 'update' here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultPrivacy])
+
+  useEffect(() => {
     if (editingPost) {
       const post = editingPost.post.posts[0]
       const tags = editingPost.post.tags
@@ -201,20 +215,22 @@ export default function EditorView() {
           continue
         }
         const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
-        const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${user.id})`
+        const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${
+          user.id
+        })`
         content = content.replace(user.url, mentionText)
       }
 
       update('content', content)
       update('tags', tags.join(', '))
-      update('privacy', post.privacy)
+      update('privacy', Math.max(post.privacy, defaultPrivacy))
       update('contentWarning', post.content_warning)
       update('contentWarningOpen', !!post.content_warning)
       update('medias', medias)
     }
     // NOTE: not including 'update' here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingPost])
+  }, [editingPost, defaultPrivacy])
 
   useEffect(() => {
     const replyPost = reply?.post.posts[0]
@@ -227,11 +243,11 @@ export default function EditorView() {
         update('contentWarning', cw)
         update('contentWarningOpen', true)
       }
-      update('privacy', replyPost.privacy)
+      update('privacy', Math.max(replyPost.privacy, defaultPrivacy))
     }
     // NOTE: not including 'update' here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reply])
+  }, [reply, defaultPrivacy])
 
   const mentionApi = useMentions({
     value: form.content,
@@ -310,7 +326,9 @@ export default function EditorView() {
         return
       }
       const textAfterCursor = text.substring(selection.end)
-      const newText = `${textBeforeCursor}${start}${textInCursor}${end || start}${textAfterCursor}`
+      const newText = `${textBeforeCursor}${start}${textInCursor}${
+        end || start
+      }${textAfterCursor}`
       update(
         'content',
         generateValueFromMentionStateAndChangedText(
