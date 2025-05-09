@@ -192,11 +192,11 @@ export function useCreatePostMutation() {
   })
 }
 
-export async function rewoot(token: string, postId: string) {
+export async function rewoot(token: string, postId: string, privacy: PrivacyLevel) {
   return await createPost(token, {
     content: '',
     parentId: postId,
-    privacy: 0,
+    privacy,
     medias: [],
     mentionedUserIds: [],
   })
@@ -222,7 +222,7 @@ export function useRewootMutation(post: Post) {
       if (isRewooted) {
         await deleteRewoot(token!, post.id)
       } else {
-        await rewoot(token!, post.id)
+        await rewoot(token!, post.id, post.privacy)
       }
     },
     onError: (err, variables, context) => {
