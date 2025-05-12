@@ -54,8 +54,12 @@ export function formatUserUrl(url?: string) {
 
 export function formatTimeAgo(date: string) {
   const day = dayjs(new Date(date))
-  const formatTimeAgo = day
-    .fromNow()
+  const timeAgoLong = day.fromNow()
+  if (timeAgoLong === 'a few seconds ago') {
+    return 'now'
+  }
+
+  const formatTimeAgo = timeAgoLong
     .replace(/ years?/, 'y')
     .replace(/ months?/, 'mo')
     .replace(/ days?/, 'd')
