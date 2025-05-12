@@ -1,5 +1,5 @@
 import { PostUser } from '@/lib/api/posts.types'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
 import { Link } from 'expo-router'
 import { useCallback, useRef } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
@@ -41,7 +41,7 @@ export default function ReactionDetailsMenu({
             style={{ width: 24, height: 24 }}
           />
           <Text className="text-gray-200 flex-grow flex-shrink-0">
-            {formatUserUrl(user)}
+            {formatUserUrl(user.url)}
           </Text>
         </Pressable>
       </Link>
@@ -85,32 +85,6 @@ export default function ReactionDetailsMenu({
           className="bg-gray-900 rounded-lg m-2"
           keyExtractor={(item) => item.id}
         />
-        {/* <ScrollView
-          style={{ maxHeight: 200 }}
-          className="bg-gray-900 rounded-lg m-2"
-        >
-          {users.map((user) => (
-            <Link
-              asChild
-              key={user.id}
-              href={`/user/${user.url}`}
-              onPress={() => {
-                menuRef.current?.close()
-              }}
-            >
-              <Pressable className="my-1 flex-row items-center gap-2">
-                <Image
-                  className="rounded-lg"
-                  source={{ uri: formatSmallAvatar(user.avatar) }}
-                  style={{ width: 24, height: 24 }}
-                />
-                <Text className="text-gray-200 flex-grow flex-shrink-0">
-                  {formatUserUrl(user)}
-                </Text>
-              </Pressable>
-            </Link>
-          ))}
-        </ScrollView> */}
       </MenuOptions>
     </Menu>
   )

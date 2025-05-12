@@ -398,7 +398,7 @@ export function useFollowAllMutation() {
           countOk++
         } catch (err) {
           console.error(err)
-          showToastError(`Error while following ${formatUserUrl(user)}`)
+          showToastError(`Error while following ${formatUserUrl(user.url)}`)
         }
       }
       return countOk

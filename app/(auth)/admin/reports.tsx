@@ -56,7 +56,7 @@ function ReportListItem({ report }: { report: Report }) {
       <GenericRibbon
         className="rounded-xl"
         user={report.user}
-        userNameHTML={formatUserUrl(report.user)}
+        userNameHTML={formatUserUrl(report.user.url)}
         link={`/user/${report.user.url}`}
         label="reported"
         icon={

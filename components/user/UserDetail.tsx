@@ -7,9 +7,9 @@ import {
 } from '@/lib/api/settings'
 import { Pressable, Share, Text, useWindowDimensions, View } from 'react-native'
 import {
+  formatUserUrl,
   formatCachedUrl,
   formatMediaUrl,
-  formatUserUrl,
 } from '@/lib/formatters'
 import { useMemo } from 'react'
 import { getUserNameHTML, isValidURL, replaceEmojis } from '@/lib/api/content'
@@ -171,7 +171,7 @@ export default function UserDetail({ user }: { user: User }) {
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
         <Text className="text-white text-lg text-center">
-          {formatUserUrl(user)}
+          {formatUserUrl(user.url)}
         </Text>
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (

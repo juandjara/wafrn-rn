@@ -9,10 +9,10 @@ import { Pressable, Text, View } from 'react-native'
 import { PostUser } from '@/lib/api/posts.types'
 import { Image } from 'expo-image'
 import {
+  formatUserUrl,
   formatCachedUrl,
   formatMediaUrl,
   formatSmallAvatar,
-  formatUserUrl,
 } from '@/lib/formatters'
 
 const SUGGESTION_DEBOUNCE_TIME = 300 // ms
@@ -125,7 +125,7 @@ function SuggestionItem({
   }
   if (type === 'mention') {
     const user = item as PostUser
-    const url = formatUserUrl(user)
+    const url = formatUserUrl(user.url)
     return (
       <Pressable
         className="flex-row items-center gap-3 bg-indigo-950 active:bg-indigo-900 border-b border-slate-600"

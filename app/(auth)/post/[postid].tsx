@@ -104,7 +104,11 @@ export default function PostDetail() {
       const numReplies = replies.filter(
         (p) => !isEmptyRewoot(p, context),
       ).length
-      const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
+      const statsText = `${numReplies} ${pluralize(
+        numReplies,
+        'reply',
+        'replies',
+      )}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
 
       const mainPost = postData?.posts?.[0]
       const mainUser = mainPost && userMap[mainPost.userId]
@@ -261,7 +265,7 @@ export default function PostDetail() {
         <View>
           <Text className="text-white text-2xl font-semibold">Woot</Text>
           <Text numberOfLines={1} className="text-gray-200 text-base">
-            {formatUserUrl(mainUser)}
+            {formatUserUrl(mainUser?.url)}
           </Text>
         </View>
       }
@@ -327,7 +331,9 @@ export default function PostDetail() {
               <View collapsable={false} className="my-8">
                 {postCount > 1 && (
                   <Link
-                    href={`/post/${(listData[0].data as { post: Post }).post.id}`}
+                    href={`/post/${
+                      (listData[0].data as { post: Post }).post.id
+                    }`}
                     className="mb-4 text-center items-center mx-4 py-3 rounded-full text-blue-400 bg-blue-950 active:bg-blue-900"
                   >
                     Go to initial post

@@ -109,7 +109,7 @@ export default function ImportFollows() {
               )
             }
             if (item.type === 'notFound') {
-              const url = formatUserUrl({ url: item.username })
+              const url = formatUserUrl(item.username)
               return (
                 <Link asChild href={`/search?q=${url}`}>
                   <Pressable className="p-3 bg-gray-800/25 active:bg-white/20 flex-row items-center gap-3">

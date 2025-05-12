@@ -1,7 +1,7 @@
 import { AVATAR_SIZE } from '@/lib/api/posts'
 import { PostUser } from '@/lib/api/posts.types'
 import { useSettings } from '@/lib/api/settings'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -68,7 +68,9 @@ export default function UserRibbon({
           )}
         </View>
         <Link href={`/user/${user.url}`}>
-          <Text className="text-sm text-cyan-400">{formatUserUrl(user)}</Text>
+          <Text className="text-sm text-cyan-400">
+            {formatUserUrl(user.url)}
+          </Text>
         </Link>
       </View>
     </View>

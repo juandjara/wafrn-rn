@@ -1,7 +1,7 @@
 import { AVATAR_SIZE } from '@/lib/api/posts'
 import { useSettings } from '@/lib/api/settings'
 import { Follow } from '@/lib/api/user'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
 import { useFollowMutation } from '@/lib/interaction'
 import clsx from 'clsx'
 import { Image } from 'expo-image'
@@ -29,7 +29,7 @@ export default function FollowRibbon({ follow }: { follow: Follow }) {
       />
       <View className="flex-grow my-2">
         <Text className="text-cyan-400 mb-2 text-sm">
-          {formatUserUrl(follow)}
+          {formatUserUrl(follow.url)}
         </Text>
         <View className="items-start">
           {amIAwaitingApproval && (

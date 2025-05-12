@@ -45,11 +45,11 @@ export function formatDate(date: string) {
   return new Date(date).toLocaleString()
 }
 
-export function formatUserUrl(user?: { url: string }) {
-  if (!user?.url) {
+export function formatUserUrl(url?: string) {
+  if (!url) {
     return ''
   }
-  return user.url.startsWith('@') ? user.url : `@${user.url}`
+  return url.startsWith('@') ? url : `@${url}`
 }
 
 export function timeAgo(date: string) {

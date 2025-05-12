@@ -1,7 +1,7 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import ZoomableImage from '@/components/posts/ZoomableImage'
 import { useNewUserMutation, useUsersForApproval } from '@/lib/api/admin'
-import { formatMediaUrl, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl, formatMediaUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
@@ -40,7 +40,7 @@ export default function NewUsers() {
               />
               <View className="flex-shrink">
                 <Text className="text-white text-xl mb-2">
-                  {formatUserUrl(user)}
+                  {formatUserUrl(user.url)}
                 </Text>
                 <Text className="text-gray-200">{user.email}</Text>
               </View>

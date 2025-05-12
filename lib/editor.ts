@@ -5,7 +5,7 @@ import { useLocalSearchParams } from "expo-router"
 import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "./api/settings"
 import { useMemo } from "react"
 import { PrivacyLevel } from "./api/privacy"
-import { formatMediaUrl, formatUserUrl } from "./formatters"
+import { formatUserUrl, formatMediaUrl } from "./formatters"
 import { getDashboardContext } from "./api/dashboard"
 import { useAsks } from "./asks"
 
@@ -144,9 +144,9 @@ export function useEditorData() {
 
         const mentionUsers = Array.from(mentionIds).map((id) => userMap[id])
         const _mentionsPrefix = mentionUsers
-          .map((m) => {
-            const remoteId = m.remoteId || `${env?.BASE_URL}/blog/${m.url}`
-            return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
+          .map((u) => {
+            const remoteId = u.remoteId || `${env?.BASE_URL}/blog/${u.url}`
+            return `[${formatUserUrl(u.url)}](${remoteId}?id=${u.id}) `
           })
           .join('')
 
@@ -182,11 +182,13 @@ export function useEditorData() {
           continue
         }
         const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
-        const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${
+        const mentionText = `[${formatUserUrl(user.url)}](${remoteId}?id=${
           user.id
         })`
-        content = content.replace(formatUserUrl(user), mentionText)
+        content = content.replace(formatUserUrl(user.url), mentionText)
       }
+
+      mentionedUserIds = Array.from(new Set(mentions.map((m) => m.userMentioned)))
 
       formState.content = content
       formState.tags = tags.join(', ')

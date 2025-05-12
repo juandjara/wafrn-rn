@@ -109,7 +109,7 @@ export default function ImageList({
                 src={selectedImage.uri}
                 width={size}
                 height={size}
-                title={`${formatUserUrl(me!)} video`}
+                title={`${formatUserUrl(me?.url)} video`}
               />
             ) : (
               <Image

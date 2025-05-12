@@ -2,9 +2,9 @@ import GenericRibbon from '@/components/GenericRibbon'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useBlocklists } from '@/lib/api/admin'
 import {
+  formatUserUrl,
   formatCachedUrl,
   formatMediaUrl,
-  formatUserUrl,
 } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -32,7 +32,7 @@ export default function UserBlocklists() {
                 <GenericRibbon
                   className="rounded-t-xl"
                   user={{ ...item.user, name: '', remoteId: null }}
-                  userNameHTML={formatUserUrl(item.user)}
+                  userNameHTML={formatUserUrl(item.user.url)}
                   link={`/user/${item.user.url}`}
                   label="blocked"
                   icon={
@@ -75,7 +75,7 @@ export default function UserBlocklists() {
                 <GenericRibbon
                   className="rounded-t-xl"
                   user={{ ...item.user, name: '', remoteId: null }}
-                  userNameHTML={formatUserUrl(item.user)}
+                  userNameHTML={formatUserUrl(item.user.url)}
                   link={`/user/${item.user.url}`}
                   label="blocked"
                   icon={

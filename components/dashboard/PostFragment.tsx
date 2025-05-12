@@ -1,7 +1,7 @@
 import type { Post } from '@/lib/api/posts.types'
 import { Pressable, Text, useWindowDimensions, View } from 'react-native'
 import { Image } from 'expo-image'
-import { formatDate, formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl, formatDate, formatSmallAvatar } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
 import Media from '../posts/Media'
@@ -248,7 +248,7 @@ export default function PostFragment({
                         key={`${media.id}-${index}`}
                         media={media}
                         contentWidth={contentWidth}
-                        userUrl={formatUserUrl(user)}
+                        userUrl={formatUserUrl(user?.url)}
                       />
                     ))}
                   </View>
