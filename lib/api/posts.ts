@@ -9,9 +9,9 @@ import {
   showToastError,
   showToastSuccess,
 } from '../interaction'
-import { EditorImage } from '@/components/editor/EditorImages'
 import { BSKY_URL } from './content'
 import { getEnvironmentStatic } from './auth'
+import { EditorImage } from '../editor'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 0,

@@ -12,9 +12,9 @@ import {
 } from 'react-native-more-controlled-mentions'
 import colors from 'tailwindcss/colors'
 import EditorSuggestions from './EditorSuggestions'
-import { EditorImage } from './EditorImages'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { EditorImage } from '@/lib/editor'
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -37,7 +37,7 @@ type EditorProps = MentionApi & {
   selection: Selection
   mentionState: MentionApi['mentionState']
   showTags?: boolean
-  autoFocus?: boolean
+  disabled?: boolean
 }
 
 const EDITOR_MIN_HEIGHT = 140
@@ -50,7 +50,7 @@ export default function EditorInput({
   selection,
   mentionState,
   showTags = true,
-  autoFocus = true,
+  disabled = false,
 }: EditorProps) {
   const { env } = useAuth()
   const tagsLine = formState.tags
@@ -110,7 +110,6 @@ export default function EditorInput({
             size={24}
           />
           <TextInput
-            autoFocus={autoFocus}
             numberOfLines={1}
             placeholderTextColor={colors.gray[500]}
             className="text-white py-2 px-3"
@@ -122,7 +121,7 @@ export default function EditorInput({
       )}
       <View className="flex-1">
         <TextInput
-          autoFocus={autoFocus}
+          readOnly={disabled}
           multiline
           textAlignVertical="top"
           placeholderTextColor={colors.gray[500]}

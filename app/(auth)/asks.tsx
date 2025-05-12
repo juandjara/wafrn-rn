@@ -57,7 +57,7 @@ export default function Asks() {
 }
 
 function AskList({ answered }: { answered: boolean }) {
-  const { data, isFetching, refetch } = useAsks(answered)
+  const { data, isFetching, refetch } = useAsks({ answered })
 
   const deleteAskMutation = useDeleteAskMutation()
 

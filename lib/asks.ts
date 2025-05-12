@@ -38,12 +38,12 @@ export async function getAsks(token: string, answered: boolean) {
   })
 }
 
-export function useAsks(answered: boolean) {
+export function useAsks({ answered, enabled = true }: { answered: boolean, enabled?: boolean }) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['asks', answered],
     queryFn: () => getAsks(token!, answered),
-    enabled: !!token,
+    enabled: !!token && enabled,
   })
 }
 

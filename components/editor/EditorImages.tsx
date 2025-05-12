@@ -22,17 +22,7 @@ import colors from 'tailwindcss/colors'
 import Video from '../Video'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { formatUserUrl } from '@/lib/formatters'
-
-export type EditorImage = {
-  uri: string
-  width: number
-  height: number
-  description?: string
-  NSFW?: boolean
-  id?: string
-  fileName?: string | null
-  mimeType?: string
-}
+import { EditorImage } from '@/lib/editor'
 
 const COMMON_MEDIA_LIMIT = 4
 

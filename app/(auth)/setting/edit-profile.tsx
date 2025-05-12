@@ -318,7 +318,6 @@ export default function EditProfile() {
               selection={selection}
               mentionState={mentionApi.mentionState}
               showTags={false}
-              autoFocus={false}
             />
           </View>
           <View className="m-4">

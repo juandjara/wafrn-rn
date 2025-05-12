@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Keyboard,
@@ -14,9 +14,7 @@ import {
   isTriggerConfig,
   useMentions,
 } from 'react-native-more-controlled-mentions'
-import { useCreatePostMutation, usePostDetail } from '@/lib/api/posts'
-import { useAsks } from '@/lib/asks'
-import { getDashboardContext } from '@/lib/api/dashboard'
+import { useCreatePostMutation } from '@/lib/api/posts'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
 import GenericRibbon from '@/components/GenericRibbon'
@@ -24,58 +22,35 @@ import EditorHeader from '@/components/editor/EditorHeader'
 import EditorActions, {
   EditorActionProps,
 } from '@/components/editor/EditorActions'
-import ImageList, { EditorImage } from '@/components/editor/EditorImages'
+import ImageList from '@/components/editor/EditorImages'
 import EditorInput, { EditorFormState } from '@/components/editor/EditorInput'
 import { useMediaUploadMutation } from '@/lib/api/media'
-import { formatMediaUrl, formatUserUrl } from '@/lib/formatters'
-import {
-  getPrivateOptionValue,
-  useSettings,
-  PrivateOptionNames,
-} from '@/lib/api/settings'
+import { formatMediaUrl } from '@/lib/formatters'
 import {
   clearSelectionRangeFormat,
   EDITOR_TRIGGERS_CONFIG,
   getTextFromMentionState,
 } from '@/lib/api/content'
-import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-
-type EditorSearchParams = {
-  replyId: string
-  askId: string
-  quoteId: string
-  editId: string
-  type: 'reply' | 'ask' | 'quote' | 'edit'
-}
+import { EditorImage, useEditorData } from '@/lib/editor'
+import Loading from '@/components/Loading'
 
 export default function EditorView() {
+  const {
+    ask,
+    reply,
+    context,
+    formState,
+    params,
+    disableForceAltText,
+    defaultPrivacy,
+    isLoading,
+    mentionedUserIds,
+    replyLabel,
+  } = useEditorData()
+
+  const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const { replyId, askId, quoteId, editId } =
-    useLocalSearchParams<EditorSearchParams>()
-
-  const me = useParsedToken()
-  const { env } = useAuth()
-  const { data: reply } = usePostDetail(replyId, false)
-  const { data: quote } = usePostDetail(quoteId, false)
-  const { data: editingPost } = usePostDetail(editId, false)
-  const { data: asks } = useAsks(false)
-  const { data: settings } = useSettings()
-
-  const disableForceAltText = useMemo(() => {
-    return getPrivateOptionValue(
-      settings?.options || [],
-      PrivateOptionNames.DisableForceAltText,
-    )
-  }, [settings?.options])
-
-  const defaultPrivacy = useMemo(() => {
-    return getPrivateOptionValue(
-      settings?.options || [],
-      PrivateOptionNames.DefaultPostPrivacy,
-    )
-  }, [settings])
-
   const [form, setForm] = useState<EditorFormState>({
     content: '',
     contentWarning: '',
@@ -85,57 +60,27 @@ export default function EditorView() {
     medias: [] as EditorImage[],
   })
 
-  const { mentionsPrefix, mentionedUserIds } = useMemo(() => {
-    if (!reply) {
-      return {
-        mentionsPrefix: '',
-        mentionedUserIds: [],
-      }
-    }
-
-    const replyData = reply.post
-
-    const userMap = Object.fromEntries(
-      replyData.users.map((user) => [user.id, user]),
-    )
-    const userId = replyData.posts[0].userId
-    const ids = new Set<string>()
-
-    if (userId !== me?.userId) {
-      ids.add(userId)
-    }
-
-    for (const mention of replyData.mentions) {
-      if (mention.userMentioned !== me?.userId) {
-        ids.add(mention.userMentioned)
-      }
-    }
-
-    const mentionUsers = Array.from(ids).map((id) => userMap[id])
-    const mentionsPrefix = mentionUsers
-      .map((m) => {
-        const remoteId = m.remoteId || `${env?.BASE_URL}/blog/${m.url}`
-        return `[${formatUserUrl(m)}](${remoteId}?id=${m.id}) `
+  function update<T extends keyof typeof form>(
+    key: T,
+    value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
+  ) {
+    // disable updates if initial editor data is still loading
+    if (!isLoading) {
+      setForm((prev) => {
+        const newValue = typeof value === 'function' ? value(prev[key]) : value
+        return { ...prev, [key]: newValue }
       })
-      .join('')
-
-    const isBsky = !!replyData.posts[0].bskyUri
-
-    return {
-      mentionsPrefix: isBsky ? '' : mentionsPrefix,
-      mentionedUserIds: Array.from(ids),
     }
-  }, [reply, me, env])
+  }
 
-  const { ask, askUser, context } = useMemo(() => {
-    const ask = asks?.find((a) => a.id === Number(askId))
-    const askUser = ask?.user
-    const context = getDashboardContext(
-      [reply?.post, quote?.post].filter((d) => !!d),
-      settings,
-    )
-    return { ask, askUser, context }
-  }, [settings, reply, quote, asks, askId])
+  useEffect(() => {
+    if (!isLoading) {
+      setForm((prev) => ({
+        ...prev,
+        ...formState,
+      }))
+    }
+  }, [isLoading, formState])
 
   const uploadMutation = useMediaUploadMutation()
   const createMutation = useCreatePostMutation()
@@ -160,94 +105,6 @@ export default function EditorView() {
       form.contentWarning.length > 0
     )
   }, [form, disableForceAltText, createMutation, uploadMutation])
-
-  function update<T extends keyof typeof form>(
-    key: T,
-    value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
-  ) {
-    setForm((prev) => {
-      const newValue = typeof value === 'function' ? value(prev[key]) : value
-      return { ...prev, [key]: newValue }
-    })
-  }
-
-  useEffect(() => {
-    if (mentionsPrefix) {
-      update('content', (prev) => `${mentionsPrefix}${prev}`)
-    }
-    // NOTE: not including 'update' here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mentionsPrefix])
-
-  useEffect(() => {
-    if (defaultPrivacy) {
-      update('privacy', defaultPrivacy)
-    }
-    // NOTE: not including 'update' here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultPrivacy])
-
-  useEffect(() => {
-    if (editingPost) {
-      const post = editingPost.post.posts[0]
-      const tags = editingPost.post.tags
-        .filter((t) => t.postId === post.id)
-        .map((t) => t.tagName)
-      const medias = editingPost.post.medias
-        .filter((m) => m.postId === post.id)
-        .map((m) => ({
-          ...m,
-          uri: formatMediaUrl(m.url),
-          width: m.width || 0,
-          height: m.height || 0,
-        }))
-
-      let content = post.markdownContent || ''
-      const mentions = editingPost.post.mentions.filter(
-        (m) => m.post === post.id,
-      )
-      const userMap = Object.fromEntries(
-        editingPost.post.users.map((u) => [u.id, u]),
-      )
-      for (const mention of mentions) {
-        const user = userMap[mention.userMentioned]
-        if (!user) {
-          continue
-        }
-        const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
-        const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${
-          user.id
-        })`
-        content = content.replace(user.url, mentionText)
-      }
-
-      update('content', content)
-      update('tags', tags.join(', '))
-      update('privacy', post.privacy)
-      update('contentWarning', post.content_warning)
-      update('contentWarningOpen', !!post.content_warning)
-      update('medias', medias)
-    }
-    // NOTE: not including 'update' here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingPost])
-
-  useEffect(() => {
-    const replyPost = reply?.post.posts[0]
-    if (replyPost) {
-      const replyCw = replyPost.content_warning || ''
-      if (replyCw) {
-        const cw = replyCw.toLowerCase().startsWith('re:')
-          ? replyCw
-          : `re: ${replyCw}`
-        update('contentWarning', cw)
-        update('contentWarningOpen', true)
-      }
-      update('privacy', Math.max(replyPost.privacy, defaultPrivacy))
-    }
-    // NOTE: not including 'update' here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reply, defaultPrivacy])
 
   const mentionApi = useMentions({
     value: form.content,
@@ -279,10 +136,10 @@ export default function EditorView() {
     createMutation.mutate(
       {
         content: text,
-        parentId: replyId,
-        askId,
-        quotedPostId: quoteId,
-        editingPostId: editId,
+        parentId: params.type === 'reply' ? params.replyId : undefined,
+        askId: params.type === 'ask' ? params.askId : undefined,
+        quotedPostId: params.type === 'quote' ? params.quoteId : undefined,
+        editingPostId: params.type === 'edit' ? params.editId : undefined,
         contentWarning: form.contentWarning,
         privacy: form.privacy,
         joinedTags: form.tags,
@@ -378,8 +235,6 @@ export default function EditorView() {
     },
   }
 
-  const sx = useSafeAreaPadding()
-
   return (
     <DashboardContextProvider data={context}>
       <KeyboardAvoidingView
@@ -398,12 +253,18 @@ export default function EditorView() {
           className="flex-grow-0 pb-1"
           keyboardShouldPersistTaps="handled"
         >
+          {isLoading ? (
+            <View className="absolute inset-0 flex-1 justify-center items-center">
+              <Loading />
+            </View>
+          ) : null}
           <EditorInput
             {...mentionApi}
             formState={form}
             updateFormState={update}
             selection={selection}
             mentionState={mentionApi.mentionState}
+            disabled={isLoading}
           />
           <ImageList
             images={form.medias}
@@ -413,38 +274,27 @@ export default function EditorView() {
           {reply && (
             <View className="mx-2 my-4 rounded-lg bg-indigo-950">
               <Text className="text-white mb-2 px-3 pt-2 text-sm">
-                Replying to:
+                {replyLabel}
               </Text>
               <PostFragment
-                post={reply.post.posts[0]}
+                post={reply.posts[0]}
                 collapsible={false}
                 clickable={false}
                 hasCornerMenu={false}
               />
             </View>
           )}
-          {quote && (
-            <View className="mx-2 my-4 rounded-lg bg-indigo-950">
-              <Text className="text-white mb-2 px-3 pt-2 text-sm">
-                Quoting:
-              </Text>
-              <PostFragment
-                post={quote.post.posts[0]}
-                collapsible={false}
-                clickable={false}
-                hasCornerMenu={false}
-              />
-            </View>
-          )}
-          {ask && askUser && (
+          {ask && (
             <View className="m-2 mb-4 rounded-lg bg-indigo-950">
               <GenericRibbon
-                user={askUser}
+                user={ask.user}
                 userNameHTML={
-                  askUser.url.startsWith('@') ? askUser.url : `@${askUser.url}`
+                  ask.user.url.startsWith('@')
+                    ? ask.user.url
+                    : `@${ask.user.url}`
                 }
                 label="asked"
-                link={`/user/${askUser.url}`}
+                link={`/user/${ask.user.url}`}
                 icon={
                   <MaterialIcons name="question-mark" size={24} color="white" />
                 }
