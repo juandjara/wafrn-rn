@@ -150,8 +150,10 @@ export function useEditorData() {
           })
           .join('')
 
+        const isFedi = replyPost.remotePostId && !replyPost.bskyUri
+
         mentionedUserIds = Array.from(mentionIds)
-        formState.content = replyPost.bskyUri ? '' : _mentionsPrefix
+        formState.content = isFedi ? _mentionsPrefix : ''
       }
     }
 
