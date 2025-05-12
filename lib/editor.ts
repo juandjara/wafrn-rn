@@ -185,7 +185,7 @@ export function useEditorData() {
         const mentionText = `[${formatUserUrl(user)}](${remoteId}?id=${
           user.id
         })`
-        content = content.replace(user.url, mentionText)
+        content = content.replace(formatUserUrl(user), mentionText)
       }
 
       formState.content = content
