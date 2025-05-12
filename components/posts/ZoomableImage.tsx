@@ -137,7 +137,7 @@ export default function ZoomableImage({
           />
         ) : (
           <Image
-            cachePolicy={'memory-disk'}
+            cachePolicy={'memory'}
             recyclingKey={id}
             source={src}
             placeholder={{ blurHash, width, height }}
