@@ -7,7 +7,7 @@ import {
   useFollowers,
 } from '@/lib/api/user'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
-import { timeAgo } from '@/lib/formatters'
+import { formatTimeAgo } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
@@ -72,7 +72,7 @@ export default function Followers() {
               <FollowRibbon follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">
-                  {timeAgo(item.follows.createdAt)}
+                  {formatTimeAgo(item.follows.createdAt)}
                 </Text>
               </View>
               {userid === me?.url && (

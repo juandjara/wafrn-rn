@@ -1,7 +1,7 @@
 import GenericRibbon from '@/components/GenericRibbon'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useAsks, useDeleteAskMutation } from '@/lib/asks'
-import { timeAgo } from '@/lib/formatters'
+import { formatTimeAgo } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
@@ -91,7 +91,7 @@ function AskList({ answered }: { answered: boolean }) {
         />
         <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
           <Text className="text-gray-300 text-xs">
-            {timeAgo(ask.createdAt)}
+            {formatTimeAgo(ask.createdAt)}
           </Text>
         </View>
         <Text className="text-lg text-white p-3">{ask.question}</Text>

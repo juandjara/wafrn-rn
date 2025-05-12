@@ -12,7 +12,11 @@ import {
   DashboardContextProvider,
   useDashboardContext,
 } from '@/lib/contexts/DashboardContext'
-import { formatCachedUrl, formatMediaUrl, timeAgo } from '@/lib/formatters'
+import {
+  formatCachedUrl,
+  formatMediaUrl,
+  formatTimeAgo,
+} from '@/lib/formatters'
 import {
   FullNotification,
   getNotificationList,
@@ -254,7 +258,7 @@ function NotificationItem({
             {verbs[notification.notificationType]}
           </Text>
           <Text className="text-gray-300 text-xs">
-            {timeAgo(notification.createdAt)}
+            {formatTimeAgo(notification.createdAt)}
           </Text>
         </View>
       )}

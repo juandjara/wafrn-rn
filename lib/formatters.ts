@@ -52,9 +52,9 @@ export function formatUserUrl(url?: string) {
   return url.startsWith('@') ? url : `@${url}`
 }
 
-export function timeAgo(date: string) {
+export function formatTimeAgo(date: string) {
   const day = dayjs(new Date(date))
-  const timeAgo = day
+  const formatTimeAgo = day
     .fromNow()
     .replace(/ years?/, 'y')
     .replace(/ months?/, 'mo')
@@ -64,5 +64,5 @@ export function timeAgo(date: string) {
     .replace(/ seconds?/, 's')
     .replace(/^one|^an|^a/, '1')
 
-  return timeAgo
+  return formatTimeAgo
 }

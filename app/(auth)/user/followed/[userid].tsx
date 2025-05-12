@@ -3,7 +3,7 @@ import { useFollowed } from '@/lib/api/user'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo } from 'react'
 import { FlatList, Text, View } from 'react-native'
-import { timeAgo } from '@/lib/formatters'
+import { formatTimeAgo } from '@/lib/formatters'
 import FollowRibbon from '@/components/user/FollowRibbon'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
@@ -37,7 +37,7 @@ export default function Followed() {
               <FollowRibbon follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">
-                  {timeAgo(item.follows.createdAt)}
+                  {formatTimeAgo(item.follows.createdAt)}
                 </Text>
               </View>
             </View>
