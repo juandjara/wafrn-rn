@@ -243,7 +243,7 @@ export default function PostFragment({
                 {mentionedUsers.length > 0 && (
                   <ScrollView
                     horizontal
-                    contentContainerClassName="gap-3"
+                    contentContainerClassName="gap-2"
                     className="flex-shrink-0 flex-grow-0 mt-2"
                   >
                     {mentionedUsers.map((u) => (
