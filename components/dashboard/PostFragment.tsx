@@ -1,5 +1,11 @@
 import type { Post } from '@/lib/api/posts.types'
-import { Pressable, Text, useWindowDimensions, View } from 'react-native'
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import { Image } from 'expo-image'
 import { formatUserUrl, formatDate, formatSmallAvatar } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
@@ -55,6 +61,7 @@ export default function PostFragment({
     contentWarning,
     initialCWOpen,
     hiddenLinks,
+    mentionedUsers,
   } = derivedState
 
   const showQuotedPost = quotedPost && !isQuote
@@ -232,6 +239,21 @@ export default function PostFragment({
                     </View>
                     <Text className="text-white my-1">{ask.question}</Text>
                   </View>
+                )}
+                {mentionedUsers.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    contentContainerClassName="gap-3"
+                    className="flex-shrink-0 flex-grow-0 mt-2"
+                  >
+                    {mentionedUsers.map((u) => (
+                      <Link key={u.id} href={`/user/${u.url}`}>
+                        <Text className="text-cyan-200 text-sm">
+                          {formatUserUrl(u.url)}
+                        </Text>
+                      </Link>
+                    ))}
+                  </ScrollView>
                 )}
                 <View collapsable={false} className="py-2">
                   <PostHtmlRenderer

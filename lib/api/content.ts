@@ -528,6 +528,18 @@ export function getDerivedPostState(
     hiddenLinks.push(quotedPost.remotePostId)
   }
 
+  let mentionedUsers = [] as PostUser[]
+  const isFedi = !!post.remotePostId && !post.bskyUri
+  const isReply = !!post.parentId
+  if (!isFedi && isReply) {
+    const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
+    const mentionedUserIds = context.mentions
+      .filter((m) => m.post === post.id && m.userMentioned !== post.userId)
+      .map((m) => m.userMentioned)
+
+    mentionedUsers = Array.from(new Set(mentionedUserIds)).map((id) => userMap[id])
+  }
+
   return {
     user,
     userName,
@@ -543,6 +555,7 @@ export function getDerivedPostState(
     contentWarning,
     initialCWOpen,
     hiddenLinks,
+    mentionedUsers,
   }
 }
 

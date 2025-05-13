@@ -1,10 +1,11 @@
 import { PrivacyLevel } from '@/lib/api/privacy'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
-import { Link } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'
+import { EditorSearchParams } from '@/lib/editor'
 
 export default function EditorHeader({
   isLoading,
@@ -19,6 +20,7 @@ export default function EditorHeader({
   canPublish: boolean
   onPublish: () => void
 }) {
+  const { type } = useLocalSearchParams<EditorSearchParams>()
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -26,12 +28,18 @@ export default function EditorHeader({
       <Link href="../" className="rounded-full active:bg-white/10 p-1">
         <MaterialIcons name="close" color="white" size={20} />
       </Link>
-      <PrivacySelect
-        open={modalOpen}
-        setOpen={setModalOpen}
-        privacy={privacy}
-        setPrivacy={setPrivacy}
-      />
+      <View
+        className={clsx({
+          'pointer-events-none opacity-50': type === 'edit',
+        })}
+      >
+        <PrivacySelect
+          open={modalOpen}
+          setOpen={setModalOpen}
+          privacy={privacy}
+          setPrivacy={setPrivacy}
+        />
+      </View>
       <View className="flex-grow"></View>
       <Pressable
         disabled={!canPublish}

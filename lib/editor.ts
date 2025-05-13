@@ -8,6 +8,7 @@ import { PrivacyLevel } from "./api/privacy"
 import { formatUserUrl, formatMediaUrl } from "./formatters"
 import { getDashboardContext } from "./api/dashboard"
 import { useAsks } from "./asks"
+import { PostUser } from "./api/posts.types"
 
 export type EditorSearchParams = {
   type: 'reply'
@@ -92,7 +93,9 @@ export function useEditorData() {
 
     let ask = null
     let replyLabel = ''
-    let mentionedUserIds = [] as string[]
+    // let mentionsPrefix = ''
+    // let mentionedUserIds = [] as string[]
+    let mentionedUsers = [] as PostUser[]
     const context = getDashboardContext(reply ? [reply] : [], settings)
     const formState: Partial<EditorFormState> = {
       privacy: defaultPrivacy,
@@ -142,18 +145,18 @@ export function useEditorData() {
           }
         }
 
-        const mentionUsers = Array.from(mentionIds).map((id) => userMap[id])
-        const _mentionsPrefix = mentionUsers
-          .map((u) => {
-            const remoteId = u.remoteId || `${env?.BASE_URL}/blog/${u.url}`
-            return `[${formatUserUrl(u.url)}](${remoteId}?id=${u.id}) `
-          })
-          .join('')
+        mentionedUsers = Array.from(mentionIds).map((id) => userMap[id])
+        // const _mentionsPrefix = mentionUsers
+        //   .map((u) => {
+        //     const remoteId = u.remoteId || `${env?.BASE_URL}/blog/${u.url}`
+        //     return `[${formatUserUrl(u.url)}](${remoteId}?id=${u.id}) `
+        //   })
+        //   .join('')
 
-        const isFedi = replyPost.remotePostId && !replyPost.bskyUri
+        // const isFedi = replyPost.remotePostId && !replyPost.bskyUri
 
-        mentionedUserIds = Array.from(mentionIds)
-        formState.content = isFedi ? _mentionsPrefix : ''
+        // mentionedUserIds = Array.from(mentionIds)
+        // mentionsPrefix = isFedi ? _mentionsPrefix : ''
       }
     }
 
@@ -190,7 +193,7 @@ export function useEditorData() {
         content = content.replace(formatUserUrl(user.url), mentionText)
       }
 
-      mentionedUserIds = Array.from(new Set(mentions.map((m) => m.userMentioned)))
+      mentionedUsers = Array.from(new Set(mentions.map((m) => userMap[m.userMentioned])))
 
       formState.content = content
       formState.tags = tags.join(', ')
@@ -209,7 +212,7 @@ export function useEditorData() {
       params,
       disableForceAltText,
       defaultPrivacy,
-      mentionedUserIds,
+      mentionedUsers,
       isLoading,
     }
     // NOTE: explicitly ignoring dependency on other props in `params` like `params.askId`

@@ -5,6 +5,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -34,6 +35,8 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
+import colors from 'tailwindcss/colors'
+import { PostUser } from '@/lib/api/posts.types'
 
 export default function EditorView() {
   const {
@@ -45,12 +48,13 @@ export default function EditorView() {
     disableForceAltText,
     defaultPrivacy,
     isLoading,
-    mentionedUserIds,
+    mentionedUsers,
     replyLabel,
   } = useEditorData()
 
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
+  const [mentions, setMentions] = useState<PostUser[]>([])
   const [form, setForm] = useState<EditorFormState>({
     content: '',
     contentWarning: '',
@@ -81,6 +85,16 @@ export default function EditorView() {
       }))
     }
   }, [isLoading, formState])
+
+  useEffect(() => {
+    if (!isLoading && mentionedUsers.length > 0) {
+      setMentions(mentionedUsers)
+    }
+  }, [isLoading, mentionedUsers])
+
+  function deleteMention(id: string) {
+    setMentions((prev) => prev.filter((u) => u.id !== id))
+  }
 
   const uploadMutation = useMediaUploadMutation()
   const createMutation = useCreatePostMutation()
@@ -131,7 +145,9 @@ export default function EditorView() {
       )
       .map((p) => p.data?.id) as string[]
 
-    const mentions = new Set([...editorMentionedUserIds, ...mentionedUserIds])
+    const mentionedUserIds = Array.from(
+      new Set([...editorMentionedUserIds, ...mentions.map((u) => u.id)]),
+    )
 
     createMutation.mutate(
       {
@@ -151,7 +167,7 @@ export default function EditorView() {
           description: m.description || '',
           NSFW: m.NSFW || false,
         })),
-        mentionedUserIds: Array.from(mentions),
+        mentionedUserIds,
       },
       {
         onSuccess(data) {
@@ -248,6 +264,32 @@ export default function EditorView() {
           canPublish={canPublish}
           onPublish={onPublish}
         />
+        {mentions.length > 0 && (
+          <ScrollView
+            horizontal
+            contentContainerClassName="gap-3"
+            className="flex-shrink-0 flex-grow-0 m-2"
+          >
+            {mentions.map((u) => (
+              <View
+                key={u.id}
+                className="rounded-lg border border-gray-700 pl-2 flex-row items-center gap-2"
+              >
+                <Text className="text-sm text-cyan-500">{u.url}</Text>
+                <Pressable
+                  className="rounded-md bg-white/5 p-1"
+                  onPress={() => deleteMention(u.id)}
+                >
+                  <MaterialIcons
+                    name="close"
+                    size={20}
+                    color={colors.gray[300]}
+                  />
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        )}
         <ScrollView
           id="editor-scroll"
           className="flex-grow-0 pb-1"
@@ -258,6 +300,11 @@ export default function EditorView() {
               <Loading />
             </View>
           ) : null}
+          {/* {mentionsPrefix && (
+            <View className="m-2">
+              <Text className="text-white text-sm">{mentionsPrefix}</Text>
+            </View>
+          )} */}
           <EditorInput
             {...mentionApi}
             formState={form}
