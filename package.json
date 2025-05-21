@@ -52,7 +52,7 @@
     "expo-splash-screen": "~0.29.18",
     "expo-status-bar": "~2.0.0",
     "expo-system-ui": "~4.0.6",
-    "expo-unified-push": "^0.3.0",
+    "expo-unified-push": "^0.3.2",
     "expo-updates": "~0.26.10",
     "expo-video": "~2.0.3",
     "houseform": "^1.13.0",
