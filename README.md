@@ -37,7 +37,7 @@ You can contribute to the project by creating a PR or by opening an issue for di
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Donations
 
