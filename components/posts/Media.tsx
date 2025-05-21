@@ -15,7 +15,7 @@ import MediaCloak from './MediaCloak'
 import Video from '../Video'
 import { useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
-import { isTenorLink } from '@/lib/api/content'
+import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 
 export default function Media({
   media,
@@ -28,7 +28,7 @@ export default function Media({
 }) {
   const [showAlt, setShowAlt] = useState(false)
   const src = formatCachedUrl(formatMediaUrl(media.url))
-  const isExternalGIF = isTenorLink(media.url)
+  const isExternalGIF = isTenorLink(media.url) || isGiphyLink(media.url)
   const aspectRatio = isExternalGIF
     ? getGIFAspectRatio(media)
     : getAspectRatio(media)

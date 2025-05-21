@@ -1,4 +1,4 @@
-import { getYoutubeImage, isValidYTLink } from '@/lib/api/content'
+import { getYoutubeImage, isGiphyLink, isValidYTLink } from '@/lib/api/content'
 import { Pressable, Text, View } from 'react-native'
 import YTPreviewCard from './YTPreviewCard'
 import { useLinkPreview } from '@/lib/api/media'
@@ -20,6 +20,7 @@ export default function LinkPreviewCard({
   className?: string
 }) {
   const isYTLink = isValidYTLink(url)
+  const isGiphy = isGiphyLink(url)
   const { data } = useLinkPreview(isYTLink ? null : url)
 
   if (isYTLink) {
@@ -35,7 +36,7 @@ export default function LinkPreviewCard({
     )
   }
 
-  const image = data?.images?.[0] || data?.favicons?.[0]
+  const image = isGiphy ? url : data?.images?.[0] || data?.favicons?.[0]
   const title = data?.title ?? data?.siteName
   const description = _description ?? data?.description
   const favicon = data?.favicons?.[0]

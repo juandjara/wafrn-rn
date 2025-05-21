@@ -160,6 +160,11 @@ export function isTenorLink(href: string) {
   return matchHosts(href, TENOR_HOSTS)
 }
 
+const GIPHY_HOSTS = ['giphy.com']
+export function isGiphyLink(href: string) {
+  return matchHosts(href, GIPHY_HOSTS)
+}
+
 export function getYoutubeImage(ytLink: string) {
   if (!isValidURL(ytLink)) {
     return null
