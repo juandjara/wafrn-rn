@@ -56,32 +56,38 @@ export function usePushNotifications() {
 
   useEffect(() => {
     return subscribeDistributorMessages(async (message) => {
-      if (authToken) {
-        if (message.action === 'registered') {
-          console.log(`[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`)
-          try {
-            await registerUnifiedPush(authToken, message.data)
-            setUpData(message.data)
-          } catch (error) {
-            console.error('[expo-unified-push] error in registerUnifiedPush: ', error)
-          }
-        }
-        if (message.action === 'unregistered' && upData) {
-          console.log(`[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`)
-          try {
-            await unregisterUnifiedPush(authToken, upData)
-            setUpData(null)
-          } catch (error) {
-            console.error('[expo-unified-push] error in unregisterUnifiedPush: ', error)
-          }
+      if (!authToken) {
+        return
+      }
+
+      if (message.action === 'registered') {
+        console.log(`[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`)
+        try {
+          await registerUnifiedPush(authToken, message.data)
+          setUpData(message.data)
+        } catch (error) {
+          console.error('[expo-unified-push] error in registerUnifiedPush: ', error)
         }
       }
+      
+      if (message.action === 'unregistered' && upData) {
+        console.log(`[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`)
+        try {
+          await unregisterUnifiedPush(authToken, upData)
+          setUpData(null)
+        } catch (error) {
+          console.error('[expo-unified-push] error in unregisterUnifiedPush: ', error)
+        }
+      }
+      
       if (message.action === 'error') {
         console.error('[expo-unified-push] error: ', message.data)
       }
+      
       if (message.action === 'registrationFailed') {
         console.error('[expo-unified-push] registrationFailed: ', message.data)
       }
+      
       if (message.action === 'message') {
         console.log('[expo-unified-push] message: ', message)
         refetchBadges()
