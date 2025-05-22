@@ -29,7 +29,7 @@ You can start developing by editing the files inside the **app** directory. This
 
 Discussions and contributions about the development of the app are welcome on the [Discord server](https://discord.gg/DTqGpk2AUV). (migration to some other platform might come in the future) and on [Wafrn itself](https://app.wafrn.net). When adding your feedback, please consider that the app is still in beta and some things might change.
 
-If you want to ensure a quick response, you can always ping @javascript@app.wafrn.net or @gabboman@app.wafrn.net using any fediverse software.
+If you want to ensure a quick response, you can always ping [@javascript@app.wafrn.net](https://app.wafrn.net/blog/javascript) or [@gabboman@app.wafrn.net](https://app.wafrn.net/blog/gabboman) using any fediverse software.
 
 ## Contributing
 
@@ -37,7 +37,7 @@ You can contribute to the project by creating a PR or by opening an issue for di
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Donations
 
