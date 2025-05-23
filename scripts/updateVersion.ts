@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
@@ -6,11 +7,6 @@ const ROOT = path.resolve(__dirname, '..');
 const GRADLE_FILE = path.resolve(ROOT, 'android/app/build.gradle');
 const ANDROID_STRINGS_FILE = path.resolve(ROOT, 'android/app/src/main/res/values/strings.xml');
 const IOS_PLIST_FILE = path.resolve(ROOT, 'ios/Wafrn/Supporting/Expo.plist');
-
-function versionStringToNumber(version: string) {
-  const [major, minor, patch] = version.split('.').map(Number);
-  return major * 1000000 + minor * 1000 + patch;
-}
 
 function main() {
   const version = process.argv[2];
@@ -22,8 +18,10 @@ function main() {
   }
 
   console.log(`Updating version to ${version}`);
+
+  const [major, minor, patch] = version.split('.').map(Number);
+  const versionNumber = major * 1000000 + minor * 1000 + patch;
   
-  const versionNumber = versionStringToNumber(version);
   const gradle = fs.readFileSync(GRADLE_FILE, 'utf8');
   const androidStrings = fs.readFileSync(ANDROID_STRINGS_FILE, 'utf8');
   const iosPlist = fs.readFileSync(IOS_PLIST_FILE, 'utf8');
