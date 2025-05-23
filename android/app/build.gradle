@@ -111,7 +111,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false
-            include 'armeabi-v7a', 'arm64-v8a'
+            include findProperty('reactNativeArchitectures')
         }
     }
     signingConfigs {
