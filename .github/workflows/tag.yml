@@ -34,9 +34,12 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add .
-          git commit -m "Update native versions"
-          git push
+          # Only commit if there are changes in the working tree
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Update native versions"
+            git push
+          fi
 
       - name: Remove existing tag if exists
         run: |
