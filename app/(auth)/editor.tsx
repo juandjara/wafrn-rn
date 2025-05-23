@@ -143,7 +143,16 @@ export default function EditorView() {
           isTriggerConfig(p.config) &&
           p.config.trigger === '@',
       )
-      .map((p) => p.data?.id) as string[]
+      .map((p) => {
+        try {
+          const url = new URL(p.data!.id)
+          return url.searchParams.get('id')
+        } catch (err) {
+          console.error(err)
+          return ''
+        }
+      })
+      .filter((s) => !!s) as string[]
 
     const mentionedUserIds = Array.from(
       new Set([...editorMentionedUserIds, ...mentions.map((u) => u.id)]),
