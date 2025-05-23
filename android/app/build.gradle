@@ -90,13 +90,6 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
-def readVersionFromPackageJson = {
-    def inputFile = new File("$rootDir/../package.json")
-    def packageJson = new groovy.json.JsonSlurper().parseText(inputFile.text)
-
-    return packageJson.version
-}
-
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -108,10 +101,10 @@ android {
         applicationId 'dev.djara.wafrn_rn'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // versionCode is the major version number
-        versionCode readVersionFromPackageJson().substring(0, 1).toInteger()
+        // versionCode is an increasing number representing the version
+        versionCode 1003002
         // versionName is the full version string
-        versionName readVersionFromPackageJson()
+        versionName '1.3.2'
     }
     splits {
         abi {
