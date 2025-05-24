@@ -102,9 +102,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // versionCode is an increasing number representing the version
-        versionCode 1003002
+        versionCode 1003003
         // versionName is the full version string
-        versionName '1.3.2'
+        versionName '1.3.3'
     }
     splits {
         abi {
