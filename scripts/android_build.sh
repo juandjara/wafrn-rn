@@ -28,7 +28,7 @@ if [ "$1" == "dev" ]; then
   ./gradlew app:installDevelopmentDebug
 else
   echo '> installing production release build'
-  ./gradlew app:assembleProductionRelease -PreactNativeArchitectures=arm64-v8a
+  ./gradlew app:assembleProductionRelease
 fi
 
 echo '> installing expo-notifications again to not break the iOS build'
@@ -37,4 +37,9 @@ cd ..
 npm i expo-notifications@$PREV_VERSION
 
 echo '> Done!'
-echo '> APKs created in ./android/app/build/outputs/apk/release'
+
+if [ "$1" == "dev" ]; then
+  echo '> APKs created in ./android/app/build/outputs/apk/development/debug'
+else
+  echo '> APKs created in ./android/app/build/outputs/apk/production/release'
+fi
