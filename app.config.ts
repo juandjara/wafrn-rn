@@ -50,6 +50,12 @@ export default {
       'expo-secure-store',
       'expo-font',
       [
+        'expo-dev-client',
+        {
+          launchMode: 'launcher',
+        }
+      ],
+      [
         'expo-video',
         {
           supportsBackgroundPlayback: true,
@@ -71,6 +77,10 @@ export default {
     runtimeVersion: pkg.version,
     updates: {
       url: 'https://u.expo.dev/8453855c-b400-4d59-bd72-0ebfa1a95eb2',
+      requestHeaders: {
+        'expo-channel-name': 'preview',
+      },
+      checkAutomatically: 'NEVER',
     },
   } satisfies ExpoConfig,
 }
