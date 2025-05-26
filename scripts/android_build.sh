@@ -10,7 +10,6 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
-export NODE_ENV=production
 export PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-notifications']")
 
 echo "> uninstalling previous version of expo-notifications: $PREV_VERSION"
@@ -26,13 +25,20 @@ fi
 
 env=${1:-prod}
 
-cd android
 if [ "$env" == "dev" ]; then
+  export NODE_ENV=development
+  echo '> setting up development environment'
+  npm run setup:dev
+  cd android
   echo '> installing development debug build'
-  ./gradlew app:installDevelopmentDebug
+  ./gradlew app:assembleDebug
 else
+  export NODE_ENV=production
+  echo '> setting up production environment'
+  npm run setup:prod
+  cd android
   echo '> installing production release build'
-  ./gradlew app:installProductionRelease -PreactNativeArchitectures=arm64-v8a
+  ./gradlew app:assembleRelease
 fi
 
 echo '> installing expo-notifications again to not break the iOS build'

@@ -8,18 +8,13 @@
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
-      "environment": "development",
-      "android": {
-        "gradleCommand": ":app:assembleDevelopmentDebug"
-      }
+      "environment": "development"
     },
     "production": {
-      "autoIncrement": true,
       "channel": "preview",
       "environment": "production",
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleProductionRelease"
+        "buildType": "apk"
       }
     }
   },

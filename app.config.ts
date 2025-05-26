@@ -1,14 +1,23 @@
 import type { ExpoConfig } from 'expo/config'
 import pkg from './package.json'
 
+const versionName = pkg.version
+const [major, minor, patch] = versionName.split('.').map(Number);
+const versionNumber = major * 1000000 + minor * 1000 + patch;
+
+const isDev = process.env.NODE_ENV === 'development'
+const appId = isDev ? 'dev.djara.wafrn_rn.dev' : 'dev.djara.wafrn_rn'
+const name = isDev ? 'Wafrn Dev' : 'Wafrn'
+const icon = isDev ? './assets/images/logo_w_dev.png' : './assets/images/logo_w.png'
+
 export default {
   expo: {
     newArchEnabled: true,
-    name: 'Wafrn',
+    name,
     slug: 'wafrn-rn',
-    version: pkg.version,
+    version: versionName,
     orientation: 'portrait',
-    icon: './assets/images/logo_w.png',
+    icon,
     scheme: 'wafrn',
     userInterfaceStyle: 'dark',
     splash: {
@@ -27,12 +36,13 @@ export default {
       },
     },
     android: {
+      versionCode: versionNumber,
       adaptiveIcon: {
-        foregroundImage: './assets/images/logo_w.png',
+        foregroundImage: icon,
         backgroundColor: '#151718',
       },
       permissions: [],
-      package: 'dev.djara.wafrn_rn',
+      package: appId,
       intentFilters: [
         {
           action: 'VIEW',
@@ -43,6 +53,7 @@ export default {
           category: ['BROWSABLE', 'DEFAULT'],
         },
       ],
+      edgeToEdgeEnabled: false,
     },
     plugins: [
       'expo-router',

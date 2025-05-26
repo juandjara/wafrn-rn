@@ -28,9 +28,9 @@ jobs:
             echo "Tag v${{ steps.get_version.outputs.version }} already exists"
           fi
 
-      - name: Update native versions
+      - name: Check environment
         run: |
-          ./scripts/updateVersion.ts ${{ steps.get_version.outputs.version }}
+          ./scripts/checkEnvironment.ts
 
       - name: Commit changes
         run: |

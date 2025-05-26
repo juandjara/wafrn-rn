@@ -18,6 +18,10 @@ jobs:
           node-version: 18.x
           cache: npm
 
+      - name: 🔍 Check environment
+        run: |
+          ./scripts/checkEnvironment.ts
+
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8
         with:
