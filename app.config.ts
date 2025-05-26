@@ -38,7 +38,6 @@ export default {
           action: 'VIEW',
           autoVerify: true,
           data: [
-            { scheme: 'http', host: 'app.wafrn.net' },
             { scheme: 'https', host: 'app.wafrn.net' },
           ],
           category: ['BROWSABLE', 'DEFAULT'],
