@@ -51,7 +51,7 @@ fi
 echo '> Done!'
 
 if [ "$env" == "dev" ]; then
-  echo '> APKs created in ./android/app/build/outputs/apk/development/debug'
+  echo '> APKs created in ./android/app/build/outputs/apk/debug'
 else
-  echo '> APKs created in ./android/app/build/outputs/apk/production/release'
+  echo '> APKs created in ./android/app/build/outputs/apk/release'
 fi
