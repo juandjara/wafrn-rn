@@ -24,8 +24,10 @@ if ! [ -f 'android/gradlew' ]; then
   exit 1
 fi
 
+env=${1:-prod}
+
 cd android
-if [ "$1" == "dev" ]; then
+if [ "$env" == "dev" ]; then
   echo '> installing development debug build'
   ./gradlew app:installDevelopmentDebug
 else
@@ -42,7 +44,7 @@ fi
 
 echo '> Done!'
 
-if [ "$1" == "dev" ]; then
+if [ "$env" == "dev" ]; then
   echo '> APKs created in ./android/app/build/outputs/apk/development/debug'
 else
   echo '> APKs created in ./android/app/build/outputs/apk/production/release'
