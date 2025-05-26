@@ -15,7 +15,9 @@ export PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-noti
 
 echo "> uninstalling previous version of expo-notifications: $PREV_VERSION"
 
-npm un expo-notifications
+if [ "$PREV_VERSION" != "undefined" ]; then
+  npm un expo-notifications
+fi
 
 if ! [ -f 'android/gradlew' ]; then
   echo 'android/gradlew not found'
@@ -28,13 +30,15 @@ if [ "$1" == "dev" ]; then
   ./gradlew app:installDevelopmentDebug
 else
   echo '> installing production release build'
-  ./gradlew app:assembleProductionRelease
+  ./gradlew app:installProductionRelease -PreactNativeArchitectures=arm64-v8a
 fi
 
 echo '> installing expo-notifications again to not break the iOS build'
 cd ..
 
-npm i expo-notifications@$PREV_VERSION
+if [ "$PREV_VERSION" != "undefined" ]; then
+  npm i expo-notifications@$PREV_VERSION
+fi
 
 echo '> Done!'
 
