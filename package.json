@@ -7,7 +7,7 @@
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
     "build:dev:ios": "NODE_ENV=development expo prebuild && npx eas-cli build --profile development --local --platform ios",
     "build:dev:android": "bash ./scripts/android_build.sh dev",
-    "build:prod:ios": "NODE_ENV=production expo prebuild && npx eas-cli build --profile production --local --platform ios",
+    "build:prod:ios": "NODE_ENV=production npx eas-cli build --profile production --local --platform ios",
     "build:prod:android": "bash ./scripts/android_build.sh prod",
     "setup:dev": "NODE_ENV=development expo prebuild",
     "setup:prod": "NODE_ENV=production expo prebuild",
@@ -27,7 +27,7 @@
     "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "@shopify/flash-list": "1.7.6",
     "@shopify/react-native-skia": "v2.0.0-next.4",
-    "@tanstack/react-query": "^5.51.1",
+    "@tanstack/react-query": "^5.77.2",
     "@types/showdown": "^2.0.6",
     "@xstate/store": "^2.6.2",
     "buffer": "^6.0.3",
@@ -47,6 +47,7 @@
     "expo-linear-gradient": "~14.1.4",
     "expo-linking": "~7.1.5",
     "expo-media-library": "~17.1.6",
+    "expo-notifications": "0.29.14",
     "expo-router": "~5.0.7",
     "expo-secure-store": "~14.2.3",
     "expo-splash-screen": "~0.30.8",
@@ -93,5 +94,9 @@
       }
     }
   },
-  "packageManager": "npm@10.9.0"
+  "packageManager": "npm@10.9.0",
+  "overrides": {
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
 }
