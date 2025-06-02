@@ -119,7 +119,7 @@ export default function EditorInput({
           />
         </View>
       )}
-      <View className="flex-1">
+      <View className="flex-1 flex-shrink-0">
         <TextInput
           readOnly={disabled}
           multiline
@@ -144,7 +144,7 @@ export default function EditorInput({
       />
       <EditorSuggestions {...triggers.emoji} type="emoji" />
       {showTags && (
-        <View className="overflow-hidden border-t border-gray-600">
+        <View className="overflow-hidden border-t border-gray-600 flex-shrink-0">
           <TextInput
             numberOfLines={1}
             placeholderTextColor={colors.gray[500]}

@@ -273,32 +273,6 @@ export default function EditorView() {
           canPublish={canPublish}
           onPublish={onPublish}
         />
-        {mentions.length > 0 && (
-          <ScrollView
-            horizontal
-            contentContainerClassName="gap-3"
-            className="flex-shrink-0 flex-grow-0 m-2"
-          >
-            {mentions.map((u) => (
-              <View
-                key={u.id}
-                className="rounded-lg border border-gray-700 pl-2 flex-row items-center gap-2"
-              >
-                <Text className="text-sm text-cyan-500">{u.url}</Text>
-                <Pressable
-                  className="rounded-md bg-white/5 p-1"
-                  onPress={() => deleteMention(u.id)}
-                >
-                  <MaterialIcons
-                    name="close"
-                    size={20}
-                    color={colors.gray[300]}
-                  />
-                </Pressable>
-              </View>
-            ))}
-          </ScrollView>
-        )}
         <ScrollView
           id="editor-scroll"
           className="flex-grow-0 pb-1"
@@ -309,11 +283,32 @@ export default function EditorView() {
               <Loading />
             </View>
           ) : null}
-          {/* {mentionsPrefix && (
-            <View className="m-2">
-              <Text className="text-white text-sm">{mentionsPrefix}</Text>
-            </View>
-          )} */}
+          {mentions.length > 0 && (
+            <ScrollView
+              horizontal
+              contentContainerClassName="gap-3"
+              className="flex-shrink-0 flex-grow-0 m-2"
+            >
+              {mentions.map((u) => (
+                <View
+                  key={u.id}
+                  className="rounded-lg border border-gray-700 pl-2 flex-row items-center gap-2"
+                >
+                  <Text className="text-sm text-cyan-500">{u.url}</Text>
+                  <Pressable
+                    className="rounded-md bg-white/5 p-1"
+                    onPress={() => deleteMention(u.id)}
+                  >
+                    <MaterialIcons
+                      name="close"
+                      size={20}
+                      color={colors.gray[300]}
+                    />
+                  </Pressable>
+                </View>
+              ))}
+            </ScrollView>
+          )}
           <EditorInput
             {...mentionApi}
             formState={form}
