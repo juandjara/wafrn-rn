@@ -28,7 +28,7 @@ export default function LinkPreviewCard({
       <View className={className}>
         <YTPreviewCard href={url} width={width} image={getYoutubeImage(url)!} />
         {_description && (
-          <View className="px-2 py-1">
+          <View className="p-2 bg-blue-950 rounded-b-md00">
             <Text className="text-white">{_description}</Text>
           </View>
         )}
