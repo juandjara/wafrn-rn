@@ -4,10 +4,10 @@ import { Pressable, ScrollView, View } from 'react-native'
 import colors from 'tailwindcss/colors'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
-import { EditorImage } from './EditorImages'
 import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
+import { EditorImage } from '@/lib/editor'
 
 export type EditorActionProps = {
   actions: {

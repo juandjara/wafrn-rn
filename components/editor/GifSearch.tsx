@@ -16,7 +16,7 @@ import Loading from '../Loading'
 import { Image } from 'expo-image'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
-import { EditorImage } from './EditorImages'
+import { EditorImage } from '@/lib/editor'
 
 const TenorClient = new Tenor(process.env.EXPO_PUBLIC_TENOR_KEY)
 

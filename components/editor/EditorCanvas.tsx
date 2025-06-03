@@ -1,4 +1,3 @@
-import { EditorImage } from './EditorImages'
 import {
   Modal,
   Platform,
@@ -29,6 +28,7 @@ import {
 import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { cacheDirectory, writeAsStringAsync } from 'expo-file-system'
+import { EditorImage } from '@/lib/editor'
 
 type EditorCanvasProps = {
   open: boolean
