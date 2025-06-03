@@ -9,6 +9,8 @@ import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorImage } from '@/lib/editor'
 
+const GIF_SUPPORT = !!process.env.EXPO_PUBLIC_TENOR_KEY
+
 export type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
@@ -109,12 +111,14 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
         >
           <MaterialCommunityIcons name="image" color="white" size={24} />
         </Pressable>
-        <Pressable
-          onPress={() => setShowGifPicker(true)}
-          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
-        >
-          <MaterialIcons name="gif" color="white" size={24} />
-        </Pressable>
+        {GIF_SUPPORT && (
+          <Pressable
+            onPress={() => setShowGifPicker(true)}
+            className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          >
+            <MaterialIcons name="gif" color="white" size={24} />
+          </Pressable>
+        )}
         <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
