@@ -14,7 +14,7 @@ import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
-import { router } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -34,7 +34,10 @@ import {
 } from 'react-native-popup-menu'
 import colors from 'tailwindcss/colors'
 
+const AUTO_GIF_SUPPORT = !!process.env.EXPO_PUBLIC_TENOR_KEY
+
 type FormState = {
+  gifApiKey: string
   manuallyAcceptsFollows: boolean
   defaultPostEditorPrivacy: PrivacyLevel
   disableCW: boolean
@@ -54,6 +57,7 @@ export default function Options() {
   const { data: me } = useCurrentUser()
   const [form, setForm] = useState<FormState>(() => {
     const opts = settings?.options || []
+    const gifApiKey = getPrivateOptionValue(opts, PrivateOptionNames.GifApiKey)
     const defaultPostEditorPrivacy = getPrivateOptionValue(
       opts,
       PrivateOptionNames.DefaultPostPrivacy,
@@ -90,6 +94,7 @@ export default function Options() {
     const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
 
     return {
+      gifApiKey,
       manuallyAcceptsFollows: me?.manuallyAcceptsFollows || false,
       defaultPostEditorPrivacy,
       disableCW,
@@ -130,6 +135,10 @@ export default function Options() {
 
   function onSubmit() {
     const options = [
+      {
+        name: PrivateOptionNames.GifApiKey,
+        value: JSON.stringify(form.gifApiKey),
+      },
       {
         name: PrivateOptionNames.DefaultPostPrivacy,
         value: JSON.stringify(form.defaultPostEditorPrivacy),
@@ -227,6 +236,29 @@ export default function Options() {
           paddingBottom: sx.paddingBottom + 20,
         }}
       >
+        {!AUTO_GIF_SUPPORT && (
+          <View className="p-4">
+            <Text className="text-white mb-2">Tenor API Key</Text>
+            <TextInput
+              value={form.gifApiKey}
+              onChangeText={(text) => update('gifApiKey', text)}
+              className="p-3 rounded-lg text-white border border-gray-600"
+              placeholder=""
+              placeholderTextColor={colors.gray[400]}
+              numberOfLines={1}
+            />
+            <Text className="text-gray-300 text-sm mt-2">
+              You can get an API key from{' '}
+              <Link
+                href="https://developers.google.com/tenor/guides/quickstart"
+                className="text-cyan-500 underline"
+              >
+                Tenor
+              </Link>{' '}
+              and paste it here.
+            </Text>
+          </View>
+        )}
         <View className="p-4">
           <Text className="text-white mb-2">Ask privacy</Text>
           <Menu renderer={renderers.SlideInMenu}>

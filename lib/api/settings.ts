@@ -24,6 +24,7 @@ export type SettingsOption = Timestamps & {
 }
 
 export enum PrivateOptionNames {
+  GifApiKey = 'wafrn.gifApiKey',
   DefaultPostPrivacy = 'wafrn.defaultPostEditorPrivacy',
   DisableForceAltText = 'wafrn.disableForceAltText',
   FederateWithThreads = 'wafrn.federateWithThreads',
@@ -38,6 +39,7 @@ export enum PrivateOptionNames {
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
 export type PrivateOptionTypeMap = {
+  [PrivateOptionNames.GifApiKey]: string
   [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel
   [PrivateOptionNames.DisableForceAltText]: boolean
   [PrivateOptionNames.FederateWithThreads]: boolean
@@ -51,6 +53,7 @@ export type PrivateOptionTypeMap = {
 }
 
 export const DEFAULT_PRIVATE_OPTIONS = {
+  [PrivateOptionNames.GifApiKey]: process.env.EXPO_PUBLIC_TENOR_KEY || '',
   [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel.PUBLIC,
   [PrivateOptionNames.DisableForceAltText]: false,
   [PrivateOptionNames.FederateWithThreads]: true,

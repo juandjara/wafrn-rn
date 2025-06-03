@@ -17,8 +17,9 @@ import { Image } from 'expo-image'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
 import { EditorImage } from '@/lib/editor'
-
-const TenorClient = new Tenor(process.env.EXPO_PUBLIC_TENOR_KEY)
+import { PrivateOptionNames } from '@/lib/api/settings'
+import { getPrivateOptionValue } from '@/lib/api/settings'
+import { useSettings } from '@/lib/api/settings'
 
 type GifMediaFormat = {
   dims: number[]
@@ -69,14 +70,21 @@ export default function GifSearch({
   onSelect: (gif: EditorImage) => void
 }) {
   const sx = useSafeAreaPadding()
+  const { data: settings } = useSettings()
+  const gifApiKey = getPrivateOptionValue(
+    settings?.options || [],
+    PrivateOptionNames.GifApiKey,
+  )
+
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
 
   const { data, isLoading } = useQuery({
     queryKey: ['gifs', query],
     queryFn: async () => {
+      const tenorClient = new Tenor(gifApiKey)
       if (query) {
-        const data = await TenorClient.search.query({
+        const data = await tenorClient.search.query({
           q: query,
           limit: 10,
           contentfilter: 'off',
@@ -84,7 +92,7 @@ export default function GifSearch({
         })
         return data.results as GifResponse[]
       } else {
-        const data = await TenorClient.featured.getFeatured({
+        const data = await tenorClient.featured.getFeatured({
           limit: 10,
           contentfilter: 'off',
           media_filter: 'webp',
