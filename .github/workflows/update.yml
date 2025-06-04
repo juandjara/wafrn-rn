@@ -27,7 +27,9 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install lightningcss --save-dev
 
       - name: 🚀 Create update
         run: npm run update:preview_ci
