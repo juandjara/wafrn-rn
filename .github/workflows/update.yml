@@ -1,9 +1,7 @@
 name: Send code to Expo Updates
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   update:
