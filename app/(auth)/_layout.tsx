@@ -1,7 +1,9 @@
 // from here: https://docs.expo.dev/router/reference/authentication/
 import SplashScreen from '@/components/SplashScreen'
 import { getRootStyles } from '@/constants/Colors'
+import checkExpoUpdates from '@/lib/checkExpoUpdates'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import useAppFocusListener from '@/lib/useAppFocusListener'
 import { useQueryClient } from '@tanstack/react-query'
 import { Redirect, Stack, useNavigation } from 'expo-router'
 import { useEffect } from 'react'
@@ -27,15 +29,13 @@ export default function ProtectedLayout() {
     return unsubscribe
   }, [nav, qc])
 
+  useAppFocusListener(checkExpoUpdates)
+
   if (isLoading) {
     return <SplashScreen />
   }
 
-  // Only require authentication within the (auth) group's layout as users
-  // need to be able to access the (auth) group and sign in again.
   if (!token || !env) {
-    // On web, static rendering will stop here as the user is not authenticated
-    // in the headless Node process that the pages are rendered in.
     return <Redirect href="/sign-in" />
   }
 
