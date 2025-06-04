@@ -59,6 +59,14 @@ export default function DashboardModeMenu({
     <Menu onSelect={setMode}>
       <MenuTrigger>
         <View className="flex-row items-center">
+          {__DEV__ && (
+            <MaterialCommunityIcons
+              name="cog"
+              size={20}
+              color="black"
+              className="mr-1 absolute bottom-0 left-5 z-20"
+            />
+          )}
           <Image
             className="ml-1 mr-3"
             style={{ width: forceClassicLogo ? 64 : 32, height: 32 }}
