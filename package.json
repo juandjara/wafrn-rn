@@ -13,7 +13,7 @@
     "setup:prod": "NODE_ENV=production expo prebuild",
     "start": "NODE_ENV=development expo start",
     "android": "NODE_ENV=development expo run:android --app-id dev.djara.wafrn_rn.dev",
-    "ios": "NODE_ENV=development expo run:ios --app-id dev.djara.wafrn_rn.dev",
+    "ios": "NODE_ENV=development expo run:ios",
     "test": "exit 0",
     "lint": "expo lint"
   },
