@@ -9,7 +9,6 @@ import PagerView from 'react-native-pager-view'
 import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { OnPageScrollEventData } from 'react-native-pager-view/lib/typescript/specs/PagerViewNativeComponent'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 
 const MODES = [
@@ -38,7 +37,7 @@ export default function Index() {
   }, [bottomTabBarHeight])
 
   const onPageScroll = useCallback(
-    (ev: NativeSyntheticEvent<OnPageScrollEventData>) => {
+    (ev: NativeSyntheticEvent<{ position: number }>) => {
       const index = ev.nativeEvent.position
       setMode(MODES[index])
     },
@@ -66,7 +65,6 @@ export default function Index() {
         onPageScroll={onPageScroll}
         initialPage={MODES.indexOf(mode)}
         style={styles.flex}
-        useNext
       >
         {pages}
       </PagerView>
