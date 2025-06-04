@@ -40,10 +40,19 @@ export const queryClient = new QueryClient({
   },
   queryCache: new QueryCache({
     onError: (error, query) => {
+      const hasMoreRetries =
+        typeof query.options.retry === 'function' &&
+        query.options.retry(query.state.fetchFailureCount, error)
+
+      // if the query is going to be retried, wait for the final try to show the error toast
+      if (hasMoreRetries) {
+        return
+      }
+
       console.error(error)
       toast(error.message, {
         id: query.queryKey.join('|'),
-        duration: Infinity,
+        duration: 10000,
         customToast: (toast) => {
           return <ErrorCopyToast toast={toast} error={error} />
         },
