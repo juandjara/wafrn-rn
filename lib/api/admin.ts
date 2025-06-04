@@ -97,7 +97,7 @@ async function getReportList(token: string) {
   })
   const data = json as Report[]
   return data.sort((a, b) => {
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    return new Date(b.post?.createdAt ?? 0).getTime() - new Date(a.post?.createdAt ?? 0).getTime()
   })
 }
 

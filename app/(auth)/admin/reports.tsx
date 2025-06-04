@@ -6,6 +6,7 @@ import {
   useReportList,
   useToggleBanUserMutation,
 } from '@/lib/api/admin'
+import { PostUser } from '@/lib/api/posts.types'
 import {
   Report,
   REPORT_SEVERITY_DESCRIPTIONS,
@@ -17,17 +18,91 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FlashList } from '@shopify/flash-list'
 import clsx from 'clsx'
 import { Link } from 'expo-router'
+import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+  renderers,
+} from 'react-native-popup-menu'
+
+const FILTER_OPTIONS = [
+  { label: 'All', value: 'all' },
+  { label: 'Resolved', value: 'resolved' },
+  { label: 'Unresolved', value: 'unresolved' },
+  { label: 'With post', value: 'with-post' },
+  { label: 'Without post', value: 'without-post' },
+] as const
+type FilterValue = (typeof FILTER_OPTIONS)[number]['value']
 
 export default function ReportList() {
   const sx = useSafeAreaPadding()
   const { data, refetch, isFetching } = useReportList()
+  const [filter, setFilter] = useState<FilterValue>('all')
+
+  const filteredData = useMemo(() => {
+    return (data ?? []).filter((report) => {
+      if (filter === 'all') return true
+      if (filter === 'resolved') return report.resolved
+      if (filter === 'unresolved') return !report.resolved
+      if (filter === 'with-post') return report.postId !== null
+      if (filter === 'without-post') return report.postId === null
+    })
+  }, [data, filter])
+
+  const filterMenu = (
+    <Menu renderer={renderers.SlideInMenu}>
+      <MenuTrigger>
+        <MaterialCommunityIcons name="filter-menu" size={20} color="white" />
+      </MenuTrigger>
+      <MenuOptions
+        customStyles={{
+          optionsContainer: {
+            paddingBottom: sx.paddingBottom,
+          },
+        }}
+      >
+        <Text className="text-gray-700 text-lg font-medium p-4 pb-2">
+          Filter
+        </Text>
+        {FILTER_OPTIONS.map((option) => (
+          <MenuOption
+            key={option.value}
+            onSelect={() => setFilter(option.value)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 16,
+              padding: 16,
+            }}
+          >
+            {filter === option.value ? (
+              <MaterialCommunityIcons
+                name="checkbox-blank-circle"
+                size={20}
+                color="black"
+              />
+            ) : (
+              <MaterialCommunityIcons
+                name="checkbox-blank-circle-outline"
+                size={20}
+                color="black"
+              />
+            )}
+            <Text>{option.label}</Text>
+          </MenuOption>
+        ))}
+      </MenuOptions>
+    </Menu>
+  )
 
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
-      <Header title="Reports" />
+      <Header title="Reports" right={filterMenu} />
       <FlashList
-        data={data}
+        data={filteredData}
         onRefresh={refetch}
         refreshing={isFetching}
         estimatedItemSize={500}
@@ -47,7 +122,7 @@ function ReportListItem({ report }: { report: Report }) {
   function banUser() {
     banMutation.mutate({
       isBanned: false, // assume user is not banned previously
-      userId: report.post.userId,
+      userId: report.reportedUserId,
     })
   }
 
@@ -55,7 +130,7 @@ function ReportListItem({ report }: { report: Report }) {
     <View className="p-3 bg-gray-800 rounded-lg mb-3">
       <GenericRibbon
         className="rounded-xl"
-        user={report.user}
+        user={report.user as PostUser}
         userNameHTML={formatUserUrl(report.user.url)}
         link={`/user/${report.user.url}`}
         label="reported"
@@ -71,17 +146,19 @@ function ReportListItem({ report }: { report: Report }) {
       <View className="mt-4">
         <Text className="text-white">Reported user:</Text>
         <UserRibbon
-          user={report.post.user}
-          userName={report.post.user.name}
+          userName=""
+          user={report.reportedUser as PostUser}
           showFollowButtons={false}
         />
       </View>
-      <Link
-        href={`/post/${report.post.id}`}
-        className="text-blue-400 active:text-blue-600"
-      >
-        See post
-      </Link>
+      {report.postId ? (
+        <Link
+          href={`/post/${report.postId}`}
+          className="text-blue-400 active:text-blue-600"
+        >
+          See post
+        </Link>
+      ) : null}
       <View className="mt-4 mb-2">
         <Text className="text-white mb-2">
           Severity:{' '}
@@ -106,11 +183,13 @@ function ReportListItem({ report }: { report: Report }) {
         <Pressable
           disabled={actionDisabled}
           className={clsx(
-            'flex-row items-center gap-3 rounded-lg p-2 basis-1/2',
+            'flex-row items-center gap-3 rounded-lg p-2',
             'bg-cyan-700/50',
             {
               'active:bg-cyan-700/75': !actionDisabled,
               'opacity-50': actionDisabled,
+              'basis-1/2': !report.resolved,
+              'w-full': report.resolved,
             },
           )}
           onPress={() => ignoreReportMutation.mutate(report.id)}
@@ -120,21 +199,23 @@ function ReportListItem({ report }: { report: Report }) {
             {report.resolved ? 'Resolved' : 'Mark resolved'}
           </Text>
         </Pressable>
-        <Pressable
-          disabled={actionDisabled}
-          className={clsx(
-            'flex-row items-center gap-3 rounded-lg p-2 basis-1/2',
-            'bg-red-700/50',
-            {
-              'active:bg-red-700/75': !actionDisabled,
-              'opacity-50': actionDisabled,
-            },
-          )}
-          onPress={banUser}
-        >
-          <MaterialCommunityIcons name="close" size={20} color="white" />
-          <Text className="text-white">Ban user</Text>
-        </Pressable>
+        {!report.resolved ? (
+          <Pressable
+            disabled={actionDisabled}
+            className={clsx(
+              'flex-row items-center gap-3 rounded-lg p-2 basis-1/2',
+              'bg-red-700/50',
+              {
+                'active:bg-red-700/75': !actionDisabled,
+                'opacity-50': actionDisabled,
+              },
+            )}
+            onPress={banUser}
+          >
+            <MaterialCommunityIcons name="close" size={20} color="white" />
+            <Text className="text-white">Ban user</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   )

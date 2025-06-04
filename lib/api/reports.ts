@@ -42,9 +42,11 @@ export type Report = Timestamps & {
   severity: ReportSeverity
   description: string
   userId: string
-  postId: string
-  user: PostUser // user who reported the post
-  post: Post & { user: PostUser } // user who wrote the post
+  postId?: string
+  reportedUserId: string
+  reportedUser: Pick<PostUser, 'avatar' | 'id' | 'url'> // user being reported
+  user: Pick<PostUser, 'avatar' | 'id' | 'url'> // user who reported the post
+  post?: Post & { user: PostUser } // user who wrote the post
 }
 
 // postId: string, severity: ReportSeverity, description: string
