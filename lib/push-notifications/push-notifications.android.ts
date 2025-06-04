@@ -17,6 +17,13 @@ export function usePushNotifications() {
   const notificationCleanup = useNotificationTokensCleanup()
 
   useEffect(() => {
+    // in dev mode, we don't want to register or store data for push notifications
+    // to avoid duplicated notifications
+    if (__DEV__) {
+      notificationCleanup({ deleteExpo: true, deleteUP: true })
+      return 
+    }
+
     async function checkNotificationPermissions() {
       const granted = await checkPermissions();
       if (granted) {
@@ -55,6 +62,10 @@ export function usePushNotifications() {
   }, [SERVER_VAPID_KEY, tokenData?.userId, notificationCleanup])
 
   useEffect(() => {
+    if (__DEV__) {
+      return
+    }
+
     return subscribeDistributorMessages(async (message) => {
       if (!authToken) {
         return
