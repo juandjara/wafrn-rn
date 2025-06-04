@@ -51,6 +51,11 @@ export default function Settings() {
         link: '/setting/options',
       },
       {
+        icon: 'bell-outline' as const,
+        label: 'Notification Settings',
+        link: '/setting/notifications-config',
+      },
+      {
         icon: 'server-off' as const,
         label: 'Mutes & Blocks',
         link: '/setting/mutes-and-blocks',

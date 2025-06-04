@@ -23,6 +23,20 @@ export type SettingsOption = Timestamps & {
   public: boolean
 }
 
+export enum NotificationsFrom {
+  Everyone = 1,
+  PeopleFollowingMe = 2,
+  PeopleIFollow = 3,
+  Mutuals = 4,
+}
+
+export const NOTIFICATIONS_FROM_LABELS = {
+  [NotificationsFrom.Everyone]: 'Everyone',
+  [NotificationsFrom.PeopleFollowingMe]: 'People following me',
+  [NotificationsFrom.PeopleIFollow]: 'People I follow',
+  [NotificationsFrom.Mutuals]: 'Mutuals',
+} as const
+
 export enum PrivateOptionNames {
   GifApiKey = 'wafrn.gifApiKey',
   DefaultPostPrivacy = 'wafrn.defaultPostEditorPrivacy',
@@ -35,6 +49,12 @@ export enum PrivateOptionNames {
   OriginalMarkdownBio = 'wafrn.originalMarkdownBio',
   DisableNSFWCloak = 'wafrn.disableNSFWCloak',
   ThreadAncestorLimit = 'wafrn.threadAncestorLimit',
+  NotificationsFrom = 'wafrn.notificationsFrom',
+  NotifyMentions = 'wafrn.notifyMentions',
+  NotifyReactions = 'wafrn.notifyReactions',
+  NotifyQuotes = 'wafrn.notifyQuotes',
+  NotifyFollows = 'wafrn.notifyFollows',
+  NotifyRewoots = 'wafrn.notifyRewoots',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -50,6 +70,12 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.OriginalMarkdownBio]: string
   [PrivateOptionNames.DisableNSFWCloak]: boolean
   [PrivateOptionNames.ThreadAncestorLimit]: number
+  [PrivateOptionNames.NotificationsFrom]: NotificationsFrom
+  [PrivateOptionNames.NotifyMentions]: boolean
+  [PrivateOptionNames.NotifyReactions]: boolean
+  [PrivateOptionNames.NotifyQuotes]: boolean
+  [PrivateOptionNames.NotifyFollows]: boolean
+  [PrivateOptionNames.NotifyRewoots]: boolean
 }
 
 export const DEFAULT_PRIVATE_OPTIONS = {
@@ -64,6 +90,12 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.OriginalMarkdownBio]: '',
   [PrivateOptionNames.DisableNSFWCloak]: false,
   [PrivateOptionNames.ThreadAncestorLimit]: 3,
+  [PrivateOptionNames.NotificationsFrom]: NotificationsFrom.Everyone,
+  [PrivateOptionNames.NotifyMentions]: true,
+  [PrivateOptionNames.NotifyReactions]: true,
+  [PrivateOptionNames.NotifyQuotes]: true,
+  [PrivateOptionNames.NotifyFollows]: true,
+  [PrivateOptionNames.NotifyRewoots]: true,
 }
 
 export type PrivateOption = SettingsOption & {
