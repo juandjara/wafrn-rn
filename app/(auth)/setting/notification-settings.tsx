@@ -31,15 +31,6 @@ import colors from 'tailwindcss/colors'
 import ExpoUnifiedPush from 'expo-unified-push'
 import { Image } from 'expo-image'
 
-type FormState = {
-  showNotificationsFrom: NotificationsFrom
-  notifyMentions: boolean
-  notifyReactions: boolean
-  notifyQuotes: boolean
-  notifyFollows: boolean
-  notifyRewoots: boolean
-}
-
 const notificationsCategories = [
   { label: 'Notify mentions', value: 'notifyMentions' },
   { label: 'Notify reactions', value: 'notifyReactions' },
@@ -55,14 +46,9 @@ export default function NotificationSettings() {
   const editMutation = useEditProfileMutation()
   const canPublish = !editMutation.isPending
 
-  const distributors = ExpoUnifiedPush.getDistributors()
-  const savedDistributorId = ExpoUnifiedPush.getSavedDistributor()
-  const savedDistributor = distributors.find(
-    (dist) => dist.id === savedDistributorId,
-  )
-
-  const [form, setForm] = useState<FormState>(() => {
+  const [form, setForm] = useState(() => {
     return {
+      distributorId: ExpoUnifiedPush.getSavedDistributor(),
       showNotificationsFrom: getPrivateOptionValue(
         settings?.options ?? [],
         PrivateOptionNames.NotificationsFrom,
@@ -90,6 +76,11 @@ export default function NotificationSettings() {
     }
   })
 
+  const distributors = ExpoUnifiedPush.getDistributors()
+  const savedDistributor = distributors.find(
+    (dist) => dist.id === form.distributorId,
+  )
+
   function update<T extends keyof typeof form>(
     key: T,
     value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
@@ -101,6 +92,7 @@ export default function NotificationSettings() {
   }
 
   function onSubmit() {
+    ExpoUnifiedPush.saveDistributor(form.distributorId)
     editMutation.mutate({
       options: [
         {
@@ -198,7 +190,7 @@ export default function NotificationSettings() {
                 {distributors.map((d) => (
                   <MenuOption
                     key={d.id}
-                    onSelect={() => ExpoUnifiedPush.saveDistributor(d.id)}
+                    onSelect={() => update('distributorId', d.id)}
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
@@ -213,7 +205,7 @@ export default function NotificationSettings() {
                     <Text className="font-semibold flex-shrink flex-grow">
                       {d.name}
                     </Text>
-                    {d.id === savedDistributorId && (
+                    {d.id === form.distributorId && (
                       <Ionicons
                         className="flex-shrink-0"
                         name="checkmark-sharp"
