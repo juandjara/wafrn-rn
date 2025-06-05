@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { extensionFromMimeType, isSVG } from '@/lib/api/media'
-import { SvgUri } from 'react-native-svg'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
@@ -128,26 +127,17 @@ export default function ZoomableImage({
         )}
       </Modal>
       <Pressable className={className} onPress={() => setModalOpen(true)}>
-        {isSVG(src) ? (
-          <SvgUri
-            width={width}
-            height={height}
-            uri={src}
-            style={style as ViewStyle}
-          />
-        ) : (
-          <Image
-            cachePolicy={'memory'}
-            recyclingKey={id}
-            source={src}
-            placeholder={{ blurHash, width, height }}
-            className={imgClassName}
-            style={[
-              style as ImageStyle,
-              { width, height, resizeMode: contentFit },
-            ]}
-          />
-        )}
+        <Image
+          cachePolicy={'memory'}
+          recyclingKey={id}
+          source={src}
+          placeholder={{ blurhash: blurHash, width, height }}
+          className={imgClassName}
+          style={[
+            style as ImageStyle,
+            { width, height, resizeMode: contentFit },
+          ]}
+        />
       </Pressable>
     </View>
   )
