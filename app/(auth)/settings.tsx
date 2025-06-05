@@ -53,7 +53,7 @@ export default function Settings() {
       {
         icon: 'bell-outline' as const,
         label: 'Notification Settings',
-        link: '/setting/notifications-config',
+        link: '/setting/notification-settings',
       },
       {
         icon: 'server-off' as const,

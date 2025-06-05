@@ -48,7 +48,7 @@ const notificationsCategories = [
   { label: 'Notify rewoots', value: 'notifyRewoots' },
 ] as const
 
-export default function UnifiedPushConfig() {
+export default function NotificationSettings() {
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
   const sx = useSafeAreaPadding()
