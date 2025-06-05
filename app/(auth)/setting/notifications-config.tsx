@@ -1,10 +1,13 @@
 import clsx from 'clsx'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import {
+  getPrivateOptionValue,
   NOTIFICATIONS_FROM_LABELS,
   NotificationsFrom,
+  PrivateOptionNames,
+  useSettings,
 } from '@/lib/api/settings'
-import { useEditProfileMutation } from '@/lib/api/user'
+import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
@@ -46,6 +49,8 @@ const notificationsCategories = [
 ] as const
 
 export default function UnifiedPushConfig() {
+  const { data: settings } = useSettings()
+  const { data: me } = useCurrentUser()
   const sx = useSafeAreaPadding()
   const editMutation = useEditProfileMutation()
   const canPublish = !editMutation.isPending
@@ -58,12 +63,30 @@ export default function UnifiedPushConfig() {
 
   const [form, setForm] = useState<FormState>(() => {
     return {
-      showNotificationsFrom: NotificationsFrom.Everyone,
-      notifyMentions: true,
-      notifyReactions: true,
-      notifyQuotes: true,
-      notifyFollows: true,
-      notifyRewoots: true,
+      showNotificationsFrom: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotificationsFrom,
+      ),
+      notifyMentions: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyMentions,
+      ),
+      notifyReactions: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyReactions,
+      ),
+      notifyQuotes: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyQuotes,
+      ),
+      notifyFollows: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyFollows,
+      ),
+      notifyRewoots: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyRewoots,
+      ),
     }
   })
 
@@ -78,7 +101,37 @@ export default function UnifiedPushConfig() {
   }
 
   function onSubmit() {
-    console.log('onSubmit')
+    editMutation.mutate({
+      options: [
+        {
+          name: PrivateOptionNames.NotificationsFrom,
+          value: JSON.stringify(form.showNotificationsFrom),
+        },
+        {
+          name: PrivateOptionNames.NotifyMentions,
+          value: JSON.stringify(form.notifyMentions),
+        },
+        {
+          name: PrivateOptionNames.NotifyReactions,
+          value: JSON.stringify(form.notifyReactions),
+        },
+        {
+          name: PrivateOptionNames.NotifyQuotes,
+          value: JSON.stringify(form.notifyQuotes),
+        },
+        {
+          name: PrivateOptionNames.NotifyFollows,
+          value: JSON.stringify(form.notifyFollows),
+        },
+        {
+          name: PrivateOptionNames.NotifyRewoots,
+          value: JSON.stringify(form.notifyRewoots),
+        },
+      ],
+      manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
+      name: me?.name || '',
+      description: me?.description || '',
+    })
   }
 
   return (
