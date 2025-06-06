@@ -57,7 +57,7 @@ echo '> installing expo-notifications again to not break the iOS build'
 cd ..
 
 if [ "$PREV_VERSION" != "undefined" ]; then
-  npm i expo-notifications@$PREV_VERSION
+  npm i --save-exact expo-notifications@$PREV_VERSION
 fi
 
 echo '> Done!'
