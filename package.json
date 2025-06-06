@@ -90,6 +90,11 @@
       "reactNativeDirectoryCheck": {
         "enabled": true
       }
+    },
+    "autolinking": {
+      "android": {
+        "buildFromSource": []
+      }
     }
   },
   "packageManager": "npm@10.9.0",
