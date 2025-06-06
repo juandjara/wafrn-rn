@@ -112,6 +112,9 @@ export function useEnvironment() {
         return null
       }
     },
+    // it is important that this query is never garbage collected
+    // but it can marked as 'stale' so it can be refetched automatically
+    gcTime: Infinity,
     enabled: !!value,
     throwOnError: false,
   })
