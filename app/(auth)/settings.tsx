@@ -43,7 +43,7 @@ export default function Settings() {
       {
         icon: 'two-factor-authentication' as const,
         label: 'Set up two factor auth',
-        link: `${savedInstance}/mfaSetup`,
+        link: '/setting/mfa-settings',
       },
       {
         icon: 'palette' as const,

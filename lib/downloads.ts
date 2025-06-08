@@ -22,7 +22,7 @@ async function ensureDownloadDirectory() {
   }
 }
 
-async function saveFileToGallery(localUrl: string) {
+export async function saveFileToGallery(localUrl: string) {
   if (Device.isDevice) {
     const prevPerm = await getPermissionsAsync(true)
     if (!prevPerm.granted) {
