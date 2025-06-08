@@ -204,5 +204,8 @@ export function useLoginMfaMutation() {
 // this can be undefined and is not reactive so be careful
 export function getEnvironmentStatic() {
   const env = queryClient.getQueryData<Environment>(['environment'])
+  if (!env) {
+    console.error('No value for getEnvironmentStatic')
+  }
   return env
 }
