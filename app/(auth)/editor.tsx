@@ -263,7 +263,11 @@ export default function EditorView() {
   return (
     <DashboardContextProvider data={context}>
       <KeyboardAvoidingView
-        style={{ flex: 1, marginTop: sx.paddingTop }}
+        style={{
+          flex: 1,
+          marginTop: sx.paddingTop,
+          marginBottom: sx.paddingBottom,
+        }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <EditorHeader
