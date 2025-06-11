@@ -27,35 +27,36 @@ async function setupPushNotifications(authToken: string) {
     })
   }
 
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync()
-    let finalStatus = existingStatus
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync()
-      finalStatus = status
-    }
-
-    if (finalStatus !== 'granted') {
-      throw new Error('Notification permissions not granted')
-    }
-
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ??
-      Constants?.easConfig?.projectId
-
-    if (!projectId) {
-      throw new Error('Expo project ID not found')
-    }
-
-    const token = await Notifications.getExpoPushTokenAsync({ projectId })
-    await registerPushNotificationToken(authToken, token.data)
-
-    console.log('> Expo token registered with server instance')
-
-    return token.data
-  } else {
-    throw new Error('Must use physical device to setup push notifications')
+  if (!Device.isDevice) {
+    // NOTE: must use physical device to setup push notifications
+    return null
   }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync()
+  let finalStatus = existingStatus
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync()
+    finalStatus = status
+  }
+
+  if (finalStatus !== 'granted') {
+    throw new Error('Notification permissions not granted')
+  }
+
+  const projectId =
+    Constants?.expoConfig?.extra?.eas?.projectId ??
+    Constants?.easConfig?.projectId
+
+  if (!projectId) {
+    throw new Error('Expo project ID not found')
+  }
+
+  const token = await Notifications.getExpoPushTokenAsync({ projectId })
+  await registerPushNotificationToken(authToken, token.data)
+
+  console.log('> Expo token registered with server instance')
+
+  return token.data
 }
 
 type PushNotificationPayload = {
@@ -126,3 +127,26 @@ export function usePushNotifications() {
     }
   }, [lastNotification])
 }
+
+type Distributor = {
+  id: string;
+  name?: string;
+  icon?: string;
+  isInternal?: boolean;
+  isSaved?: boolean;
+  isConnected?: boolean;
+};
+
+export function getSavedDistributor(): string | null {
+  return null
+}
+
+export function getDistributors(): Distributor[] {
+  return []
+}
+
+// explicit noop
+export function saveDistributor(distributorId: string | null) {}
+
+// explicit noop
+export function registerDevice(vapidKey: string, userId: string) {}

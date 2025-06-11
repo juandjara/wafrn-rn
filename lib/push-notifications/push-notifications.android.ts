@@ -1,9 +1,29 @@
-import ExpoUnifiedPushModule, { checkPermissions, RegisteredPayload, requestPermissions } from 'expo-unified-push'
 import { useEffect } from 'react'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { registerUnifiedPush, unregisterUnifiedPush, useNotificationBadges, useNotificationTokensCleanup } from '../notifications'
-import { subscribeDistributorMessages } from 'expo-unified-push/build/ExpoUnifiedPushModule'
+import ExpoUnifiedPush, {
+  checkPermissions,
+  RegisteredPayload,
+  requestPermissions,
+  subscribeDistributorMessages
+} from 'expo-unified-push'
 import useAsyncStorage from '../useLocalStorage'
+
+export function getSavedDistributor() {
+  return ExpoUnifiedPush.getSavedDistributor()
+}
+
+export function getDistributors() {
+  return ExpoUnifiedPush.getDistributors()
+}
+
+export function saveDistributor(distributorId: string | null) {
+  ExpoUnifiedPush.saveDistributor(distributorId)
+}
+
+export function registerDevice(vapidKey: string, userId: string) {
+  ExpoUnifiedPush.registerDevice(vapidKey, userId)
+}
 
 export function usePushNotifications() {
   const tokenData = useParsedToken()
@@ -34,13 +54,13 @@ export function usePushNotifications() {
       }
     }
 
-    const savedDistributor = ExpoUnifiedPushModule.getSavedDistributor()
-    const distributors = ExpoUnifiedPushModule.getDistributors()
+    const savedDistributor = getSavedDistributor()
+    const distributors = getDistributors()
 
     if (!savedDistributor) {
       // NOTE: initial implementation will always use the first distributor,
       // but we should allow the user to select the distributor they want to use
-      ExpoUnifiedPushModule.saveDistributor(distributors[0].id)
+      saveDistributor(distributors[0].id)
     }
     
     if (tokenData?.userId) {
@@ -51,7 +71,7 @@ export function usePushNotifications() {
       checkNotificationPermissions().then(async (granted) => {
         notificationCleanup({ deleteExpo: true, deleteUP: false })
         if (granted) {
-          await ExpoUnifiedPushModule.registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
+          await registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
         } else {
           console.error('Notification permissions not granted')
         }
@@ -106,3 +126,5 @@ export function usePushNotifications() {
     })
   }, [authToken, setUpData, upData, refetchBadges])
 }
+
+

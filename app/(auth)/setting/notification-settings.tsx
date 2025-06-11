@@ -28,8 +28,12 @@ import {
   renderers,
 } from 'react-native-popup-menu'
 import colors from 'tailwindcss/colors'
-import ExpoUnifiedPush from 'expo-unified-push'
 import { Image } from 'expo-image'
+import {
+  getSavedDistributor,
+  getDistributors,
+  saveDistributor,
+} from '@/lib/push-notifications/push-notifications'
 
 const notificationsCategories = [
   { label: 'Notify mentions', value: 'notifyMentions' },
@@ -48,7 +52,7 @@ export default function NotificationSettings() {
 
   const [form, setForm] = useState(() => {
     return {
-      distributorId: ExpoUnifiedPush.getSavedDistributor(),
+      distributorId: getSavedDistributor(),
       showNotificationsFrom: getPrivateOptionValue(
         settings?.options ?? [],
         PrivateOptionNames.NotificationsFrom,
@@ -76,7 +80,7 @@ export default function NotificationSettings() {
     }
   })
 
-  const distributors = ExpoUnifiedPush.getDistributors()
+  const distributors = getDistributors()
   const savedDistributor = distributors.find(
     (dist) => dist.id === form.distributorId,
   )
@@ -92,7 +96,7 @@ export default function NotificationSettings() {
   }
 
   function onSubmit() {
-    ExpoUnifiedPush.saveDistributor(form.distributorId)
+    saveDistributor(form.distributorId)
     editMutation.mutate({
       options: [
         {
