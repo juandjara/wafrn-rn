@@ -58,6 +58,7 @@ export function useEditorReplyContext(params: EditorSearchParams) {
       if (params.type === 'edit') {
         return await getPostDetail(token!, params.editId)
       }
+      return null
     },
     enabled: !!token && !!params.type
   })
@@ -101,8 +102,11 @@ export function useEditorData() {
       privacy: defaultPrivacy,
     }
 
-    if (reply && params.type === 'ask') {
+    if (params.type === 'ask') {
       ask = asks?.find((a) => a.id === Number(params.askId))
+      if (ask) {
+        replyLabel = 'Replying to:'
+      }
     }
 
     if (reply && params.type === 'quote') {

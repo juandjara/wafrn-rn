@@ -327,7 +327,7 @@ export default function EditorView() {
             disableForceAltText={disableForceAltText}
           />
           {reply && (
-            <View className="mx-2 my-4 rounded-lg bg-indigo-950">
+            <View className="mx-2 mb-1 mt-4 rounded-lg bg-indigo-950">
               <Text className="text-white mb-2 px-3 pt-2 text-sm">
                 {replyLabel}
               </Text>
@@ -340,7 +340,12 @@ export default function EditorView() {
             </View>
           )}
           {ask && (
-            <View className="m-2 mb-4 rounded-lg bg-indigo-950">
+            <View className="mx-2 mt-3 mb-1 rounded-lg bg-blue-950">
+              {replyLabel ? (
+                <Text className="text-white my-1 px-3 pt-2 text-sm">
+                  {replyLabel}
+                </Text>
+              ) : null}
               <GenericRibbon
                 user={ask.user}
                 userNameHTML={
@@ -355,7 +360,7 @@ export default function EditorView() {
                 }
                 className="border-b border-slate-600"
               />
-              <Text className="text-lg text-white px-3 py-4">
+              <Text className="bg-indigo-950 rounded-b-lg text-lg text-white px-3 py-4">
                 {ask.question}
               </Text>
             </View>
