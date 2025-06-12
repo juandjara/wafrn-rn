@@ -1,5 +1,5 @@
 <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/juandjara/wafrn-rn">
-  <img alt="Get it on Obtanium" src="https://github.com/user-attachments/assets/713d71c5-3dec-4ec4-a3f2-8d28d025a9c6" />
+  <img height="60" alt="Get it on Obtanium" src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" />
 </a>
 
 # Wafrn React Native App
