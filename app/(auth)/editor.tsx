@@ -37,6 +37,7 @@ import { EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
 import colors from 'tailwindcss/colors'
 import { PostUser } from '@/lib/api/posts.types'
+import { PrivacyLevel } from '@/lib/api/privacy'
 
 export default function EditorView() {
   const {
@@ -126,6 +127,13 @@ export default function EditorView() {
     triggersConfig: EDITOR_TRIGGERS_CONFIG,
     onSelectionChange: setSelection,
   })
+
+  function setPrivacy(privacy: PrivacyLevel) {
+    const replyPrivacy = reply?.posts[0].privacy
+    if (replyPrivacy && privacy >= replyPrivacy) {
+      update('privacy', privacy)
+    }
+  }
 
   function onPublish() {
     if (!canPublish) {
@@ -272,7 +280,7 @@ export default function EditorView() {
       >
         <EditorHeader
           privacy={form.privacy}
-          setPrivacy={(privacy) => update('privacy', privacy)}
+          setPrivacy={setPrivacy}
           isLoading={createMutation.isPending}
           canPublish={canPublish}
           onPublish={onPublish}
