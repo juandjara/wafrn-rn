@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useMemo } from 'react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getEnvironmentStatic } from './auth'
+import { emptyDashboardData } from './dashboard'
 
 export enum SearchView {
   Users = 'users',
@@ -40,6 +41,18 @@ export async function search({
   if (term.startsWith('#')) {
     term = term.slice(1)
   }
+  if (term.startsWith('@')) {
+    const data = await searchUser(token, term.slice(1))
+    return {
+      users: {
+        emojis: [],
+        userEmojiRelation: [],
+        foundUsers: data,
+      },
+      posts: emptyDashboardData()
+    }
+  }
+  
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}`,

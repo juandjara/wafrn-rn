@@ -278,3 +278,25 @@ export function useUserFeed(userId: string) {
     enabled: !!token,
   })
 }
+
+export function emptyDashboardData() {
+  return {
+    users: [],
+    emojiRelations: {
+      emojis: [],
+      userEmojiRelation: [],
+      postEmojiRelation: [],
+      postEmojiReactions: [],
+    },
+    likes: [],
+    medias: [],
+    mentions: [],
+    polls: [],
+    quotedPosts: [],
+    quotes: [],
+    tags: [],
+    asks: [],
+    rewootIds: [],
+    posts: [],
+  } as DashboardData
+}
