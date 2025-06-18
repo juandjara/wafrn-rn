@@ -48,26 +48,24 @@ export default function Media({
   let content = null
   if (isVideo(mime, src)) {
     content = (
-      <View className="bg-blue-950">
-        <Video
-          src={src}
-          width={contentWidth}
-          height={height}
-          title={`${userUrl} video`}
-        />
-      </View>
+      <Video
+        className="bg-blue-950"
+        src={src}
+        width={contentWidth}
+        height={height}
+        title={`${userUrl} video`}
+      />
     )
   } else if (isAudio(mime, src)) {
     content = (
-      <View className="p-1 bg-black">
-        <Video
-          src={src}
-          width={contentWidth}
-          height={80}
-          isAudioOnly
-          title={`${userUrl} audio`}
-        />
-      </View>
+      <Video
+        className="bg-blue-950"
+        src={src}
+        width={contentWidth}
+        height={80}
+        isAudioOnly
+        title={`${userUrl} audio`}
+      />
     )
   } else if (isImage(mime, src)) {
     content = (

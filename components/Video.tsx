@@ -1,5 +1,6 @@
 import { useVideoPlayer, VideoView } from 'expo-video'
 import { useMemo } from 'react'
+import { View } from 'react-native'
 
 export default function Video({
   title,
@@ -7,12 +8,14 @@ export default function Video({
   src,
   width,
   height,
+  className,
 }: {
   isAudioOnly?: boolean
   src: string
   width: number
   height: number
   title?: string
+  className?: string
 }) {
   const source = useMemo(
     () => ({
@@ -41,11 +44,19 @@ export default function Video({
   })
 
   return (
-    <VideoView
-      style={{ width, height }}
-      player={videoPlayer}
-      allowsFullscreen
-      allowsPictureInPicture
-    />
+    <View
+      className={className}
+      onStartShouldSetResponder={() => true}
+      onTouchEnd={(ev) => {
+        ev.stopPropagation()
+      }}
+    >
+      <VideoView
+        style={{ width, height }}
+        player={videoPlayer}
+        allowsFullscreen
+        allowsPictureInPicture
+      />
+    </View>
   )
 }
