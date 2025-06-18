@@ -71,15 +71,18 @@ export default function SearchIndex({
       </View>
       <View id="search-history" className="p-3">
         <View className="mb-2 flex-row items-center">
-          <Text className="text-gray-300 font-medium text-sm flex-shrink flex-grow">
+          <Text className="text-gray-300 font-medium text-sm flex-grow">
             Search history
           </Text>
           {(recent?.length || 0) > 0 && (
             <Pressable
               onPress={() => setRecent([])}
-              className="rounded-full active:bg-white/10 px-2 py-1 w-20"
+              className="flex-shrink-0 rounded-full active:bg-white/10 px-3 py-1"
             >
-              <Text className="text-indigo-600 font-medium text-center text-sm">
+              <Text
+                numberOfLines={1}
+                className="text-indigo-600 font-medium text-center text-sm"
+              >
                 Clear all
               </Text>
             </Pressable>
