@@ -94,8 +94,6 @@ export function useEditorData() {
 
     let ask = null
     let replyLabel = ''
-    // let mentionsPrefix = ''
-    // let mentionedUserIds = [] as string[]
     let mentionedUsers = [] as PostUser[]
     const context = getDashboardContext(reply ? [reply] : [], settings)
     const formState: Partial<EditorFormState> = {
@@ -150,17 +148,6 @@ export function useEditorData() {
         }
 
         mentionedUsers = Array.from(mentionIds).map((id) => userMap[id])
-        // const _mentionsPrefix = mentionUsers
-        //   .map((u) => {
-        //     const remoteId = u.remoteId || `${env?.BASE_URL}/blog/${u.url}`
-        //     return `[${formatUserUrl(u.url)}](${remoteId}?id=${u.id}) `
-        //   })
-        //   .join('')
-
-        // const isFedi = replyPost.remotePostId && !replyPost.bskyUri
-
-        // mentionedUserIds = Array.from(mentionIds)
-        // mentionsPrefix = isFedi ? _mentionsPrefix : ''
       }
     }
 
