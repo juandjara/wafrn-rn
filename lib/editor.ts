@@ -139,28 +139,37 @@ export function useEditorData() {
         // when creating a quote to a post, a mention is created to notify the quoted post author
         // we need to ignore these mentions when creating a reply to a quote
         // but only if the quote is not a reply to another post (i.e. it's a top-level post)
-        const { quotedPosts, quotes } = reply
-        const ancestors = replyPost?.ancestors || []
-        const postMap = Object.fromEntries([replyPost, ...ancestors].map((p) => [p.id, p]))
-        const quoterPostMap = Object.fromEntries(quotes.map((q) => [q.quotedPostId, q.quoterPostId]))
-
-        const mentionsToIgnore = quotedPosts
-          .map((p) => [quoterPostMap[p.id], p.userId])
-          .filter((entry) => {
-            const post = postMap[entry[0]]
-            return post.hierarchyLevel <= 1 // only ignore quote mentions on posts that are not replies
-          })
-          .map((entry) => entry.join('/'))
+        // we also need to ignore all the mentions inside the quoted post, because they are not relevant to the reply
+        const mentionsToIgnore = [] as string[]
+        const thread = [replyPost, ...(replyPost.ancestors || [])]
+        const topPost = thread.find((p) => p.hierarchyLevel <= 1)
+        
+        if (topPost) {
+          const quotedPostRelation = reply.quotes.find((q) => q.quoterPostId === topPost.id)
+          if (quotedPostRelation) {
+            const quotedPost = reply.quotedPosts.find((p) => p.id === quotedPostRelation.quotedPostId)
+            if (quotedPost) {
+              // ignore the mention from the top post to the quoted post user
+              mentionsToIgnore.push([topPost.id, quotedPost.userId].join('/'))
+              // ignore all the mentions inside the quoted post
+              for (const mention of reply.mentions) {
+                if (mention.post === quotedPost.id) {
+                  mentionsToIgnore.push([mention.post, mention.userMentioned].join('/'))
+                }
+              }
+            }
+          }
+        }
 
         const mentionIds = new Set<string>()
 
         if (userId !== me?.userId) {
           mentionIds.add(userId)
         }
-        
+       
         for (const mention of reply.mentions) {
           const isMe = mention.userMentioned === me?.userId
-          const entry = [mention.userMentioned, mention.post].join('/')
+          const entry = [mention.post, mention.userMentioned].join('/')
           if (!isMe && !mentionsToIgnore.includes(entry)) {
             mentionIds.add(mention.userMentioned)
           }
