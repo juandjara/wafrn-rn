@@ -135,6 +135,23 @@ export function useEditorData() {
           reply.users.map((user) => [user.id, user]),
         )
 
+        // NOTE: complex stuff here
+        // when creating a quote to a post, a mention is created to notify the quoted post author
+        // we need to ignore these mentions when creating a reply to a quote
+        // but only if the quote is not a reply to another post (i.e. it's a top-level post)
+        const { quotedPosts, quotes } = reply
+        const ancestors = replyPost?.ancestors || []
+        const postMap = Object.fromEntries([replyPost, ...ancestors].map((p) => [p.id, p]))
+        const quoterPostMap = Object.fromEntries(quotes.map((q) => [q.quotedPostId, q.quoterPostId]))
+
+        const mentionsToIgnore = quotedPosts
+          .map((p) => [quoterPostMap[p.id], p.userId])
+          .filter((entry) => {
+            const post = postMap[entry[0]]
+            return post.hierarchyLevel <= 1 // only ignore quote mentions on posts that are not replies
+          })
+          .map((entry) => entry.join('/'))
+
         const mentionIds = new Set<string>()
 
         if (userId !== me?.userId) {
@@ -142,7 +159,9 @@ export function useEditorData() {
         }
         
         for (const mention of reply.mentions) {
-          if (mention.userMentioned !== me?.userId) {
+          const isMe = mention.userMentioned === me?.userId
+          const entry = [mention.userMentioned, mention.post].join('/')
+          if (!isMe && !mentionsToIgnore.includes(entry)) {
             mentionIds.add(mention.userMentioned)
           }
         }
