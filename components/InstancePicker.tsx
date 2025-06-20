@@ -46,6 +46,8 @@ export default function InstancePicker() {
           className="p-3 border border-gray-500 rounded-md placeholder:text-gray-400"
           value={instance}
           onChangeText={setInstance}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         {instance && !isValidURL(instance) && (
           <Text className="text-red-500 text-sm">Invalid URL</Text>

@@ -117,6 +117,7 @@ export default function SignIn() {
                   <TextInput
                     inputMode="email"
                     autoCapitalize="none"
+                    autoCorrect={false}
                     placeholder="Email"
                     style={{ color }}
                     className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
