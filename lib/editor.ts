@@ -144,6 +144,8 @@ export function useEditorData() {
         const thread = [replyPost, ...(replyPost.ancestors || [])]
         const topPost = thread.find((p) => p.hierarchyLevel <= 1)
         
+        // TODO: review if we still need this, logic complexity could be reduced
+        // because right now we are only picking mentions from the reply post
         if (topPost) {
           const quotedPostRelation = reply.quotes.find((q) => q.quoterPostId === topPost.id)
           if (quotedPostRelation) {
@@ -167,7 +169,8 @@ export function useEditorData() {
           mentionIds.add(userId)
         }
        
-        for (const mention of reply.mentions) {
+        const replyPostMentions = reply.mentions.filter((m) => m.post === replyPost.id)
+        for (const mention of replyPostMentions) {
           const isMe = mention.userMentioned === me?.userId
           const entry = [mention.post, mention.userMentioned].join('/')
           if (!isMe && !mentionsToIgnore.includes(entry)) {
