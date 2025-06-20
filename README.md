@@ -1,3 +1,5 @@
+<a href="https://f-droid.org/packages/dev.djara.wafrn_rn/">
+  <img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
 <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/juandjara/wafrn-rn">
   <img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
 <a href="https://testflight.apple.com/join/k98B8bDq">
