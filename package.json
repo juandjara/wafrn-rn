@@ -10,13 +10,14 @@
     "build:prod:ios": "NODE_ENV=production npx eas-cli build --profile production --local --platform ios",
     "build:prod:android": "bash ./scripts/android_build.sh prod",
     "setup:dev": "NODE_ENV=development expo prebuild",
-    "setup:prod": "NODE_ENV=production expo prebuild",
+    "setup:prod": "NODE_ENV=production expo prebuild && bash ./scripts/sed_gradle_version.sh",
     "start": "NODE_ENV=development expo start",
     "android": "NODE_ENV=development expo run:android --app-id dev.djara.wafrn_rn.dev",
     "ios": "NODE_ENV=development expo run:ios",
-    "test": "exit 0",
     "lint": "expo lint",
-    "postversion": "npm run setup:prod"
+    "test": "node scripts/checkEnvironment.ts",
+    "preversion": "npm test",
+    "version": "npm run setup:prod && git add -A ."
   },
   "dependencies": {
     "@backpackapp-io/react-native-toast": "^0.13.0",
