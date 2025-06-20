@@ -17,7 +17,8 @@
     "lint": "expo lint",
     "test": "node scripts/checkEnvironment.ts",
     "preversion": "npm test",
-    "version": "npm run setup:prod && git add -A ."
+    "version": "npm run setup:prod && git add -A .",
+    "postversion": "git push && git push origin $(git describe --tags)"
   },
   "dependencies": {
     "@backpackapp-io/react-native-toast": "^0.13.0",
