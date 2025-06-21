@@ -28,8 +28,9 @@ export default {
     platforms: ['ios', 'android'],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'dev.djara.wafrn-rn',
+      bundleIdentifier: isDev ? 'dev.djara.wafrn-rn.dev' : 'dev.djara.wafrn-rn',
       infoPlist: {
+        UIBackgroundModes: ['audio', 'remote-notification'],
         ITSAppUsesNonExemptEncryption: false,
         NSPhotoLibraryAddUsageDescription:
           'WAFRN requires write-only access to your library in order to download images and videos from posts',
