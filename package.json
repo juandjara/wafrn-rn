@@ -7,7 +7,7 @@
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
     "build:dev:ios": "NODE_ENV=development npx eas-cli build --profile development --local --platform ios",
     "build:dev:android": "bash ./scripts/android_build.sh dev",
-    "build:prod:ios": "NODE_ENV=production npx eas-cli build --profile production --local --platform ios",
+    "build:prod:ios": "cd ios && fastlane beta",
     "build:prod:android": "bash ./scripts/android_build.sh prod",
     "setup:dev": "NODE_ENV=development expo prebuild",
     "setup:prod": "NODE_ENV=production expo prebuild && bash ./scripts/sed_gradle_version.sh",

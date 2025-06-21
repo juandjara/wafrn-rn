@@ -1,0 +1,8 @@
+app_identifier("dev.djara.wafrn-rn") # The bundle identifier of your app
+apple_id("juanorigami@gmail.com") # Your Apple Developer Portal username
+
+itc_team_id("127304362") # App Store Connect Team ID
+team_id("837R3VKT4W") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

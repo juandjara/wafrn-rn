@@ -8,25 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		1E6A25AE6450F17BD9C7F05E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C2801CC34A78DC01740C0FB9 /* PrivacyInfo.xcprivacy */; };
+		18329D3B6CD7EB620416C757 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6FD5B6B22D766057344D628D /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		81C28F3CE956391B246731A5 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470F3691DF4516CF0A0EBD3B /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		CE91FC321645F4684F3A816D /* libPods-Wafrn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 393FCEF43A59304C23E4A16A /* libPods-Wafrn.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F392716E1D8BF4F330B63C45 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9748BDF3CCC8B7A04AC20E91 /* ExpoModulesProvider.swift */; };
+		FF3721CEBD1DB16574266063 /* libPods-Wafrn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D790496A6454094716AB22F8 /* libPods-Wafrn.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		075AAC31B603C4DBE6367B4B /* Pods-Wafrn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wafrn.debug.xcconfig"; path = "Target Support Files/Pods-Wafrn/Pods-Wafrn.debug.xcconfig"; sourceTree = "<group>"; };
+		1272568EA9C4B8EE50472BE1 /* Pods-Wafrn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wafrn.release.xcconfig"; path = "Target Support Files/Pods-Wafrn/Pods-Wafrn.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Wafrn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wafrn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Wafrn/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Wafrn/Info.plist; sourceTree = "<group>"; };
-		393FCEF43A59304C23E4A16A /* libPods-Wafrn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Wafrn.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		71C21E01B274AC01E1CB4905 /* Pods-Wafrn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wafrn.release.xcconfig"; path = "Target Support Files/Pods-Wafrn/Pods-Wafrn.release.xcconfig"; sourceTree = "<group>"; };
-		9748BDF3CCC8B7A04AC20E91 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Wafrn/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		470F3691DF4516CF0A0EBD3B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Wafrn/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		6FD5B6B22D766057344D628D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Wafrn/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Wafrn/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C2801CC34A78DC01740C0FB9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Wafrn/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		E5F24F3D7ECF7B0157713912 /* Pods-Wafrn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Wafrn.debug.xcconfig"; path = "Target Support Files/Pods-Wafrn/Pods-Wafrn.debug.xcconfig"; sourceTree = "<group>"; };
+		D790496A6454094716AB22F8 /* libPods-Wafrn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Wafrn.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Wafrn/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* Wafrn-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Wafrn-Bridging-Header.h"; path = "Wafrn/Wafrn-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,21 +37,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE91FC321645F4684F3A816D /* libPods-Wafrn.a in Frameworks */,
+				FF3721CEBD1DB16574266063 /* libPods-Wafrn.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		082F8D427BED86DA2FBF2AE7 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				304B33D2844C7262A78B8758 /* Wafrn */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* Wafrn */ = {
 			isa = PBXGroup;
 			children = (
@@ -61,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				C2801CC34A78DC01740C0FB9 /* PrivacyInfo.xcprivacy */,
+				6FD5B6B22D766057344D628D /* PrivacyInfo.xcprivacy */,
 			);
 			name = Wafrn;
 			sourceTree = "<group>";
@@ -70,17 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				393FCEF43A59304C23E4A16A /* libPods-Wafrn.a */,
+				D790496A6454094716AB22F8 /* libPods-Wafrn.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		304B33D2844C7262A78B8758 /* Wafrn */ = {
-			isa = PBXGroup;
-			children = (
-				9748BDF3CCC8B7A04AC20E91 /* ExpoModulesProvider.swift */,
-			);
-			name = Wafrn;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -97,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				91E406C6800521DE886596CD /* Pods */,
-				082F8D427BED86DA2FBF2AE7 /* ExpoModulesProviders */,
+				AEF4EF2631A7ADFD869EA88E /* Pods */,
+				D056B23BE07C0C2C64543EFF /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,11 +97,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		91E406C6800521DE886596CD /* Pods */ = {
+		AEF4EF2631A7ADFD869EA88E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				E5F24F3D7ECF7B0157713912 /* Pods-Wafrn.debug.xcconfig */,
-				71C21E01B274AC01E1CB4905 /* Pods-Wafrn.release.xcconfig */,
+				075AAC31B603C4DBE6367B4B /* Pods-Wafrn.debug.xcconfig */,
+				1272568EA9C4B8EE50472BE1 /* Pods-Wafrn.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -131,6 +115,22 @@
 			path = Wafrn/Supporting;
 			sourceTree = "<group>";
 		};
+		C604F04FE6CB80C029F1C0EA /* Wafrn */ = {
+			isa = PBXGroup;
+			children = (
+				470F3691DF4516CF0A0EBD3B /* ExpoModulesProvider.swift */,
+			);
+			name = Wafrn;
+			sourceTree = "<group>";
+		};
+		D056B23BE07C0C2C64543EFF /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				C604F04FE6CB80C029F1C0EA /* Wafrn */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -139,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Wafrn" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				3243644B05D5B46C89CF332B /* [Expo] Configure project */,
+				941C9B2ECC95246964FF9B67 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				E68C1E4E64246494E1A9B3AA /* [CP] Embed Pods Frameworks */,
+				B0C75CAEEC67F3AA6EC6113A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				1E6A25AE6450F17BD9C7F05E /* PrivacyInfo.xcprivacy in Resources */,
+				18329D3B6CD7EB620416C757 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,25 +238,6 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
-		};
-		3243644B05D5B46C89CF332B /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Wafrn/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -310,7 +291,26 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Wafrn/Pods-Wafrn-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E68C1E4E64246494E1A9B3AA /* [CP] Embed Pods Frameworks */ = {
+		941C9B2ECC95246964FF9B67 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Wafrn/expo-configure-project.sh\"\n";
+		};
+		B0C75CAEEC67F3AA6EC6113A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -336,7 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				F392716E1D8BF4F330B63C45 /* ExpoModulesProvider.swift in Sources */,
+				81C28F3CE956391B246731A5 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,7 +345,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E5F24F3D7ECF7B0157713912 /* Pods-Wafrn.debug.xcconfig */;
+			baseConfigurationReference = 075AAC31B603C4DBE6367B4B /* Pods-Wafrn.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -371,7 +371,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "dev.djara.wafrn-rn";
-				PRODUCT_NAME = "Wafrn";
+				PRODUCT_NAME = Wafrn;
 				SWIFT_OBJC_BRIDGING_HEADER = "Wafrn/Wafrn-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -382,7 +382,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71C21E01B274AC01E1CB4905 /* Pods-Wafrn.release.xcconfig */;
+			baseConfigurationReference = 1272568EA9C4B8EE50472BE1 /* Pods-Wafrn.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -403,7 +403,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "dev.djara.wafrn-rn";
-				PRODUCT_NAME = "Wafrn";
+				PRODUCT_NAME = Wafrn;
 				SWIFT_OBJC_BRIDGING_HEADER = "Wafrn/Wafrn-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

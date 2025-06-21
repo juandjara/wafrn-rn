@@ -2,6 +2,12 @@
 #
 .DS_Store
 
+# fastlane
+gc_keys.json
+fastlane/report.xml
+.env
+*.dSYM.zip
+
 # Xcode
 #
 build/
