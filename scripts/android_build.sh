@@ -30,14 +30,21 @@ if [ "$env" == "dev" ]; then
   echo '> setting up development environment'
   npm run setup:dev
   cd android
-  echo '> installing development debug build'
+  echo '> creating development debug build in .apk format'
   ./gradlew app:assembleDebug
+elif [ "$env" == "google" ]; then
+  export NODE_ENV=production
+  echo '> setting up production environment'
+  npm run setup:prod
+  cd android
+  echo '> creating production release in .aab format'
+  ./gradlew app:bundleRelease
 else
   export NODE_ENV=production
   echo '> setting up production environment'
   npm run setup:prod
   cd android
-  echo '> installing production release build'
+  echo '> creating production release build in .apk format'
   ./gradlew app:assembleRelease
 fi
 
@@ -52,6 +59,8 @@ echo '> Done!'
 
 if [ "$env" == "dev" ]; then
   echo '> APKs created in ./android/app/build/outputs/apk/debug'
+elif [ "$env" == "google" ]; then
+  echo '> AABs created in ./android/app/build/outputs/bundle/release'
 else
   echo '> APKs created in ./android/app/build/outputs/apk/release'
 fi

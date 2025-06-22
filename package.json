@@ -9,6 +9,7 @@
     "build:dev:android": "bash ./scripts/android_build.sh dev",
     "build:prod:ios": "cd ios && fastlane beta",
     "build:prod:android": "bash ./scripts/android_build.sh prod",
+    "build:google:android": "bash ./scripts/android_build.sh google",
     "setup:dev": "NODE_ENV=development expo prebuild",
     "setup:prod": "NODE_ENV=production expo prebuild && bash ./scripts/sed_gradle_version.sh",
     "start": "NODE_ENV=development expo start",
