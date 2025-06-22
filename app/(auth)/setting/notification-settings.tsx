@@ -37,7 +37,7 @@ import {
 
 const notificationsCategories = [
   { label: 'Notify mentions', value: 'notifyMentions' },
-  { label: 'Notify reactions', value: 'notifyReactions' },
+  { label: 'Notify likes and reactions', value: 'notifyReactions' },
   { label: 'Notify quotes', value: 'notifyQuotes' },
   { label: 'Notify follows', value: 'notifyFollows' },
   { label: 'Notify rewoots', value: 'notifyRewoots' },
