@@ -59,7 +59,7 @@ export function usePushNotifications() {
 
     if (!savedDistributor) {
       // NOTE: initial implementation will always use the first distributor,
-      // but we should allow the user to select the distributor they want to use
+      // but we allow the user to select the distributor they want to use in the settings
       saveDistributor(distributors[0].id)
     }
     
