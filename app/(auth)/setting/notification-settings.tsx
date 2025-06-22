@@ -223,6 +223,26 @@ export default function NotificationSettings() {
             </Menu>
           </View>
         )}
+        <View className="flex-row gap-2 p-4">
+          <MaterialCommunityIcons
+            name="information"
+            color={colors.yellow[600]}
+            size={20}
+          />
+          <Text className="flex-shrink text-white leading-relaxed">
+            <Text>
+              <Text className="font-bold">Warning</Text>: Removing a
+              notification category from here will mean that type of
+              notification will not show on your notification tab here and on
+              web.
+            </Text>
+            {'\n\n'}
+            <Text>
+              If you want to filter the push notifications you receive, you
+              should do so using the native configration on your device.
+            </Text>
+          </Text>
+        </View>
         <View className="p-4">
           <Text className="text-white mb-2">Show notifications from:</Text>
           <Menu renderer={renderers.SlideInMenu}>
