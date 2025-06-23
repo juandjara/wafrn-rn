@@ -10,6 +10,11 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
+if ! [ -d './node_modules' ]; then
+  echo '> node_modules not found, running npm install'
+  npm install
+fi
+
 export PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-notifications']")
 
 echo "> uninstalling previous version of expo-notifications: $PREV_VERSION"
