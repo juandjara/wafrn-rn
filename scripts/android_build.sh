@@ -39,6 +39,14 @@ elif [ "$env" == "google" ]; then
   cd android
   echo '> creating production release in .aab format'
   ./gradlew app:bundleRelease
+elif [ "$env" == "foss" ]; then
+  export NODE_ENV=production
+  echo '> setting up production environment'
+  npm run setup:prod
+  sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+  cd android
+  echo '> creating production release build in .apk format with auto-updates disabled' 
+  ./gradlew app:assembleRelease
 else
   export NODE_ENV=production
   echo '> setting up production environment'
