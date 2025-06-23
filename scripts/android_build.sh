@@ -53,6 +53,9 @@ elif [ "$env" == "foss" ]; then
   cd android
   echo '> creating production release build in .apk format with auto-updates disabled' 
   ./gradlew app:assembleRelease
+  mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
+  mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
+  mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
 else
   export NODE_ENV=production
   echo '> setting up production environment'
@@ -80,6 +83,8 @@ if [ "$env" == "dev" ]; then
   echo '> APKs created in ./android/app/build/outputs/apk/debug'
 elif [ "$env" == "google" ]; then
   echo '> AABs created in ./android/app/build/outputs/bundle/release'
+elif [ "$env" == "foss" ]; then
+  echo '> APKs created in ./android/app/build/outputs/apk/foss'
 else
   echo '> APKs created in ./android/app/build/outputs/apk/release'
 fi
