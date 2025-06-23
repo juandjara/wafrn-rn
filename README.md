@@ -49,7 +49,7 @@ These are the values that will be used to sign the resulting apk or aab file wit
 
 The `WAFRN_UPLOAD_STORE_FILE` variable is a path relative to the `android/app/` directory inside this repo pointing to the keystore file. Make sure the path is correct and the file exists before running the build.
 
-Then, you can run the following command to build the production release:
+Then, you can run the following command to build the production release (but make sure to have installed dependencies with `npm install` before):
 
 ```bash
 npm run build:prod:android
