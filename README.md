@@ -32,6 +32,31 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Build a local version of the production release (only for Android)
+
+For the production release build process to work, you will need to define some keys for signing the resulting apk or aab file.
+
+You should create a `~/.gradle/gradle.properties` file with the following: (Where `~` is your home directory)
+
+```properties
+WAFRN_UPLOAD_STORE_FILE=production.keystore
+WAFRN_UPLOAD_STORE_PASSWORD=13132423
+WAFRN_UPLOAD_KEY_ALIAS=1232342
+WAFRN_UPLOAD_KEY_PASSWORD=3224242
+```
+
+These are the values that will be used to sign the resulting apk or aab file. You can get these from Android Studio or other android CLI tools.
+
+The `WAFRN_UPLOAD_STORE_FILE` variable is a path relative to the `android/app/` directory inside this repo pointing to the keystore file. Make sure the path is correct and the file exists before running the build.
+
+Then, you can run the following command to build the production release:
+
+```bash
+npm run build:prod:android
+```
+
+This will create a series of APK files in the `android/app/build/outputs/apk/release` directory.
+
 ## Join the community
 
 Discussions and contributions about the development of the app are welcome on the [Discord server](https://discord.gg/DTqGpk2AUV). (migration to some other platform might come in the future) and on [Wafrn itself](https://app.wafrn.net). When adding your feedback, please consider that the app is still in beta and some things might change.
