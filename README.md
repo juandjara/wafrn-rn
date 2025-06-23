@@ -57,6 +57,12 @@ npm run build:prod:android
 
 This will create a series of APK files in the `android/app/build/outputs/apk/release` directory.
 
+## About OTA updates
+
+This app has an OTA update functionality provided by `expo-updates`. What this means is that the JS code bundle of the app can be updated to point to latest commit in the `main` branch without the user needing to download a new version of the app. This is done by connecting to the updates server provided by Expo on launch and downloading the latest update from there.
+
+This feature can be easily disabled with no harm to the normal flow of the app. In fact, this is explicitly disabled in [the F-Droid build of the app](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/dev.djara.wafrn_rn.yml) by setting the `expo.modules.updates.ENABLED` to `false` in the [`AndroidManifest.xml`](android/app/src/main/AndroidManifest.xml) file. This can also be disabled by changing `expo.updates.enabled` to `false` in the [`app.config.ts`](app.config.ts) file.
+
 ## Join the community
 
 Discussions and contributions about the development of the app are welcome on the [Discord server](https://discord.gg/DTqGpk2AUV). (migration to some other platform might come in the future) and on [Wafrn itself](https://app.wafrn.net). When adding your feedback, please consider that the app is still in beta and some things might change.
