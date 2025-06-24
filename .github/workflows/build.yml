@@ -96,28 +96,28 @@ jobs:
         run: |
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
-          mv ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
+          cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
 
       - name: 📱 Build Production APK
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod'
         run: |
           bash ./scripts/android_build.sh prod
           mkdir -p ./outputs/prod
-          mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
+          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
 
       - name: 📱 Build Production APK (FOSS version)
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-foss'
         run: |
           bash ./scripts/android_build.sh prod-foss
           mkdir -p ./outputs/prod-foss
-          mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
+          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
 
       - name: 📱 Build Production AAB
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-google'
         run: |
           bash ./scripts/android_build.sh prod-google
           mkdir -p ./outputs/prod-google
-          mv ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
+          cp ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
 
       - name: 🔑 Sign APKs and AABs
         uses: ilharp/sign-android-release@v2
@@ -133,6 +133,6 @@ jobs:
       - name: 📦 Upload build artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: app-builds
-          path: ./outputs
+          name: signed-files
+          path: ./outputs/**/*-signed.apk
           retention-days: 7
