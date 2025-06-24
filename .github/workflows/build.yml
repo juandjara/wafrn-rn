@@ -136,3 +136,4 @@ jobs:
           name: signed-files
           path: ./outputs/**/*-signed.apk
           retention-days: 7
+          compression-level: 0 # APKs are already compressed
