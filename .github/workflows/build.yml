@@ -1,0 +1,163 @@
+name: Expo Android CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildType:
+        type: choice
+        description: 'Build type to run'
+        options:
+          - dev
+          - prod
+          - prod-foss
+          - prod-google
+          - all
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  NODE_OPTIONS: --openssl-legacy-provider
+
+jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Skip CI check
+        run: echo "Proceeding with workflow"
+
+  test:
+    needs: check-skip
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Setup npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: 📦 Install npm dependencies
+        run: npm install && npm install --save-dev --save-exact lightningcss@1.30.1
+
+      - name: 🧪 Run TypeScript check
+        run: npm run tsc
+
+      - name: 🧹 Run ESLint
+        run: npm run lint
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Setup npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: 📦 Install npm dependencies
+        run: npm install && npm install --save-dev --save-exact lightningcss@1.30.1
+
+      - name: 📱 Build Development APK
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/*.gradle*
+            android/**/gradle-wrapper.properties
+        run: |
+          # Build with increased memory limit
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          export UNSIGNED_APK=1
+          bash ./scripts/android_build.sh dev
+          mkdir -p ./outputs/dev
+          mv ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
+
+      - name: 📱 Build Production APK
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/*.gradle*
+            android/**/gradle-wrapper.properties
+        run: |
+          # Build with increased memory limit
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          export UNSIGNED_APK=1
+          bash ./scripts/android_build.sh prod
+          mkdir -p ./outputs/prod
+          mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
+
+      - name: 📱 Build Production APK (FOSS version)
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-foss'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/*.gradle*
+            android/**/gradle-wrapper.properties
+        run: |
+          # Build with increased memory limit
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          export UNSIGNED_APK=1
+          bash ./scripts/android_build.sh prod-foss
+          mkdir -p ./outputs/prod-foss
+          mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
+
+      - name: 📱 Build Production AAB
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-google'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/*.gradle*
+            android/**/gradle-wrapper.properties
+        run: |
+          # Build with increased memory limit
+          export NODE_OPTIONS="--max_old_space_size=4096"
+          export UNSIGNED_APK=1
+          bash ./scripts/android_build.sh prod-google
+          mkdir -p ./outputs/prod-google
+          mv ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
+
+      - name: 📦 Upload build artifacts to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-builds
+          path: ./outputs
+          retention-days: 7
