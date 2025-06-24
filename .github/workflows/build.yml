@@ -85,7 +85,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # this adds a caching layer for Gradle
+      # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       - name: 📦 Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -118,6 +118,17 @@ jobs:
           bash ./scripts/android_build.sh prod-google
           mkdir -p ./outputs/prod-google
           mv ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
+
+      - name: 🔑 Sign APKs and AABs
+        uses: ilharp/sign-android-release@v2
+        id: sign
+        with:
+          releaseDirectory: ./outputs
+          signingKeyBase64: ${{ secrets.WAFRN_UPLOAD_STORE_FILE_BASE64 }}
+          alias: ${{ secrets.WAFRN_UPLOAD_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.WAFRN_UPLOAD_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.WAFRN_UPLOAD_KEY_PASSWORD }}
+          buildToolsVersion: '35.0.0'
 
       - name: 📦 Upload build artifacts to GitHub
         uses: actions/upload-artifact@v4
