@@ -21,7 +21,7 @@ def enableSeparateBuildPerCPUArchitecture = true
  */
 def reactNativeArchitectures() {
     def value = findProperty("reactNativeArchitectures")
-    return value ? value.split(",") : ["arm64-v8a", "armeabi-v7a"]
+    return value ? value.split(",") : ["armeabi-v7a", "arm64-v8a"]
 }
 
 /**
