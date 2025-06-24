@@ -37,25 +37,31 @@ if [ "$env" == "dev" ]; then
   cd android
   echo '> creating development debug build in .apk format'
   ./gradlew app:assembleDebug
-elif [ "$env" == "google" ]; then
+elif [ "$env" == "prod-google" ]; then
   export NODE_ENV=production
   echo '> setting up production environment'
   npm run setup:prod
   cd android
   echo '> creating production release in .aab format'
   ./gradlew app:bundleRelease
-elif [ "$env" == "foss" ]; then
+elif [ "$env" == "prod-foss" ]; then
   export NODE_ENV=production
   echo '> setting up production environment'
   npm run setup:prod
   echo '> disabling auto-updates in AndroidManifest.xml'
-  sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+  else
+    sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+  fi
   cd android
   echo '> creating production release build in .apk format with auto-updates disabled' 
   ./gradlew app:assembleRelease
-  mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
-  mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
-  mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
+  if [ -z "$UNSIGNED_APK" ]; then
+    mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
+    mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
+    mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
+  fi
 else
   export NODE_ENV=production
   echo '> setting up production environment'
@@ -72,19 +78,27 @@ if [ "$PREV_VERSION" != "undefined" ]; then
   npm i --save-exact expo-notifications@$PREV_VERSION
 fi
 
-if [ "$env" == "foss" ]; then
+if [ "$env" == "prod-foss" ]; then
   echo '> restoring auto-updates to AndroidManifest.xml'
-  sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="false"/\1android:value="true"/' android/app/src/main/AndroidManifest.xml
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="false"/\1android:value="true"/' android/app/src/main/AndroidManifest.xml
+  else
+    sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="false"/\1android:value="true"/' android/app/src/main/AndroidManifest.xml
+  fi
 fi
 
 echo '> Done!'
 
 if [ "$env" == "dev" ]; then
   echo '> APKs created in ./android/app/build/outputs/apk/debug'
-elif [ "$env" == "google" ]; then
+elif [ "$env" == "prod-google" ]; then
   echo '> AABs created in ./android/app/build/outputs/bundle/release'
-elif [ "$env" == "foss" ]; then
-  echo '> APKs created in ./android/app/build/outputs/apk/foss'
+elif [ "$env" == "prod-foss" ]; then
+  if [ -z "$UNSIGNED_APK" ]; then
+    echo '> APKs created in ./android/app/build/outputs/apk/foss'
+  else
+    echo '> APKs created in ./android/app/build/outputs/apk/release'
+  fi
 else
   echo '> APKs created in ./android/app/build/outputs/apk/release'
 fi
