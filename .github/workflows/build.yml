@@ -123,9 +123,9 @@ jobs:
         uses: ilharp/sign-android-release@v2
         id: sign
         with:
-          releaseDirectory: ./outputs
-          signingKeyBase64: ${{ secrets.WAFRN_UPLOAD_STORE_FILE_BASE64 }}
-          alias: ${{ secrets.WAFRN_UPLOAD_KEY_ALIAS }}
+          releaseDir: ./outputs
+          signingKey: ${{ secrets.WAFRN_UPLOAD_STORE_FILE_BASE64 }}
+          keyAlias: ${{ secrets.WAFRN_UPLOAD_KEY_ALIAS }}
           keyStorePassword: ${{ secrets.WAFRN_UPLOAD_STORE_PASSWORD }}
           keyPassword: ${{ secrets.WAFRN_UPLOAD_KEY_PASSWORD }}
           buildToolsVersion: '35.0.0'
