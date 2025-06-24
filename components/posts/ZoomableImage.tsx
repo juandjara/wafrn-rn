@@ -11,7 +11,7 @@ import {
   ViewStyle,
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { extensionFromMimeType, isSVG } from '@/lib/api/media'
+import { extensionFromMimeType } from '@/lib/api/media'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
@@ -21,10 +21,10 @@ import { unfurlCacheUrl } from '@/lib/formatters'
 const imageRenderer = ({
   item,
   setImageDimensions,
-}: RenderItemInfo<string>) => {
+}: RenderItemInfo<{ src: string; blurHash: string | undefined }>) => {
   return (
     <Image
-      source={item}
+      source={{ uri: item.src, blurhash: item.blurHash }}
       style={StyleSheet.absoluteFillObject}
       contentFit="contain"
       onLoad={(e) => {
@@ -106,7 +106,7 @@ export default function ZoomableImage({
         )}
         <Gallery
           initialIndex={0}
-          data={[src]}
+          data={[{ src, blurHash }]}
           renderItem={imageRenderer}
           onSwipeToClose={() => setModalOpen(false)}
           onTap={() => setShowOverlay(!showOverlay)}
