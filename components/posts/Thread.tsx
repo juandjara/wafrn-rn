@@ -10,7 +10,7 @@ import ReplyRibbon from './ReplyRibbon'
 import { useHiddenUserIds } from '@/lib/api/blocks-and-mutes'
 import { memo } from 'react'
 
-function _Thread({ thread }: { thread: PostThread }) {
+function ThreadInner({ thread }: { thread: PostThread }) {
   const context = useDashboardContext()
   const hiddenUserIds = useHiddenUserIds()
 
@@ -89,5 +89,5 @@ function _Thread({ thread }: { thread: PostThread }) {
   )
 }
 
-const Thread = memo(_Thread)
+const Thread = memo(ThreadInner)
 export default Thread

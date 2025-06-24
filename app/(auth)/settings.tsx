@@ -1,9 +1,7 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
 import { useAdminCheck, useLogout } from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
@@ -13,7 +11,6 @@ import { useNotificationTokensCleanup } from '@/lib/notifications'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
-  const { value: savedInstance } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const isAdmin = useAdminCheck()
   const logout = useLogout()
   const notificationCleanup = useNotificationTokensCleanup()
@@ -94,7 +91,7 @@ export default function Settings() {
       return true
     })
     return filteredOptions
-  }, [isAdmin, savedInstance])
+  }, [isAdmin])
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>

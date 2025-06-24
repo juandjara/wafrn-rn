@@ -40,7 +40,6 @@ export default function Asks() {
         style={{ flex: 1 }}
         ref={pagerRef}
         initialPage={0}
-        useNext
         onPageSelected={(ev) => {
           setPage(ev.nativeEvent.position)
         }}

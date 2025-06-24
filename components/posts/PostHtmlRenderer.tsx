@@ -27,7 +27,7 @@ function onLinkPress(url: string) {
   }
 }
 
-function _PostHtmlRenderer({
+function PostHtmlRendererInner({
   html,
   inlineMedias,
   contentWidth,
@@ -225,5 +225,5 @@ function _PostHtmlRenderer({
   )
 }
 
-const PostHtmlRenderer = memo(_PostHtmlRenderer)
+const PostHtmlRenderer = memo(PostHtmlRendererInner)
 export default PostHtmlRenderer
