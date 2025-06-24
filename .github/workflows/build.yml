@@ -14,6 +14,7 @@ on:
           - all
 
 env:
+  UNSIGNED_APK: 1
   NODE_OPTIONS: --openssl-legacy-provider --max_old_space_size=4096
 
 jobs:
@@ -78,8 +79,7 @@ jobs:
       - name: 📦 Install npm dependencies
         run: npm install && npm install --save-dev --save-exact lightningcss@1.30.1
 
-      - name: 📱 Build Development APK
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev'
+      - name: 📦 Setup Java and Gradle Cache
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -89,59 +89,31 @@ jobs:
             android/*.gradle*
             android/**/*.gradle*
             android/**/gradle-wrapper.properties
+
+      - name: 📱 Build Development APK
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev'
         run: |
-          export UNSIGNED_APK=1
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           mv ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
 
       - name: 📱 Build Production APK
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
-          cache-dependency-path: |
-            android/*.gradle*
-            android/**/*.gradle*
-            android/**/gradle-wrapper.properties
         run: |
-          export UNSIGNED_APK=1
           bash ./scripts/android_build.sh prod
           mkdir -p ./outputs/prod
           mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
 
       - name: 📱 Build Production APK (FOSS version)
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-foss'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
-          cache-dependency-path: |
-            android/*.gradle*
-            android/**/*.gradle*
-            android/**/gradle-wrapper.properties
         run: |
-          export UNSIGNED_APK=1
           bash ./scripts/android_build.sh prod-foss
           mkdir -p ./outputs/prod-foss
           mv ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
 
       - name: 📱 Build Production AAB
         if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-google'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'gradle'
-          cache-dependency-path: |
-            android/*.gradle*
-            android/**/*.gradle*
-            android/**/gradle-wrapper.properties
         run: |
-          export UNSIGNED_APK=1
           bash ./scripts/android_build.sh prod-google
           mkdir -p ./outputs/prod-google
           mv ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
