@@ -234,6 +234,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation('org.codehaus.groovy:groovy-json')
 }
 
 // --- Custom task to strip .so files and remove NT_GNU_BUILD_ID ---
@@ -272,6 +274,8 @@ def createStripTaskForVariant(variantName, libDir) {
         }
     }
 }
+
+import groovy.json.JsonSlurper
 
 def createRewriteExpoManifestTaskForVariant(variantName) {
     tasks.register("rewriteExpoManifest${variantName}") {
