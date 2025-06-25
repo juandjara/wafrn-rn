@@ -273,6 +273,22 @@ def createStripTaskForVariant(variantName, libDir) {
     }
 }
 
+def createRewriteExpoManifestTaskForVariant(variantName) {
+    tasks.register("rewriteExpoManifest${variantName}") {
+        doLast {
+            if (System.getenv('REWRITE_EXPO_MANIFEST') == null) {
+                println "Skipping rewrite of Expo manifest for ${variantName}."
+                return
+            }
+            def manifestFile = file("${buildDir}/intermediates/assets/${variantName}/merge${variantName}Assets/app.manifest")
+            def manifest = new JsonSlurper().parse(manifestFile)
+            manifest.id = '9cecc843-557f-42fb-9e69-9d5fae5715fb' // static id, whatever value works
+            manfiest.commitTime = 1750716764178 // static commit time, whatever value works
+            manifestFile.write(manifest.toString())
+        }
+    }
+}
+
 afterEvaluate {
     android.applicationVariants.all { variant ->
         def capName = variant.name.capitalize()
@@ -284,6 +300,14 @@ afterEvaluate {
         }
         if (tasks.findByName("package${capName}")) {
             tasks["package${capName}"].mustRunAfter(stripTask)
+        }
+        createRewriteExpoManifestTaskForVariant(capName)
+        def rewriteExpoManifestTask = tasks["rewriteExpoManifest${capName}"]
+        if (tasks.findByName("merge${capName}Assets")) {
+            tasks["merge${capName}Assets"].finalizedBy(rewriteExpoManifestTask)
+        }
+        if (tasks.findByName("package${capName}")) {
+            tasks["package${capName}"].mustRunAfter(rewriteExpoManifestTask)
         }
     }
 }
