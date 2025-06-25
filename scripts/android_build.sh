@@ -29,7 +29,7 @@ if ! [ -f 'android/gradlew' ]; then
 fi
 
 env=${1:-prod}
-UNSIGNED_APK=${UNSIGNED_APK:0} # default is to run this script pretending to sign
+UNSIGNED_APK=${UNSIGNED_APK:"0"} # default is to run this script pretending to sign
 
 if [ "$env" == "dev" ]; then
   export NODE_ENV=development
