@@ -284,8 +284,8 @@ def createRewriteExpoManifestTaskForVariant(variantName) {
                 return
             }
             def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
-            def replaced = manifestFile.text.replaceAll('id: .*,', 'id: 9cecc843-557f-42fb-9e69-9d5fae5715fb,')
-            replaced = replaced.replaceAll('commitTime: .*,', 'commitTime: 1750716764178,')
+            def replaced = manifestFile.text.replaceAll(/"id":.*,/, '"id": "9cecc843-557f-42fb-9e69-9d5fae5715fb",')
+            replaced = replaced.replaceAll(/"commitTime":.*,/, '"commitTime": 1750716764178,')
             manifestFile.write(replaced)
         }
     }
