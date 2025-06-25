@@ -56,6 +56,7 @@ elif [ "$env" == "prod-foss" ]; then
   fi
   cd android
   echo '> creating production release build in .apk format with auto-updates disabled' 
+  export REWRITE_EXPO_MANIFEST=1
   ./gradlew app:assembleRelease
   if [ -z "$UNSIGNED_APK" ]; then
     mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
