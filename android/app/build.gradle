@@ -234,31 +234,32 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-
-    implementation('org.apache.groovy:groovy-json:4.0.21')
 }
 
 // --- Custom task to strip .so files and remove NT_GNU_BUILD_ID ---
-// take from here: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
+// adapted from here: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
 
 def getLLVMStrip() {
     def sdkDir = android.sdkDirectory
     def ndkVersion = android.ndkVersion
     if (!sdkDir || !ndkVersion) throw new GradleException("NDK path or version not found. Ensure android.sdkDirectory and android.ndkVersion are set.")
-    // def exe = Os.isFamily(Os.FAMILY_WINDOWS) ? 'llvm-strip.exe' : 'llvm-strip'
     def exe = 'llvm-strip'
-    // def hostTag = Os.isFamily(Os.FAMILY_WINDOWS) ? 'windows-x86_64' : 'linux-x86_64'
     def hostTag = 'linux-x86_64'
-    // def ndkPath = Os.isFamily(Os.FAMILY_WINDOWS) ?
-    //         "ndk\\${ndkVersion}\\toolchains\\llvm\\prebuilt\\${hostTag}\\bin\\${exe}" :
-    //         "ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostTag}/bin/${exe}"
     def ndkPath = "ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostTag}/bin/${exe}"
     return new File(sdkDir, ndkPath).absolutePath
 }
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
 def createStripTaskForVariant(variantName, libDir) {
     tasks.register("stripSoFiles${variantName}") {
         doLast {
+            def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
+            if (!isLinux) {
+                println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
+                return
+            }
+
             def strip = getLLVMStrip()
             def soFiles = fileTree(dir: libDir, include: '**/*.so')
             if (!soFiles.isEmpty()) {
@@ -275,8 +276,6 @@ def createStripTaskForVariant(variantName, libDir) {
     }
 }
 
-import groovy.json.JsonSlurper
-
 def createRewriteExpoManifestTaskForVariant(variantName) {
     tasks.register("rewriteExpoManifest${variantName}") {
         doLast {
@@ -284,17 +283,16 @@ def createRewriteExpoManifestTaskForVariant(variantName) {
                 println "Skipping rewrite of Expo manifest for ${variantName}."
                 return
             }
-            def manifestFile = file("${buildDir}/intermediates/assets/${variantName.toLowerCase()}/merge${variantName}Assets/app.manifest")
-            def manifest = new JsonSlurper().parse(manifestFile)
-            manifest.id = '9cecc843-557f-42fb-9e69-9d5fae5715fb' // static id, whatever value works
-            manfiest.commitTime = 1750716764178 // static commit time, whatever value works
-            manifestFile.write(manifest.toString())
+            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
+            def replaced = manifestFile.text.replaceAll('id: .*,', 'id: 9cecc843-557f-42fb-9e69-9d5fae5715fb,')
+            replaced = replaced.replaceAll('commitTime: .*,', 'commitTime: 1750716764178,')
+            manifestFile.write(replaced)
         }
     }
 }
 
 afterEvaluate {
-    android.applicationVariants.all { variant ->
+    android.applicationVariants.configureEach { variant ->
         def capName = variant.name.capitalize()
         def libDir = "$buildDir\\intermediates\\merged_native_libs\\${variant.name}\\mergeReleaseNativeLibs\\out\\lib"
         createStripTaskForVariant(capName, libDir)
@@ -307,8 +305,8 @@ afterEvaluate {
         }
         createRewriteExpoManifestTaskForVariant(capName)
         def rewriteExpoManifestTask = tasks["rewriteExpoManifest${capName}"]
-        if (tasks.findByName("merge${capName}Assets")) {
-            tasks["merge${capName}Assets"].finalizedBy(rewriteExpoManifestTask)
+        if (tasks.findByName("create${capName}UpdatesResources")) {
+            tasks["create${capName}UpdatesResources"].finalizedBy(rewriteExpoManifestTask)
         }
         if (tasks.findByName("package${capName}")) {
             tasks["package${capName}"].mustRunAfter(rewriteExpoManifestTask)
