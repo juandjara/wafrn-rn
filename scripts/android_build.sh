@@ -29,6 +29,7 @@ if ! [ -f 'android/gradlew' ]; then
 fi
 
 env=${1:-prod}
+UNSIGNED_APK=${UNSIGNED_APK:0} # default is to run this script pretending to sign
 
 if [ "$env" == "dev" ]; then
   export NODE_ENV=development
@@ -58,7 +59,7 @@ elif [ "$env" == "prod-foss" ]; then
   echo '> creating production release build in .apk format with auto-updates disabled' 
   export REWRITE_EXPO_MANIFEST=1
   ./gradlew app:assembleRelease
-  if [ -z "$UNSIGNED_APK" ]; then
+  if [ "$UNSIGNED_APK" == "0" ]; then
     mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
     mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
     mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
@@ -95,7 +96,7 @@ if [ "$env" == "dev" ]; then
 elif [ "$env" == "prod-google" ]; then
   echo '> AABs created in ./android/app/build/outputs/bundle/release'
 elif [ "$env" == "prod-foss" ]; then
-  if [ -z "$UNSIGNED_APK" ]; then
+  if [ "$UNSIGNED_APK" == "0" ]; then
     echo '> APKs created in ./android/app/build/outputs/apk/foss'
   else
     echo '> APKs created in ./android/app/build/outputs/apk/release'
