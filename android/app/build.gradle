@@ -114,10 +114,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1004007
         versionName '1.4.7'
-
-        externalNativeBuild.cmake {
-          cFlags "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--build-id=none"
-        }
     }
     splits {
         abi {
@@ -237,5 +233,54 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+
+// --- Custom task to strip .so files and remove NT_GNU_BUILD_ID ---
+// take from here: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
+
+def getLLVMStrip() {
+    def sdkDir = android.sdkDirectory
+    def ndkVersion = android.ndkVersion
+    if (!sdkDir || !ndkVersion) throw new GradleException("NDK path or version not found. Ensure android.sdkDirectory and android.ndkVersion are set.")
+    def exe = Os.isFamily(Os.FAMILY_WINDOWS) ? 'llvm-strip.exe' : 'llvm-strip'
+    def hostTag = Os.isFamily(Os.FAMILY_WINDOWS) ? 'windows-x86_64' : 'linux-x86_64'
+    def ndkPath = Os.isFamily(Os.FAMILY_WINDOWS) ?
+            "ndk\\${ndkVersion}\\toolchains\\llvm\\prebuilt\\${hostTag}\\bin\\${exe}" :
+            "ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostTag}/bin/${exe}"
+    return new File(sdkDir, ndkPath).absolutePath
+}
+
+def createStripTaskForVariant(variantName, libDir) {
+    tasks.register("stripSoFiles${variantName}") {
+        doLast {
+            def strip = getLLVMStrip()
+            def soFiles = fileTree(dir: libDir, include: '**/*.so')
+            if (!soFiles.isEmpty()) {
+                soFiles.each { soFile ->
+                    project.exec {
+                        commandLine strip, '--remove-section=.note.gnu.build-id', soFile
+                    }
+                    println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
+                }
+            } else {
+                println "No .so files found to strip for ${variantName}."
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        def capName = variant.name.capitalize()
+        def libDir = "$buildDir\\intermediates\\merged_native_libs\\${variant.name}\\mergeReleaseNativeLibs\\out\\lib"
+        createStripTaskForVariant(capName, libDir)
+        def stripTask = tasks["stripSoFiles${capName}"]
+        if (tasks.findByName("merge${capName}NativeLibs")) {
+            tasks["merge${capName}NativeLibs"].finalizedBy(stripTask)
+        }
+        if (tasks.findByName("package${capName}")) {
+            tasks["package${capName}"].mustRunAfter(stripTask)
+        }
     }
 }
