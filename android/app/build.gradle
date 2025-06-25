@@ -284,7 +284,7 @@ def createRewriteExpoManifestTaskForVariant(variantName) {
                 println "Skipping rewrite of Expo manifest for ${variantName}."
                 return
             }
-            def manifestFile = file("${buildDir}/intermediates/assets/${variantName}/merge${variantName}Assets/app.manifest")
+            def manifestFile = file("${buildDir}/intermediates/assets/${variantName.toLowerCase()}/merge${variantName}Assets/app.manifest")
             def manifest = new JsonSlurper().parse(manifestFile)
             manifest.id = '9cecc843-557f-42fb-9e69-9d5fae5715fb' // static id, whatever value works
             manfiest.commitTime = 1750716764178 // static commit time, whatever value works
