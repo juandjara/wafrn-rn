@@ -114,6 +114,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1004007
         versionName '1.4.7'
+
+        externalNativeBuild.cmake {
+          cFlags "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--build-id=none"
+        }
     }
     splits {
         abi {
