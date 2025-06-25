@@ -235,7 +235,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    implementation('org.codehaus.groovy:groovy-json')
+    implementation('org.apache.groovy:groovy-json:4.0.21')
 }
 
 // --- Custom task to strip .so files and remove NT_GNU_BUILD_ID ---
