@@ -8,10 +8,10 @@ on:
         description: 'Build type to run'
         options:
           - dev
-          - prod
+          - prod-base
           - prod-foss
           - prod-google
-          - all
+          - prod-all
 
 env:
   UNSIGNED_APK: 1
@@ -92,28 +92,28 @@ jobs:
           gradle-version: 'wrapper'
 
       - name: 📱 Build Development APK
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev'
+        if: github.event.inputs.buildType == 'dev'
         run: |
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
 
       - name: 📱 Build Production APK
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod'
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-base'
         run: |
           bash ./scripts/android_build.sh prod
           mkdir -p ./outputs/prod
           cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
 
       - name: 📱 Build Production APK (FOSS version)
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-foss'
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-foss'
         run: |
           bash ./scripts/android_build.sh prod-foss
           mkdir -p ./outputs/prod-foss
           cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
 
       - name: 📱 Build Production AAB
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-google'
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-google'
         run: |
           bash ./scripts/android_build.sh prod-google
           mkdir -p ./outputs/prod-google
