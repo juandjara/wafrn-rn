@@ -24,7 +24,8 @@ const imageRenderer = ({
 }: RenderItemInfo<{ src: string; blurHash: string | undefined }>) => {
   return (
     <Image
-      source={{ uri: item.src, blurhash: item.blurHash }}
+      source={{ uri: item.src }}
+      placeholder={{ blurhash: item.blurHash }}
       style={StyleSheet.absoluteFillObject}
       contentFit="contain"
       onLoad={(e) => {
