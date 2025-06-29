@@ -1,4 +1,4 @@
-name: Expo Android Builds
+name: Build Android App
 
 on:
   workflow_dispatch:
