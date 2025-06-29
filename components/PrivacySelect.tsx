@@ -17,6 +17,7 @@ type PrivacyModalProps = {
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
   options?: PrivacyLevel[]
+  maxPrivacy?: PrivacyLevel
 }
 
 export default function PrivacySelect({
@@ -26,7 +27,13 @@ export default function PrivacySelect({
   privacy,
   setPrivacy,
   options = PRIVACY_ORDER,
+  maxPrivacy,
 }: PrivacyModalProps) {
+  function isDisabled(p: PrivacyLevel) {
+    if (!maxPrivacy) return false
+    return PRIVACY_ORDER.indexOf(p) < PRIVACY_ORDER.indexOf(maxPrivacy)
+  }
+
   return (
     <View>
       <Pressable
@@ -65,9 +72,13 @@ export default function PrivacySelect({
           {options.map((p) => (
             <Pressable
               key={p}
+              disabled={isDisabled(p)}
               className={clsx(
                 'p-4 flex-row gap-4 active:bg-gray-200 bg-white',
-                { 'bg-gray-100': privacy === Number(p) },
+                {
+                  'bg-gray-100': !isDisabled(p) && privacy === Number(p),
+                  'bg-gray-100/50 opacity-50': isDisabled(p),
+                },
               )}
               onPress={() => {
                 setPrivacy(p)
