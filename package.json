@@ -19,7 +19,7 @@
     "lint": "expo lint",
     "tsc": "tsc",
     "check-env": "node scripts/checkEnvironment.ts",
-    "preversion": "npm check-env",
+    "preversion": "npm run check-env",
     "version": "npm run setup:prod && git add -A .",
     "postversion": "git push && git push origin $(git describe --tags)"
   },
