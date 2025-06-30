@@ -134,6 +134,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: signed-files
-          path: ./outputs/**/*-signed.apk
+          path:
+            - ./outputs/**/*-signed.apk
+            - ./outputs/**/*-signed.aab
           retention-days: 7
           compression-level: 0 # APKs are already compressed
