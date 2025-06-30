@@ -59,9 +59,11 @@ This will create a series of APK files in the `android/app/build/outputs/apk/rel
 
 ## About OTA updates
 
-This app has an OTA update functionality provided by `expo-updates`. What this means is that the JS code bundle of the app can be updated to point to latest commit in the `main` branch without the user needing to download a new version of the app. This is done by connecting to the updates server provided by Expo on launch and downloading the latest update from there.
+This app has an OTA update functionality provided by `expo-updates`. What this means is that the JS code bundle of the app can be updated to point to latest commit in the `main` branch without the user needing to download a new version of the app. This is done by connecting to the updates server provided by Expo on launch, checking for updates, downloading them if any, and presenting the user a modal to restart the app.
 
 This feature can be easily disabled with no harm to the normal flow of the app. In fact, this is explicitly disabled in [the F-Droid build of the app](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/dev.djara.wafrn_rn.yml) by setting the `expo.modules.updates.ENABLED` to `false` in the [`AndroidManifest.xml`](android/app/src/main/AndroidManifest.xml) file. This can also be disabled by changing `expo.updates.enabled` to `false` in the [`app.config.ts`](app.config.ts) file.
+
+This feature is also disabled in the FOSS versions of the app, available in github releases and in the APK distributed to F-Droid.
 
 ## Join the community
 
