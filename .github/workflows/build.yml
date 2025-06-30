@@ -134,7 +134,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: signed-files
-          path:
+          paths:
             - ./outputs/**/*-signed.apk
             - ./outputs/**/*-signed.aab
           retention-days: 7
