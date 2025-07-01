@@ -1,11 +1,24 @@
-[<img src="https://shields.rbtlog.dev/simple/dev.djara.wafrn_rn" alt="RB shield">](https://shields.rbtlog.dev/dev.djara.wafrn_rn)
+<!-- Badges -->
 
+[<img src="https://shields.rbtlog.dev/simple/dev.djara.wafrn_rn" alt="RB shield">](https://shields.rbtlog.dev/dev.djara.wafrn_rn)
+[<img src="https://github.com/juandjara/wafrn-rn/actions/workflows/build.yml/badge.svg" alt="Build Status" />](https://github.com/juandjara/wafrn-rn/actions/workflows/build.yml)
+
+<!-- Get it on -->
+
+<!--
+<a href="https://play.google.com/store/apps/details?id=dev.djara.wafrn_rn">
+<img height="60" alt="Get it on Google Play" src="assets/badges/google-play-margin.png" /></a>
+-->
 <a href="https://f-droid.org/packages/dev.djara.wafrn_rn/">
-  <img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
+<img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
+<a href="https://apt.izzysoft.de/fdroid/index/apk/dev.djara.wafrn_rn">
+<img height="60" alt="Get it on IzzyOnDroid" src="assets/badges/izzy-margin.png" /></a>
 <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/juandjara/wafrn-rn">
-  <img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
+<img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
+<a href="https://github.com/juandjara/wafrn-rn/releases/latest">
+<img height="60" alt="Get it on GitHub" src="assets/badges/github-margin.png" /></a>
 <a href="https://testflight.apple.com/join/k98B8bDq">
-  <img height="60" alt="Get it on Testflight" src="assets/badges/testflight-margin.png" /></a>
+<img height="60" alt="Get it on Testflight" src="assets/badges/testflight-margin.png" /></a>
 
 # Wafrn React Native App
 
