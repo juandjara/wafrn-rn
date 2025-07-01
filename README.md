@@ -1,3 +1,5 @@
+[<img src="https://shields.rbtlog.dev/simple/dev.djara.wafrn_rn" alt="RB shield">](https://shields.rbtlog.dev/dev.djara.wafrn_rn)
+
 <a href="https://f-droid.org/packages/dev.djara.wafrn_rn/">
   <img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
 <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/juandjara/wafrn-rn">
