@@ -29,7 +29,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
     hiddenUserIds.includes(thread.userId) ||
     ancestors.some((a) => hiddenUserIds.includes(a.userId))
 
-  if (postHidden || userHidden) {
+  if (postHidden || userHidden || (isRewoot && interactionPost.isDeleted)) {
     return null
   }
 

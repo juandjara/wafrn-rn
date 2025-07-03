@@ -135,8 +135,12 @@ export default function PostDetail() {
         : []
 
       const fullReplies = replies
-        // only show rewoots from the top post
-        .filter((p) => !isEmptyRewoot(p, context) || p.parentId === postid)
+        .filter((p) => {
+          const parentIsTopPost = p.parentId === postid
+          const isRewoot = isEmptyRewoot(p, context)
+          // only show rewoots from the top post
+          return !p.isDeleted && (isRewoot ? parentIsTopPost : true)
+        })
         .sort(sortPosts)
         .map((p) => {
           if (isEmptyRewoot(p, context)) {
@@ -198,8 +202,8 @@ export default function PostDetail() {
     return listData.slice(startIndex, endIndex)
   }, [listData, maxParents, maxReplies, postCount, replyCount])
 
-  // We reveal parents in chunks. Although they're all already
-  // loaded and FlatList already has its own virtualization, unfortunately FlatList
+  // We reveal parents in chunks. Although they're all already loaded
+  // and FlatList already has its own virtualization, unfortunately FlatList
   // has a bug that causes the content to jump around if too many items are getting
   // prepended at once. It also jumps around if items get prepended during scroll.
   // To work around this, we prepend rows after scroll bumps against the top and rests.
