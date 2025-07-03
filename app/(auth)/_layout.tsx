@@ -5,7 +5,7 @@ import checkExpoUpdates from '@/lib/checkExpoUpdates'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import useAppFocusListener from '@/lib/useAppFocusListener'
 import { useQueryClient } from '@tanstack/react-query'
-import { Redirect, Stack, useNavigation } from 'expo-router'
+import { Redirect, Stack, useNavigationContainerRef } from 'expo-router'
 import { useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 
@@ -16,12 +16,12 @@ export const unstable_settings = {
 export default function ProtectedLayout() {
   const { token, env, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
-  const nav = useNavigation()
+  const nav = useNavigationContainerRef().current
   const qc = useQueryClient()
 
-  // cancel ALL queries when exiting a route
+  // cancel ALL queries on a navigation state change
   useEffect(() => {
-    const unsubscribe = nav.addListener('blur', () => {
+    const unsubscribe = nav?.addListener('state', () => {
       qc.cancelQueries({
         predicate: () => true,
       })
