@@ -601,7 +601,10 @@ export function getDerivedThreadState(
     return privacyIsFollowersOnly && !amIFollowing
   }
 
-  const postHidden = isFollowersOnly(thread) || ancestors.some(isFollowersOnly)
+  const postHidden =
+    (isRewoot && interactionPost.isDeleted) ||
+    isFollowersOnly(thread) ||
+    ancestors.some(isFollowersOnly)
 
   return {
     isRewoot,
