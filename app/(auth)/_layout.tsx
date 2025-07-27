@@ -1,12 +1,10 @@
-// from here: https://docs.expo.dev/router/reference/authentication/
+// initial reference: https://docs.expo.dev/router/reference/authentication/
 import SplashScreen from '@/components/SplashScreen'
 import { getRootStyles } from '@/constants/Colors'
 import checkExpoUpdates from '@/lib/checkExpoUpdates'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import useAppFocusListener from '@/lib/useAppFocusListener'
-import { useQueryClient } from '@tanstack/react-query'
-import { Redirect, Stack, useNavigationContainerRef } from 'expo-router'
-import { useEffect } from 'react'
+import { Redirect, Stack } from 'expo-router'
 import { useColorScheme } from 'react-native'
 
 export const unstable_settings = {
@@ -16,18 +14,6 @@ export const unstable_settings = {
 export default function ProtectedLayout() {
   const { token, env, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
-  const nav = useNavigationContainerRef().current
-  const qc = useQueryClient()
-
-  // cancel ALL queries on a navigation state change
-  useEffect(() => {
-    const unsubscribe = nav?.addListener('state', () => {
-      qc.cancelQueries({
-        predicate: () => true,
-      })
-    })
-    return unsubscribe
-  }, [nav, qc])
 
   useAppFocusListener(checkExpoUpdates)
 
