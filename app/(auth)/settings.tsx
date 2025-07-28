@@ -48,14 +48,24 @@ export default function Settings() {
         link: '/setting/options',
       },
       {
+        icon: 'butterfly-outline' as const,
+        label: 'Bluesky settings',
+        link: '/setting/bluesky-settings',
+      },
+      {
         icon: 'bell-outline' as const,
-        label: 'Notification Settings',
+        label: 'Notification settings',
         link: '/setting/notification-settings',
       },
       {
         icon: 'server-off' as const,
         label: 'Mutes & Blocks',
         link: '/setting/mutes-and-blocks',
+      },
+      {
+        icon: 'help-circle-outline' as const,
+        label: 'FAQ / User guide',
+        link: 'https://wafrn.net/faq/user.html',
       },
       {
         icon: 'eye-off-outline' as const,
