@@ -545,3 +545,41 @@ export function usePasswordChangeCompleteMutation() {
     },
   })
 }
+
+async function enableBluesky(token: string, password: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/v2/enable-bluesky`, {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+export function useEnableBlueskyMutation() {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+  const me = useParsedToken()
+  const handle = me?.url
+
+  return useMutation({
+    mutationKey: ['enableBluesky'],
+    mutationFn: (password: string) => enableBluesky(token!, password),
+    onSuccess: () => {
+      showToastSuccess('Bluesky integration enabled')
+    },
+    onError: (err) => {
+      showToastError('Failed enabling Bluesky integration')
+    },
+    onSettled: () => {
+      return qc.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          query.queryKey[0] === 'currentUser' ||
+          query.queryKey[0] === 'user' && query.queryKey[1] === handle,
+      })
+    },
+  })
+}

@@ -1,15 +1,16 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import { useCurrentUser } from '@/lib/api/user'
+import Prompt from '@/components/Prompt'
+import { useCurrentUser, useEnableBlueskyMutation } from '@/lib/api/user'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Link } from 'expo-router'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, ScrollView, Text, View } from 'react-native'
 
 export default function BlueskySettings() {
   const sx = useSafeAreaPadding()
   const { data: me } = useCurrentUser()
-  const enabled = false //!!me?.bskyDid
+  const enabled = !!me?.bskyDid
   const { env } = useAuth()
 
   const bskyEmail = useMemo(() => {
@@ -21,13 +22,28 @@ export default function BlueskySettings() {
     return `${sanitizedUrl}@${domain}`
   }, [me, env])
 
-  function enableBluesky() {
-    // TODO
-  }
+  const mutation = useEnableBlueskyMutation()
+  const [showPrompt, setShowPrompt] = useState(false)
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Bluesky Settings" />
+      <Prompt
+        visible={showPrompt}
+        title="Enter your Wafrn password"
+        inputProps={{
+          placeholder: 'password',
+          secureTextEntry: true,
+          keyboardType: 'visible-password',
+        }}
+        onClose={() => setShowPrompt(false)}
+        onConfirm={(password) => {
+          setShowPrompt(false)
+          if (password) {
+            mutation.mutate(password)
+          }
+        }}
+      />
       <ScrollView>
         <View className="p-4">
           <Text className="text-white text-lg pb-2">
@@ -64,8 +80,13 @@ export default function BlueskySettings() {
               </Text>
               <View className="pt-6">
                 <Button
-                  title="Update Bluesky password"
-                  onPress={enableBluesky}
+                  title={
+                    mutation.isPending
+                      ? 'Updating...'
+                      : 'Update Bluesky password'
+                  }
+                  onPress={() => setShowPrompt(true)}
+                  disabled={mutation.isPending}
                 />
               </View>
               <Text className="text-white text-lg pt-6">
@@ -121,8 +142,13 @@ export default function BlueskySettings() {
               </View>
               <View className="pb-6">
                 <Button
-                  title="Enable Bluesky integration"
-                  onPress={enableBluesky}
+                  title={
+                    mutation.isPending
+                      ? 'Enabling...'
+                      : 'Enable Bluesky integration'
+                  }
+                  onPress={() => setShowPrompt(true)}
+                  disabled={mutation.isPending}
                 />
               </View>
               <Text className="text-white text-lg pt-3">
@@ -155,8 +181,7 @@ export default function BlueskySettings() {
               <Link href="https://wafrn.net/faq/user.html#blueskyIntegration">
                 FAQ / User guide
               </Link>
-            </Text>{' '}
-            to learn the details about our Bluesky integration.
+            </Text>
           </Text>
         </View>
       </ScrollView>
