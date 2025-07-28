@@ -19,7 +19,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: 16.2
 
       - name: Create gc_keys.json
         run: echo $GOOGLE_CLOUD_KEYS >> ios/gc_keys.json

@@ -15,6 +15,8 @@ update_fastlane
 
 default_platform(:ios)
 
+xcversion(version: "16.2")
+
 platform :ios do
   desc "Build and push a new beta to TestFlight"
   lane :beta do
