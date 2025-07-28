@@ -18,7 +18,10 @@ default_platform(:ios)
 platform :ios do
   desc "Build and push a new beta to TestFlight"
   lane :beta do
-    match(type: 'appstore')
+    match(
+      type: 'appstore',
+      readonly: ENV['CI']
+    )
     changelog_from_git_commits
     build_app(workspace: "Wafrn.xcworkspace", scheme: "Wafrn")
     upload_to_testflight(distribute_external: true, groups: ['Wafrn TestFlight'])
