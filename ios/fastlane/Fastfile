@@ -18,6 +18,7 @@ default_platform(:ios)
 platform :ios do
   desc "Build and push a new beta to TestFlight"
   lane :beta do
+    setup_ci if ENV['CI']
     match(
       type: 'appstore',
       readonly: ENV['CI']
