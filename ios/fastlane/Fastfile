@@ -15,12 +15,12 @@ update_fastlane
 
 default_platform(:ios)
 
-xcversion(version: "16.2")
-
 platform :ios do
   desc "Build and push a new beta to TestFlight"
   lane :beta do
     setup_ci if ENV['CI']
+    xcode_select("/Applications/Xcode_16.2.app") if ENV['CI']
+
     match(
       type: 'appstore',
       readonly: ENV['CI']
