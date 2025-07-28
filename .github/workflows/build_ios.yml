@@ -20,5 +20,8 @@ jobs:
       - name: Create gc_keys.json
         run: echo $GOOGLE_CLOUD_KEYS >> ios/gc_keys.json
 
+      - name: Install Xcodes
+        run: brew install robotsandpencils/made/xcodes
+
       - name: Run fastlane
         run: cd ios && fastlane beta

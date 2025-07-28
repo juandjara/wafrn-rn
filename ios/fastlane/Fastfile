@@ -24,6 +24,10 @@ platform :ios do
       type: 'appstore',
       readonly: ENV['CI']
     )
+
+    xcodes(version: "16.2", select_for_current_build_only: true)
+    verify_xcode
+
     changelog_from_git_commits
     build_app(
       workspace: "Wafrn.xcworkspace",
