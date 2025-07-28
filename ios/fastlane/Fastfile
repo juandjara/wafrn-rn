@@ -25,7 +25,11 @@ platform :ios do
       readonly: ENV['CI']
     )
     changelog_from_git_commits
-    build_app(workspace: "Wafrn.xcworkspace", scheme: "Wafrn")
+    build_app(
+      workspace: "Wafrn.xcworkspace",
+      scheme: "Wafrn",
+      xcargs: "-allowProvisioningUpdates"
+    )
     upload_to_testflight(distribute_external: true, groups: ['Wafrn TestFlight'])
   end
 end
