@@ -48,7 +48,7 @@ jobs:
       - name: 📦 Install pods for iOS
         working-directory: ./ios
         shell: bash
-        run: bundle exec pod install
+        run: pod install
 
       - name: 📦 Create gc_keys.json
         run: echo $GOOGLE_CLOUD_KEYS >> ios/gc_keys.json
