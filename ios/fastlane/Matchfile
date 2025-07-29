@@ -6,6 +6,7 @@ type("appstore") # The default type, can be: appstore, adhoc, enterprise or deve
 
 app_identifier("dev.djara.wafrn-rn")
 username("juanorigami@gmail.com") # Your Apple Developer Portal username
+team_id("837R3VKT4W") # Developer Portal Team ID
 
 # For all available options run `fastlane match --help`
 # Remove the # in the beginning of the line to enable the other options

@@ -20,20 +20,29 @@ platform :ios do
   lane :beta do
     setup_ci if ENV['CI']
 
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"],
+      is_key_content_base64: true,
+      duration: 1200, # optional (maximum 1200)
+      in_house: false # optional but may be required if using match/sigh
+    )
+
     match(
       type: 'appstore',
       readonly: ENV['CI']
     )
 
-    xcodes(version: "16.2", select_for_current_build_only: true)
-    verify_xcode
-
     changelog_from_git_commits
     build_app(
       workspace: "Wafrn.xcworkspace",
       scheme: "Wafrn",
-      xcargs: "-allowProvisioningUpdates"
     )
-    upload_to_testflight(distribute_external: true, groups: ['Wafrn TestFlight'])
+    upload_to_testflight(
+      distribute_external: true,
+      groups: ['Wafrn TestFlight'],
+      skip_waiting_for_build_processing: ENV['CI']
+    )
   end
 end

@@ -14,14 +14,48 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout code
+      - name: 🏗 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create gc_keys.json
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 🏗 Setup npm cache
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 📦 Install npm dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci && npm rebuild lightningcss
+
+      - name: 🏗 Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+
+      - name: 📦 Install gems for iOS
+        if: runner.os == "macos"
+        working-directory: ./ios
+        shell: bash
+        run: bundle install
+
+      - name: 📦 Install pods for iOS
+        if: runner.os == "macos"
+        working-directory: ./ios
+        shell: bash
+        run: bundle exec pod install
+
+      - name: 📦 Create gc_keys.json
         run: echo $GOOGLE_CLOUD_KEYS >> ios/gc_keys.json
 
-      - name: Install Xcodes
-        run: brew install robotsandpencils/made/xcodes
-
-      - name: Run fastlane
-        run: cd ios && fastlane beta
+      - name: 📦 Run fastlane
+        working-directory: ./ios
+        shell: bash
+        run: bundle exec fastlane beta
