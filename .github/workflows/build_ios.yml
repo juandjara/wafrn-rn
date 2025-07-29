@@ -41,13 +41,11 @@ jobs:
           bundler-cache: true
 
       - name: 📦 Install gems for iOS
-        if: runner.os == "macos"
         working-directory: ./ios
         shell: bash
         run: bundle install
 
       - name: 📦 Install pods for iOS
-        if: runner.os == "macos"
         working-directory: ./ios
         shell: bash
         run: bundle exec pod install
