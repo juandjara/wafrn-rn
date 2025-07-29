@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
