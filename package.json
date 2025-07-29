@@ -39,7 +39,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "emoji-datasource": "^15.1.2",
-    "expo": "^53.0.9",
+    "expo": "^53.0.20",
     "expo-clipboard": "~7.1.4",
     "expo-constants": "~17.1.6",
     "expo-dev-client": "~5.1.8",
