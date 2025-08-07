@@ -54,6 +54,31 @@ export function showToastError(message: string) {
   })
 }
 
+export function showToastDarkSouls(message: string) {
+  toast(message.toUpperCase(), {
+    duration: 3000,
+    styles: {
+      text: {
+        color: colors.red[500],
+        fontSize: 24,
+      },
+      view: {
+        backgroundColor: colors.black,
+        borderRadius: 8,
+      },
+    },
+  })
+}
+
+export function showToastInfo(message: string) {
+  toast(message, {
+    styles: {
+      text: {
+        color: colors.blue[900],
+      },
+    },
+  })
+}
 export function useLikeMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
