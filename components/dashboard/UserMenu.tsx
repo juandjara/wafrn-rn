@@ -1,30 +1,39 @@
 import { useCurrentUser } from '@/lib/api/user'
 import { formatSmallAvatar } from '@/lib/formatters'
 import { router } from 'expo-router'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import {
   Menu,
   MenuOption,
   MenuOptions,
   MenuTrigger,
+  renderers,
 } from 'react-native-popup-menu'
 import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { optionStyle } from '@/lib/styles'
+import { optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
+  const sx = useSafeAreaPadding()
 
   const options = [
     {
       icon: 'account-outline' as const,
       label: 'My profile',
       action: () => router.push(`/user/${me?.url}`),
+    },
+    {
+      icon: 'chat-question-outline' as const,
+      label: 'Asks',
+      action: () => router.push('/asks'),
+      badge: badges?.asks || 0,
     },
     {
       icon: 'account-clock-outline' as const,
@@ -34,11 +43,20 @@ export default function UserMenu() {
       hidden: me?.manuallyAcceptsFollows === false,
     },
     {
-      icon: 'chat-question-outline' as const,
-      label: 'Asks',
-      action: () => router.push('/asks'),
-      badge: badges?.asks || 0,
+      icon: 'dice-multiple' as const,
+      label: 'Try your luck',
+      action: () => router.push('/roll'),
     },
+    // {
+    //   icon: 'bookmark-outline' as const,
+    //   label: 'Bookmarks',
+    //   action: () => router.push('/bookmarks'),
+    // },
+    // {
+    //   icon: 'tag-outline' as const,
+    //   label: 'Followed hashtags',
+    //   action: () => router.push('/followed-hashtags'),
+    // },
     {
       icon: 'shield-outline' as const,
       label: 'Admin',
@@ -65,7 +83,7 @@ export default function UserMenu() {
   }
 
   return (
-    <Menu>
+    <Menu renderer={renderers.SlideInMenu}>
       <MenuTrigger
         customStyles={{ TriggerTouchableComponent: TouchableOpacity }}
       >
@@ -84,10 +102,10 @@ export default function UserMenu() {
       </MenuTrigger>
       <MenuOptions
         customStyles={{
+          OptionTouchableComponent: TouchableHighlight,
           optionsContainer: {
-            transformOrigin: 'top right',
-            marginTop: 48,
-            borderRadius: 8,
+            paddingBottom: sx.paddingBottom,
+            borderRadius: 16,
           },
         }}
       >
@@ -95,7 +113,7 @@ export default function UserMenu() {
           <MenuOption
             key={i}
             onSelect={option.action}
-            style={{ ...optionStyle(i) }}
+            style={{ ...optionStyleBig(i) }}
           >
             <MaterialCommunityIcons
               name={option.icon}

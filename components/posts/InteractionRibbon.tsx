@@ -8,16 +8,25 @@ import {
 } from '@expo/vector-icons'
 import { Link, router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
-import { Alert, Pressable, Share, Text, View } from 'react-native'
+import {
+  Alert,
+  Pressable,
+  Share,
+  Text,
+  TouchableHighlight,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import {
   Menu,
   MenuOption,
   MenuOptions,
   MenuTrigger,
+  renderers,
 } from 'react-native-popup-menu'
 import colors from 'tailwindcss/colors'
 import EmojiPicker, { Emoji } from '../EmojiPicker'
-import { optionStyle } from '@/lib/styles'
+import { optionStyleBig } from '@/lib/styles'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import AnimatedIcon from './AnimatedIcon'
 import { useSharedValue, withSpring } from 'react-native-reanimated'
@@ -39,6 +48,7 @@ import { toggleCollapsed, usePostLayout } from '@/lib/store'
 import { BSKY_URL } from '@/lib/api/content'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 
 export default function InteractionRibbon({
   post,
@@ -47,6 +57,7 @@ export default function InteractionRibbon({
   post: Post
   orientation?: 'horizontal' | 'vertical'
 }) {
+  const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
   const me = useParsedToken()
   const { env } = useAuth()
@@ -377,14 +388,16 @@ export default function InteractionRibbon({
             />
           </View>
         )}
-        <Menu
-          style={{
-            margin: 6,
-            borderRadius: 8,
-            backgroundColor: colors.indigo[950],
-          }}
-        >
-          <MenuTrigger style={{ padding: 6 }}>
+        <Menu renderer={renderers.SlideInMenu}>
+          <MenuTrigger
+            customStyles={{
+              TriggerTouchableComponent: TouchableOpacity,
+              triggerWrapper: {
+                paddingHorizontal: 6,
+                paddingVertical: 12,
+              },
+            }}
+          >
             <MaterialCommunityIcons
               size={20}
               name={`dots-${orientation}`}
@@ -394,9 +407,10 @@ export default function InteractionRibbon({
           </MenuTrigger>
           <MenuOptions
             customStyles={{
+              OptionTouchableComponent: TouchableHighlight,
               optionsContainer: {
-                transformOrigin: 'top right',
-                borderRadius: 8,
+                paddingBottom: sx.paddingBottom,
+                borderRadius: 16,
               },
             }}
           >
@@ -405,7 +419,7 @@ export default function InteractionRibbon({
                 key={i}
                 value={option.label}
                 style={{
-                  ...optionStyle(i),
+                  ...optionStyleBig(i),
                   opacity: option.disabled ? 0.75 : 1,
                 }}
                 onSelect={option.action}

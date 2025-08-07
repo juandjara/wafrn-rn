@@ -5,7 +5,14 @@ import {
   getPublicOptionValue,
   PublicOptionNames,
 } from '@/lib/api/settings'
-import { Pressable, Share, Text, useWindowDimensions, View } from 'react-native'
+import {
+  Pressable,
+  Share,
+  Text,
+  TouchableHighlight,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import {
   formatUserUrl,
   formatCachedUrl,
@@ -228,8 +235,10 @@ export default function UserDetail({ user }: { user: User }) {
             </MenuTrigger>
             <MenuOptions
               customStyles={{
+                OptionTouchableComponent: TouchableHighlight,
                 optionsContainer: {
                   paddingBottom: sx.paddingBottom,
+                  borderRadius: 16,
                 },
               }}
             >

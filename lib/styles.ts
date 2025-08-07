@@ -11,6 +11,15 @@ export const optionStyle = (i: number) => ({
   gap: 12,
 })
 
+export const optionStyleBig = (i: number) => ({
+  padding: 16,
+  borderTopWidth: i > 0 ? 1 : 0,
+  borderTopColor: colors.gray[200],
+  flexDirection: 'row' as const,
+  alignItems: 'center' as const,
+  gap: 16,
+})
+
 export const optionStyleDark = (i: number) => ({
   padding: 16,
   // borderTopWidth: i > 0 ? 1 : 0,

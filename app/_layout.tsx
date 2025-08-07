@@ -53,7 +53,7 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
           >
-            <MenuProvider>
+            <MenuProvider backHandler>
               <Slot />
               <Toasts />
             </MenuProvider>
