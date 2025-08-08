@@ -73,6 +73,10 @@ npm run build:prod:android
 
 This will create a series of APK files in the `android/app/build/outputs/apk/release` directory.
 
+## About UnifiedPush
+
+This app uses UnifiedPush for sending its notifications (via [expo-unified-push](https://github.com/juandjara/expo-unified-push/)). You can read more about UnifiedPush in https://unifiedpush.org. After a sucessfull login, the Wafrn App will ask for notification permission and try to register with the first UnifiedPush distributor available in your device. You can change this later in settings. If no UnifiedPush distributor is installed in your device, the Wafrn App will use the embedded Firebase Cloud Messaging distributor, but only as a last resource.
+
 ## About OTA updates
 
 This app has an OTA update functionality provided by `expo-updates`. What this means is that the JS code bundle of the app can be updated to point to latest commit in the `main` branch without the user needing to download a new version of the app. This is done by connecting to the updates server provided by Expo on launch, checking for updates, downloading them if any, and presenting the user a modal to restart the app.
