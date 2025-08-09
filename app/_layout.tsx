@@ -53,7 +53,15 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
           >
-            <MenuProvider backHandler>
+            <MenuProvider
+              backHandler
+              customStyles={{
+                backdrop: {
+                  opacity: 1,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                },
+              }}
+            >
               <Slot />
               <Toasts />
             </MenuProvider>
