@@ -55,6 +55,8 @@ export enum PrivateOptionNames {
   NotifyQuotes = 'wafrn.notifyQuotes',
   NotifyFollows = 'wafrn.notifyFollows',
   NotifyRewoots = 'wafrn.notifyRewoots',
+  EnableReplaceAIWord = 'wafrn.replaceAIWithCocaine',
+  ReplaceAIWord = 'wafrn.replaceAIWord',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -76,6 +78,8 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.NotifyQuotes]: boolean
   [PrivateOptionNames.NotifyFollows]: boolean
   [PrivateOptionNames.NotifyRewoots]: boolean
+  [PrivateOptionNames.EnableReplaceAIWord]: boolean
+  [PrivateOptionNames.ReplaceAIWord]: string
 }
 
 export const DEFAULT_PRIVATE_OPTIONS = {
@@ -96,6 +100,8 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.NotifyQuotes]: true,
   [PrivateOptionNames.NotifyFollows]: true,
   [PrivateOptionNames.NotifyRewoots]: true,
+  [PrivateOptionNames.EnableReplaceAIWord]: false,
+  [PrivateOptionNames.ReplaceAIWord]: 'cocaine',
 }
 
 export type PrivateOption = SettingsOption & {

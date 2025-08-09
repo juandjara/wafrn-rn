@@ -18,6 +18,8 @@ import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   Switch,
@@ -49,6 +51,8 @@ type FormState = {
   forceOldEditor: boolean
   mutedWords: string
   asks: AskOptionValue
+  enableReplaceAIWord: boolean
+  replaceAIWord: string
 }
 
 export default function Options() {
@@ -91,6 +95,14 @@ export default function Options() {
       opts,
       PrivateOptionNames.MutedWords,
     )
+    const enableReplaceAIWord = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.EnableReplaceAIWord,
+    )
+    const replaceAIWord = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.ReplaceAIWord,
+    )
     const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
 
     return {
@@ -106,6 +118,8 @@ export default function Options() {
       forceOldEditor,
       mutedWords,
       asks,
+      enableReplaceAIWord,
+      replaceAIWord,
     }
   })
   const parsedMutedWords = form.mutedWords
@@ -180,6 +194,14 @@ export default function Options() {
         value: JSON.stringify(form.mutedWords),
       },
       { name: PublicOptionNames.Asks, value: JSON.stringify(form.asks) },
+      {
+        name: PrivateOptionNames.EnableReplaceAIWord,
+        value: JSON.stringify(form.enableReplaceAIWord),
+      },
+      {
+        name: PrivateOptionNames.ReplaceAIWord,
+        value: JSON.stringify(form.replaceAIWord),
+      },
     ]
     editMutation.mutate({
       options,
@@ -229,207 +251,213 @@ export default function Options() {
           <Text className="text-medium text-white">Save</Text>
         </Pressable>
       </View>
-      <ScrollView
+      <KeyboardAvoidingView
         style={{ marginTop: sx.paddingTop + 64 }}
-        contentContainerStyle={{
-          paddingTop: 12,
-          paddingBottom: sx.paddingBottom + 20,
-        }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {!AUTO_GIF_SUPPORT && (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            paddingTop: 12,
+            paddingBottom: sx.paddingBottom + 20,
+          }}
+        >
+          {!AUTO_GIF_SUPPORT && (
+            <View className="p-4">
+              <Text className="text-white mb-2">Tenor API Key</Text>
+              <TextInput
+                value={form.gifApiKey}
+                onChangeText={(text) => update('gifApiKey', text)}
+                className="p-3 rounded-lg text-white border border-gray-600"
+                placeholder=""
+                placeholderTextColor={colors.gray[400]}
+                numberOfLines={1}
+              />
+              <Text className="text-gray-300 text-sm mt-2">
+                You can get an API key from{' '}
+                <Link
+                  href="https://developers.google.com/tenor/guides/quickstart"
+                  className="text-cyan-500 underline"
+                >
+                  Tenor
+                </Link>{' '}
+                and paste it here.
+              </Text>
+            </View>
+          )}
           <View className="p-4">
-            <Text className="text-white mb-2">Tenor API Key</Text>
+            <Text className="text-white mb-2">Ask privacy</Text>
+            <Menu renderer={renderers.SlideInMenu}>
+              <MenuTrigger>
+                <View
+                  className={clsx(
+                    'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
+                  )}
+                >
+                  <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                    {ASKS_LABELS[form.asks]}
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    color={colors.gray[600]}
+                    size={20}
+                  />
+                </View>
+              </MenuTrigger>
+              <MenuOptions
+                customStyles={{
+                  optionsContainer: {
+                    paddingBottom: sx.paddingBottom,
+                  },
+                }}
+              >
+                {[
+                  AskOptionValue.AllowIdentifiedAsks,
+                  AskOptionValue.AllowAnonAsks,
+                  AskOptionValue.AllowNoAsks,
+                ].map((value) => (
+                  <MenuOption
+                    key={value}
+                    onSelect={() => update('asks', value)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: 16,
+                    }}
+                  >
+                    <Text className="font-semibold flex-shrink flex-grow">
+                      {ASKS_LABELS[value]}
+                    </Text>
+                    {value === form.asks && (
+                      <Ionicons
+                        className="flex-shrink-0"
+                        name="checkmark-sharp"
+                        color="black"
+                        size={24}
+                      />
+                    )}
+                  </MenuOption>
+                ))}
+              </MenuOptions>
+            </Menu>
+          </View>
+          <View className="p-4">
+            <Text className="text-white mb-2">Default post privacy</Text>
+            <PrivacySelect
+              className="p-3 pl-4"
+              open={modalOpen}
+              setOpen={setModalOpen}
+              privacy={form.defaultPostEditorPrivacy}
+              setPrivacy={(privacy) =>
+                update('defaultPostEditorPrivacy', privacy)
+              }
+              options={[
+                PrivacyLevel.PUBLIC,
+                PrivacyLevel.UNLISTED,
+                PrivacyLevel.FOLLOWERS_ONLY,
+                PrivacyLevel.INSTANCE_ONLY,
+              ]}
+            />
+          </View>
+          <View className="p-4">
+            <Text className="text-white mb-2">
+              Muted words{' '}
+              <Text className="text-gray-200 text-sm">(comma-separated)</Text>
+            </Text>
             <TextInput
-              value={form.gifApiKey}
-              onChangeText={(text) => update('gifApiKey', text)}
+              value={form.mutedWords}
+              onChangeText={(text) => update('mutedWords', text)}
               className="p-3 rounded-lg text-white border border-gray-600"
-              placeholder=""
+              placeholder="Muted words"
               placeholderTextColor={colors.gray[400]}
               numberOfLines={1}
             />
-            <Text className="text-gray-300 text-sm mt-2">
-              You can get an API key from{' '}
-              <Link
-                href="https://developers.google.com/tenor/guides/quickstart"
-                className="text-cyan-500 underline"
-              >
-                Tenor
-              </Link>{' '}
-              and paste it here.
-            </Text>
-          </View>
-        )}
-        <View className="p-4">
-          <Text className="text-white mb-2">Ask privacy</Text>
-          <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger>
-              <View
-                className={clsx(
-                  'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
-                )}
-              >
-                <Text className="text-white text-sm px-1 flex-grow flex-shrink">
-                  {ASKS_LABELS[form.asks]}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  color={colors.gray[600]}
-                  size={20}
-                />
-              </View>
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{
-                optionsContainer: {
-                  paddingBottom: sx.paddingBottom,
-                },
-              }}
-            >
-              {[
-                AskOptionValue.AllowIdentifiedAsks,
-                AskOptionValue.AllowAnonAsks,
-                AskOptionValue.AllowNoAsks,
-              ].map((value) => (
-                <MenuOption
-                  key={value}
-                  onSelect={() => update('asks', value)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text className="font-semibold flex-shrink flex-grow">
-                    {ASKS_LABELS[value]}
+            {parsedMutedWords.length > 0 && (
+              <View className="flex-row flex-wrap items-center gap-2 py-2">
+                {parsedMutedWords.map((tag) => (
+                  <Text
+                    key={tag}
+                    className="bg-gray-600 text-sm px-1.5 py-0.5 rounded-lg text-white"
+                  >
+                    #{tag}
                   </Text>
-                  {value === form.asks && (
-                    <Ionicons
-                      className="flex-shrink-0"
-                      name="checkmark-sharp"
-                      color="black"
-                      size={24}
-                    />
-                  )}
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
-        </View>
-        <View className="p-4">
-          <Text className="text-white mb-2">Default post privacy</Text>
-          <PrivacySelect
-            className="p-3 pl-4"
-            open={modalOpen}
-            setOpen={setModalOpen}
-            privacy={form.defaultPostEditorPrivacy}
-            setPrivacy={(privacy) =>
-              update('defaultPostEditorPrivacy', privacy)
-            }
-            options={[
-              PrivacyLevel.PUBLIC,
-              PrivacyLevel.UNLISTED,
-              PrivacyLevel.FOLLOWERS_ONLY,
-              PrivacyLevel.INSTANCE_ONLY,
-            ]}
-          />
-        </View>
-        <View className="p-4">
-          <Text className="text-white mb-2">
-            Muted words{' '}
-            <Text className="text-gray-200 text-sm">(comma-separated)</Text>
-          </Text>
-          <TextInput
-            value={form.mutedWords}
-            onChangeText={(text) => update('mutedWords', text)}
-            className="p-3 rounded-lg text-white border border-gray-600"
-            placeholder="Muted words"
-            placeholderTextColor={colors.gray[400]}
-            numberOfLines={1}
-          />
-          {parsedMutedWords.length > 0 && (
-            <View className="flex-row flex-wrap items-center gap-2 py-2">
-              {parsedMutedWords.map((tag) => (
-                <Text
-                  key={tag}
-                  className="bg-gray-600 text-sm px-1.5 py-0.5 rounded-lg text-white"
-                >
-                  #{tag}
-                </Text>
-              ))}
-            </View>
-          )}
-        </View>
-        <View className="p-4">
-          <Text className="text-white mb-2">
-            Thread collapse limit{' '}
-            <Text className="text-gray-200 text-sm">
-              (minimum is {minThreadLimit})
+                ))}
+              </View>
+            )}
+          </View>
+          <View className="p-4">
+            <Text className="text-white mb-2">
+              Thread collapse limit{' '}
+              <Text className="text-gray-200 text-sm">
+                (minimum is {minThreadLimit})
+              </Text>
             </Text>
-          </Text>
-          <TextInput
-            value={form.threadAncestorLimit}
-            onChangeText={(text) => update('threadAncestorLimit', text)}
-            className={clsx('p-3 rounded-lg text-white border', {
-              'border-gray-600': validThreadAncestorLimit,
-              'border-red-200': !validThreadAncestorLimit,
-            })}
-            placeholder="Limit"
-            placeholderTextColor={colors.gray[400]}
-            numberOfLines={1}
-          />
-          {!validThreadAncestorLimit && (
-            <Text className="text-red-200 text-sm mt-2">Invalid number</Text>
-          )}
-        </View>
-        <Pressable
-          onPress={() => update('manuallyAcceptsFollows', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Manually accept follow requests
-          </Text>
-          <Switch
-            value={form.manuallyAcceptsFollows}
-            onValueChange={(flag) => update('manuallyAcceptsFollows', flag)}
-            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={
-              form.manuallyAcceptsFollows ? colors.cyan[600] : colors.gray[300]
-            }
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableCW', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Disable CW unless post contains muted words
-          </Text>
-          <Switch
-            value={form.disableCW}
-            onValueChange={(flag) => update('disableCW', flag)}
-            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={form.disableCW ? colors.cyan[600] : colors.gray[300]}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableNSFWCloak', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Disable hiding sensitive media behind a cloak for all posts
-          </Text>
-          <Switch
-            value={form.disableNSFWCloak}
-            onValueChange={(flag) => update('disableNSFWCloak', flag)}
-            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={
-              form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]
-            }
-          />
-        </Pressable>
+            <TextInput
+              value={form.threadAncestorLimit}
+              onChangeText={(text) => update('threadAncestorLimit', text)}
+              className={clsx('p-3 rounded-lg text-white border', {
+                'border-gray-600': validThreadAncestorLimit,
+                'border-red-200': !validThreadAncestorLimit,
+              })}
+              placeholder="Limit"
+              placeholderTextColor={colors.gray[400]}
+              numberOfLines={1}
+            />
+            {!validThreadAncestorLimit && (
+              <Text className="text-red-200 text-sm mt-2">Invalid number</Text>
+            )}
+          </View>
+          <Pressable
+            onPress={() => update('manuallyAcceptsFollows', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Manually accept follow requests
+            </Text>
+            <Switch
+              value={form.manuallyAcceptsFollows}
+              onValueChange={(flag) => update('manuallyAcceptsFollows', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.manuallyAcceptsFollows
+                  ? colors.cyan[600]
+                  : colors.gray[300]
+              }
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => update('disableCW', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Disable CW unless post contains muted words
+            </Text>
+            <Switch
+              value={form.disableCW}
+              onValueChange={(flag) => update('disableCW', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={form.disableCW ? colors.cyan[600] : colors.gray[300]}
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => update('disableNSFWCloak', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Disable hiding sensitive media behind a cloak for all posts
+            </Text>
+            <Switch
+              value={form.disableNSFWCloak}
+              onValueChange={(flag) => update('disableNSFWCloak', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]
+              }
+            />
+          </Pressable>
 
-        {/* <Pressable
+          {/* <Pressable
           onPress={() => update('forceOldEditor', prev => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
@@ -443,42 +471,42 @@ export default function Options() {
             thumbColor={form.forceOldEditor ? colors.cyan[600] : colors.gray[300]}
           />
         </Pressable> */}
-        <Pressable
-          onPress={() => update('forceClassicLogo', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Use Classic WAFRN Logo
-          </Text>
-          <Switch
-            value={form.forceClassicLogo}
-            onValueChange={(flag) => update('forceClassicLogo', flag)}
-            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={
-              form.forceClassicLogo ? colors.cyan[600] : colors.gray[300]
-            }
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableForceAltText', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
-            Allow uploading media without alt text{' '}
-            <Text className="text-red-100">
-              (enable this only if you're evil)
+          <Pressable
+            onPress={() => update('forceClassicLogo', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Use Classic WAFRN Logo
             </Text>
-          </Text>
-          <Switch
-            value={form.disableForceAltText}
-            onValueChange={(flag) => update('disableForceAltText', flag)}
-            trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-            thumbColor={
-              form.disableForceAltText ? colors.cyan[600] : colors.gray[300]
-            }
-          />
-        </Pressable>
-        {/* <Pressable
+            <Switch
+              value={form.forceClassicLogo}
+              onValueChange={(flag) => update('forceClassicLogo', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.forceClassicLogo ? colors.cyan[600] : colors.gray[300]
+              }
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => update('disableForceAltText', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Allow uploading media without alt text{' '}
+              <Text className="text-red-100">
+                (enable this only if you're evil)
+              </Text>
+            </Text>
+            <Switch
+              value={form.disableForceAltText}
+              onValueChange={(flag) => update('disableForceAltText', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.disableForceAltText ? colors.cyan[600] : colors.gray[300]
+              }
+            />
+          </Pressable>
+          {/* <Pressable
           onPress={() => update('federateWithThreads', prev => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
@@ -499,7 +527,38 @@ export default function Options() {
             thumbColor={form.federateWithThreads ? colors.cyan[600] : colors.gray[300]}
           />
         </Pressable> */}
-      </ScrollView>
+          <View className="p-4">
+            <Pressable
+              onPress={() => update('enableReplaceAIWord', (prev) => !prev)}
+              className="flex-row items-center gap-4 my-2 pb-2 active:bg-white/10"
+            >
+              <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+                Enable replacing AI with this word:
+              </Text>
+              <Switch
+                value={form.enableReplaceAIWord}
+                onValueChange={(flag) => update('enableReplaceAIWord', flag)}
+                trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+                thumbColor={
+                  form.enableReplaceAIWord ? colors.cyan[600] : colors.gray[300]
+                }
+              />
+            </Pressable>
+            <TextInput
+              value={form.replaceAIWord}
+              onChangeText={(text) => update('replaceAIWord', text)}
+              className="p-3 rounded-lg text-white border border-gray-600"
+              placeholder="Write your word here"
+              placeholderTextColor={colors.gray[400]}
+              numberOfLines={1}
+            />
+            <Text className="text-gray-200 text-sm mt-2">
+              Whenever the word "AI" is detected in a post, it will be replaced
+              with the word you write here.
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   )
 }

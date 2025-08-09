@@ -26,6 +26,8 @@ export const WAFRNMEDIA_REGEX =
   /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
 export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
+const AI_REPLACE_REGEX = /\bAI\b/gi
+
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (post.isRewoot) {
     return true
@@ -55,8 +57,24 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
   return text
 }
 
-export function processPostContent(post: Post, context: DashboardContextData) {
-  const content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
+export function processPostContent(
+  post: Post,
+  context: DashboardContextData,
+  options: PrivateOption[],
+) {
+  const enableReplaceAIWord = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.EnableReplaceAIWord,
+  )
+  const replaceAIWord = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.ReplaceAIWord,
+  )
+  let content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
+  if (enableReplaceAIWord && replaceAIWord) {
+    content = content.replace(AI_REPLACE_REGEX, `<em>${replaceAIWord}</em>`)
+  }
+
   const ids =
     context.emojiRelations.postEmojiRelation
       .filter((e) => e.postId === post.id)
@@ -499,7 +517,7 @@ export function getDerivedPostState(
     user?.name || '',
     context.emojiRelations.emojis,
   )
-  const postContent = processPostContent(post, context)
+  const postContent = processPostContent(post, context, options)
   const tags = context.tags
     .filter((t) => t.postId === post.id)
     .map((t) => t.tagName)
