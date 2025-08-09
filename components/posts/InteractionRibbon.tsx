@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Pressable,
+  ScrollView,
   Share,
   Text,
   TouchableHighlight,
@@ -411,23 +412,26 @@ export default function InteractionRibbon({
               optionsContainer: {
                 paddingBottom: sx.paddingBottom,
                 borderRadius: 16,
+                maxHeight: '50%',
               },
             }}
           >
-            {secondaryOptions.map((option, i) => (
-              <MenuOption
-                key={i}
-                value={option.label}
-                style={{
-                  ...optionStyleBig(i),
-                  opacity: option.disabled ? 0.75 : 1,
-                }}
-                onSelect={option.action}
-              >
-                {option.icon}
-                <Text className="text-sm flex-grow">{option.label}</Text>
-              </MenuOption>
-            ))}
+            <ScrollView>
+              {secondaryOptions.map((option, i) => (
+                <MenuOption
+                  key={i}
+                  value={option.label}
+                  style={{
+                    ...optionStyleBig(i),
+                    opacity: option.disabled ? 0.75 : 1,
+                  }}
+                  onSelect={option.action}
+                >
+                  {option.icon}
+                  <Text className="text-sm flex-grow">{option.label}</Text>
+                </MenuOption>
+              ))}
+            </ScrollView>
           </MenuOptions>
         </Menu>
       </>
