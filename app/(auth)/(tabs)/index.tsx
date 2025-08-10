@@ -28,22 +28,6 @@ export default function Index() {
     pagerRef.current?.setPage(MODES.indexOf(mode))
   }
 
-  const pages = useMemo(() => {
-    return MODES.map((mode, index) => (
-      <View key={index} style={{ flex: 1 }}>
-        <Dashboard mode={mode} bottomPadding={bottomTabBarHeight} />
-      </View>
-    ))
-  }, [bottomTabBarHeight])
-
-  const onPageScroll = useCallback(
-    (ev: NativeSyntheticEvent<{ position: number }>) => {
-      const index = ev.nativeEvent.position
-      setMode(MODES[index])
-    },
-    [],
-  )
-
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -53,8 +37,24 @@ export default function Index() {
     [sx.paddingTop],
   )
 
+  const pages = useMemo(() => {
+    return MODES.map((mode, index) => (
+      <View key={index} style={styles.root}>
+        <Dashboard mode={mode} bottomPadding={bottomTabBarHeight} />
+      </View>
+    ))
+  }, [bottomTabBarHeight, styles])
+
+  const onPageScroll = useCallback(
+    (ev: NativeSyntheticEvent<{ position: number }>) => {
+      const index = ev.nativeEvent.position
+      setMode(MODES[index])
+    },
+    [],
+  )
+
   return (
-    <View style={styles.root}>
+    <View style={styles.flex}>
       <Header
         style={{ minHeight: 60, paddingLeft: 8 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}

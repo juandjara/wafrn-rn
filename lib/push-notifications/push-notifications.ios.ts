@@ -101,7 +101,7 @@ export function usePushNotifications() {
     )
 
     return () => {
-      Notifications.removeNotificationSubscription(subscription)
+      subscription.remove()
     }
   }, [authToken, refetchBadges, expoToken, expoTokenLoading, setExpoToken])
 
