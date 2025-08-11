@@ -1,4 +1,5 @@
 import { createUploadTask, FileSystemUploadOptions } from 'expo-file-system'
+import pkg from '../package.json'
 
 export type ErrorResponse = {
   success: false
@@ -15,6 +16,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1] = params[1] || {}
   params[1].headers = new Headers(params[1].headers || {})
   params[1].headers.set('Accept', 'application/json')
+  params[1].headers.set('User-Agent', `${pkg.name}/${pkg.version}`)
   const res = await fetch(...params)
   if (!res.ok) {
     throw statusError(
@@ -49,6 +51,8 @@ export async function uploadFile({
   fileUri,
   ...options
 }: UploadFilePayload) {
+  options.headers = options.headers || {}
+  options.headers['User-Agent'] = `${pkg.name}/${pkg.version}`
   const task = createUploadTask(uploadUrl, fileUri, options)
   const res = await task.uploadAsync()
   const status = res?.status || 500
