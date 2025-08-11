@@ -115,10 +115,12 @@ export function useEditorData() {
       }
     }
 
+    let privacySelectDisabled = false
     if (reply && params.type === 'reply') {
       replyLabel = 'Replying to:'
       const replyPost = reply.posts[0]
       if (replyPost) {
+        privacySelectDisabled = !!replyPost.bskyUri
         formState.privacy = Math.max(replyPost.privacy, defaultPrivacy)
         const replyCW = replyPost.content_warning || ''
         if (replyCW) {
@@ -236,6 +238,7 @@ export function useEditorData() {
       defaultPrivacy,
       mentionedUsers,
       isLoading,
+      privacySelectDisabled,
     }
     // NOTE: explicitly ignoring dependency on other props in `params` like `params.askId`
     // eslint-disable-next-line react-hooks/exhaustive-deps

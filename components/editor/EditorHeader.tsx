@@ -14,6 +14,7 @@ export default function EditorHeader({
   canPublish,
   onPublish,
   maxPrivacy,
+  privacySelectDisabled = false,
 }: {
   isLoading: boolean
   privacy: PrivacyLevel
@@ -21,6 +22,7 @@ export default function EditorHeader({
   canPublish: boolean
   onPublish: () => void
   maxPrivacy?: PrivacyLevel
+  privacySelectDisabled?: boolean
 }) {
   const { type } = useLocalSearchParams<EditorSearchParams>()
   const [modalOpen, setModalOpen] = useState(false)
@@ -41,6 +43,7 @@ export default function EditorHeader({
           privacy={privacy}
           setPrivacy={setPrivacy}
           maxPrivacy={maxPrivacy}
+          disabled={privacySelectDisabled}
         />
       </View>
       <View className="flex-grow"></View>

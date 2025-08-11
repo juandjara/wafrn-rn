@@ -18,6 +18,7 @@ type PrivacyModalProps = {
   setPrivacy: (privacy: PrivacyLevel) => void
   options?: PrivacyLevel[]
   maxPrivacy?: PrivacyLevel
+  disabled?: boolean
 }
 
 export default function PrivacySelect({
@@ -28,6 +29,7 @@ export default function PrivacySelect({
   setPrivacy,
   options = PRIVACY_ORDER,
   maxPrivacy,
+  disabled = false,
 }: PrivacyModalProps) {
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
@@ -41,6 +43,9 @@ export default function PrivacySelect({
         className={clsx(
           className,
           'flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600 active:bg-gray-500/50',
+          {
+            'opacity-50 pointer-events-none': disabled,
+          },
         )}
       >
         <MaterialCommunityIcons

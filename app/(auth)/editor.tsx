@@ -50,6 +50,7 @@ export default function EditorView() {
     isLoading,
     mentionedUsers,
     replyLabel,
+    privacySelectDisabled,
   } = useEditorData()
 
   const sx = useSafeAreaPadding()
@@ -279,6 +280,7 @@ export default function EditorView() {
           canPublish={canPublish}
           onPublish={onPublish}
           maxPrivacy={maxPrivacy}
+          privacySelectDisabled={privacySelectDisabled}
         />
         <ScrollView
           id="editor-scroll"
