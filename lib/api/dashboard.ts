@@ -279,6 +279,7 @@ export function useUserFeed(userId: string) {
   })
 }
 
+// unused
 export function emptyDashboardData() {
   return {
     users: [],

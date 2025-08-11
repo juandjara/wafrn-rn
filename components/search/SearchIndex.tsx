@@ -46,25 +46,28 @@ export default function SearchIndex({
         {showTips ? (
           <View>
             <Text className="text-white text-sm mb-2">
-              You can search for users and posts with a hashtag in the
-              fediverse.
+              You can search local users, remote users, and posts containing a
+              hashtag, both in the fediverse and in bluesky.
             </Text>
             <Text className="text-white text-sm mb-2">
               To search for a remote user in the fediverse, enter their full
-              username starting with an @. As example,
+              username starting with an @ and include the instance. As example,
               "@torvalds@social.kernel.org"
             </Text>
             <Text className="text-white text-sm mb-2">
-              To search for a local user, enter their username without the @. As
-              example, "torvalds"
+              To search for a local user or a remote user in bluesky (AT
+              Protocol), enter their full username starting with an @. As
+              example, "@gabboman" or "@dimension20.bsky.social"
             </Text>
             <Text className="text-white text-sm mb-2">
-              To search posts with a hashtag, enter the hashtag without the #.
-              As example, "linux"
+              To search posts with a hashtag, enter the hashtag starting with a
+              #. As example, "#dnd". You can limit the search to a specific user
+              by adding their username before the hashtag. As example,
+              "user:@alexia #WafrnDev"
             </Text>
             <Text className="text-white text-sm mb-2">
-              You can also use full URLs to search for specific posts from a
-              specific instance.
+              You can also use full URLs to fetch a specific post from a
+              specific instance or from bsky.app.
             </Text>
           </View>
         ) : null}

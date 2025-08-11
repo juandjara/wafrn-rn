@@ -5,8 +5,14 @@ import { useAuth } from '../contexts/AuthContext'
 import { useMemo } from 'react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getEnvironmentStatic } from './auth'
-import { emptyDashboardData } from './dashboard'
 
+export enum SearchType {
+  User = 'user', // @username
+  Tag = 'tag', // #tag
+  UserAndTag = 'userAndTag', // user:@username #tag
+  URL = 'url', // https://example.com
+}
+ 
 export enum SearchView {
   Users = 'users',
   Posts = 'posts',
@@ -41,21 +47,16 @@ export async function search({
   if (term.startsWith('#')) {
     term = term.slice(1)
   }
-  if (term.startsWith('@')) {
-    const data = await searchUser(token, term.slice(1))
-    return {
-      users: {
-        emojis: [],
-        userEmojiRelation: [],
-        foundUsers: data,
-      },
-      posts: emptyDashboardData()
-    }
+  let user = ''
+  if (term.startsWith('user:@')) {
+    const [userPart, tagPart] = term.split(' #')
+    term = tagPart
+    user = userPart.replace('user:@', '')
   }
   
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}`,
+    `${env?.API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}&user=${user}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -73,9 +74,10 @@ export async function search({
   } as SearchData
 }
 
-export function useSearch(query: string, view: SearchView) {
+export function useSearch(query: string) {
   const { token } = useAuth()
   const time = useMemo(() => Date.now(), [])
+  const type = detectSearchType(query)
 
   return useInfiniteQuery({
     queryKey: ['search', query, time],
@@ -83,10 +85,10 @@ export function useSearch(query: string, view: SearchView) {
       search({ page: pageParam, term: query, time, token: token! }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      if (view === SearchView.Users && lastPage.users.foundUsers.length === 0) {
+      if (type === SearchType.User && lastPage.users.foundUsers.length === 0) {
         return undefined
       }
-      if (view === SearchView.Posts && lastPage.posts.posts.length === 0) {
+      if (type !== SearchType.User && lastPage.posts.posts.length === 0) {
         return undefined
       }
       return lastPageParam + 1
@@ -115,4 +117,20 @@ export function useUserSearch(query: string) {
     queryFn: () => searchUser(token!, query),
     enabled: !!token && query.length > 1,
   })
+}
+
+export function detectSearchType(query: string) {
+  if (query.startsWith('@')) {
+    return SearchType.User
+  }
+  if (query.startsWith('#')) {
+    return SearchType.Tag
+  }
+  if (query.startsWith('http')) {
+    return SearchType.URL
+  }
+  if (query.startsWith('user:@') && query.includes(' #')) {
+    return SearchType.UserAndTag
+  }
+  return null
 }
