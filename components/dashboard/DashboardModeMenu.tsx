@@ -25,7 +25,7 @@ const MODES = [
 const MODE_LABELS = {
   [DashboardMode.FEED]: 'Feed',
   [DashboardMode.LOCAL]: 'Local',
-  [DashboardMode.FEDERATED]: 'Federated',
+  [DashboardMode.FEDERATED]: 'Wafrn & Friends',
 } as const
 const MODE_ICONS = {
   [DashboardMode.FEED]: 'home-variant-outline',
