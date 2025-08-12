@@ -23,13 +23,13 @@ import {
   formatCachedUrl,
   formatMediaUrl,
 } from '@/lib/formatters'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { getUserNameHTML, isValidURL, replaceEmojis } from '@/lib/api/content'
 import HtmlRenderer from '../HtmlRenderer'
 import ZoomableImage from '../posts/ZoomableImage'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import PostHtmlRenderer from '../posts/PostHtmlRenderer'
-import { Image } from 'expo-image'
+import { Image, ImageProps } from 'expo-image'
 import { Link } from 'expo-router'
 import clsx from 'clsx'
 import colors from 'tailwindcss/colors'
@@ -145,6 +145,9 @@ export default function UserDetail({ user }: { user: User }) {
   )
 
   const sx = useSafeAreaPadding()
+  const [instanceIcon, setInstanceIcon] = useState<ImageProps['source'] | null>(
+    getUrlDecoration(user),
+  )
 
   function toggleFollow() {
     if (!followMutation.isPending) {
@@ -184,8 +187,16 @@ export default function UserDetail({ user }: { user: User }) {
         </View>
         <View className="flex-row items-center justify-center gap-2">
           <Image
-            source={getUrlDecoration(user)}
+            source={instanceIcon}
             style={{ width: 20, height: 20 }}
+            onError={() => {
+              setInstanceIcon(
+                getUrlDecoration({
+                  ...user,
+                  federatedHost: null,
+                }),
+              )
+            }}
           />
           <Text className="text-white text-lg">{formatUserUrl(user.url)}</Text>
         </View>

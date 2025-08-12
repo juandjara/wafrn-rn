@@ -14,7 +14,7 @@ import {
 } from '../interaction'
 import type { MediaUploadPayload } from './media'
 import { FileSystemUploadType } from 'expo-file-system'
-import { formatUserUrl } from '../formatters'
+import { formatCachedUrl, formatUserUrl } from '../formatters'
 
 export type User = {
   createdAt: string // iso date
@@ -590,7 +590,26 @@ const bskyLogo = require('@/assets/images/bluesky_logo.svg')
 const fediLogo = require('@/assets/images/fediverse_logo.svg')
 const bigW = require('@/assets/images/logo_w.png')
 
+export function getIconFromInstance(user: User) {
+  if (!user.federatedHost) {
+    return null
+  }
+  try {
+    const url = new URL(user.federatedHost.publicInbox)
+    url.pathname = '/favicon.ico'
+    const uri = formatCachedUrl(url.toString())
+    return { uri }
+  } catch {
+    return null
+  }
+}
+
 export function getUrlDecoration(user: User) {
+  const instanceIcon = getIconFromInstance(user)
+  if (instanceIcon) {
+    return instanceIcon
+  }
+
   if (user.isBlueskyUser) {
     return bskyLogo
   }
