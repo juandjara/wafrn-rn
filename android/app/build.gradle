@@ -112,8 +112,8 @@ android {
         applicationId 'dev.djara.wafrn_rn'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1005001
-        versionName '1.5.1'
+        versionCode 1005002
+        versionName '1.5.2'
     }
     splits {
         abi {
