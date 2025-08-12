@@ -397,6 +397,7 @@ export default function InteractionRibbon({
               open={emojiPickerOpen}
               setOpen={setEmojiPickerOpen}
               onPick={onPickEmoji}
+              reactions={myReactions}
             />
           </View>
         )}
@@ -457,6 +458,7 @@ export default function InteractionRibbon({
             open={emojiPickerOpen}
             setOpen={setEmojiPickerOpen}
             onPick={onPickEmoji}
+            reactions={myReactions}
           />
         </View>
       )}

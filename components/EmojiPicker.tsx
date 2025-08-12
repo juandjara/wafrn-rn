@@ -19,6 +19,8 @@ import colors from 'tailwindcss/colors'
 import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { PostEmojiReaction } from '@/lib/api/posts.types'
+import clsx from 'clsx'
 
 export type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -26,15 +28,18 @@ export type Emoji = EmojiBase & {
 }
 
 const ucGroups = getUnicodeEmojiGroups()
+const emptyReactions: PostEmojiReaction[] = []
 
 export default function EmojiPicker({
   open,
   setOpen,
   onPick,
+  reactions = emptyReactions,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   onPick: (emoji: Emoji) => void
+  reactions?: PostEmojiReaction[]
 }) {
   const { width } = useWindowDimensions()
   const columns = Math.floor(width / 52)
@@ -79,6 +84,12 @@ export default function EmojiPicker({
       }
     })
   }, [settings, emojiList])
+
+  function haveIReacted(emoji: Emoji) {
+    return reactions.some(
+      (r) => r.emojiId === emoji.id || r.content === emoji.content,
+    )
+  }
 
   return (
     <Modal
@@ -160,7 +171,12 @@ export default function EmojiPicker({
           renderItem={({ item }) => {
             return (
               <Pressable
-                className="active:bg-indigo-900 rounded-lg py-2 px-4 h-[48px]"
+                className={clsx(
+                  'active:bg-indigo-900 rounded-lg py-2 px-4 h-[48px]',
+                  {
+                    'bg-indigo-800': haveIReacted(item),
+                  },
+                )}
                 onPress={() => onPick(item)}
               >
                 {item.content ? (
