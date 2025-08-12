@@ -1,4 +1,9 @@
-import { getRemoteInfo, useFollowers, User } from '@/lib/api/user'
+import {
+  getRemoteInfo,
+  getUrlDecoration,
+  useFollowers,
+  User,
+} from '@/lib/api/user'
 import {
   useSettings,
   AskOptionValue,
@@ -177,9 +182,13 @@ export default function UserDetail({ user }: { user: User }) {
         <View className="flex-row">
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
-        <Text className="text-white text-lg text-center">
-          {formatUserUrl(user.url)}
-        </Text>
+        <View className="flex-row items-center justify-center gap-2">
+          <Image
+            source={getUrlDecoration(user)}
+            style={{ width: 20, height: 20 }}
+          />
+          <Text className="text-white text-lg">{formatUserUrl(user.url)}</Text>
+        </View>
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (
             <Link

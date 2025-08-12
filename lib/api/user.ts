@@ -49,6 +49,8 @@ export type User = {
   bskyDid?: string
   manuallyAcceptsFollows: boolean
   postCount: number
+  isBlueskyUser?: boolean
+  isFediverseUser?: boolean
 }
 export type UserEmoji = EmojiBase &
   Timestamps & {
@@ -582,4 +584,18 @@ export function useEnableBlueskyMutation() {
       })
     },
   })
+}
+
+const bskyLogo = require('@/assets/images/bluesky_logo.svg')
+const fediLogo = require('@/assets/images/fediverse_logo.svg')
+const bigW = require('@/assets/images/logo_w.png')
+
+export function getUrlDecoration(user: User) {
+  if (user.isBlueskyUser) {
+    return bskyLogo
+  }
+  if (user.isFediverseUser) {
+    return fediLogo
+  }
+  return bigW
 }
