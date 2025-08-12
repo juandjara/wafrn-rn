@@ -12,6 +12,7 @@ export type EmojiGroupConfig = Timestamps & {
   comment: string | null
   emojis: (EmojiBase &
     Timestamps & {
+      content?: string
       emojiCollectionId: string // refers to the `id` of the `EmojiGroupConfig` object
     })[]
 }

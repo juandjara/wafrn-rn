@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native'
 import { EmojiBase } from '@/lib/api/emojis'
-import { useSettings } from '@/lib/api/settings'
+import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
 import { getUnicodeEmojiGroups } from '@/lib/emojis'
 import { Image } from 'expo-image'
@@ -21,6 +21,7 @@ import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { PostEmojiReaction } from '@/lib/api/posts.types'
 import clsx from 'clsx'
+import useAsyncStorage from '@/lib/useLocalStorage'
 
 export type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -29,6 +30,7 @@ export type Emoji = EmojiBase & {
 
 const ucGroups = getUnicodeEmojiGroups()
 const emptyReactions: PostEmojiReaction[] = []
+const RECENT_EMOJI_LIMIT = 7
 
 export default function EmojiPicker({
   open,
@@ -48,13 +50,17 @@ export default function EmojiPicker({
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
 
+  const { value: recentEmojis, setValue: setRecentEmojis } = useAsyncStorage<
+    Emoji[]
+  >('recentEmojis', [])
+
   const { data: settings } = useSettings()
   const emojiList = useMemo(() => {
     if (!settings?.emojis) {
       return []
     }
 
-    return settings.emojis
+    const list = settings.emojis
       .concat(ucGroups)
       .flatMap((g) => g.emojis as Emoji[])
       .filter((e) => {
@@ -63,14 +69,37 @@ export default function EmojiPicker({
         }
         return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       })
-  }, [settings, debouncedSearch])
+    return (recentEmojis || []).concat(list)
+  }, [recentEmojis, settings, debouncedSearch])
 
   const headers = useMemo(() => {
     if (!settings?.emojis) {
       return []
     }
 
-    const list = settings.emojis.concat(ucGroups)
+    const list = [
+      {
+        id: 'recent',
+        name: 'Recent',
+        createdAt: '',
+        updatedAt: '',
+        comment: null,
+        emojis: [
+          {
+            id: emojiList[0]?.id || '',
+            name: 'time',
+            url: '',
+            external: false,
+            content: '🕞',
+            createdAt: '',
+            updatedAt: '',
+            emojiCollectionId: 'recent',
+          },
+        ],
+      } satisfies EmojiGroupConfig,
+      ...settings.emojis,
+      ...ucGroups,
+    ]
     return list.map((e) => {
       const first = e.emojis[0] as Emoji
       const index = emojiList.findIndex((emoji) => emoji.id === first?.id)
@@ -89,6 +118,13 @@ export default function EmojiPicker({
     return reactions.some(
       (r) => r.emojiId === emoji.id || r.content === emoji.content,
     )
+  }
+
+  function handlePick(emoji: Emoji) {
+    const prev = (recentEmojis || []).filter((item) => item.id !== emoji.id)
+    const next = [emoji, ...prev].slice(0, RECENT_EMOJI_LIMIT)
+    setRecentEmojis(next)
+    onPick(emoji)
   }
 
   return (
@@ -141,6 +177,7 @@ export default function EmojiPicker({
           renderItem={({ item }) => (
             <Pressable
               className="p-3"
+              accessibilityLabel={item.name}
               onPress={() => {
                 listRef.current?.scrollToIndex({
                   index: item.index,
@@ -177,7 +214,8 @@ export default function EmojiPicker({
                     'bg-indigo-800': haveIReacted(item),
                   },
                 )}
-                onPress={() => onPick(item)}
+                accessibilityLabel={item.name}
+                onPress={() => handlePick(item)}
               >
                 {item.content ? (
                   <Text className="text-2xl">{item.content}</Text>
