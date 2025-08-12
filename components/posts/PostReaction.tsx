@@ -4,13 +4,20 @@ import { Text, View } from 'react-native'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 
-export default function PostReaction({ reaction }: { reaction: EmojiGroup }) {
+export default function PostReaction({
+  reaction,
+  onLongPress,
+}: {
+  reaction: EmojiGroup
+  onLongPress?: () => void
+}) {
   if (typeof reaction.emoji === 'string') {
     return (
       <ReactionDetailsMenu
         key={reaction.id}
         users={reaction.users}
         reaction={reaction.emoji}
+        onLongPress={onLongPress}
       >
         <View className="flex-row items-center py-1 px-2 rounded-md border border-gray-500">
           <Text className="text-gray-200">
@@ -25,6 +32,7 @@ export default function PostReaction({ reaction }: { reaction: EmojiGroup }) {
         key={reaction.id}
         users={reaction.users}
         reactionName={reaction.emoji.name}
+        onLongPress={onLongPress}
         reaction={
           <Image
             source={{

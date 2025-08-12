@@ -17,11 +17,13 @@ export default function ReactionDetailsMenu({
   users,
   reaction,
   reactionName,
+  onLongPress,
 }: {
   children: React.ReactNode
   users: PostUser[]
   reaction: React.ReactNode
   reactionName?: string
+  onLongPress?: () => void
 }) {
   const menuRef = useRef<Menu>(null)
   const renderItem = useCallback(
@@ -61,7 +63,7 @@ export default function ReactionDetailsMenu({
         },
       }}
     >
-      <MenuTrigger>{children}</MenuTrigger>
+      <MenuTrigger onAlternativeAction={onLongPress}>{children}</MenuTrigger>
       <MenuOptions
         customStyles={{
           optionsContainer: {

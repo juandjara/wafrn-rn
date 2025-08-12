@@ -484,7 +484,7 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
     return [
       {
         id: `${post.id}-likes`,
-        emoji: '❤️' as any,
+        emoji: '❤️' as string | EmojiBase,
         users: likeUsers,
       },
     ].concat(fullReactions)

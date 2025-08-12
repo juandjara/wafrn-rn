@@ -12,7 +12,7 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
 import Media from '../posts/Media'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { isEmptyRewoot } from '@/lib/api/content'
+import { EmojiGroup, isEmptyRewoot, isUnicodeHeart } from '@/lib/api/content'
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -28,6 +28,9 @@ import clsx from 'clsx'
 import InteractionRibbon from '../posts/InteractionRibbon'
 import PostReaction from '../posts/PostReaction'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
+import { useEmojiReactMutation } from '@/lib/api/emojis'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
+import { showToastError, useLikeMutation } from '@/lib/interaction'
 
 // const HEIGHT_LIMIT = 462
 
@@ -44,6 +47,7 @@ export default function PostFragment({
   collapsible?: boolean
   clickable?: boolean
 }) {
+  const me = useParsedToken()
   const context = useDashboardContext()
   const derivedState = context.postsData[post.id]
   const {
@@ -84,6 +88,38 @@ export default function PostFragment({
         onPress: () => router.push(`/post/${post.id}`),
       }
     : {}
+
+  const emojiReactMutation = useEmojiReactMutation(post)
+  const likeMutation = useLikeMutation(post)
+
+  function onLongPressReaction(reaction: EmojiGroup) {
+    if (typeof reaction.emoji !== 'string' && reaction.emoji.external) {
+      showToastError('WAFRN does not have this emoji')
+      return // cannot react with external emojis
+    }
+
+    const emojiName =
+      typeof reaction.emoji === 'string' ? reaction.emoji : reaction.emoji.name
+
+    const haveIReacted = reactions.some((r) => {
+      const userCheck = r.users.some((u) => u.id === me?.userId)
+      const rEmojiName = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
+      return userCheck && rEmojiName === emojiName
+    })
+
+    if (isUnicodeHeart(emojiName)) {
+      const isLiked = context.likes.some(
+        (like) => like.postId === post.id && like.userId === me?.userId,
+      )
+      likeMutation.mutate(isLiked)
+    } else {
+      emojiReactMutation.mutate({
+        post,
+        undo: haveIReacted,
+        emojiName,
+      })
+    }
+  }
 
   const voteMutation = useVoteMutation(poll?.id || null, post)
 
@@ -319,7 +355,11 @@ export default function PostFragment({
               className="my-2 flex-row flex-wrap items-center gap-2"
             >
               {reactions.map((r) => (
-                <PostReaction key={r.id} reaction={r} />
+                <PostReaction
+                  key={r.id}
+                  reaction={r}
+                  onLongPress={() => onLongPressReaction(r)}
+                />
               ))}
             </View>
           )}
