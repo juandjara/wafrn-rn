@@ -181,28 +181,26 @@ export function getNotificationList(pages: NotificationsPage[]) {
     return page.notifications
       .filter((n) => n?.notificationType)
       .map((n) => {
-        if (n.notificationType === 'EMOJIREACT') {
-          return {
-            ...n,
-            user: page.users.find((u) => u.id === n.userId)!,
-            post: page.posts.find((p) => p.id === n.postId)!,
-            emoji: page.emojiRelations.postEmojiReactions.find(
-              (e) => e.id === n.emojiReactionId,
-            ) || { content: '∅' },
-          }
-        }
+        const user = page.users.find((u) => u.id === n.userId)!
         if (n.notificationType === 'FOLLOW') {
-          return {
-            ...n,
-            user: page.users.find((u) => u.id === n.userId)!,
-          }
+          return { ...n, user }
         }
-        return {
-          ...n,
-          user: page.users.find((u) => u.id === n.userId)!,
-          post: page.posts.find((p) => p.id === n.postId)!,
+
+        const post = page.posts.find((p) => p.id === n.postId)
+        if (!post) {
+          return null
         }
+        
+        if (n.notificationType === 'EMOJIREACT') {
+          const emoji = page.emojiRelations.postEmojiReactions.find(
+            (e) => e.id === n.emojiReactionId,
+          ) || { content: '∅' }
+          return { ...n, user, post, emoji }
+        }
+
+        return { ...n, user, post }
       })
+      .filter((n) => !!n)
   })
   return list
 }
