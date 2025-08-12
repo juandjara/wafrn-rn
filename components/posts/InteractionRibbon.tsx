@@ -68,12 +68,15 @@ export default function InteractionRibbon({
   const { data: settings } = useSettings()
   const isSilenced = !!settings?.silencedPosts.includes(post.id)
 
-  const { isLiked, isRewooted } = useMemo(() => {
+  const { isLiked, isRewooted, myReactions } = useMemo(() => {
+    const myReactions = context.emojiRelations.postEmojiReactions.filter(
+      (p) => p.userId === me?.userId && p.postId === post.id,
+    )
     const isLiked = context.likes.some(
       (like) => like.postId === post.id && like.userId === me?.userId,
     )
     const isRewooted = (context.rewootIds || []).includes(post.id)
-    return { isLiked, isRewooted }
+    return { isLiked, isRewooted, myReactions }
   }, [context, post.id, me?.userId])
 
   const layout = usePostLayout(post.id)
@@ -365,7 +368,15 @@ export default function InteractionRibbon({
 
   function onPickEmoji(emoji: Emoji) {
     setEmojiPickerOpen(false)
-    emojiReactMutation.mutate(emoji.content || emoji.name)
+
+    const haveIReacted = myReactions.some(
+      (r) => r.emojiId === emoji.id || r.content === emoji.content,
+    )
+    emojiReactMutation.mutate({
+      post,
+      emojiName: emoji.content || emoji.name,
+      undo: haveIReacted,
+    })
   }
 
   if (orientation === 'vertical') {

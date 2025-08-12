@@ -28,16 +28,17 @@ export type PostEmojiRelation = {
 type EmojiReactPayload = {
   post: Post
   emojiName: string
+  undo?: boolean
 }
 
 export async function emojiReact(
   token: string,
-  { post, emojiName }: EmojiReactPayload,
+  { post, emojiName, undo }: EmojiReactPayload,
 ) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/emojiReact`, {
     method: 'POST',
-    body: JSON.stringify({ postId: post.id, emojiName }),
+    body: JSON.stringify({ postId: post.id, emojiName, undo }),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -49,15 +50,19 @@ export function useEmojiReactMutation(post: Post) {
   const { token } = useAuth()
   const qc = useQueryClient()
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, EmojiReactPayload>({
     mutationKey: ['emojiReact', post.id],
-    mutationFn: (emojiName) => emojiReact(token!, { post, emojiName }),
+    mutationFn: (payload) => emojiReact(token!, payload),
     onError: (err) => {
       console.error(err)
       showToastError(`Failed to react to woot`)
     },
-    onSuccess: () => {
-      showToastSuccess(`Reaction sent`)
+    onSuccess: (data, variables) => {
+      showToastSuccess(
+        variables.undo
+          ? `Reaction removed`
+          : `Reaction sent`,
+      )
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post),
