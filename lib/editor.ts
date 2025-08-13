@@ -120,7 +120,6 @@ export function useEditorData() {
       replyLabel = 'Replying to:'
       const replyPost = reply.posts[0]
       if (replyPost) {
-        privacySelectDisabled = !!replyPost.bskyUri
         formState.privacy = Math.max(replyPost.privacy, defaultPrivacy)
         const replyCW = replyPost.content_warning || ''
         if (replyCW) {
@@ -136,6 +135,8 @@ export function useEditorData() {
         const userMap = Object.fromEntries(
           reply.users.map((user) => [user.id, user]),
         )
+        
+        privacySelectDisabled = !!replyPost.bskyUri && !!userMap[replyPost.userId]?.url.startsWith('@')
 
         // NOTE: complex stuff here
         // when creating a quote to a post, a mention is created to notify the quoted post author
