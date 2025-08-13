@@ -8,6 +8,8 @@ import ExpoUnifiedPush, {
   subscribeDistributorMessages
 } from 'expo-unified-push'
 import useAsyncStorage from '../useLocalStorage'
+import { AppState } from 'react-native'
+import useAppFocusListener from '../useAppFocusListener'
 
 export function getSavedDistributor() {
   return ExpoUnifiedPush.getSavedDistributor()
@@ -35,6 +37,8 @@ export function usePushNotifications() {
   const { refetch: refetchBadges } = useNotificationBadges()
   const SERVER_VAPID_KEY = env?.SERVER_VAPID_KEY
   const notificationCleanup = useNotificationTokensCleanup()
+
+  useAppFocusListener(refetchBadges)
 
   useEffect(() => {
     // in dev mode, we don't want to register or store data for push notifications
@@ -87,7 +91,7 @@ export function usePushNotifications() {
     }
 
     return subscribeDistributorMessages(async (message) => {
-      if (!authToken) {
+      if (!authToken || AppState.currentState !== 'active') {
         return
       }
 
