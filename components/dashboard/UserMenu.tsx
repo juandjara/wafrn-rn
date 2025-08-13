@@ -47,11 +47,11 @@ export default function UserMenu() {
       label: 'Try your luck',
       action: () => router.push('/roll'),
     },
-    // {
-    //   icon: 'bookmark-outline' as const,
-    //   label: 'Bookmarks',
-    //   action: () => router.push('/bookmarks'),
-    // },
+    {
+      icon: 'bookmark-outline' as const,
+      label: 'Bookmarks',
+      action: () => router.push('/bookmarks'),
+    },
     // {
     //   icon: 'tag-outline' as const,
     //   label: 'Followed hashtags',

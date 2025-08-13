@@ -33,10 +33,10 @@ const MODE_ICONS = {
   [DashboardMode.FEDERATED]: 'earth',
 } as const
 
-export type PublicDashboardMode = Exclude<
-  DashboardMode,
-  DashboardMode.PRIVATE | DashboardMode.MUTED_POSTS
->
+export type PublicDashboardMode =
+  | DashboardMode.FEED
+  | DashboardMode.LOCAL
+  | DashboardMode.FEDERATED
 
 export default function DashboardModeMenu({
   mode,
