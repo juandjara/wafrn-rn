@@ -26,7 +26,7 @@ export const WAFRNMEDIA_REGEX =
   /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
 export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
-const AI_REPLACE_REGEX = /\bAI\b/gi
+const AI_REPLACE_REGEX = /(\bAI\b)|(\B\.AI\b)/gi
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (post.isRewoot) {
@@ -72,7 +72,12 @@ export function processPostContent(
   )
   let content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
   if (enableReplaceAIWord && replaceAIWord) {
-    content = content.replace(AI_REPLACE_REGEX, `<em>${replaceAIWord}</em>`)
+    content = content.replace(AI_REPLACE_REGEX, (match, g1, g2) => {
+      if (g1 && !g2) {
+        return `<em>${replaceAIWord}</em>`
+      }
+      return match
+    })
   }
 
   const ids =
