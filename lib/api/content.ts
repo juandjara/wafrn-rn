@@ -26,7 +26,7 @@ export const WAFRNMEDIA_REGEX =
   /\[wafrnmediaid="[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}"\]/gm
 export const INLINE_MEDIA_REGEX = /!\[media-(\d+)\]/gi
 
-const AI_REPLACE_REGEX = /(\bAI\b)|(\B\.AI\b)/gi
+const AI_REPLACE_REGEX = /(\bAI\b)|(\bhttps?:\/\/[^\s$.?#].[^\s]*\b)/gi
 
 export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   if (post.isRewoot) {
