@@ -95,6 +95,7 @@ export function getDashboardContext(
     tags: [],
     asks: [],
     rewootIds: [],
+    bookmarks: [],
     postsData: {},
     threadData: {},
   } as DashboardContextData
@@ -176,6 +177,9 @@ export function getDashboardContext(
         seen.add(rewootId)
         context.rewootIds?.push(rewootId)
       }
+    }
+    for (const bookmark of page.bookmarks || []) {
+      context.bookmarks?.push(bookmark)
     }
   }
 

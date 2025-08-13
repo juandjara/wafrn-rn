@@ -162,3 +162,46 @@ export async function invalidatePostQueries(qc: QueryClient, post: Post) {
         (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId)),
   })
 }
+
+export async function toggleBookmarkPost({
+  token,
+  postId,
+  undo,
+}: {
+  token: string
+  postId: string
+  undo: boolean
+}) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/${undo ? 'unbookmark' : 'bookmark'}Post`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
+  })
+}
+
+export function useBookmarkMutation(post: Post) {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation<void, Error, boolean>({
+    mutationKey: ['bookmark', post.id],
+    mutationFn: (variables) =>
+      toggleBookmarkPost({
+        token: token!,
+        postId: post.id,
+        undo: variables,
+      }),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to ${variables ? 'un' : ''}bookmark woot`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Woot ${variables ? 'un' : ''}bookmarked`)
+    },
+    onSettled: () => invalidatePostQueries(qc, post),
+  })
+}

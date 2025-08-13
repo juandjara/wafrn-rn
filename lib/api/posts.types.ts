@@ -117,6 +117,7 @@ export type DashboardData = {
   tags: PostTag[]
   asks: PostAsk[]
   rewootIds?: string[] // ids of posts rewooted by me
+  bookmarks?: { userId: string; postId: string }[] // posts bookmarked by me
 }
 
 export type PostAsk = Timestamps & {

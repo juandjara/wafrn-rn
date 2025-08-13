@@ -34,6 +34,7 @@ import { useSharedValue, withSpring } from 'react-native-reanimated'
 import {
   showToastError,
   showToastSuccess,
+  useBookmarkMutation,
   useLikeMutation,
 } from '@/lib/interaction'
 import { useEmojiReactMutation } from '@/lib/api/emojis'
@@ -68,7 +69,7 @@ export default function InteractionRibbon({
   const { data: settings } = useSettings()
   const isSilenced = !!settings?.silencedPosts.includes(post.id)
 
-  const { isLiked, isRewooted, myReactions } = useMemo(() => {
+  const { isLiked, isRewooted, isBookmarked, myReactions } = useMemo(() => {
     const myReactions = context.emojiRelations.postEmojiReactions.filter(
       (p) => p.userId === me?.userId && p.postId === post.id,
     )
@@ -76,7 +77,10 @@ export default function InteractionRibbon({
       (like) => like.postId === post.id && like.userId === me?.userId,
     )
     const isRewooted = (context.rewootIds || []).includes(post.id)
-    return { isLiked, isRewooted, myReactions }
+    const isBookmarked = (context.bookmarks || []).some(
+      (b) => b.postId === post.id && b.userId === me?.userId,
+    )
+    return { isLiked, isRewooted, myReactions, isBookmarked }
   }, [context, post.id, me?.userId])
 
   const layout = usePostLayout(post.id)
@@ -101,6 +105,7 @@ export default function InteractionRibbon({
   const emojiReactMutation = useEmojiReactMutation(post)
   const deleteMutation = useDeleteMutation(post)
   const silenceMutation = useSilenceMutation(post)
+  const bookmarkMutation = useBookmarkMutation(post)
 
   const { mainOptions, secondaryOptions } = useMemo(() => {
     const createdByMe = post.userId === me?.userId
@@ -178,6 +183,21 @@ export default function InteractionRibbon({
           />
         ),
         enabled: !createdByMe,
+      },
+      {
+        action: () => {
+          bookmarkMutation.mutate(isBookmarked)
+        },
+        disabled: bookmarkMutation.isPending,
+        label: isBookmarked ? 'Unbookmark' : 'Bookmark',
+        icon: (
+          <MaterialCommunityIcons
+            name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
+            size={20}
+            color={iconColor}
+          />
+        ),
+        enabled: true,
       },
       {
         action: () => {
