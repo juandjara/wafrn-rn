@@ -5,21 +5,21 @@ export default function useAppFocusListener(
   onFocus: () => void,
   runOnStartup: boolean | undefined = true
 ) {
-  const appState = useRef(AppState.currentState)
+  const previousAppState = useRef(AppState.currentState)
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (
-        appState.current.match(/inactive|background/) &&
+        previousAppState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
         onFocus()
       }
 
-      appState.current = nextAppState
+      previousAppState.current = nextAppState
     })
 
-    if (runOnStartup) {
+    if (runOnStartup && AppState.currentState === 'active') {
       onFocus()
     }
 
