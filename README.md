@@ -8,6 +8,8 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+Main repo has moved to Codeberg on [wafrn/wafrn-rn](https://codeberg.org/wafrn/wafrn-rn). The Github repo [juandjara/wafrn-rn](https://github.com/juandjara/wafrn-rn) is still going to be up as a mirror.
+
 You can get the app in the following places:
 
 <!--
