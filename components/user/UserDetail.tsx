@@ -185,7 +185,7 @@ export default function UserDetail({ user }: { user: User }) {
         <View className="flex-row">
           <HtmlRenderer html={userName} renderTextRoot />
         </View>
-        <View className="flex-row items-center justify-center gap-2">
+        <View className="flex-row flex-wrap items-center justify-center gap-2">
           <Image
             source={instanceIcon}
             style={{ width: 20, height: 20 }}
