@@ -17,22 +17,33 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { unfurlCacheUrl } from '@/lib/formatters'
+import Loading from '../Loading'
 
-const imageRenderer = ({
+const ImageRenderer = ({
   item,
   setImageDimensions,
 }: RenderItemInfo<{ src: string; blurHash: string | undefined }>) => {
+  const [loading, setLoading] = useState(true)
   return (
-    <Image
-      source={{ uri: item.src }}
-      placeholder={{ blurhash: item.blurHash }}
-      style={StyleSheet.absoluteFillObject}
-      contentFit="contain"
-      onLoad={(e) => {
-        const { width, height } = e.source
-        setImageDimensions({ width, height })
-      }}
-    />
+    <View className="flex-1">
+      {loading && (
+        <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
+          <Loading />
+        </View>
+      )}
+      <Image
+        source={{ uri: item.src }}
+        placeholder={{ blurhash: item.blurHash }}
+        placeholderContentFit="contain"
+        contentFit="contain"
+        style={StyleSheet.absoluteFillObject}
+        onLoad={(e) => {
+          const { width, height } = e.source
+          setImageDimensions({ width, height })
+          setLoading(false)
+        }}
+      />
+    </View>
   )
 }
 
@@ -54,7 +65,7 @@ export default function ZoomableImage({
   alt?: string
   style?: ImageStyle | ViewStyle
   mimeType?: string
-  contentFit?: ImageStyle['resizeMode']
+  contentFit?: 'cover' | 'contain'
   width: number
   height: number
   className?: string
@@ -108,7 +119,7 @@ export default function ZoomableImage({
         <Gallery
           initialIndex={0}
           data={[{ src, blurHash }]}
-          renderItem={imageRenderer}
+          renderItem={ImageRenderer}
           onSwipeToClose={() => setModalOpen(false)}
           onTap={() => setShowOverlay(!showOverlay)}
         />
@@ -132,6 +143,7 @@ export default function ZoomableImage({
           cachePolicy={'memory'}
           recyclingKey={id}
           source={src}
+          placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}
           className={imgClassName}
           style={[
