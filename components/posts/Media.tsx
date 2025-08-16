@@ -8,7 +8,6 @@ import {
   isImage,
   isVideo,
 } from '@/lib/api/media'
-import ZoomableImage from './ZoomableImage'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import MediaCloak from './MediaCloak'
@@ -16,15 +15,18 @@ import Video from '../Video'
 import { useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
+import { Image } from 'expo-image'
 
 export default function Media({
   media,
   contentWidth,
   userUrl,
+  onPress,
 }: {
   media: PostMedia
   contentWidth: number
   userUrl?: string
+  onPress: () => void
 }) {
   const [showAlt, setShowAlt] = useState(false)
   const src = formatCachedUrl(formatMediaUrl(media.url))
@@ -69,17 +71,24 @@ export default function Media({
     )
   } else if (isImage(mime, src)) {
     content = (
-      <ZoomableImage
-        id={media.id}
-        src={src}
-        mimeType={mime}
-        width={contentWidth}
-        height={height}
-        contentFit="cover"
-        className="max-w-full"
-        alt={media.description}
-        blurHash={media.blurhash || ''}
-      />
+      <Pressable className="max-w-full" onPress={onPress}>
+        <Image
+          cachePolicy={'memory'}
+          recyclingKey={media.id}
+          source={src}
+          placeholderContentFit="cover"
+          placeholder={{
+            blurhash: media.blurhash || '',
+            width: contentWidth,
+            height,
+          }}
+          style={{
+            resizeMode: 'cover',
+            width: contentWidth,
+            height,
+          }}
+        />
+      </Pressable>
     )
   } else {
     content = (

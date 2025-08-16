@@ -31,6 +31,8 @@ import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
 import { useEmojiReactMutation } from '@/lib/api/emojis'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { showToastError, useLikeMutation } from '@/lib/interaction'
+import { useState } from 'react'
+import ImageGallery from '../posts/ImageGallery'
 
 // const HEIGHT_LIMIT = 462
 
@@ -89,6 +91,7 @@ export default function PostFragment({
       }
     : {}
 
+  const [imageGalleryOpen, setImageGalleryOpen] = useState<number | null>(null)
   const emojiReactMutation = useEmojiReactMutation(post)
   const likeMutation = useLikeMutation(post)
 
@@ -306,12 +309,19 @@ export default function PostFragment({
               </View>
               {medias.length > 0 && (
                 <View id="media-list" className="pt-4 pb-2">
+                  <ImageGallery
+                    open={imageGalleryOpen !== null}
+                    setOpen={(open) => setImageGalleryOpen(open ? 0 : null)}
+                    medias={medias}
+                    index={imageGalleryOpen ?? 0}
+                  />
                   {medias.map((media, index) => (
                     <Media
                       key={`${media.id}-${index}`}
                       media={media}
                       contentWidth={contentWidth}
                       userUrl={formatUserUrl(user?.url)}
+                      onPress={() => setImageGalleryOpen(index)}
                     />
                   ))}
                 </View>
