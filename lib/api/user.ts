@@ -3,7 +3,7 @@ import { getJSON, statusError, StatusError, uploadFile } from '../http'
 import { getEnvironmentStatic, parseToken } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
-import { useAuth, useParsedToken } from '../contexts/AuthContext'
+import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
 import { PostUser } from './posts.types'
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './content'
@@ -15,6 +15,7 @@ import {
 import type { MediaUploadPayload } from './media'
 import { FileSystemUploadType } from 'expo-file-system'
 import { formatCachedUrl, formatUserUrl } from '../formatters'
+import { useNotificationTokensCleanup } from '../notifications'
 
 export type User = {
   createdAt: string // iso date
@@ -617,4 +618,35 @@ export function getUrlDecoration(user: User) {
     return fediLogo
   }
   return bigW
+}
+
+export async function deleteAccount(token: string, password: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/selfDeactivate`, {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+export function useDeleteAccountMutation() {
+  const { token } = useAuth()
+  const logout = useLogout()
+  const notificationCleanup = useNotificationTokensCleanup()
+
+  return useMutation({
+    mutationKey: ['deleteAccount'],
+    mutationFn: (password: string) => deleteAccount(token!, password),
+    onSuccess: () => {
+      showToastSuccess('Account deleted')
+      logout()
+      notificationCleanup({ deleteExpo: true, deleteUP: true })
+    },
+    onError: () => {
+      showToastError('Failed deleting account')
+    },
+  })
 }

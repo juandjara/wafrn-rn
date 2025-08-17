@@ -81,7 +81,12 @@ export default function Settings() {
       {
         icon: 'code-braces' as const,
         label: 'Check the source code',
-        link: 'https://github.com/gabboman/wafrn',
+        link: 'https://codeberg.org/wafrn/wafrn-rn',
+      },
+      {
+        icon: 'trash-can-outline' as const,
+        label: 'Delete my account',
+        link: '/setting/delete-account',
       },
       {
         icon: 'cash-multiple' as const,
