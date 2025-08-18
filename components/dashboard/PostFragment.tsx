@@ -130,6 +130,8 @@ export default function PostFragment({
     if (!poll) {
       return
     }
+    // TODO: this is a hack to make the poll have the latest data when the user votes
+    // we should find a way to do this
     if (!isDetailView) {
       router.push(`/post/${post.id}`)
       return
