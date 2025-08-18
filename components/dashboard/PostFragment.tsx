@@ -130,6 +130,11 @@ export default function PostFragment({
     if (!poll) {
       return
     }
+    if (!isDetailView) {
+      router.push(`/post/${post.id}`)
+      return
+    }
+
     voteMutation.mutate(votes)
   }
 
