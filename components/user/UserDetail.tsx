@@ -49,7 +49,7 @@ import {
   useBlockMutation,
   useMuteMutation,
   useServerBlockMutation,
-} from '@/lib/api/blocks-and-mutes'
+} from '@/lib/api/mutes-and-blocks'
 
 export default function UserDetail({ user }: { user: User }) {
   const { env } = useAuth()

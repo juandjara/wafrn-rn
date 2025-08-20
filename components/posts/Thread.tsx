@@ -7,7 +7,7 @@ import RewootRibbon from './RewootRibbon'
 import InteractionRibbon from './InteractionRibbon'
 import { Link } from 'expo-router'
 import ReplyRibbon from './ReplyRibbon'
-import { useHiddenUserIds } from '@/lib/api/blocks-and-mutes'
+import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { memo } from 'react'
 
 function ThreadInner({ thread }: { thread: PostThread }) {

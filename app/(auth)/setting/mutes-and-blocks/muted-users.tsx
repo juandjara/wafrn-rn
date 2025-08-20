@@ -1,5 +1,5 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import { useMutes } from '@/lib/api/blocks-and-mutes'
+import { useMutes } from '@/lib/api/mutes-and-blocks'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'

@@ -43,7 +43,7 @@ import {
   useDeleteMutation,
   useRewootMutation,
 } from '@/lib/api/posts'
-import { useSilenceMutation } from '@/lib/api/blocks-and-mutes'
+import { useSilenceMutation } from '@/lib/api/mutes-and-blocks'
 import { useSettings } from '@/lib/api/settings'
 import ReportPostModal from './ReportPostModal'
 import { toggleCollapsed, usePostLayout } from '@/lib/store'

@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import Loading from '@/components/Loading'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/posts/RewootRibbon'
-import { useHiddenUserIds } from '@/lib/api/blocks-and-mutes'
+import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserNameHTML, isEmptyRewoot, sortPosts } from '@/lib/api/content'
 import { getDashboardContext } from '@/lib/api/dashboard'
 import {

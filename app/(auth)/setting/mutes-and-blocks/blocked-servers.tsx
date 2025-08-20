@@ -2,7 +2,7 @@ import Header, { HEADER_HEIGHT } from '@/components/Header'
 import {
   useServerBlocks,
   useUnblockServerMutation,
-} from '@/lib/api/blocks-and-mutes'
+} from '@/lib/api/mutes-and-blocks'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import {
