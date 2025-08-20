@@ -322,8 +322,10 @@ export default function InteractionRibbon({
       {
         action: () => {
           Alert.alert(
-            'Silence post',
-            'Are you sure you want to silence all notifications for this post?',
+            `${isSilenced ? 'Uns' : 'S'}ilence thread`,
+            `All notifications for this post (including replies) will be ${
+              isSilenced ? 'un' : ''
+            }silenced. Are you sure you want to do this?`,
             [
               { text: 'Cancel', style: 'cancel' },
               {
@@ -341,7 +343,7 @@ export default function InteractionRibbon({
             size={20}
           />
         ),
-        label: `${isSilenced ? 'Uns' : 'S'}ilence post`,
+        label: `${isSilenced ? 'Uns' : 'S'}ilence thread`,
         enabled: createdByMe,
         disabled: silenceMutation.isPending,
       },
