@@ -130,7 +130,7 @@ export default function AskModal({
                   </Text>
                 )}
                 <Pressable
-                  disabled={!question && mutation.isPending}
+                  disabled={!question || mutation.isPending}
                   onPress={onSubmit}
                   className={clsx(
                     'bg-cyan-500/25 py-2 px-3 text-lg rounded-lg text-center mx-4 flex-row items-center justify-center gap-3',
