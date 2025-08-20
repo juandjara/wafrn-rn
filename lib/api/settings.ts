@@ -58,6 +58,7 @@ export enum PrivateOptionNames {
   NotifyRewoots = 'wafrn.notifyRewoots',
   EnableReplaceAIWord = 'wafrn.replaceAIWithCocaine',
   ReplaceAIWord = 'wafrn.replaceAIWord',
+  AdvancedMutedWords = 'wafrn.advancedMutedWords',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -81,6 +82,22 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.NotifyRewoots]: boolean
   [PrivateOptionNames.EnableReplaceAIWord]: boolean
   [PrivateOptionNames.ReplaceAIWord]: string
+  [PrivateOptionNames.AdvancedMutedWords]: AdvancedMutedWord[]
+}
+
+export enum MuteSource {
+  Local = 'local',
+  Fediverse = 'fediverse',
+  Bluesky = 'bluesky',
+}
+export enum MuteType {
+  Hard = 'hard',
+  Soft = 'soft',
+}
+export type AdvancedMutedWord = {
+  words: string
+  muteType: MuteType
+  muteSources: MuteSource[]
 }
 
 export const DEFAULT_PRIVATE_OPTIONS = {
@@ -103,6 +120,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.NotifyRewoots]: true,
   [PrivateOptionNames.EnableReplaceAIWord]: false,
   [PrivateOptionNames.ReplaceAIWord]: 'cocaine',
+  [PrivateOptionNames.AdvancedMutedWords]: [] as AdvancedMutedWord[],
 }
 
 export type PrivateOption = SettingsOption & {

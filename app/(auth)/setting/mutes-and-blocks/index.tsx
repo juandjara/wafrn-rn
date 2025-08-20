@@ -8,19 +8,24 @@ import colors from 'tailwindcss/colors'
 
 const options = [
   {
+    label: 'Muted words',
+    link: '/setting/mutes-and-blocks/muted-words',
+    icon: 'card-bulleted-off-outline',
+  },
+  {
     label: 'Muted posts',
     link: '/setting/mutes-and-blocks/muted-posts',
-    icon: 'bell-off',
+    icon: 'bell-off-outline',
   },
   {
     label: 'Muted users',
     link: '/setting/mutes-and-blocks/muted-users',
-    icon: 'volume-off',
+    icon: 'account-off-outline',
   },
   {
     label: 'Blocked users',
     link: '/setting/mutes-and-blocks/blocked-users',
-    icon: 'account-off-outline',
+    icon: 'account-off',
   },
   {
     label: 'Blocked servers',

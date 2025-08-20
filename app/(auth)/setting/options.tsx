@@ -281,7 +281,8 @@ export default function Options() {
                 >
                   Tenor
                 </Link>{' '}
-                and paste it here.
+                and paste it here.{'\n'}
+                This enables gif support in the post editor.
               </Text>
             </View>
           )}
@@ -365,6 +366,9 @@ export default function Options() {
               Muted words{' '}
               <Text className="text-gray-200 text-sm">(comma-separated)</Text>
             </Text>
+            <Link href="/setting/mutes-and-blocks/muted-words">
+              <Text className="text-cyan-500 text-sm">Advanced mode</Text>
+            </Link>
             <TextInput
               value={form.mutedWords}
               onChangeText={(text) => update('mutedWords', text)}
