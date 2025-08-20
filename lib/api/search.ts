@@ -44,7 +44,7 @@ export async function search({
   page: number
   token: string
 }) {
-  if (term.startsWith('#')) {
+  if (term.startsWith('#') || term.startsWith('@')) {
     term = term.slice(1)
   }
   let user = ''
