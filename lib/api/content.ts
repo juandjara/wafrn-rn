@@ -8,7 +8,10 @@ import {
   useMentions,
 } from 'react-native-more-controlled-mentions'
 import {
+  ALL_MUTE_SOURCES,
   getPrivateOptionValue,
+  MuteSource,
+  MuteType,
   type PrivateOption,
   PrivateOptionNames,
   type Settings,
@@ -241,35 +244,12 @@ export function clearSelectionRangeFormat(
 
 export function processContentWarning(
   post: Post,
-  context: DashboardContextData,
   options: PrivateOption[],
+  softMutedWords: string[],
 ) {
-  const mutedWordsLine = getPrivateOptionValue(
-    options,
-    PrivateOptionNames.MutedWords,
-  )
+  const isMuted = softMutedWords.length > 0
+  const formattedWords = softMutedWords.map((w) => `"${w}"`).join(', ')
   const disableCW = getPrivateOptionValue(options, PrivateOptionNames.DisableCW)
-
-  const medias = context.medias.filter((m) => m.postId === post.id)
-  const tags = context.tags
-    .filter((t) => t.postId === post.id)
-    .map((t) => t.tagName)
-  const mutedWords = mutedWordsLine
-    .split(',')
-    .map((w) => w.trim().toLocaleLowerCase())
-    .filter((w) => w.length > 0)
-
-  const filteredWords = mutedWords.filter((m) => {
-    const contentCheck = post.content?.toLocaleLowerCase().includes(m)
-    const tagsCheck = tags.some((t) => t.toLocaleLowerCase().includes(m))
-    const mediaCheck = medias.some((media) =>
-      media.description?.toLocaleLowerCase().includes(m),
-    )
-    return contentCheck || tagsCheck || mediaCheck
-  })
-
-  const isMuted = filteredWords.length > 0
-  const formattedWords = filteredWords.map((w) => `"${w}"`).join(', ')
   const separator = post.content_warning ? ' - ' : ''
 
   const contentWarning = isMuted
@@ -498,6 +478,55 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   return fullReactions
 }
 
+function getAppliedMute(post: Post, context: DashboardContextData, options: PrivateOption[]) {
+  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
+  const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
+  const user = context.users.find((u) => u.id === post.userId)
+  const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
+  const isLocalPost = !post.remotePostId && !user?.url.startsWith('@')
+  const isFediversePost = post.remotePostId && !post.bskyUri
+  
+  const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
+  const mutedWords = getPrivateOptionValue(options, PrivateOptionNames.AdvancedMutedWords)
+  const simpleMuteBlock = {
+    words: mutedWordsLine,
+    muteType: MuteType.Soft,
+    muteSources: ALL_MUTE_SOURCES,
+  }
+  mutedWords.push(simpleMuteBlock)
+
+  const applicableBySource = mutedWords.filter((b) => {
+    if (isBlueskyPost) {
+      return b.muteSources.includes(MuteSource.Bluesky)
+    }
+    if (isLocalPost) {
+      return b.muteSources.includes(MuteSource.Local)
+    }
+    if (isFediversePost) {
+      return b.muteSources.includes(MuteSource.Fediverse)
+    }
+    return false
+  })
+
+  const softMutedWords = [] as string[]
+  const hardMutedWords = [] as string[]
+
+  for (const m of applicableBySource) {
+    const words = m.words.split(',').map((w) => w.trim().toLocaleLowerCase())
+    for (const word of words) {
+      if (postText.includes(word)) {
+        if (m.muteType === MuteType.Soft) {
+          softMutedWords.push(word)
+        } else {
+          hardMutedWords.push(word)
+        }
+      }
+    }
+  }
+
+  return { softMutedWords, hardMutedWords }
+}
+
 /**
  * sort posts from older to newer
  * used to sort ancestors in a thread and replies in a post detail
@@ -544,12 +573,22 @@ export function getDerivedPostState(
     new Date(post.updatedAt).getTime() - new Date(post.createdAt).getTime() >
     1000 * 60
 
-  // this proccesses the options "wafrn.disableCW" and "wafrn.mutedWords"
+  // this proccesses the options "wafrn.mutedWords" and "wafrn.advancedMutedWords"
+  const { softMutedWords, hardMutedWords } = getAppliedMute(post, context, options)
+
+  // this proccesses the options "wafrn.disableCW"
   const { contentWarning, initialCWOpen } = processContentWarning(
     post,
-    context,
     options,
+    softMutedWords
   )
+
+  const isRewoot = isEmptyRewoot(post, context)
+  const isHidden = isRewoot || hardMutedWords.length > 0
+
+  if (hardMutedWords.length > 0 && !isRewoot) {
+    console.warn('[getDerivedPostState] hiding post becuase of hardMutedWords:', hardMutedWords)
+  }
 
   const hiddenLinks = medias.filter((m) => m.mediaType === 'text/html').map((m) => m.url)
   if (quotedPost?.remotePostId) {
@@ -584,6 +623,7 @@ export function getDerivedPostState(
     initialCWOpen,
     hiddenLinks,
     mentionedUsers,
+    isHidden,
   }
 }
 

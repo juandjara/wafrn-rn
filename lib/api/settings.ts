@@ -100,6 +100,12 @@ export type AdvancedMutedWord = {
   muteSources: MuteSource[]
 }
 
+export const ALL_MUTE_SOURCES = [
+  MuteSource.Local,
+  MuteSource.Fediverse,
+  MuteSource.Bluesky,
+]
+
 export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.GifApiKey]: process.env.EXPO_PUBLIC_TENOR_KEY || '',
   [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel.PUBLIC,

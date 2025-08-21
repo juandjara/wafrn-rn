@@ -12,7 +12,7 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
 import Media from '../posts/Media'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { EmojiGroup, isEmptyRewoot, isUnicodeHeart } from '@/lib/api/content'
+import { EmojiGroup, isUnicodeHeart } from '@/lib/api/content'
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -68,6 +68,7 @@ export default function PostFragment({
     initialCWOpen,
     hiddenLinks,
     mentionedUsers,
+    isHidden,
   } = derivedState
 
   const showQuotedPost = quotedPost && !isQuote
@@ -150,7 +151,7 @@ export default function PostFragment({
     toggleCwOpen(post.id, !cwOpen)
   }
 
-  if (isEmptyRewoot(post, context)) {
+  if (isHidden) {
     return null
   }
 
