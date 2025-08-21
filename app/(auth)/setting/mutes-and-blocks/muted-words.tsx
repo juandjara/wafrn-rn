@@ -296,6 +296,9 @@ function MutedWordForm({
           placeholderTextColor={colors.gray[400]}
           numberOfLines={1}
         />
+        <Text className="text-gray-300 text-sm mt-1">
+          You can also filter out tags by prefixing a word with #
+        </Text>
       </View>
       <View className="p-4">
         <Text className="text-white mb-3">Mute type</Text>
