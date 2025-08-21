@@ -117,7 +117,11 @@ function MutedWordListItem({
   onDelete: () => void
 }) {
   return (
-    <Link href={`/setting/mutes-and-blocks/muted-words?edit=${index}`} asChild>
+    <Link
+      push
+      asChild
+      href={`/setting/mutes-and-blocks/muted-words?edit=${index}`}
+    >
       <TouchableOpacity
         className="bg-gray-800 rounded-lg py-2 px-4"
         activeOpacity={0.8}
@@ -171,6 +175,7 @@ function MutedWordForm({
   const [form, setForm] = useState(
     () => block || { words: '', muteType: MuteType.Soft, muteSources: [] },
   )
+
   function updateForm(field: keyof AdvancedMutedWord, value: string) {
     setForm({ ...form, [field]: value })
   }
