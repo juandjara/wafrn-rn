@@ -369,13 +369,17 @@ export default function Options() {
             />
           </View>
           <View className="p-4">
-            <Text className="text-white mb-2">
-              Muted words{' '}
-              <Text className="text-gray-200 text-sm">(comma-separated)</Text>
-            </Text>
-            <Link href="/setting/mutes-and-blocks/muted-words">
-              <Text className="text-cyan-500 text-sm">Advanced mode</Text>
-            </Link>
+            <View className="mb-3">
+              <Text className="text-white">
+                Muted words{' '}
+                <Text className="text-gray-200 text-sm mb-1">
+                  (comma-separated)
+                </Text>
+              </Text>
+              <Link href="/setting/mutes-and-blocks/muted-words">
+                <Text className="text-cyan-500 text-sm">Advanced mode</Text>
+              </Link>
+            </View>
             <TextInput
               value={form.mutedWords}
               onChangeText={(text) => update('mutedWords', text)}
@@ -391,7 +395,7 @@ export default function Options() {
                     key={tag}
                     className="bg-gray-600 text-sm px-1.5 py-0.5 rounded-lg text-white"
                   >
-                    #{tag}
+                    {tag}
                   </Text>
                 ))}
               </View>
