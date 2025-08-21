@@ -479,6 +479,12 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
 }
 
 function getAppliedMute(post: Post, context: DashboardContextData, options: PrivateOption[]) {
+  const isRewoot = isEmptyRewoot(post, context)
+  const rewootedPost = isRewoot ? (post as PostThread).ancestors[0] : null
+  if (rewootedPost) {
+    return getAppliedMute(rewootedPost, context, options)
+  }
+
   const tags = context.tags.filter((t) => t.postId === post.id).map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
   const user = context.users.find((u) => u.id === post.userId)
@@ -586,8 +592,8 @@ export function getDerivedPostState(
   const isRewoot = isEmptyRewoot(post, context)
   const isHidden = isRewoot || hardMutedWords.length > 0
 
-  if (hardMutedWords.length > 0 && !isRewoot) {
-    console.warn('[getDerivedPostState] hiding post becuase of hardMutedWords:', hardMutedWords)
+  if (hardMutedWords.length > 0) {
+    console.log('[getDerivedPostState] hiding post becuase of hardMutedWords:', hardMutedWords)
   }
 
   const hiddenLinks = medias.filter((m) => m.mediaType === 'text/html').map((m) => m.url)
