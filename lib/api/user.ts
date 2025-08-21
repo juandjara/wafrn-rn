@@ -52,6 +52,9 @@ export type User = {
   postCount: number
   isBlueskyUser?: boolean
   isFediverseUser?: boolean
+  hideFollows?: boolean
+  hideProfileNotLoggedIn?: boolean
+  disableEmailNotifications?: boolean
 }
 export type UserEmoji = EmojiBase &
   Timestamps & {
@@ -168,11 +171,14 @@ export function getRemoteInfo(user: User) {
 }
 
 export type EditProfilePayload = {
-  name: string
+  name?: string
   avatar?: MediaUploadPayload
   headerImage?: MediaUploadPayload
   description?: string // html, not markdown
   manuallyAcceptsFollows?: boolean
+  hideFollows?: boolean
+  hideProfileNotLoggedIn?: boolean
+  disableEmailNotifications?: boolean
   options?: {
     name: PrivateOptionNames | PublicOptionNames
     value: string // result of JSON.stringify
@@ -181,11 +187,23 @@ export type EditProfilePayload = {
 
 async function updateProfile(token: string, payload: EditProfilePayload) {
   const formData = new FormData()
-  formData.append('name', payload.name)
+  formData.append('name', payload.name || '')
   formData.append('description', payload.description || '')
   formData.append(
     'manuallyAcceptsFollows',
     payload.manuallyAcceptsFollows ? 'true' : 'false',
+  )
+  formData.append(
+    'hideFollows',
+    payload.hideFollows ? 'true' : 'false',
+  )
+  formData.append(
+    'hideProfileNotLoggedIn',
+    payload.hideProfileNotLoggedIn ? 'true' : 'false',
+  )
+  formData.append(
+    'disableEmailNotifications',
+    payload.disableEmailNotifications ? 'true' : 'false',
   )
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
@@ -208,12 +226,20 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
 export function useEditProfileMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
-  const data = useParsedToken()
-  const handle = data?.url
+  const { data: me } = useCurrentUser()
+  const handle = me?.url
 
   return useMutation({
     mutationKey: ['editProfile'],
-    mutationFn: (payload: EditProfilePayload) => updateProfile(token!, payload),
+    mutationFn: (payload: EditProfilePayload) => (
+      updateProfile(token!, {
+        ...payload,
+        manuallyAcceptsFollows: me?.manuallyAcceptsFollows || payload.manuallyAcceptsFollows,
+        hideFollows: me?.hideFollows || payload.hideFollows,
+        hideProfileNotLoggedIn: me?.hideProfileNotLoggedIn || payload.hideProfileNotLoggedIn,
+        disableEmailNotifications: me?.disableEmailNotifications || payload.disableEmailNotifications,
+      })
+    ),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError('Failed editing profile')

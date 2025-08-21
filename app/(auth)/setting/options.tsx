@@ -53,6 +53,9 @@ type FormState = {
   asks: AskOptionValue
   enableReplaceAIWord: boolean
   replaceAIWord: string
+  hideFollows: boolean
+  hideProfileNotLoggedIn: boolean
+  disableEmailNotifications: boolean
 }
 
 export default function Options() {
@@ -108,6 +111,9 @@ export default function Options() {
     return {
       gifApiKey,
       manuallyAcceptsFollows: me?.manuallyAcceptsFollows || false,
+      hideFollows: me?.hideFollows || false,
+      hideProfileNotLoggedIn: me?.hideProfileNotLoggedIn || false,
+      disableEmailNotifications: me?.disableEmailNotifications || false,
       defaultPostEditorPrivacy,
       disableCW,
       disableNSFWCloak,
@@ -206,8 +212,9 @@ export default function Options() {
     editMutation.mutate({
       options,
       manuallyAcceptsFollows: form.manuallyAcceptsFollows,
-      name: me?.name || '',
-      description: me?.description || '',
+      hideFollows: form.hideFollows,
+      hideProfileNotLoggedIn: form.hideProfileNotLoggedIn,
+      disableEmailNotifications: form.disableEmailNotifications,
     })
   }
 
@@ -561,6 +568,66 @@ export default function Options() {
               with the word you write here.
             </Text>
           </View>
+          <Pressable
+            onPress={() => update('disableEmailNotifications', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Disable email campaign notifications
+            </Text>
+            <Switch
+              value={form.disableEmailNotifications}
+              onValueChange={(flag) =>
+                update('disableEmailNotifications', flag)
+              }
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.disableEmailNotifications
+                  ? colors.cyan[600]
+                  : colors.gray[300]
+              }
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => update('hideFollows', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+              Hide follows and followers count in my profile
+            </Text>
+            <Switch
+              value={form.hideFollows}
+              onValueChange={(flag) => update('hideFollows', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.hideFollows ? colors.cyan[600] : colors.gray[300]
+              }
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => update('hideProfileNotLoggedIn', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <View className="flex-grow flex-shrink">
+              <Text className="text-white text-base leading-6 flex-1">
+                Hide my profile in search and to not logged in users in web
+              </Text>
+              <Text className="text-gray-300 text-sm mt-2 flex-1">
+                This will only affect this wafrn server, people can still see
+                your profile from other servers or from bluesky
+              </Text>
+            </View>
+            <Switch
+              value={form.hideProfileNotLoggedIn}
+              onValueChange={(flag) => update('hideProfileNotLoggedIn', flag)}
+              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
+              thumbColor={
+                form.hideProfileNotLoggedIn
+                  ? colors.cyan[600]
+                  : colors.gray[300]
+              }
+            />
+          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
