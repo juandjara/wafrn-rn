@@ -480,7 +480,7 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
 
 function getAppliedMute(post: Post, context: DashboardContextData, options: PrivateOption[]) {
   const isRewoot = isEmptyRewoot(post, context)
-  const rewootedPost = isRewoot ? (post as PostThread).ancestors[0] : null
+  const rewootedPost = isRewoot ? (post as PostThread).ancestors?.[0] : null
   if (rewootedPost) {
     return getAppliedMute(rewootedPost, context, options)
   }
@@ -494,12 +494,13 @@ function getAppliedMute(post: Post, context: DashboardContextData, options: Priv
   
   const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
   const mutedWords = getPrivateOptionValue(options, PrivateOptionNames.AdvancedMutedWords)
-  const simpleMuteBlock = {
-    words: mutedWordsLine,
-    muteType: MuteType.Soft,
-    muteSources: ALL_MUTE_SOURCES,
+  if (mutedWordsLine.trim().length > 0) {
+    mutedWords.push({
+      words: mutedWordsLine,
+      muteType: MuteType.Soft,
+      muteSources: ALL_MUTE_SOURCES,
+    })
   }
-  mutedWords.push(simpleMuteBlock)
 
   const applicableBySource = mutedWords.filter((b) => {
     if (isBlueskyPost) {
@@ -520,7 +521,7 @@ function getAppliedMute(post: Post, context: DashboardContextData, options: Priv
   for (const m of applicableBySource) {
     const words = m.words.split(',').map((w) => w.trim().toLocaleLowerCase())
     for (const word of words) {
-      if (postText.includes(word)) {
+      if (word.length > 0 && postText.includes(word)) {
         if (m.muteType === MuteType.Soft) {
           softMutedWords.push(word)
         } else {
