@@ -88,6 +88,10 @@ export default function MutedWords() {
     handleSubmit(newBlocks)
   }
 
+  function handleDeleteAll() {
+    handleSubmit([])
+  }
+
   function handleSubmit(blocks: AdvancedMutedWord[]) {
     editMutation.mutate(
       {
@@ -156,9 +160,22 @@ export default function MutedWords() {
             <MutedWordForm form={form} setForm={setForm} />
           ) : (
             <View className="p-4">
-              <Text className="text-white text-sm px-1 mb-2">
-                {blocks.length} mute {pluralize(blocks.length, 'block')}
-              </Text>
+              <View className="flex-row justify-between items-center gap-2 mb-2">
+                <Text className="text-white text-sm px-1">
+                  {blocks.length} mute {pluralize(blocks.length, 'block')}
+                </Text>
+                <Pressable
+                  onPress={handleDeleteAll}
+                  className="flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2"
+                >
+                  <Text className="text-indigo-300 text-sm">Delete all</Text>
+                  <MaterialCommunityIcons
+                    name="delete-outline"
+                    size={20}
+                    color={colors.indigo[400]}
+                  />
+                </Pressable>
+              </View>
               <View className="gap-4">
                 {blocks.map((b, index) => (
                   <MutedWordListItem
