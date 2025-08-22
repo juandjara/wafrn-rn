@@ -53,6 +53,9 @@ jobs:
       - name: 📦 Create gc_keys.json
         run: echo $GOOGLE_CLOUD_KEYS >> ios/gc_keys.json
 
+      - name: 📦 Select Xcode version
+        run: sudo xcode-select -s "/Applications/Xcode_16.4.app"
+
       - name: 📦 Run fastlane
         working-directory: ./ios
         shell: bash
