@@ -29,7 +29,10 @@ platform :ios do
       in_house: false # optional but may be required if using match/sigh
     )
 
-    match(type: 'appstore', readonly: false, force: true)
+    match(
+      type: 'appstore',
+      readonly: ENV['CI']
+    )
 
     changelog_from_git_commits
     build_app(
