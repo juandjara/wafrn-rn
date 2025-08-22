@@ -117,7 +117,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisableCW]: false,
   [PrivateOptionNames.OriginalMarkdownBio]: '',
   [PrivateOptionNames.DisableNSFWCloak]: false,
-  [PrivateOptionNames.ThreadAncestorLimit]: 3,
+  [PrivateOptionNames.ThreadAncestorLimit]: 1,
   [PrivateOptionNames.NotificationsFrom]: NotificationsFrom.Everyone,
   [PrivateOptionNames.NotifyMentions]: true,
   [PrivateOptionNames.NotifyReactions]: true,

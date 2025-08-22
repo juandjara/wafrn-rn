@@ -20,14 +20,15 @@ function ThreadInner({ thread }: { thread: PostThread }) {
     postUser,
     postUserName,
     interactionPost,
-    ancestors,
+    firstPost,
+    threadPosts,
+    morePostsCount,
     postHidden,
-    ancestorLimitReached,
   } = context.threadData[thread.id]
 
   const userHidden =
-    hiddenUserIds.includes(thread.userId) ||
-    ancestors.some((a) => hiddenUserIds.includes(a.userId))
+    hiddenUserIds.includes(firstPost.userId) ||
+    threadPosts.some((a) => hiddenUserIds.includes(a.userId))
 
   if (postHidden || userHidden) {
     return null
@@ -54,36 +55,27 @@ function ThreadInner({ thread }: { thread: PostThread }) {
           )}
         </>
       ) : null}
-      {ancestorLimitReached ? (
-        <>
-          <PostFragment post={ancestors[0]} />
-          <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
-            <Link
-              href={`/post/${interactionPost.id}`}
-              className="text-sm text-white p-2"
-            >
-              ...{thread.ancestors.length - 2} more posts
-            </Link>
-          </View>
-          <PostFragment post={ancestors[ancestors.length - 1]} />
-        </>
-      ) : (
-        ancestors.map((ancestor, index) => (
-          <View
-            key={ancestor.id}
-            className={clsx('border-slate-600', { 'border-t': index > 0 })}
+      <PostFragment post={firstPost} />
+      {morePostsCount > 0 && (
+        <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
+          <Link
+            href={`/post/${interactionPost.id}`}
+            className="text-sm text-white p-2"
           >
-            <PostFragment post={ancestor} />
-          </View>
-        ))
+            ...{morePostsCount} more posts
+          </Link>
+        </View>
       )}
-      <View
-        className={clsx({
-          'border-t border-slate-600': !isRewoot && ancestors.length > 0,
-        })}
-      >
-        <PostFragment post={thread} />
-      </View>
+      {threadPosts.map((post, index) => (
+        <View
+          key={post.id}
+          className={clsx('border-slate-600', {
+            'border-t': index > 0 || morePostsCount === 0,
+          })}
+        >
+          <PostFragment post={post} />
+        </View>
+      ))}
       <InteractionRibbon post={interactionPost} />
     </View>
   )

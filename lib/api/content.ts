@@ -652,18 +652,31 @@ export function getDerivedThreadState(
   )
 
   let ancestors = ((thread as PostThread).ancestors || []).sort(sortPosts)
-  const ancestorLimitReached = ancestors.length >= threadAncestorLimit
-  if (ancestorLimitReached) {
-    ancestors = [ancestors[0], ancestors[ancestors.length - 1]].filter(Boolean)
-  }
-
   let interactionPost = thread as Post
+
   if (isRewoot) {
     const rewootAncestor = ancestors.find((a) => a.id === thread.parentId)
     if (rewootAncestor) {
       interactionPost = { ...rewootAncestor, notes: thread.notes }
+      ancestors = ancestors.filter((a) => a.id !== rewootAncestor.id)
     }
   }
+
+  const ancestorLimitReached = ancestors.length >= threadAncestorLimit
+  let posts = [...ancestors, interactionPost]
+  let morePostsCount = 0
+  if (ancestorLimitReached) {
+    if (threadAncestorLimit === 1) {
+      posts = [interactionPost]
+    } else if (threadAncestorLimit === 2) {
+      posts = [ancestors[0], interactionPost].filter(Boolean)
+      morePostsCount = ancestors.length - 1
+    } else {
+      posts = [ancestors[0], ancestors[ancestors.length - 1], interactionPost].filter(Boolean)
+      morePostsCount = ancestors.length - 2
+    }
+  }
+  const [firstPost, ...threadPosts] = posts
 
   function isFollowersOnly(post: Post) {
     const privacyIsFollowersOnly = post.privacy === PrivacyLevel.FOLLOWERS_ONLY
@@ -683,7 +696,9 @@ export function getDerivedThreadState(
     postUserName,
     interactionPost,
     postHidden,
-    ancestors,
+    firstPost,
+    threadPosts,
+    morePostsCount,
     ancestorLimitReached,
   }
 }
