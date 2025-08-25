@@ -31,8 +31,6 @@ export default function ProtectedLayout() {
       screenOptions={{
         ...rootStyles,
         headerShown: false,
-        navigationBarTranslucent: true,
-        navigationBarColor: 'rgba(0,0,0,0)',
         freezeOnBlur: true,
       }}
     >

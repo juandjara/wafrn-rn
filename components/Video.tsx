@@ -1,8 +1,9 @@
-import { useVideoPlayer, VideoView } from 'expo-video'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { ReactVideoSource, Video } from 'react-native-video'
+import Loading from './Loading'
 
-export default function Video({
+export default function VideoPlayer({
   title,
   isAudioOnly = false,
   src,
@@ -18,30 +19,24 @@ export default function Video({
   className?: string
 }) {
   const source = useMemo(
-    () => ({
-      uri: src,
-      metadata: {
-        title: title ?? `WAFRN ${isAudioOnly ? 'audio' : 'video'}`,
-      },
-    }),
+    () =>
+      ({
+        uri: src,
+        metadata: {
+          title: title ?? `WAFRN ${isAudioOnly ? 'audio' : 'video'}`,
+        },
+        bufferConfig: {
+          minBufferMs: 5000, // try to have at least 5 seconds of buffer after current position
+          maxBufferMs: 10000, // try to have at most 10 seconds of buffer after current position
+          bufferForPlaybackMs: 2000, // must get 2 seconds of buffer before first playback
+          bufferForPlaybackAfterRebufferMs: 4000, // must get 4 seconds of buffer before rebuffer
+          backBufferDurationMs: 30000, // try to keep at most 30 seconds of buffer before current position
+          cacheSizeMB: 0, // disable cache (only in android)
+        },
+      } satisfies ReactVideoSource),
     [src, title, isAudioOnly],
   )
-
-  const videoPlayer = useVideoPlayer(source, (p) => {
-    p.staysActiveInBackground = true
-    p.addListener('playingChange', (ev) => {
-      if (ev.isPlaying) {
-        p.showNowPlayingNotification = true
-      }
-    })
-    p.addListener('playToEnd', () => {
-      p.showNowPlayingNotification = false
-    })
-    p.bufferOptions = {
-      preferredForwardBufferDuration: 2, // only buffer the first 2 seconds
-    }
-    return p
-  })
+  const [isPlaying, setIsPlaying] = useState(false)
 
   return (
     <View
@@ -51,11 +46,17 @@ export default function Video({
         ev.stopPropagation()
       }}
     >
-      <VideoView
+      <Video
+        source={source}
         style={{ width, height }}
-        player={videoPlayer}
-        allowsFullscreen
-        allowsPictureInPicture
+        resizeMode="contain"
+        paused={true}
+        repeat={true}
+        renderLoader={() => <Loading />}
+        controls
+        playInBackground
+        showNotificationControls={isPlaying}
+        onPlaybackStateChanged={(state) => setIsPlaying(state.isPlaying)}
       />
     </View>
   )
