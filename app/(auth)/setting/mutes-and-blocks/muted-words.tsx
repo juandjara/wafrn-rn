@@ -27,7 +27,6 @@ import {
   View,
 } from 'react-native'
 import colors from 'tailwindcss/colors'
-// import colors from 'tailwindcss/colors'
 
 const DEFAULT_BLOCK = {
   words: '',
