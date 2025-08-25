@@ -33,8 +33,7 @@ import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { showToastError, useLikeMutation } from '@/lib/interaction'
 import { useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
-
-// const HEIGHT_LIMIT = 462
+import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 
 export default function PostFragment({
   post,
@@ -125,6 +124,13 @@ export default function PostFragment({
     }
   }
 
+  const hiddenUserIds = useHiddenUserIds()
+  const hiddenUserMentioned = mentionedUsers.some((user) =>
+    hiddenUserIds.includes(user.id),
+  )
+  const hiddenUserQuoted =
+    quotedPost && hiddenUserIds.includes(quotedPost.userId)
+
   const voteMutation = useVoteMutation(poll?.id || null, post)
 
   function onPollVote(votes: number[]) {
@@ -155,13 +161,28 @@ export default function PostFragment({
     return null
   }
 
+  if (hiddenUserMentioned || hiddenUserQuoted) {
+    return (
+      <View
+        className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3"
+        style={{ maxHeight: 300, maxWidth: width }}
+      >
+        <MaterialIcons name="block" color="white" size={24} />
+        <Text className="text-gray-300 text-center text-sm p-4">
+          This post has been hidden because it{' '}
+          {hiddenUserMentioned ? 'mentions' : 'quotes'} a blocked or muted user
+        </Text>
+      </View>
+    )
+  }
+
   if (post.isDeleted) {
     return (
       <View
         className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3"
         style={{ maxHeight: 300, maxWidth: width }}
       >
-        <MaterialIcons name="delete" color="white" size={24} />
+        <MaterialIcons name="delete-forever" color="white" size={24} />
         <Text className="text-gray-300 text-center text-sm p-4">
           This post has been deleted
         </Text>
