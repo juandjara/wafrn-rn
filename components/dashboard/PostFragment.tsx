@@ -164,11 +164,11 @@ export default function PostFragment({
   if (hiddenUserMentioned || hiddenUserQuoted) {
     return (
       <View
-        className="bg-blue-950 overflow-hidden relative flex-row items-center gap-3"
+        className="bg-blue-950 overflow-hidden relative flex-row items-center gap-2 pl-6 pr-4"
         style={{ maxHeight: 300, maxWidth: width }}
       >
         <MaterialIcons name="block" color="white" size={24} />
-        <Text className="text-gray-300 text-center text-sm p-4">
+        <Text className="text-gray-300 text-center text-sm p-4 flex-shrink">
           This post has been hidden because it{' '}
           {hiddenUserMentioned ? 'mentions' : 'quotes'} a blocked or muted user
         </Text>
