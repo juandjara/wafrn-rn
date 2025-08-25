@@ -52,8 +52,10 @@ elif [ "$env" == "prod-foss" ]; then
   echo '> disabling auto-updates in AndroidManifest.xml'
   if [[ "$OSTYPE" == "darwin"* ]]; then
     sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+    sed -i '' -e '/media3-exoplayer-ima/d' node_modules/react-native-video/android/build.gradle
   else
     sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
+    sed -i -e '/media3-exoplayer-ima/d' node_modules/react-native-video/android/build.gradle
   fi
   cd android
   echo '> creating production release build in .apk format with auto-updates disabled' 
