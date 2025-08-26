@@ -67,18 +67,11 @@ export default {
         }
       ],
       [
-        'react-native-video',
+        'expo-video',
         {
-          enableNotificationControls: true,
-          enableBackgroundAudio: true,
-          enableAndroidPictureInPicture: true,
-          androidExtensions: {
-            "useExoplayerRtsp": false,
-            "useExoplayerSmoothStreaming": false,
-            "useExoplayerHls": false,
-            "useExoplayerDash": false
-          }
-        },
+          supportsBackgroundPlayback: true,
+          supportsPictureInPicture: true,
+        }
       ],
       'react-native-edge-to-edge'
     ],
