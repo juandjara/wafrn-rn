@@ -19,7 +19,7 @@ export default function Video({
   title?: string
   className?: string
 }) {
-  const [showControls, setShowControls] = useState(false)
+  const [showControls, setShowControls] = useState(true)
   const [volume, setVolume] = useState(1)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
