@@ -64,7 +64,7 @@ export default function Media({
         className="bg-blue-950"
         src={src}
         width={contentWidth}
-        height={80}
+        height={140}
         isAudioOnly
         title={`${userUrl} audio`}
       />
