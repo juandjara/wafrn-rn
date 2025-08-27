@@ -66,7 +66,7 @@ export default function RollScreen() {
   ).current
 
   function processRoll() {
-    const newRoll = Math.min(6, Math.floor(Math.random() * 5) + 1)
+    const newRoll = Math.min(6, Math.round(Math.random() * 5) + 1)
     setRolls([...rolls, newRoll])
 
     if (newRoll === 6) {
@@ -108,6 +108,10 @@ export default function RollScreen() {
     }
   }
 
+  const lastRoll = rolls[rolls.length - 1]
+  const dices = '⚀⚁⚂⚃⚄⚅'.split('')
+  const lastDice = dices[lastRoll - 1]
+
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Try your luck" />
@@ -122,27 +126,36 @@ export default function RollScreen() {
               transform: [{ rotate: rotation }],
             }}
           >
-            <Text className="text-6xl leading-tight text-center">🎲</Text>
+            <Text className="text-6xl text-white leading-tight text-center">
+              {lastDice || '🎲'}
+            </Text>
           </Animated.View>
         ) : (
           <View className={isRolling ? '' : 'animate-bounce'}>
-            <Text className="text-6xl leading-tight text-center">🎲</Text>
+            <Text className="text-6xl text-white leading-tight text-center">
+              {lastDice || '🎲'}
+            </Text>
           </View>
         )}
-        <View className="my-6">
+        <View className="mt-6">
           <Text className="text-white text-xl text-center mb-8">
             Tap to{' '}
             <Text className="font-bold">{isRolling ? 'stop' : 'roll'}</Text> the
             dice
           </Text>
         </View>
+        <View className="border-t border-white rounded-lg py-6">
+          <Text className="text-white text-sm text-center">
+            You survived {rolls.length} rolls
+          </Text>
+        </View>
         <View className="flex-row flex-wrap gap-4 justify-center items-center">
           {rolls.map((roll, index) => (
             <Text
               key={index}
-              className="text-white text-3xl text-center w-10 h-10 border border-white rounded-lg"
+              className="text-white text-4xl text-center w-10 h-10"
             >
-              {roll}
+              {dices[roll - 1]}
             </Text>
           ))}
         </View>
