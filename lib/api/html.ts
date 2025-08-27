@@ -5,6 +5,7 @@ import { ChildNode, Element } from 'domhandler'
 import { formatCachedUrl, formatMediaUrl } from '../formatters'
 import { PostMedia } from './posts.types'
 import { getEnvironmentStatic } from './auth'
+import { DomUtils } from 'htmlparser2'
 
 export const BR = '\n'
 
@@ -265,42 +266,26 @@ function buildFullHandle(handle: string, host: string, wafrnHost: string) {
   return handle
 }
 
+function normalizeTagName(tagName: string) {
+  return tagName.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+}
+
 function replaceHashtagLink(node: Element, context: DashboardContextData) {
   if (node.attribs['href'].startsWith('wafrn:///')) {
     return
   }
 
-  const tagName = node.attribs['data-tag']
-  if (tagName) {
-    node.attribs['href'] = `wafrn:///search?q=${tagName}`
-  } else {
-    if (node.children.length === 1) {
-      const child = node.children[0]
-      if (child.type === 'text') {
-        const text = (child.data || '').replace('#', '')
-        const tag = context.tags.find((t) => t.tagName === text)
-        if (tag) {
-          node.attribs['href'] = `wafrn:///search?q=${tag.tagName}`
-        }
-      }
+  let tagName = node.attribs['data-tag']
+  if (!tagName) {
+    const text = normalizeTagName(DomUtils.textContent(node))
+    if (text.startsWith('#')) {
+      tagName = text.slice(1)
     }
-    if (node.children.length === 2) {
-      const [part1, part2] = node.children
-      const firstPartIsHash =
-        part1 && part1.type === 'text' && part1.data === '#'
-      const secondPartIsSpan =
-        part2 && part2.type === 'tag' && part2.name === 'span'
-      if (firstPartIsHash && secondPartIsSpan) {
-        const spanText = part2.children[0]
-        if (spanText.type === 'text') {
-          const text = spanText.data
-          const tag = context.tags.find((t) => t.tagName === text)
-          if (tag) {
-            node.attribs['href'] = `wafrn:///search?q=${tag.tagName}`
-          }
-        }
-      }
-    }
+  }
+
+  const tag = context.tags.find((t) => t.tagName === tagName)
+  if (tag) {
+    node.attribs['href'] = `wafrn:///search?q=${encodeURIComponent(`#${tag.tagName}`)}`
   }
 }
 
