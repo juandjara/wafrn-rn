@@ -27,12 +27,9 @@ import {
 } from 'react-native-reanimated'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { enableFreeze } from 'react-native-screens'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Colors } from '@/constants/Colors'
 import { queryClient } from '@/lib/queryClient'
-
-enableFreeze(true)
 
 // This is the default configuration
 configureReanimatedLogger({

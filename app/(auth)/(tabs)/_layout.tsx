@@ -36,7 +36,6 @@ export default function TabsLayout() {
         tabBarLabelStyle: {
           fontWeight: 'bold',
         },
-        freezeOnBlur: true,
         lazy: true,
       }}
     >

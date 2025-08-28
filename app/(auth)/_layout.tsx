@@ -4,7 +4,8 @@ import { getRootStyles } from '@/constants/Colors'
 import checkExpoUpdates from '@/lib/checkExpoUpdates'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import useAppFocusListener from '@/lib/useAppFocusListener'
-import { Redirect, Stack } from 'expo-router'
+import { Redirect, Stack, useNavigation } from 'expo-router'
+import { useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 
 export const unstable_settings = {
@@ -14,8 +15,22 @@ export const unstable_settings = {
 export default function ProtectedLayout() {
   const { token, env, isLoading } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+  const navigation = useNavigation('/')
 
   useAppFocusListener(checkExpoUpdates)
+
+  useEffect(() => {
+    const unsub1 = navigation.addListener('blur', (ev) => {
+      console.log('ROUTER BLUR', ev)
+    })
+    const unsub2 = navigation.addListener('focus', (ev) => {
+      console.log('ROUTER FOCUS', ev)
+    })
+    return () => {
+      unsub1()
+      unsub2()
+    }
+  }, [navigation])
 
   if (isLoading) {
     return <SplashScreen />
@@ -31,15 +46,8 @@ export default function ProtectedLayout() {
       screenOptions={{
         ...rootStyles,
         headerShown: false,
-        freezeOnBlur: true,
       }}
     >
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="post/[postid]" />
-      <Stack.Screen name="user/[userid]" />
-      <Stack.Screen name="user/followed/[userid]" />
-      <Stack.Screen name="user/followers/[userid]" />
-      <Stack.Screen name="asks" />
       <Stack.Screen
         name="editor"
         options={{
@@ -47,20 +55,6 @@ export default function ProtectedLayout() {
           animation: 'slide_from_bottom',
         }}
       />
-      <Stack.Screen name="settings" />
-      <Stack.Screen name="setting/import-follows" />
-      <Stack.Screen name="setting/edit-profile" />
-      <Stack.Screen name="setting/options" />
-      <Stack.Screen name="setting/mutes-and-blocks/index" />
-      <Stack.Screen name="setting/mutes-and-blocks/muted-posts" />
-      <Stack.Screen name="setting/privacy" />
-      <Stack.Screen name="admin/index" />
-      <Stack.Screen name="admin/new-users" />
-      <Stack.Screen name="admin/reports" />
-      <Stack.Screen name="admin/banned-users" />
-      <Stack.Screen name="admin/user-blocklists" />
-      <Stack.Screen name="admin/server-list" />
-      <Stack.Screen name="admin/server-stats" />
     </Stack>
   )
 }
