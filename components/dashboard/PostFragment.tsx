@@ -306,7 +306,10 @@ export default function PostFragment({
                       />
                     </Link>
                     <View className="flex-row items-center flex-grow flex-shrink text-white">
-                      <HtmlRenderer html={ask.userName} renderTextRoot />
+                      <HtmlRenderer
+                        html={ask.userName || 'anon'}
+                        renderTextRoot
+                      />
                       <Text className="text-white"> asked: </Text>
                     </View>
                   </View>
