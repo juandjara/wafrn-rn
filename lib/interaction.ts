@@ -5,6 +5,7 @@ import { getJSON } from './http'
 import { toast } from '@backpackapp-io/react-native-toast'
 import colors from 'tailwindcss/colors'
 import { getEnvironmentStatic } from './api/auth'
+import { normalizeTagName } from './api/html'
 
 export async function toggleLikePost({
   token,
@@ -203,5 +204,52 @@ export function useBookmarkMutation(post: Post) {
       showToastSuccess(`Woot ${variables ? 'un' : ''}bookmarked`)
     },
     onSettled: () => invalidatePostQueries(qc, post),
+  })
+}
+
+export async function toggleFollowTag({
+  token,
+  tag,
+  isFollowing,
+}: {
+  token: string
+  tag: string
+  isFollowing: boolean
+}) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/${isFollowing ? 'unfollowHashtag' : 'followHashtag'}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ hashtag: normalizeTagName(tag).replace('#', '') }),
+  })
+}
+
+export function useFollowTagMutation() {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+
+  return useMutation<void, Error, { tag: string; isFollowing: boolean }>({
+    mutationKey: ['followTag'],
+    mutationFn: (variables) =>
+      toggleFollowTag({
+        token: token!,
+        tag: variables.tag,
+        isFollowing: variables.isFollowing,
+      }),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to ${variables.isFollowing ? 'un' : ''}follow tag`)
+    },
+    onSuccess: (data, variables) => { 
+      showToastSuccess(`Tag ${variables.isFollowing ? 'un' : ''}followed`)
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === 'settings',
+      })
+    },
   })
 }
