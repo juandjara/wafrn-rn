@@ -78,10 +78,6 @@ export default function UserMenu() {
     return true
   })
 
-  if (!me) {
-    return null
-  }
-
   return (
     <Menu renderer={renderers.SlideInMenu}>
       <MenuTrigger
@@ -90,7 +86,7 @@ export default function UserMenu() {
         <View className="border border-gray-200/20 rounded-full">
           <Image
             className="rounded-full"
-            source={{ uri: formatSmallAvatar(me.avatar) }}
+            source={{ uri: formatSmallAvatar(me?.avatar) }}
             style={{ width: 40, height: 40 }}
           />
         </View>
