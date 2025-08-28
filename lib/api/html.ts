@@ -266,7 +266,7 @@ function buildFullHandle(handle: string, host: string, wafrnHost: string) {
   return handle
 }
 
-function normalizeTagName(tagName: string) {
+export function normalizeTagName(tagName: string) {
   return tagName.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
 }
 
