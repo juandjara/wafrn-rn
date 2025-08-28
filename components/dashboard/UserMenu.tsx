@@ -11,7 +11,7 @@ import {
 } from 'react-native-popup-menu'
 import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
@@ -52,11 +52,11 @@ export default function UserMenu() {
       label: 'Bookmarks',
       action: () => router.push('/bookmarks'),
     },
-    // {
-    //   icon: 'tag-outline' as const,
-    //   label: 'Followed hashtags',
-    //   action: () => router.push('/followed-hashtags'),
-    // },
+    {
+      icon: <FontAwesome6 name="hashtag" size={20} color={colors.gray[600]} />,
+      label: 'Followed hashtags',
+      action: () => router.push('/followed-hashtags'),
+    },
     {
       icon: 'shield-outline' as const,
       label: 'Admin',
@@ -115,11 +115,15 @@ export default function UserMenu() {
             onSelect={option.action}
             style={{ ...optionStyleBig(i) }}
           >
-            <MaterialCommunityIcons
-              name={option.icon}
-              size={20}
-              color={colors.gray[600]}
-            />
+            {typeof option.icon === 'string' ? (
+              <MaterialCommunityIcons
+                name={option.icon}
+                size={20}
+                color={colors.gray[600]}
+              />
+            ) : (
+              option.icon
+            )}
             <Text className="text-sm flex-grow">{option.label}</Text>
             {option.badge ? (
               <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
