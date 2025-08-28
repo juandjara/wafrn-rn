@@ -2,6 +2,7 @@ import Header, { HEADER_HEIGHT } from '@/components/Header'
 import ZoomableImage from '@/components/posts/ZoomableImage'
 import { useNewUserMutation, useUsersForApproval } from '@/lib/api/admin'
 import { formatUserUrl, formatMediaUrl } from '@/lib/formatters'
+import { useNotificationBadges } from '@/lib/notifications'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
@@ -9,8 +10,14 @@ import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 
 export default function NewUsers() {
   const { data, isFetching, refetch } = useUsersForApproval()
+  const { refetch: refetchBadge } = useNotificationBadges()
   const mutation = useNewUserMutation()
   const sx = useSafeAreaPadding()
+
+  async function approveUser(userId: string, activate: boolean) {
+    await mutation.mutateAsync({ activate, userId })
+    await refetchBadge()
+  }
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
@@ -59,9 +66,7 @@ export default function NewUsers() {
               <Pressable
                 disabled={mutation.isPending}
                 className="flex-row items-center gap-3 bg-green-700/50 active:bg-green-700/75 rounded-lg p-2 basis-1/2"
-                onPress={() =>
-                  mutation.mutate({ activate: true, userId: user.id })
-                }
+                onPress={() => approveUser(user.id, true)}
               >
                 <MaterialCommunityIcons name="check" size={24} color="white" />
                 <Text className="text-white">Activate user</Text>
@@ -69,9 +74,7 @@ export default function NewUsers() {
               <Pressable
                 disabled={mutation.isPending}
                 className="flex-row items-center gap-3 bg-red-700/50 active:bg-red-700/75 rounded-lg p-2 basis-1/2"
-                onPress={() =>
-                  mutation.mutate({ activate: false, userId: user.id })
-                }
+                onPress={() => approveUser(user.id, false)}
               >
                 <MaterialCommunityIcons name="close" size={24} color="white" />
                 <Text className="text-white">Require email confirmation</Text>
