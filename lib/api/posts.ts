@@ -35,13 +35,14 @@ const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
-export async function getPostDetail(token: string, id: string) {
+export async function getPostDetail(token: string, signal: AbortSignal, id: string) {
   try {
     const env = getEnvironmentStatic()
     const json = await getJSON(`${env?.API_URL}/v2/post/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal
     })
     const data = json as DashboardData
     return data
@@ -58,10 +59,10 @@ export function usePostDetail(id: string, includeReplies = true) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['post', id, 'detail', includeReplies],
-    queryFn: async () => {
-      const promises = [getPostDetail(token!, id)]
+    queryFn: async ({ signal }) => {
+      const promises = [getPostDetail(token!, signal, id)]
       if (includeReplies) {
-        promises.push(getPostReplies(token!, id))
+        promises.push(getPostReplies(token!, signal, id))
       }
       const [post, replies] = await Promise.all(promises)
       return {
@@ -86,12 +87,13 @@ export type PostDescendants = {
   - includes complete replies and rewoots,
   - not paginated, can return lots of posts
 */
-export async function getPostReplies(token: string, id: string) {
+export async function getPostReplies(token: string, signal: AbortSignal, id: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   const data = json as DashboardData
   return data

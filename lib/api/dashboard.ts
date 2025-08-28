@@ -22,10 +22,12 @@ export async function getDashboard({
   mode,
   startTime,
   token,
+  signal,
 }: {
   mode: DashboardMode
   startTime: number
   token: string
+  signal: AbortSignal
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
@@ -34,6 +36,7 @@ export async function getDashboard({
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as DashboardData
@@ -47,11 +50,12 @@ export function useDashboard(mode: DashboardMode) {
 
   return useInfiniteQuery({
     queryKey: ['dashboard', mode],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const list = await getDashboard({
         mode,
         startTime: pageParam,
         token: token!,
+        signal,
       })
       await refetchBadge()
       return list
@@ -254,10 +258,12 @@ export async function getUserFeed({
   startTime,
   userId,
   token,
+  signal,
 }: {
   startTime: number
   userId: string
   token: string
+  signal: AbortSignal
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
@@ -266,6 +272,7 @@ export async function getUserFeed({
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as DashboardData
@@ -276,8 +283,8 @@ export function useUserFeed(userId: string) {
   const { token } = useAuth()
   return useInfiniteQuery({
     queryKey: ['dashboard', 'userFeed', userId],
-    queryFn: ({ pageParam }) =>
-      getUserFeed({ userId, startTime: pageParam, token: token! }),
+    queryFn: ({ pageParam, signal }) =>
+      getUserFeed({ userId, startTime: pageParam, token: token!, signal }),
     initialPageParam: Date.now(),
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
     enabled: !!token,

@@ -66,12 +66,13 @@ type Block = {
   blocked: Omit<PostUser, 'remoteId'>
 }
 
-async function getBlocks(token: string) {
+async function getBlocks(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myBlocks`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   const data = json as Block[]
   return data.map((d) => ({
@@ -85,7 +86,7 @@ export function useBlocks() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['blocks'],
-    queryFn: () => getBlocks(token!),
+    queryFn: ({ signal }) => getBlocks(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
   })
@@ -150,12 +151,13 @@ type Mute = {
   muted: Omit<PostUser, 'remoteId'>
 }
 
-async function getMutes(token: string) {
+async function getMutes(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myMutes`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   const data = json as Mute[]
   return data.map((d) => ({
@@ -169,7 +171,7 @@ export function useMutes() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['mutes'],
-    queryFn: () => getMutes(token!),
+    queryFn: ({ signal }) => getMutes(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
   })
@@ -292,12 +294,13 @@ type ServerBlock = {
   }
 }
 
-async function getServerBlocks(token: string) {
+async function getServerBlocks(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/myServerBlocks`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   const data = json as ServerBlock[]
   return data.map((d) => ({
@@ -310,7 +313,7 @@ export function useServerBlocks() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['serverBlocks'],
-    queryFn: () => getServerBlocks(token!),
+    queryFn: ({ signal }) => getServerBlocks(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
   })

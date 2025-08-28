@@ -10,7 +10,7 @@ export type UserAsksData = {
   asks: PostAsk[]
 }
 
-export async function getAsks(token: string, answered: boolean) {
+export async function getAsks(token: string, signal: AbortSignal, answered: boolean) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/myAsks?answered=${answered ? 'true' : 'false'}`,
@@ -18,6 +18,7 @@ export async function getAsks(token: string, answered: boolean) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as UserAsksData
@@ -42,7 +43,7 @@ export function useAsks({ answered, enabled = true }: { answered: boolean, enabl
   const { token } = useAuth()
   return useQuery({
     queryKey: ['asks', answered],
-    queryFn: () => getAsks(token!, answered),
+    queryFn: ({ signal }) => getAsks(token!, signal, answered),
     enabled: !!token && enabled,
   })
 }

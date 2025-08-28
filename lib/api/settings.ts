@@ -211,13 +211,14 @@ export type Settings = {
   followedHashtags: string[] // normalized hashtags you follow (without the #)
 }
 
-export async function getSettings(token: string) {
+export async function getSettings(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/my-ui-options`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   return json as Settings
 }
@@ -226,7 +227,7 @@ export function useSettings() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['settings'],
-    queryFn: () => getSettings(token!),
+    queryFn: ({ signal }) => getSettings(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
   })

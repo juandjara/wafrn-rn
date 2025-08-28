@@ -11,12 +11,13 @@ type MfaDetails = {
   enabled: boolean
 }
 
-export async function getMfaDetails(token: string) {
+export async function getMfaDetails(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
   const data = await getJSON(`${env?.API_URL}/user/mfa`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    signal,
   })
   const json = data as { mfa: MfaDetails[] }
   return json.mfa
@@ -26,7 +27,7 @@ export function useMfaDetails() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['mfa', token],
-    queryFn: () => getMfaDetails(token!),
+    queryFn: ({ signal }) => getMfaDetails(token!, signal),
     enabled: !!token,
   })
 }

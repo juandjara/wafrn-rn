@@ -62,7 +62,7 @@ export type UserEmoji = EmojiBase &
     userEmojiRelations: Timestamps & UserEmojiRelation
   }
 
-export async function getUser(token: string, handle?: string) {
+export async function getUser(token: string, signal: AbortSignal, handle?: string) {
   if (!handle) {
     const parsed = parseToken(token)!
     handle = parsed.url
@@ -73,6 +73,7 @@ export async function getUser(token: string, handle?: string) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     })
     return json as User
   } catch (e) {
@@ -88,7 +89,7 @@ export function useCurrentUser() {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['currentUser', token],
-    queryFn: () => getUser(token!),
+    queryFn: ({ signal }) => getUser(token!, signal),
     enabled: !!token,
   })
 }
@@ -97,7 +98,7 @@ export function useUser(handle: string) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['user', handle],
-    queryFn: () => getUser(token!, handle),
+    queryFn: ({ signal }) => getUser(token!, signal, handle),
     enabled: !!token,
   })
 }
@@ -111,7 +112,7 @@ export type Follow = Omit<PostUser, 'remoteId'> & {
   }
 }
 
-export async function getFollowers(token: string, handle: string) {
+export async function getFollowers(token: string, signal: AbortSignal, handle: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/${handle}/follows?followers=false`,
@@ -119,11 +120,12 @@ export async function getFollowers(token: string, handle: string) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   return json as Follow[]
 }
-export async function getFollowed(token: string, handle: string) {
+export async function getFollowed(token: string, signal: AbortSignal, handle: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/${handle}/follows?followers=true`,
@@ -131,6 +133,7 @@ export async function getFollowed(token: string, handle: string) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   return json as Follow[]
@@ -140,7 +143,7 @@ export function useFollowers(handle?: string) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['followers', handle],
-    queryFn: () => getFollowers(token!, handle!),
+    queryFn: ({ signal }) => getFollowers(token!, signal, handle!),
     enabled: !!token && !!handle,
   })
 }
@@ -149,7 +152,7 @@ export function useFollowed(handle?: string) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['followed', handle],
-    queryFn: () => getFollowed(token!, handle!),
+    queryFn: ({ signal }) => getFollowed(token!, signal, handle!),
     enabled: !!token && !!handle,
   })
 }

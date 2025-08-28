@@ -179,16 +179,18 @@ export type LinkPreview = {
   url?: string
 }
 
-export async function getLinkPreview(link: string) {
+export async function getLinkPreview(signal: AbortSignal, link: string) {
   const env = getEnvironmentStatic()
-  const data = await getJSON(`${env?.API_URL}/linkPreview/?url=${encodeURIComponent(link)}`)
+  const data = await getJSON(`${env?.API_URL}/linkPreview/?url=${encodeURIComponent(link)}`, {
+    signal,
+  })
   return data as LinkPreview
 }
 
 export function useLinkPreview(link: string | null) {
   return useQuery({
     queryKey: ['linkPreview', link],
-    queryFn: () => getLinkPreview(link!),
+    queryFn: ({ signal }) => getLinkPreview(signal, link!),
     enabled: !!link
   })
 }

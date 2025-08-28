@@ -38,11 +38,13 @@ export async function search({
   time,
   page,
   token,
+  signal,
 }: {
   term: string
   time: number
   page: number
   token: string
+  signal: AbortSignal
 }) {
   if (term.startsWith('#') || term.startsWith('@')) {
     term = term.slice(1)
@@ -61,6 +63,7 @@ export async function search({
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as SearchResponse
@@ -81,8 +84,8 @@ export function useSearch(query: string) {
 
   return useInfiniteQuery({
     queryKey: ['search', query, time],
-    queryFn: ({ pageParam }) =>
-      search({ page: pageParam, term: query, time, token: token! }),
+    queryFn: ({ pageParam, signal }) =>
+      search({ page: pageParam, term: query, time, token: token!, signal }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (type === SearchType.User && lastPage.users.foundUsers.length === 0) {
@@ -96,7 +99,7 @@ export function useSearch(query: string) {
   })
 }
 
-export async function searchUser(token: string, handlePart: string) {
+export async function searchUser(token: string, signal: AbortSignal, handlePart: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/userSearch/${encodeURIComponent(handlePart)}`,
@@ -104,6 +107,7 @@ export async function searchUser(token: string, handlePart: string) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as { users: PostUser[] }
@@ -114,7 +118,7 @@ export function useUserSearch(query: string) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['userSearch', query],
-    queryFn: () => searchUser(token!, query),
+    queryFn: ({ signal }) => searchUser(token!, signal, query),
     enabled: !!token && query.length > 1,
   })
 }

@@ -48,15 +48,15 @@ export function useEditorReplyContext(params: EditorSearchParams) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['editorContext', params],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (params.type === 'reply') {
-        return await getPostDetail(token!, params.replyId)
+        return await getPostDetail(token!, signal, params.replyId)
       }
       if (params.type === 'quote') {
-        return await getPostDetail(token!, params.quoteId)
+        return await getPostDetail(token!, signal, params.quoteId)
       }
       if (params.type === 'edit') {
-        return await getPostDetail(token!, params.editId)
+        return await getPostDetail(token!, signal, params.editId)
       }
       return null
     },

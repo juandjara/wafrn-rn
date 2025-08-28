@@ -26,9 +26,11 @@ type NotificationsBadges = {
 
 export async function getNotificationBadges({
   token,
+  signal,
   time,
 }: {
   token: string
+  signal: AbortSignal
   time: number
 }) {
   const env = getEnvironmentStatic()
@@ -38,6 +40,7 @@ export async function getNotificationBadges({
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   const data = json as NotificationsBadges
@@ -49,7 +52,7 @@ export function useNotificationBadges() {
   const time = useMemo(() => Date.now(), [])
   return useQuery({
     queryKey: ['notificationsBadge', token],
-    queryFn: () => getNotificationBadges({ token: token!, time }),
+    queryFn: ({ signal }) => getNotificationBadges({ token: token!, time, signal }),
     enabled: !!token,
   })
 }
@@ -110,10 +113,12 @@ export async function getNotifications({
   token,
   page,
   date,
+  signal,
 }: {
   token: string
   page: number
   date: number
+  signal: AbortSignal
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
@@ -122,6 +127,7 @@ export async function getNotifications({
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      signal,
     },
   )
   return json as NotificationsPage
@@ -132,11 +138,12 @@ export function useNotifications() {
   const { token } = useAuth()
   return useInfiniteQuery({
     queryKey: ['notifications'],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const list = await getNotifications({
         token: token!,
         page: pageParam.page,
         date: pageParam.date,
+        signal,
       })
       await refetchBadge()
       return list
