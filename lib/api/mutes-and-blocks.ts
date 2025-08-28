@@ -5,6 +5,7 @@ import { showToastError, showToastSuccess } from '../interaction'
 import { Post, PostUser } from './posts.types'
 import { useMemo } from 'react'
 import { getEnvironmentStatic } from './auth'
+import { useSettings } from './settings'
 
 /*
  * USER BLOCKS
@@ -352,13 +353,10 @@ export function useUnblockServerMutation() {
 }
 
 export function useHiddenUserIds() {
-  const { data: mutes } = useMutes()
-  const { data: blocks } = useBlocks()
-
+  const { data: settings } = useSettings()
   return useMemo(() => {
-    const mutedIds = mutes?.map((m) => m.user.id) || []
-    const blockedIds = blocks?.map((b) => b.user.id) || []
-
-    return [...mutedIds, ...blockedIds]
-  }, [mutes, blocks])
+    const mutedIds = settings?.mutedUsers || []
+    const blockedIds = settings?.blockedUsers || []
+    return [...new Set([...mutedIds, ...blockedIds])]
+  }, [settings])
 }
