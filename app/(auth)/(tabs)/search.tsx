@@ -52,7 +52,7 @@ export default function Search() {
       if (type === SearchType.User) {
         return <SearchResultsUsers query={_query} />
       } else {
-        return <SearchResultsPosts query={_query} />
+        return <SearchResultsPosts query={_query} type={type!} />
       }
     }
     return <SearchIndex onSearch={search} />
