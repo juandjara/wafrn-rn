@@ -6,7 +6,7 @@ import {
   useContext,
   useMemo,
 } from 'react'
-import { UseMutateAsyncFunction } from '@tanstack/react-query'
+import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query'
 import { Environment, parseToken, useEnvironment } from '../api/auth'
 
 export enum UserRoles {
@@ -71,8 +71,10 @@ export function useParsedToken() {
 }
 
 export function useLogout() {
+  const qc = useQueryClient()
   const { setToken } = useAuth()
   return useCallback(() => {
     setToken(null)
-  }, [setToken])
+    qc.clear()
+  }, [setToken, qc])
 }
