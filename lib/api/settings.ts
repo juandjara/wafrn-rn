@@ -200,6 +200,7 @@ export function getPublicOptionValue<
 }
 
 export type Settings = {
+  myFollowers: string[] // ids of people who follow you
   blockedUsers: string[] // ids of people you've blocked
   followedUsers: string[] // ids of people you follow
   notAcceptedFollows: string[] // ids of people who you tried to follow but they didn't accept yet
@@ -207,6 +208,7 @@ export type Settings = {
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
   options: PrivateOption[] & PublicOption[] // the actual values of the settings for the user
+  followedHashtags: string[] // normalized hashtags you follow (without the #)
 }
 
 export async function getSettings(token: string) {
