@@ -2,7 +2,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import useAsyncStorage from '../useLocalStorage'
 import { queryClient } from '../queryClient'
-import { setItem } from 'expo-secure-store'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
@@ -207,9 +206,7 @@ export function useLoginMfaMutation() {
 export function getEnvironmentStatic() {
   const env = queryClient.getQueryData<Environment>(['environment'])
   if (!env) {
-    // if no environment is saved, logout and panic
-    setItem(AUTH_TOKEN_KEY, '')
-    throw new Error('FATAL: environment key is empty in query client')
+    throw new Error('FATAL: environment data is empty')
   }
   return env
 }
