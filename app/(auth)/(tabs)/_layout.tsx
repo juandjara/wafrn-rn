@@ -37,6 +37,7 @@ export default function TabsLayout() {
           fontWeight: 'bold',
         },
         lazy: true,
+        animation: 'fade',
       }}
     >
       <Tabs.Screen
