@@ -24,9 +24,10 @@ You can get the app in the following places:
 <img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
 <a href="https://testflight.apple.com/join/k98B8bDq">
 <img height="60" alt="Get it on Testflight" src="assets/badges/testflight-margin.png" /></a>
-
+<div>
 <a href="https://codeberg.org/wafrn/wafrn-rn/releases/latest">
 <img style="margin: 10px" height="40" alt="Get it on Codeberg" src="assets/badges/codeberg.png" /></a>
+</div>
 
 For Android there are many choices, but I recommend using [Droid-ify](https://droidify.eu.org/) to install the versions from F-Droid (or IzyyOnDroid) and keep them updated with some extra stability. But if you want to get the latest version as soon as possible and still be notified of updates, you can use Obtanium.
 
