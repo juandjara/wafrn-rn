@@ -2,9 +2,11 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import useAsyncStorage from '../useLocalStorage'
 import { queryClient } from '../queryClient'
+import { setItem } from 'expo-secure-store'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
+export const AUTH_TOKEN_KEY = 'wafrn_token'
 
 export type ParsedToken = {
   birthDate: string // ISO date

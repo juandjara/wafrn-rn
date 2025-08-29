@@ -7,7 +7,12 @@ import {
   useMemo,
 } from 'react'
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query'
-import { Environment, parseToken, useEnvironment } from '../api/auth'
+import {
+  AUTH_TOKEN_KEY,
+  Environment,
+  parseToken,
+  useEnvironment,
+} from '../api/auth'
 
 export enum UserRoles {
   Admin = 10,
@@ -32,8 +37,6 @@ const AuthContext = createContext<AuthContextData>({
   isLoading: true,
   env: null,
 })
-
-const AUTH_TOKEN_KEY = 'wafrn_token'
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const { data: env, isLoading: envLoading } = useEnvironment()
