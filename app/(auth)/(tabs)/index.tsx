@@ -65,6 +65,7 @@ export default function Index() {
         onPageScroll={onPageScroll}
         initialPage={MODES.indexOf(mode)}
         style={styles.flex}
+        offscreenPageLimit={1}
       >
         {pages}
       </PagerView>
