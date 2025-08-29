@@ -205,7 +205,9 @@ export function useLoginMfaMutation() {
 export function getEnvironmentStatic() {
   const env = queryClient.getQueryData<Environment>(['environment'])
   if (!env) {
-    console.error('No value for getEnvironmentStatic')
+    // if no environment is saved, logout and panic
+    setItem(AUTH_TOKEN_KEY, '')
+    throw new Error('FATAL: environment key is empty in query client')
   }
   return env
 }
