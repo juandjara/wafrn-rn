@@ -29,7 +29,24 @@ You can get the app in the following places:
 
 For Android there are many choices, but I recommend using [Droid-ify](https://droidify.eu.org/) to install the versions from F-Droid (or IzyyOnDroid) and keep them updated with some extra stability. But if you want to get the latest version as soon as possible and still be notified of updates, you can use Obtanium.
 
-## Get started
+## APK Certificate fingerprint
+
+The APK certificate fingerprint is:
+
+```text
+SHA1:   75:81:D0:4E:5F:1A:87:D6:35:33:8B:72:CC:04:84:DF:20:EA:27:2F
+SHA256: 09:1A:D9:44:84:3E:18:0C:43:22:ED:E2:02:A7:33:09:4C:DC:07:DD:1A:CD:51:52:3F:E8:13:EA:E9:04:F4:87
+```
+
+This is the fingerprint of the certificate used to sign the APKs. It can be used to verify the authenticity of the APKs with the [APKVerifier app](https://github.com/soupslurpr/AppVerifier) or with the following command (replace `app-arm64-v8a-release.apk` with the path to the APK you want to verify):
+
+```bash
+keytool -printcert -jarfile app-arm64-v8a-release.apk
+```
+
+> NOTE: Only APKs distributed by IzzyOnDroid and Obtanium are signed with this certificate. APKs distributed by F-Droid use a different certificate and are signed by F-Droid themselves.
+
+## Get started for development
 
 1. Install dependencies
 
@@ -48,11 +65,14 @@ In the output, you'll find options to open the app in a
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Build a local version of the production release (only for Android)
+> NOTE: This project contains custom native modules, so you cannot run the app with Expo Go. You need to use a real device or an emulator.
+
+## Build from source a local version of the production release (only for Android)
+
+You need to have your android environment setup to build the app. See [the expo docs](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) for more info.
 
 For the production release build process to work, you will need to define some variables for signing the resulting apk or aab file.
 
@@ -67,7 +87,7 @@ WAFRN_UPLOAD_KEY_PASSWORD=3224242
 
 These are the values that will be used to sign the resulting apk or aab file with your `upload key`. You can see more info about this in the [Android documentation](https://developer.android.com/studio/publish/app-signing#generate-key).
 
-The `WAFRN_UPLOAD_STORE_FILE` variable is a path relative to the `android/app/` directory inside this repo pointing to the keystore file. Make sure the path is correct and the file exists before running the build.
+The `WAFRN_UPLOAD_STORE_FILE` variable is a path relative to the `android/app/` directory inside this repo pointing to the keystore file. Make sure the path is correct and the file exists before running the build. This file should not be included in version control.
 
 Then, you can run the following command to build the production release:
 
@@ -87,7 +107,7 @@ This app has an OTA update functionality provided by `expo-updates`. What this m
 
 This feature can be easily disabled with no harm to the normal flow of the app. In fact, this is explicitly disabled in [the F-Droid build of the app](https://gitlab.com/fdroid/fdroiddata/-/blob/master/metadata/dev.djara.wafrn_rn.yml) by setting the `expo.modules.updates.ENABLED` to `false` in the [`AndroidManifest.xml`](android/app/src/main/AndroidManifest.xml) file. This can also be disabled by changing `expo.updates.enabled` to `false` in the [`app.config.ts`](app.config.ts) file.
 
-This feature is also disabled in the FOSS versions of the app, available in github releases and in the APK distributed to F-Droid.
+This feature is also disabled in the FOSS versions of the app, available in github releases and in the APK distributed to F-Droid and IzzyOnDroid.
 
 ## Join the community
 
