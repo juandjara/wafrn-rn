@@ -1,0 +1,135 @@
+name: Build Android App
+
+on:
+  workflow_dispatch:
+    inputs:
+      buildType:
+        type: choice
+        description: 'Build type to run'
+        options:
+          - dev
+          - prod-base
+          - prod-foss
+          - prod-google
+          - prod-all
+
+env:
+  UNSIGNED_APK: 1
+  NODE_OPTIONS: --openssl-legacy-provider --max_old_space_size=4096
+
+jobs:
+  test:
+    runs-on: codeberg-tiny
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Setup npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: 📦 Install npm dependencies
+        run: npm ci && npm rebuild lightningcss
+
+      - name: 🧪 Run TypeScript check
+        run: npm run tsc
+
+      - name: 🧹 Run ESLint
+        run: npm run lint
+
+  build:
+    needs: test
+    runs-on: codeberg-small
+    image: webhippie/temurin:21
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Setup npm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: 📦 Install npm dependencies
+        run: npm ci && npm rebuild lightningcss
+
+      # - name: 🏗 Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
+
+      # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
+
+      - name: 📦 Setup Gradle
+        uses: https://git.moonleay.net/gradle/gradle-build-action@v3.5.0
+        with:
+          gradle-version: 'wrapper'
+
+      - name: 📱 Build Development APK
+        if: github.event.inputs.buildType == 'dev'
+        run: |
+          bash ./scripts/android_build.sh dev
+          mkdir -p ./outputs/dev
+          cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
+
+      - name: 📱 Build Production APK
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-base'
+        run: |
+          bash ./scripts/android_build.sh prod
+          mkdir -p ./outputs/prod
+          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
+
+      - name: 📱 Build Production APK (FOSS version)
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-foss'
+        run: |
+          bash ./scripts/android_build.sh prod-foss
+          mkdir -p ./outputs/prod-foss
+          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
+
+      - name: 📱 Build Production AAB
+        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-google'
+        run: |
+          bash ./scripts/android_build.sh prod-google
+          mkdir -p ./outputs/prod-google
+          cp ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
+
+      - name: 🔑 Sign APKs and AABs
+        uses: https://github.com/ilharp/sign-android-release@v2
+        id: sign
+        with:
+          releaseDir: ./outputs
+          signingKey: ${{ secrets.WAFRN_UPLOAD_STORE_FILE_BASE64 }}
+          keyAlias: ${{ secrets.WAFRN_UPLOAD_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.WAFRN_UPLOAD_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.WAFRN_UPLOAD_KEY_PASSWORD }}
+          buildToolsVersion: '35.0.0'
+
+      - name: 📦 Upload build artifacts to Codeberg
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-files
+          path: |
+            ./outputs/**/*-signed.apk
+            ./outputs/**/*-signed.aab
+          retention-days: 7
+          compression-level: 0 # APKs are already compressed
