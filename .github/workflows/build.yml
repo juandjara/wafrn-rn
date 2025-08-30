@@ -60,7 +60,6 @@ jobs:
   build:
     needs: test
     runs-on: codeberg-small
-    image: webhippie/temurin:21
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
