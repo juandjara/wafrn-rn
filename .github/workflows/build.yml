@@ -28,7 +28,7 @@ jobs:
 
   test:
     needs: check-skip
-    runs-on: docker
+    runs-on: codeberg-small
     image: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
@@ -59,7 +59,7 @@ jobs:
 
   build:
     needs: test
-    runs-on: docker
+    runs-on: codeberg-small
     image: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
