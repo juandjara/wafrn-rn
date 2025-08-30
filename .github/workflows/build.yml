@@ -19,7 +19,8 @@ env:
 
 jobs:
   check-skip:
-    runs-on: ubuntu-latest
+    runs-on: docker
+    image: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - name: Skip CI check
@@ -27,7 +28,8 @@ jobs:
 
   test:
     needs: check-skip
-    runs-on: ubuntu-latest
+    runs-on: docker
+    image: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -57,7 +59,8 @@ jobs:
 
   build:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: docker
+    image: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
