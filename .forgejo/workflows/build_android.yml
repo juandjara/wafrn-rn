@@ -53,14 +53,14 @@ jobs:
     container:
       image: webhippie/temurin:21
     steps:
-      - name: 🏗 Checkout repository
-        uses: actions/checkout@v4
-
       - name: 🏗 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
+
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
 
       - name: 📦 Setup npm cache
         uses: actions/cache@v3
