@@ -19,7 +19,7 @@ env:
 
 jobs:
   check-skip:
-    runs-on: docker
+    runs-on: codeberg-small
     image: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
