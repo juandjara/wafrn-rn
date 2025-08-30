@@ -80,10 +80,10 @@ jobs:
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
 
-      - name: 📦 Setup Gradle
-        uses: https://github.com/gradle/gradle-build-action@v3.5.0
-        with:
-          gradle-version: 'wrapper'
+      # - name: 📦 Setup Gradle
+      #   uses: https://github.com/gradle/gradle-build-action@v3.5.0
+      #   with:
+      #     gradle-version: 'wrapper'
 
       - name: 📱 Build Development APK
         if: github.event.inputs.buildType == 'dev'
