@@ -81,7 +81,7 @@ jobs:
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
 
       - name: 📦 Setup Gradle
-        uses: https://github.com/gradle/actions/setup-gradle@v4
+        uses: https://github.com/gradle/gradle-build-action@v3.5.0
         with:
           gradle-version: 'wrapper'
 
