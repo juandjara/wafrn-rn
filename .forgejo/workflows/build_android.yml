@@ -54,7 +54,7 @@ jobs:
       image: webhippie/temurin:21
     steps:
       - name: 🏗 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: https://github.com/actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
