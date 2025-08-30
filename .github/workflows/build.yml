@@ -90,7 +90,7 @@ jobs:
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       - name: 📦 Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        users: docker://git.moonleay.net/gradle/gradle-build-action:latest
         with:
           gradle-version: 'wrapper'
 
