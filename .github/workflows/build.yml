@@ -60,7 +60,7 @@ jobs:
   build:
     needs: test
     runs-on: codeberg-small
-    image: ubuntu-latest
+    image: webhippie/temurin:21
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -82,11 +82,11 @@ jobs:
       - name: 📦 Install npm dependencies
         run: npm ci && npm rebuild lightningcss
 
-      - name: 🏗 Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      # - name: 🏗 Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       - name: 📦 Setup Gradle
