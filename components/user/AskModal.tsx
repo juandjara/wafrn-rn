@@ -12,7 +12,6 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import HtmlRenderer from '../HtmlRenderer'
 import colors from 'tailwindcss/colors'
 import { Collapsible } from '../Collapsible'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -24,13 +23,15 @@ import {
 } from '@/lib/api/settings'
 import { useAskMutation } from '@/lib/asks'
 import clsx from 'clsx'
+import { EmojiBase } from '@/lib/api/emojis'
+import TextWithEmojis from '../TextWithEmojis'
 
 export default function AskModal({
   user,
-  userName,
+  emojis,
 }: {
   user: User
-  userName: string
+  emojis: EmojiBase[]
 }) {
   const sx = useSafeAreaPadding()
   const askOptionValue = getPublicOptionValue(
@@ -67,6 +68,7 @@ export default function AskModal({
           transparent
           onRequestClose={() => setOpen(false)}
           style={sx}
+          statusBarTranslucent
         >
           <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -76,15 +78,18 @@ export default function AskModal({
               className="bg-black/50 flex-grow"
               onPress={() => setOpen(false)}
             ></Pressable>
-            <View className="bg-indigo-950">
+            <View
+              className="bg-indigo-950"
+              style={{ paddingBottom: sx.paddingBottom }}
+            >
               <ScrollView>
                 <View className="p-4 pb-0 flex-row items-center justify-between">
-                  <View className="flex-row flex-wrap flex-grow flex-shrink">
-                    <Text className="text-white">Ask a question to </Text>
-                    <HtmlRenderer renderTextRoot html={userName} />
-                  </View>
+                  <Text className="text-white flex-1">
+                    Ask a question to{' '}
+                    <TextWithEmojis text={user.name} emojis={emojis} />
+                  </Text>
                   <Pressable
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 active:bg-white/10 rounded-full p-2"
                     onPress={() => setOpen(false)}
                   >
                     <MaterialCommunityIcons
@@ -107,7 +112,7 @@ export default function AskModal({
                 {canAskAnonymously ? (
                   <Pressable
                     onPress={() => setAnonymous((prev) => !prev)}
-                    className="flex-row items-center rounded-lg gap-4 mx-4 mb-2 px-2 active:bg-white/10"
+                    className="flex-row items-center rounded-lg gap-4 mx-4 mb-4 px-2 active:bg-white/10"
                   >
                     <Text className="text-white text-base leading-6 flex-grow flex-shrink">
                       Ask anonymously

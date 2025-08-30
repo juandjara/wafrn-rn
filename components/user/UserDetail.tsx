@@ -24,7 +24,7 @@ import {
   formatMediaUrl,
 } from '@/lib/formatters'
 import { useMemo, useState } from 'react'
-import { getUserNameHTML, isValidURL, replaceEmojis } from '@/lib/api/content'
+import { isValidURL, replaceEmojis } from '@/lib/api/content'
 import HtmlRenderer from '../HtmlRenderer'
 import ZoomableImage from '../posts/ZoomableImage'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
@@ -50,6 +50,7 @@ import {
   useMuteMutation,
   useServerBlockMutation,
 } from '@/lib/api/mutes-and-blocks'
+import TextWithEmojis from '../TextWithEmojis'
 
 export default function UserDetail({ user }: { user: User }) {
   const { env } = useAuth()
@@ -79,15 +80,6 @@ export default function UserDetail({ user }: { user: User }) {
       return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
     }, [user, me?.userId, settings, myFollowers, followers])
 
-  const url = formatCachedUrl(formatMediaUrl(user.avatar))
-  const userName = useMemo(() => {
-    return getUserNameHTML(user!, {
-      emojiRelations: {
-        userEmojiRelation: user.emojis.map((e) => e.userEmojiRelations),
-        emojis: user.emojis,
-      },
-    } as any)
-  }, [user])
   const description = useMemo(() => {
     return replaceEmojis(user.description, user.emojis)
   }, [user])
@@ -174,18 +166,20 @@ export default function UserDetail({ user }: { user: User }) {
       <View className="flex-row justify-center items-center my-4 rounded-md -mt-12">
         <ZoomableImage
           id="avatar"
-          src={url}
+          src={formatCachedUrl(formatMediaUrl(user.avatar))}
           width={150}
           height={150}
-          className="rounded-lg border border-gray-500 bg-black"
-          imgClassName="rounded-lg"
+          className="rounded-xl border border-gray-500 bg-black"
+          imgClassName="rounded-[10px]"
         />
       </View>
       <View className="items-center justify-center mx-4">
-        <View className="flex-row">
-          <HtmlRenderer html={userName} renderTextRoot />
-        </View>
-        <View className="flex-row flex-wrap items-center justify-center gap-2">
+        <TextWithEmojis
+          text={user.name}
+          emojis={user.emojis}
+          className="text-white text-center"
+        />
+        <View className="mt-2 flex-row flex-wrap items-center justify-center gap-2">
           <Image
             source={instanceIcon}
             style={{ width: 20, height: 20 }}
@@ -348,7 +342,7 @@ export default function UserDetail({ user }: { user: User }) {
             <Text className="text-white text-sm">posts</Text>
           </View>
         </View>
-        <View style={{ maxWidth: width - 48 }}>
+        <View style={{ maxWidth: width - 40 }}>
           <View style={{ paddingVertical: 8 }}>
             <PostHtmlRenderer
               html={description}
@@ -388,7 +382,7 @@ export default function UserDetail({ user }: { user: User }) {
               </View>
             ))}
           </View>
-          {hasAsks && <AskModal user={user} userName={userName} />}
+          {hasAsks && <AskModal user={user} emojis={user.emojis} />}
           <Text className="text-white text-sm text-center mt-2">
             First seen {new Date(user.createdAt).toLocaleDateString()}
           </Text>

@@ -245,7 +245,7 @@ async function getUserBlocklist(token: string) {
     },
   })
   const data = json as BlockList
-  const blockedUsers = data.userBlocks.map((b) => ({
+  const blockedUsers = data.userBlocks.filter(b => !!b.blocked && !!b.blocker).map((b) => ({
     createdAt: b.createdAt,
     updatedAt: b.updatedAt,
     id: `${b.blockerId}-${b.blockedId}`,
@@ -262,7 +262,7 @@ async function getUserBlocklist(token: string) {
       avatar: b.blocked.avatar,
     },
   }))
-  const blockedServers = data.userServerBlocks.map((b) => ({
+  const blockedServers = data.userServerBlocks.filter(b => !!b.blockedServer && !!b.userBlocker).map((b) => ({
     createdAt: b.createdAt,
     updatedAt: b.updatedAt,
     id: `${b.userBlockerId}-${b.blockedServerId}`,

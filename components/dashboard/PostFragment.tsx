@@ -6,10 +6,9 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
-import { Image } from 'expo-image'
-import { formatUserUrl, formatDate, formatSmallAvatar } from '@/lib/formatters'
+import { formatUserUrl, formatDate } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
-import { AVATAR_SIZE, POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
+import { POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
 import Media from '../posts/Media'
 import { Link, router, useLocalSearchParams } from 'expo-router'
 import { EmojiGroup, isUnicodeHeart } from '@/lib/api/content'
@@ -21,9 +20,8 @@ import {
 import colors from 'tailwindcss/colors'
 import { PRIVACY_ICONS, PRIVACY_LABELS } from '@/lib/api/privacy'
 import PostHtmlRenderer from '../posts/PostHtmlRenderer'
-import UserRibbon from '../user/UserRibbon'
+import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
-import HtmlRenderer from '../HtmlRenderer'
 import clsx from 'clsx'
 import InteractionRibbon from '../posts/InteractionRibbon'
 import PostReaction from '../posts/PostReaction'
@@ -34,6 +32,7 @@ import { showToastError, useLikeMutation } from '@/lib/interaction'
 import { useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
+import AskRibbon from '../ribbons/AskRibbon'
 
 export default function PostFragment({
   post,
@@ -53,7 +52,7 @@ export default function PostFragment({
   const derivedState = context.postsData[post.id]
   const {
     user,
-    userName,
+    userEmojis,
     postContent,
     tags,
     medias,
@@ -137,13 +136,6 @@ export default function PostFragment({
     if (!poll) {
       return
     }
-    // TODO: this is a hack to make the poll have the latest data when the user votes
-    // we should find a way to do this
-    if (!isDetailView) {
-      router.push(`/post/${post.id}`)
-      return
-    }
-
     voteMutation.mutate(votes)
   }
 
@@ -203,7 +195,7 @@ export default function PostFragment({
           <InteractionRibbon post={post} orientation="vertical" />
         </View>
       )}
-      {user && <UserRibbon user={user} userName={userName} />}
+      {user && <UserCard user={user} emojis={userEmojis} />}
       <View id="date-line" className="flex-row gap-1 items-center">
         {isEdited && (
           <MaterialCommunityIcons name="pencil" color="white" size={16} />
@@ -295,25 +287,14 @@ export default function PostFragment({
               {ask && (
                 <View
                   id="ask"
-                  className="mt-4 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
+                  className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
                 >
-                  <View className="flex-row gap-2 mb-4 items-center">
-                    <Link href={`/user/${ask.user?.url}`}>
-                      <Image
-                        source={{ uri: formatSmallAvatar(ask.user?.avatar) }}
-                        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-                        className="flex-shrink-0 rounded-md border border-gray-500"
-                      />
-                    </Link>
-                    <View className="flex-row items-center flex-grow flex-shrink text-white">
-                      <HtmlRenderer
-                        html={ask.userName || 'anon'}
-                        renderTextRoot
-                      />
-                      <Text className="text-white"> asked: </Text>
-                    </View>
-                  </View>
-                  <Text className="text-white my-1">{ask.question}</Text>
+                  {ask.user && (
+                    <AskRibbon user={ask.user} emojis={ask.userEmojis} />
+                  )}
+                  <Text className="text-white px-2 py-1 leading-relaxed">
+                    {ask.question}
+                  </Text>
                 </View>
               )}
               {mentionedUsers.length > 0 && (
@@ -361,6 +342,8 @@ export default function PostFragment({
               {poll && (
                 <Poll
                   poll={poll}
+                  postId={post.id}
+                  interactable={isDetailView}
                   isLoading={voteMutation.isPending}
                   onVote={onPollVote}
                 />

@@ -1,6 +1,6 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import Loading from '@/components/Loading'
-import FollowRibbon from '@/components/user/FollowRibbon'
+import FollowCard from '@/components/user/FollowCard'
 import {
   useApproveFollowMutation,
   useDeleteFollowMutation,
@@ -69,7 +69,7 @@ export default function Followers() {
               onPress={() => router.push(`/user/${item.url}`)}
               className="bg-indigo-950 active:bg-blue-950 border-t border-gray-600 px-2 relative"
             >
-              <FollowRibbon follow={item} />
+              <FollowCard follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">
                   {formatTimeAgo(item.follows.createdAt)}

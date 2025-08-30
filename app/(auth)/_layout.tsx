@@ -32,14 +32,6 @@ export default function ProtectedLayout() {
         ...rootStyles,
         headerShown: false,
       }}
-    >
-      <Stack.Screen
-        name="editor"
-        options={{
-          presentation: 'fullScreenModal',
-          animation: 'slide_from_bottom',
-        }}
-      />
-    </Stack>
+    />
   )
 }

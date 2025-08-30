@@ -1,5 +1,5 @@
 import { useCurrentUser } from '@/lib/api/user'
-import { formatSmallAvatar } from '@/lib/formatters'
+import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
 import { router } from 'expo-router'
 import { Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import {
@@ -16,6 +16,7 @@ import { optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import TextWithEmojis from '../TextWithEmojis'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
@@ -24,50 +25,50 @@ export default function UserMenu() {
   const sx = useSafeAreaPadding()
 
   const options = [
-    {
-      icon: 'account-outline' as const,
-      label: 'My profile',
-      action: () => router.push(`/user/${me?.url}`),
-    },
+    // {
+    //   icon: 'account-outline' as const,
+    //   label: 'My profile',
+    //   action: () => router.push(`/user/${me?.url}`),
+    // },
     {
       icon: 'chat-question-outline' as const,
       label: 'Asks',
-      action: () => router.push('/asks'),
+      action: () => router.navigate('/asks'),
       badge: badges?.asks || 0,
     },
     {
       icon: 'account-clock-outline' as const,
       label: 'Follow requests',
-      action: () => router.push(`/user/followers/${me?.url}`),
+      action: () => router.navigate(`/user/followers/${me?.url}`),
       badge: badges?.followsAwaitingApproval || 0,
       hidden: me?.manuallyAcceptsFollows === false,
     },
     {
       icon: 'dice-multiple' as const,
       label: 'Try your luck',
-      action: () => router.push('/roll'),
+      action: () => router.navigate('/roll'),
     },
     {
       icon: 'bookmark-outline' as const,
       label: 'Bookmarks',
-      action: () => router.push('/bookmarks'),
+      action: () => router.navigate('/bookmarks'),
     },
     {
       icon: <FontAwesome6 name="hashtag" size={20} color={colors.gray[600]} />,
       label: 'Followed hashtags',
-      action: () => router.push('/followed-hashtags'),
+      action: () => router.navigate('/followed-hashtags'),
     },
     {
       icon: 'shield-outline' as const,
       label: 'Admin',
-      action: () => router.push('/admin'),
+      action: () => router.navigate('/admin'),
       hidden: !isAdmin,
       badge: (badges?.reports || 0) + (badges?.usersAwaitingApproval || 0),
     },
     {
       icon: 'cog-outline' as const,
       label: 'Settings',
-      action: () => router.push('/settings'),
+      action: () => router.navigate('/settings'),
     },
   ]
   const anyBadge = options.some((option) => option.badge)
@@ -105,6 +106,40 @@ export default function UserMenu() {
           },
         }}
       >
+        <MenuOption onSelect={() => router.push(`/user/${me?.url}`)}>
+          <View
+            accessibilityLabel="My profile"
+            className="flex-row px-2 mb-2 gap-3 items-start"
+          >
+            <View>
+              <Image
+                source={{ uri: formatSmallAvatar(me?.avatar) }}
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 12,
+                  marginVertical: 6,
+                }}
+              />
+            </View>
+            <View className="flex-1">
+              <TextWithEmojis text={me?.name || ''} />
+              <Text className="text-sm text-gray-500">
+                {formatUserUrl(me?.url)}
+              </Text>
+            </View>
+            {/* <TouchableOpacity
+              activeOpacity={0.5}
+              className="flex-shrink-0 rounded-lg p-2"
+            >
+              <MaterialCommunityIcons
+                name="plus-circle"
+                size={20}
+                color={colors.gray[500]}
+              />
+            </TouchableOpacity> */}
+          </View>
+        </MenuOption>
         {filteredOptions.map((option, i) => (
           <MenuOption
             key={i}

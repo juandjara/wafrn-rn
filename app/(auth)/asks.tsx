@@ -1,4 +1,3 @@
-import GenericRibbon from '@/components/GenericRibbon'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useAsks, useDeleteAskMutation } from '@/lib/asks'
 import { formatTimeAgo } from '@/lib/formatters'
@@ -9,6 +8,7 @@ import { Link } from 'expo-router'
 import { useRef, useState } from 'react'
 import { FlatList, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import PagerView from 'react-native-pager-view'
+import AskRibbon from '@/components/ribbons/AskRibbon'
 
 export default function Asks() {
   const sx = useSafeAreaPadding()
@@ -71,23 +71,7 @@ function AskList({ answered }: { answered: boolean }) {
           'opacity-50': deleteAskMutation.isPending,
         })}
       >
-        <GenericRibbon
-          label="asked"
-          user={ask.user}
-          userNameHTML={
-            ask.user.url.startsWith('@') ? ask.user.url : `@${ask.user.url}`
-          }
-          link={ask.user.url === '@anon' ? '' : `/user/${ask.user.url}`}
-          icon={
-            <MaterialCommunityIcons
-              className="mx-1"
-              name="chat-question"
-              size={24}
-              color="white"
-            />
-          }
-          className="border-b border-slate-600"
-        />
+        <AskRibbon user={ask.user} className="border-b border-slate-600" />
         <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
           <Text className="text-gray-300 text-xs">
             {formatTimeAgo(ask.createdAt)}

@@ -2,6 +2,7 @@ import { PostPoll } from '@/lib/api/posts.types'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { MaterialIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
+import { router } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import colors from 'tailwindcss/colors'
@@ -9,10 +10,14 @@ import colors from 'tailwindcss/colors'
 export default function Poll({
   poll,
   isLoading,
+  interactable,
+  postId,
   onVote,
 }: {
   poll: PostPoll
   isLoading?: boolean
+  interactable?: boolean
+  postId: string
   onVote: (votes: number[]) => void
 }) {
   const me = useParsedToken()
@@ -67,6 +72,11 @@ export default function Poll({
       return
     }
 
+    if (!interactable) {
+      router.push(`/post/${postId}`)
+      return
+    }
+
     setLocalVote((prev) => {
       if (poll.multiChoice) {
         if (prev.includes(id)) {
@@ -104,7 +114,9 @@ export default function Poll({
             <Text className="text-white flex-grow flex-shrink">
               {q.questionText}
             </Text>
-            <Text className="text-white">{`${(getQuestionPercentage(q.id) * 100).toFixed()} %`}</Text>
+            <Text className="text-white">{`${(
+              getQuestionPercentage(q.id) * 100
+            ).toFixed()} %`}</Text>
           </View>
           <View
             className={clsx(

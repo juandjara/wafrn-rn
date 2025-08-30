@@ -4,7 +4,7 @@ import { useLocalSearchParams } from 'expo-router'
 import { useMemo } from 'react'
 import { FlatList, Text, View } from 'react-native'
 import { formatTimeAgo } from '@/lib/formatters'
-import FollowRibbon from '@/components/user/FollowRibbon'
+import FollowCard from '@/components/user/FollowCard'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 
@@ -34,7 +34,7 @@ export default function Followed() {
         renderItem={({ item }) => {
           return (
             <View className="bg-indigo-950 border-t border-gray-600 px-2 relative">
-              <FollowRibbon follow={item} />
+              <FollowCard follow={item} />
               <View className="absolute top-2 right-3">
                 <Text className="text-gray-300 text-xs font-medium">
                   {formatTimeAgo(item.follows.createdAt)}

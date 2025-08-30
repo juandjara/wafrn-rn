@@ -1,6 +1,6 @@
-import GenericRibbon from '@/components/GenericRibbon'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import UserRibbon from '@/components/user/UserRibbon'
+import ReportRibbon from '@/components/ribbons/ReportRibbon'
+import UserCard from '@/components/user/UserCard'
 import {
   useIgnoreReportMutation,
   useReportList,
@@ -12,7 +12,6 @@ import {
   REPORT_SEVERITY_DESCRIPTIONS,
   REPORT_SEVERITY_LABELS,
 } from '@/lib/api/reports'
-import { formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FlashList } from '@shopify/flash-list'
@@ -128,25 +127,11 @@ function ReportListItem({ report }: { report: Report }) {
 
   return (
     <View className="p-3 bg-gray-800 rounded-lg mb-3">
-      <GenericRibbon
-        className="rounded-xl"
-        user={report.user as PostUser}
-        userNameHTML={formatUserUrl(report.user.url)}
-        link={`/user/${report.user.url}`}
-        label="reported"
-        icon={
-          <MaterialCommunityIcons
-            className="mx-1"
-            name="alert-box-outline"
-            color="white"
-            size={24}
-          />
-        }
-      />
+      <ReportRibbon user={report.user} className="rounded-xl" />
       <View className="mt-4">
         <Text className="text-white">Reported user:</Text>
-        <UserRibbon
-          userName=""
+        <UserCard
+          emojis={[]}
           user={report.reportedUser as PostUser}
           showFollowButtons={false}
         />

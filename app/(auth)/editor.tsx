@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { router } from 'expo-router'
+import { router, Stack } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Keyboard,
@@ -18,7 +18,6 @@ import {
 import { useCreatePostMutation } from '@/lib/api/posts'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
-import GenericRibbon from '@/components/GenericRibbon'
 import EditorHeader from '@/components/editor/EditorHeader'
 import EditorActions, {
   EditorActionProps,
@@ -37,6 +36,7 @@ import { EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
 import colors from 'tailwindcss/colors'
 import { PostUser } from '@/lib/api/posts.types'
+import AskRibbon from '@/components/ribbons/AskRibbon'
 
 export default function EditorView() {
   const {
@@ -265,6 +265,12 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
+      <Stack.Screen
+        options={{
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
       <KeyboardAvoidingView
         style={{
           flex: 1,
@@ -351,18 +357,8 @@ export default function EditorView() {
                   {replyLabel}
                 </Text>
               ) : null}
-              <GenericRibbon
+              <AskRibbon
                 user={ask.user}
-                userNameHTML={
-                  ask.user.url.startsWith('@')
-                    ? ask.user.url
-                    : `@${ask.user.url}`
-                }
-                label="asked"
-                link={`/user/${ask.user.url}`}
-                icon={
-                  <MaterialIcons name="question-mark" size={24} color="white" />
-                }
                 className="border-b border-slate-600"
               />
               <Text className="bg-indigo-950 rounded-b-lg text-lg text-white px-3 py-4">

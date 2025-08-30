@@ -3,10 +3,10 @@ import { View } from 'react-native'
 import PostFragment from '../dashboard/PostFragment'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import clsx from 'clsx'
-import RewootRibbon from './RewootRibbon'
+import RewootRibbon from '../ribbons/RewootRibbon'
 import InteractionRibbon from './InteractionRibbon'
 import { Link } from 'expo-router'
-import ReplyRibbon from './ReplyRibbon'
+import ReplyRibbon from '../ribbons/ReplyRibbon'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { memo } from 'react'
 
@@ -18,7 +18,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
     isRewoot,
     isReply,
     postUser,
-    postUserName,
+    postUserEmojis,
     interactionPost,
     firstPost,
     threadPosts,
@@ -41,7 +41,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
           {isRewoot && (
             <RewootRibbon
               user={postUser}
-              userNameHTML={postUserName}
+              emojis={postUserEmojis}
               className="border-b border-slate-600"
             />
           )}
@@ -49,7 +49,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
             <ReplyRibbon
               postId={thread.id}
               user={postUser}
-              userNameHTML={postUserName}
+              emojis={postUserEmojis}
               className="border-b border-slate-600"
             />
           )}

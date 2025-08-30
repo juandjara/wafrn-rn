@@ -428,7 +428,7 @@ export default function InteractionRibbon({
             customStyles={{
               TriggerTouchableComponent: TouchableOpacity,
               triggerWrapper: {
-                paddingHorizontal: 6,
+                paddingHorizontal: 8,
                 paddingVertical: 12,
               },
             }}

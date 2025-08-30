@@ -3,19 +3,20 @@ import { PostUser } from '@/lib/api/posts.types'
 import { useSettings } from '@/lib/api/settings'
 import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
 import { Image } from 'expo-image'
-import { Link } from 'expo-router'
+import { router } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
-import HtmlRenderer from '../HtmlRenderer'
 import { useFollowMutation } from '@/lib/interaction'
 import clsx from 'clsx'
+import TextWithEmojis from '../TextWithEmojis'
+import { EmojiBase } from '@/lib/api/emojis'
 
-export default function UserRibbon({
+export default function UserCard({
   user,
-  userName,
+  emojis,
   showFollowButtons = true,
 }: {
   user: Omit<PostUser, 'remoteId'>
-  userName: string
+  emojis?: EmojiBase[]
   showFollowButtons?: boolean
 }) {
   const { data: settings } = useSettings()
@@ -30,20 +31,27 @@ export default function UserRibbon({
   }
 
   return (
-    <View className="flex-row w-full gap-3 items-stretch">
-      <Link href={`/user/${user.url}`} className="flex-shrink-0 my-3">
-        <Image
-          source={{ uri: formatSmallAvatar(user.avatar) }}
-          style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-          className="rounded-md border border-gray-500"
-        />
-      </Link>
-      <View id="user-name-and-url" className="flex-grow">
-        <View className="flex-row gap-2 mt-3">
-          {userName && (
-            <View className="flex-row">
-              <HtmlRenderer html={userName} renderTextRoot />
-            </View>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      className="flex-row w-full gap-3 mb-2 items-stretch"
+      onPress={() => {
+        router.navigate(`/user/${user.url}`)
+      }}
+    >
+      <Image
+        source={{ uri: formatSmallAvatar(user.avatar) }}
+        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
+        className="flex-shrink-0 mt-3 rounded-md border border-gray-500"
+      />
+      <View id="user-name-and-url" className="flex-1">
+        <View className="flex-row gap-2 items-center mt-2 mr-6">
+          {user.name && (
+            <TextWithEmojis
+              text={user.name}
+              emojis={emojis}
+              className="text-white"
+              numberOfLines={1}
+            />
           )}
           {showFollowButtons && (
             <View>
@@ -67,12 +75,10 @@ export default function UserRibbon({
             </View>
           )}
         </View>
-        <Link href={`/user/${user.url}`}>
-          <Text className="text-sm text-cyan-400">
-            {formatUserUrl(user.url)}
-          </Text>
-        </Link>
+        <Text className="mb-1 text-sm text-cyan-400">
+          {formatUserUrl(user.url)}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }

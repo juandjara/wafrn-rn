@@ -11,7 +11,7 @@ import {
 import { getDocumentAsync } from 'expo-document-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import colors from 'tailwindcss/colors'
-import UserRibbon from '@/components/user/UserRibbon'
+import UserCard from '@/components/user/UserCard'
 import { formatUserUrl } from '@/lib/formatters'
 import clsx from 'clsx'
 import { Link } from 'expo-router'
@@ -103,7 +103,7 @@ export default function ImportFollows() {
               return (
                 <Link href={`/user/${item.user.url}`} asChild>
                   <Pressable className="px-3 bg-gray-800/25 active:bg-white/20">
-                    <UserRibbon user={item.user} userName="" />
+                    <UserCard user={item.user} emojis={[]} />
                   </Pressable>
                 </Link>
               )

@@ -1,22 +1,17 @@
 import PostFragment from '@/components/dashboard/PostFragment'
-import GenericRibbon from '@/components/GenericRibbon'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import Loading from '@/components/Loading'
-import RewootRibbon from '@/components/posts/RewootRibbon'
-import UserRibbon from '@/components/user/UserRibbon'
+import RewootRibbon from '@/components/ribbons/RewootRibbon'
+import UserCard from '@/components/user/UserCard'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
-import { replaceEmojis } from '@/lib/api/content'
+import { getUserEmojis } from '@/lib/api/content'
 import { getDashboardContext } from '@/lib/api/dashboard'
 import { useSettings } from '@/lib/api/settings'
 import {
   DashboardContextProvider,
   useDashboardContext,
 } from '@/lib/contexts/DashboardContext'
-import {
-  formatCachedUrl,
-  formatMediaUrl,
-  formatTimeAgo,
-} from '@/lib/formatters'
+import { formatTimeAgo } from '@/lib/formatters'
 import {
   FullNotification,
   getNotificationList,
@@ -25,16 +20,19 @@ import {
 } from '@/lib/notifications'
 import { useLayoutData } from '@/lib/store'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useScrollToTop } from '@react-navigation/native'
 import { FlashList } from '@shopify/flash-list'
 import { useQueryClient } from '@tanstack/react-query'
-import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Link } from 'expo-router'
 import { useMemo, useRef } from 'react'
 import { Text, useWindowDimensions, View } from 'react-native'
 import colors from 'tailwindcss/colors'
+import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
+import LikeRibbon from '@/components/ribbons/LikeRibbon'
+import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
+import FollowRibbon from '@/components/ribbons/FollowRibbon'
+import ReplyRibbon from '@/components/ribbons/ReplyRibbon'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
@@ -97,10 +95,7 @@ function NotificationItem({
   const { width } = useWindowDimensions()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
-  const userName = replaceEmojis(
-    notification.user.name,
-    context.emojiRelations.emojis,
-  )
+  const userEmojis = getUserEmojis(user, context)
   const hiddenUserIds = useHiddenUserIds()
 
   if (hiddenUserIds.includes(user.id)) {
@@ -118,43 +113,13 @@ function NotificationItem({
 
   let ribbon = null
   if (notification.notificationType === 'REWOOT') {
-    ribbon = <RewootRibbon user={user} userNameHTML={userName} />
+    ribbon = <RewootRibbon user={user} emojis={userEmojis} />
   }
   if (notification.notificationType === 'QUOTE') {
-    ribbon = (
-      <GenericRibbon
-        user={user}
-        userNameHTML={userName}
-        link={`/user/${notification.user.url}`}
-        label="qouted your post"
-        icon={
-          <MaterialCommunityIcons
-            name="format-quote-close"
-            size={20}
-            color="white"
-            className="mx-1"
-          />
-        }
-      />
-    )
+    ribbon = <QuoteRibbon user={user} emojis={userEmojis} />
   }
   if (notification.notificationType === 'LIKE') {
-    ribbon = (
-      <GenericRibbon
-        user={user}
-        userNameHTML={userName}
-        link={`/user/${notification.user.url}`}
-        label="liked your post"
-        icon={
-          <MaterialCommunityIcons
-            name="heart"
-            size={20}
-            color="white"
-            className="mx-1"
-          />
-        }
-      />
-    )
+    ribbon = <LikeRibbon user={user} emojis={userEmojis} />
   }
   if (notification.notificationType === 'EMOJIREACT') {
     const id =
@@ -164,59 +129,23 @@ function NotificationItem({
     )
     const emoji = id ? emojis[id] : notification.emoji.content
     ribbon = (
-      <GenericRibbon
+      <EmojiReactRibbon
         user={user}
-        userNameHTML={userName}
-        link={`/user/${notification.user.url}`}
-        label="reacted to your post"
-        icon={
-          typeof emoji === 'string' ? (
-            <Text className="mx-1">{notification.emoji.content}</Text>
-          ) : (
-            <Image
-              className="mx-1"
-              source={{ uri: formatCachedUrl(formatMediaUrl(emoji.url)) }}
-              style={{ resizeMode: 'contain', width: 20, height: 20 }}
-            />
-          )
-        }
+        userEmojis={userEmojis}
+        reactionEmoji={emoji}
       />
     )
   }
   if (notification.notificationType === 'FOLLOW') {
-    ribbon = (
-      <GenericRibbon
-        user={user}
-        userNameHTML={userName}
-        link={`/user/${notification.user.url}`}
-        label="now follows you"
-        icon={
-          <MaterialCommunityIcons
-            name="account-plus"
-            size={20}
-            color="white"
-            className="mx-1"
-          />
-        }
-      />
-    )
+    ribbon = <FollowRibbon user={user} emojis={userEmojis} />
   }
   if (notification.notificationType === 'MENTION') {
-    const isReply = !!notification.post.parentId
     ribbon = (
-      <GenericRibbon
+      <ReplyRibbon
         user={user}
-        userNameHTML={userName}
-        link={`/user/${notification.user.url}`}
-        label={isReply ? 'replied' : 'mentioned you'}
-        icon={
-          <MaterialCommunityIcons
-            name={isReply ? 'reply' : 'at'}
-            size={20}
-            color="white"
-            className="mx-1"
-          />
-        }
+        emojis={userEmojis}
+        postId={notification.post.id}
+        isReply={!!notification.post.parentId}
       />
     )
   }
@@ -225,7 +154,7 @@ function NotificationItem({
   if (notification.notificationType === 'FOLLOW') {
     content = (
       <Link href={`/user/${notification.user.url}`} className="mx-3">
-        <UserRibbon user={user} userName={userName} />
+        <UserCard user={user} emojis={userEmojis} />
       </Link>
     )
   } else {

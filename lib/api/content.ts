@@ -92,15 +92,12 @@ export function processPostContent(
   return replaceEmojis(content, emojis)
 }
 
-export function getUserNameHTML(user: PostUser, context: DashboardContextData) {
-  if (!user) return ''
+export function getUserEmojis(user: PostUser, context: DashboardContextData) {
   const ids =
     context.emojiRelations.userEmojiRelation
       .filter((e) => e.userId === user.id)
       .map((e) => e.emojiId) ?? []
-  const emojis =
-    context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
-  return replaceEmojis(user.name, emojis)
+  return context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
 }
 
 export type EmojiGroup = {
@@ -437,7 +434,7 @@ export function getAskData(post: Post, context: DashboardContextData) {
   const askUser = context.users.find((u) => u.id === ask.userAsker)
   return {
     user: askUser,
-    userName: replaceEmojis(askUser?.name || '', context.emojiRelations.emojis),
+    userEmojis: askUser ? getUserEmojis(askUser, context) : [],
     question: ask.question,
   }
 }
@@ -554,10 +551,7 @@ export function getDerivedPostState(
 ) {
   const options = settings?.options || []
   const user = context.users.find((u) => u.id === post.userId)
-  const userName = replaceEmojis(
-    user?.name || '',
-    context.emojiRelations.emojis,
-  )
+  const userEmojis = user ? getUserEmojis(user, context) : []
   const postContent = processPostContent(post, context, options)
   const tags = context.tags
     .filter((t) => t.postId === post.id)
@@ -616,7 +610,7 @@ export function getDerivedPostState(
 
   return {
     user,
-    userName,
+    userEmojis,
     postContent,
     tags,
     medias,
@@ -644,7 +638,7 @@ export function getDerivedThreadState(
   const isRewoot = isEmptyRewoot(thread, context)
   const isReply = !!thread.parentId && !isRewoot
   const postUser = context.users.find((u) => u.id === thread.userId)
-  const postUserName = postUser ? getUserNameHTML(postUser, context) : ''
+  const postUserEmojis = postUser ? getUserEmojis(postUser, context) : []
 
   const threadAncestorLimit = getPrivateOptionValue(
     settings?.options || [],
@@ -693,7 +687,7 @@ export function getDerivedThreadState(
     isRewoot,
     isReply,
     postUser,
-    postUserName,
+    postUserEmojis,
     interactionPost,
     postHidden,
     firstPost,

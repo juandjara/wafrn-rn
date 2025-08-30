@@ -1,11 +1,10 @@
 import { dedupeById } from '@/lib/api/dashboard'
 import { useSearch } from '@/lib/api/search'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { FlashList } from '@shopify/flash-list'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
-import UserRibbon from '../user/UserRibbon'
+import UserCard from '../user/UserCard'
 
 export default function SearchResultsUsers({ query }: { query: string }) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
@@ -30,20 +29,7 @@ export default function SearchResultsUsers({ query }: { query: string }) {
           .filter((e) => e.userId === user.id)
           .map((e) => e.emojiId) || []
       const userEmojis = emojis.filter((e) => ids.includes(e.id)) || []
-      let userName = user.name
-      if (userName) {
-        for (const emoji of userEmojis) {
-          const url = formatCachedUrl(formatMediaUrl(emoji.url))
-          userName = userName.replaceAll(
-            emoji.name,
-            `<img width="24" height="24" src="${url}" alt="${emoji.name}" />`,
-          )
-        }
-      }
-      return {
-        user,
-        userName,
-      }
+      return { user, userEmojis }
     })
   }, [data?.pages])
 
@@ -57,7 +43,7 @@ export default function SearchResultsUsers({ query }: { query: string }) {
       keyExtractor={(item) => item.user.id}
       renderItem={({ item }) => (
         <View className="px-2 pb-1 bg-indigo-950 border-b border-gray-500">
-          <UserRibbon user={item.user} userName={item.userName} />
+          <UserCard user={item.user} emojis={item.userEmojis} />
         </View>
       )}
       onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}

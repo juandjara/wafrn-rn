@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import { Image } from 'expo-image'
 import { Text, TouchableOpacity, View } from 'react-native'
 
-export default function FollowRibbon({ follow }: { follow: Follow }) {
+export default function FollowCard({ follow }: { follow: Follow }) {
   const { data: settings } = useSettings()
   const amIFollowing = settings?.followedUsers.includes(follow.id)
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(follow.id)

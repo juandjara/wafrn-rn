@@ -3,9 +3,9 @@ import ErrorView from '@/components/errors/ErrorView'
 import Header from '@/components/Header'
 import Loading from '@/components/Loading'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
-import RewootRibbon from '@/components/posts/RewootRibbon'
+import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
-import { getUserNameHTML, isEmptyRewoot, sortPosts } from '@/lib/api/content'
+import { getUserEmojis, isEmptyRewoot, sortPosts } from '@/lib/api/content'
 import { getDashboardContext } from '@/lib/api/dashboard'
 import {
   FLATLIST_PERFORMANCE_CONFIG,
@@ -26,6 +26,7 @@ import { Link, useLocalSearchParams } from 'expo-router'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dimensions, FlatList, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
+import { EmojiBase } from '@/lib/api/emojis'
 
 const POST_HEADER_HEIGHT = 72
 
@@ -53,7 +54,7 @@ type PostDetailItemData =
       type: 'rewoot'
       data: {
         user: PostUser
-        userName: string
+        emojis: EmojiBase[]
       }
     }
   | {
@@ -92,8 +93,8 @@ export default function PostDetail() {
       )
 
       const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
-      const userNames = Object.fromEntries(
-        context.users.map((u) => [u.id, getUserNameHTML(u, context)]),
+      const userEmojis = Object.fromEntries(
+        context.users.map((u) => [u.id, getUserEmojis(u, context)]),
       )
       const replies = (repliesData?.posts || []).filter(
         (p) => !hiddenUserIds.includes(p.userId),
@@ -148,7 +149,7 @@ export default function PostDetail() {
               type: 'rewoot' as const,
               data: {
                 user: userMap[p.userId],
-                userName: userNames[p.userId],
+                emojis: userEmojis[p.userId],
               },
             }
           } else {
@@ -397,7 +398,7 @@ function _PostDetailItem({ item }: { item: PostDetailItemData }) {
     return (
       <RewootRibbon
         user={item.data.user}
-        userNameHTML={item.data.userName}
+        emojis={item.data.emojis}
         className="my-2"
       />
     )
