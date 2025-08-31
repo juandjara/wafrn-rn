@@ -13,6 +13,7 @@ steps:
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
+      - apt update -y
       - apt install git make openjdk-17-jdk android-sdk ninja-build python3
       - npm config set prefix "${HOME}/.node"
       - npm install
