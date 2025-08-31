@@ -78,25 +78,17 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-npm-
 
-      - name: '📦 Setup Java'
-        run: |
-          apt-get update -y
-          apt-get install -y openjdk-17-jdk-headless
-
-      - name: '📦 Setup Android'
-        run: |
-          apt-get install -y android-sdk-platform-tools-common
-          # curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
-          # mkdir -p ./android-tools
-          # unzip tools.zip -d ./android-tools
-          # echo ANDROID_HOME=./android-tools >> $FORGEJO_ENV
-          # echo PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $FORGEJO_ENV
+      - name: 🏗 Setup Java
+        uses: https://github.com/actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-      # - name: 📦 Setup Gradle
-      #   uses: https://github.com/gradle/gradle-build-action@v2
-      #   with:
-      #     gradle-version: 'wrapper'
+      - name: 📦 Setup Gradle
+        uses: https://github.com/gradle/gradle-build-action@v2
+        with:
+          gradle-version: 'wrapper'
 
       - name: '📦 Install npm dependencies'
         run: npm ci && npm rebuild lightningcss
