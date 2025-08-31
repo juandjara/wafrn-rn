@@ -89,7 +89,7 @@ jobs:
           mkdir -p ./android-tools
           unzip tools.zip -d ./android-tools
           mkdir -p $PWD/android-tools/cmdline-tools/latest
-          mv $PWD/android-tools/tools/* $PWD/android-tools/cmdline-tools/latest
+          mv $PWD/android-tools/tools/ $PWD/android-tools/cmdline-tools/latest
           rm -rf $PWD/android-tools/tools
           export ANDROID_HOME=$PWD/android-tools
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
