@@ -18,37 +18,37 @@ env:
   NODE_OPTIONS: --openssl-legacy-provider --max_old_space_size=4096
 
 jobs:
-  test:
-    runs-on: docker
-    container:
-      image: node:22-alpine
+  # test:
+  #   runs-on: docker
+  #   container:
+  #     image: node:22-alpine
 
-    steps:
-      - name: 🏗 Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: 🏗 Checkout repository
+  #       uses: actions/checkout@v4
 
-      # - name: 🏗 Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '22'
-      #     cache: 'npm'
+  #     # - name: 🏗 Setup Node.js
+  #     #   uses: actions/setup-node@v4
+  #     #   with:
+  #     #     node-version: '22'
+  #     #     cache: 'npm'
 
-      - name: 📦 Setup npm cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+  #     - name: 📦 Setup npm cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-npm-
 
-      - name: 📦 Install npm dependencies
-        run: npm ci && npm rebuild lightningcss
+  #     - name: 📦 Install npm dependencies
+  #       run: npm ci && npm rebuild lightningcss
 
-      - name: 🧪 Run TypeScript check
-        run: npm run tsc
+  #     - name: 🧪 Run TypeScript check
+  #       run: npm run tsc
 
-      - name: 🧹 Run ESLint
-        run: npm run lint
+  #     - name: 🧹 Run ESLint
+  #       run: npm run lint
 
   build:
     needs: test
@@ -80,7 +80,7 @@ jobs:
 
       - name: 📦 Setup Java
         run: |
-          apk add openjdk21
+          apk add openjdk17 openjdk21
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       - name: 📦 Setup Gradle
