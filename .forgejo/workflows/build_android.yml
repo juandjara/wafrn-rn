@@ -88,8 +88,8 @@ jobs:
           curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
           mkdir -p ./android-tools
           unzip tools.zip -d ./android-tools
-          export ANDROID_HOME=./android-tools/tools
-          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
+          echo ANDROID_HOME=./android-tools >> $FORGEJO_ENV
+          echo PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $FORGEJO_ENV
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       # - name: 📦 Setup Gradle
@@ -103,9 +103,6 @@ jobs:
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
         run: |
-          export ANDROID_HOME=./android-tools/tools
-          ls -la $ANDROID_HOME
-          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
