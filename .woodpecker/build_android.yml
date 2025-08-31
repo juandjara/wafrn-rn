@@ -13,8 +13,9 @@ steps:
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
+      - export DEBIAN_FRONTEND=noninteractive
       - apt update -y
-      - apt install git make openjdk-17-jdk android-sdk ninja-build python3
+      - apt install -y git make openjdk-17-jdk android-sdk ninja-build python3
       - npm config set prefix "${HOME}/.node"
       - npm install
       - npm ci && npm rebuild lightningcss
