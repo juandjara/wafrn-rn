@@ -51,7 +51,7 @@ jobs:
   #       run: npm run lint
 
   build:
-    needs: test
+    # needs: test
     runs-on: docker
     container:
       image: node:22-alpine
