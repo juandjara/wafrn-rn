@@ -81,7 +81,7 @@ jobs:
       - name: '📦 Setup Java'
         run: |
           apt-get update -y
-          apt-get install -y openjdk-17-jdk-headless
+          apt-get install -y openjdk-21-jdk-headless
 
       - name: '📦 Setup Android'
         run: |
@@ -90,10 +90,10 @@ jobs:
           unzip tools.zip -d ./android-tools
           mkdir -p $PWD/android-tools/cmdline-tools/latest
           mv $PWD/android-tools/tools/ $PWD/android-tools/cmdline-tools/latest
-          rm -rf $PWD/android-tools/tools
           export ANDROID_HOME=$PWD/android-tools
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
           export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH" >> $FORGEJO_ENV
+          echo "sdkmanager version:"
           $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --version
           set +o pipefail
           yes | $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses
@@ -110,7 +110,7 @@ jobs:
       #     gradle-version: 'wrapper'
 
       - name: '📦 Install npm dependencies'
-        run: npm ci && npm rebuild lightningcss
+        run: npm install && npm rebuild lightningcss
 
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
