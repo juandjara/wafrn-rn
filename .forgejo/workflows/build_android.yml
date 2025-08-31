@@ -83,11 +83,19 @@ jobs:
           apt-get update -y
           apt-get install -y openjdk-17-jdk-headless
 
+      - name: 📦 Setup Android
+        run: |
+          curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
+          mkdir -p ${HOME}/android
+          unzip tools.zip -d ${HOME}/android
+          export ANDROID_HOME=${HOME}/android
+          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
+
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-      - name: 📦 Setup Gradle
-        uses: https://github.com/gradle/gradle-build-action@v2
-        with:
-          gradle-version: 'wrapper'
+      # - name: 📦 Setup Gradle
+      #   uses: https://github.com/gradle/gradle-build-action@v2
+      #   with:
+      #     gradle-version: 'wrapper'
 
       - name: 📦 Install npm dependencies
         run: npm ci && npm rebuild lightningcss
