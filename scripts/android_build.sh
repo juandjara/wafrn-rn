@@ -37,6 +37,8 @@ if [ "$env" == "dev" ]; then
   npm run setup:dev
   cd android
   echo '> creating development debug build in .apk format'
+  ./gradlew clean
+  ./gradlew buildDebug
   ./gradlew app:assembleDebug
 elif [ "$env" == "prod-google" ]; then
   export NODE_ENV=production
