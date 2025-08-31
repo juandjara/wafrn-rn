@@ -4,13 +4,15 @@ when:
 steps:
   - name: build
     image: codeberg.org/native-ci/android-ndk:latest
+    environment:
+      - NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+      - UNSIGNED_APK=1
     commands:
       - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
       - . "$HOME/.nvm/nvm.sh"
       - nvm install 22
       - nvm use 22
       - nvm alias default 22
-      - export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-      - export UNSIGNED_APK=1
       - npm ci && npm rebuild lightningcss
+      - export CI=1
       - bash ./scripts/android_build.sh dev
