@@ -10,9 +10,10 @@ steps:
     commands:
       - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
       - . "$HOME/.nvm/nvm.sh"
-      - nvm install 22
-      - nvm use 22
-      - nvm alias default 22
+      - nvm install 24
+      - nvm use 24
+      - nvm alias default 24
       - npm ci && npm rebuild lightningcss
       - export CI=1
+      - ./gradlew clean
       - bash ./scripts/android_build.sh dev
