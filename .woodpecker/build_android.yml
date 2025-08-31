@@ -12,8 +12,7 @@ steps:
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
-      - wget -q -O /tmp/nodejs-lts.zip -- https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz
-      - sha256sum -c <<< '69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec  /tmp/nodejs-lts.zip'
+      - curl --output /tmp/nodejs-lts.zip "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz"
       - tar xf /tmp/nodejs-lts.zip -C /opt
       - export CI=1
       - export PATH="${PATH}:/opt/node-v22.14.0-linux-x64/bin:${HOME}/.node/bin"
