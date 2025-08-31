@@ -90,6 +90,10 @@ jobs:
       #   with:
       #     gradle-version: 'wrapper'
 
+      - name: Setup bash
+        run: |
+          apk add bash coreutils
+
       - name: 📱 Build Development APK
         if: github.event.inputs.buildType == 'dev'
         run: |
