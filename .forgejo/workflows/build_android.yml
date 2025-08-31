@@ -116,8 +116,6 @@ jobs:
         if: github.event.inputs.buildType == 'dev'
         run: |
           echo "ANDROID_HOME: $ANDROID_HOME"
-          echo "JAVA_HOME: $JAVA_HOME"
-          echo "PATH: $PATH"
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
