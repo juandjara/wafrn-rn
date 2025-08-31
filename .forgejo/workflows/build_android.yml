@@ -54,7 +54,7 @@ jobs:
     # needs: test
     runs-on: docker
     container:
-      image: node:22-alpine
+      image: node:22
 
     steps:
       - name: 🏗 Checkout repository
@@ -66,9 +66,9 @@ jobs:
       #     node-version: '22'
       #     cache: 'npm'
 
-      - name: 📦 Setup bash
-        run: |
-          apk add bash coreutils
+      # - name: 📦 Setup bash
+      #   run: |
+      #     apk add bash coreutils
 
       # - name: 📦 Setup npm cache
       #   uses: actions/cache@v3
@@ -80,13 +80,14 @@ jobs:
 
       - name: 📦 Setup Java
         run: |
-          apk add openjdk17 openjdk21
+          apt-get update -y
+          apt-get install -y openjdk-17-jdk-headless
 
-      # # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-      # - name: 📦 Setup Gradle
-      #   uses: https://github.com/gradle/gradle-build-action@v2
-      #   with:
-      #     gradle-version: 'wrapper'
+      # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
+      - name: 📦 Setup Gradle
+        uses: https://github.com/gradle/gradle-build-action@v2
+        with:
+          gradle-version: 'wrapper'
 
       - name: 📦 Install npm dependencies
         run: npm ci && npm rebuild lightningcss
