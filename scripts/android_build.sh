@@ -46,6 +46,7 @@ elif [ "$env" == "prod-google" ]; then
   npm run setup:prod
   cd android
   echo '> creating production release in .aab format'
+  ./gradlew buildRelease
   ./gradlew app:bundleRelease
 elif [ "$env" == "prod-foss" ]; then
   export NODE_ENV=production
@@ -60,6 +61,7 @@ elif [ "$env" == "prod-foss" ]; then
   cd android
   echo '> creating production release build in .apk format with auto-updates disabled' 
   export REWRITE_EXPO_MANIFEST=1
+  ./gradlew buildRelease
   ./gradlew app:assembleRelease
   if [ "$UNSIGNED_APK" == "0" ]; then
     mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
@@ -72,6 +74,7 @@ else
   npm run setup:prod
   cd android
   echo '> creating production release build in .apk format'
+  ./gradlew buildRelease
   ./gradlew app:assembleRelease
 fi
 
