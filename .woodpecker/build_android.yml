@@ -2,15 +2,15 @@ when:
   - event: manual
 
 steps:
-  - name: setup-node
-    image: codeberg.org/woodpecker-plugins/node-pm
-    settings:
-      with: npm
-      frozen_lockfile: true
-      ignore_node_modules: true
-
   - name: build
     image: codeberg.org/native-ci/android-ndk:latest
     commands:
-      - npm rebuild lightningcss
+      - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+      - . "$HOME/.nvm/nvm.sh"
+      - nvm install 22
+      - nvm use 22
+      - nvm alias default 22
+      - export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+      - export UNSIGNED_APK=1
+      - npm ci && npm rebuild lightningcss
       - bash ./scripts/android_build.sh dev
