@@ -93,7 +93,6 @@ jobs:
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
         run: |
-          echo "ANDROID_HOME: $ANDROID_HOME"
           export UNSIGNED_APK=0 # sign with debug key
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
@@ -135,7 +134,7 @@ jobs:
       - name: '📦 Upload build artifacts to Codeberg'
         uses: https://data.forgejo.org/forgejo/upload-artifact@v4
         with:
-          name: signed-files
+          name: signed-files.zip
           path: |
             ./outputs/**/*-debug.apk
             ./outputs/**/*-signed.apk
