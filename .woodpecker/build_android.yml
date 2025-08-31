@@ -1,8 +1,8 @@
 when:
-  event: manual
+  - event: manual
 
 steps:
-  build:
+  - name: build
     image: codeberg.org/native-ci/android-ndk:latest
     commands:
       - npm ci && npm rebuild lightningcss
