@@ -1,0 +1,9 @@
+when:
+  event: workflow_dispatch
+
+steps:
+  build:
+    image: codeberg.org/native-ci/android-ndk:latest
+    commands:
+      - npm ci && npm rebuild lightningcss
+      - bash ./scripts/android_build.sh dev
