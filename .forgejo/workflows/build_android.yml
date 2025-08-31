@@ -57,7 +57,7 @@ jobs:
       image: node:22
 
     steps:
-      - name: 🏗 Checkout repository
+      - name: '🏗 Checkout repository'
         uses: actions/checkout@v4
 
       # - name: 🏗 Setup Node.js
@@ -78,17 +78,17 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-npm-
 
-      - name: 📦 Setup Java
+      - name: '📦 Setup Java'
         run: |
           apt-get update -y
           apt-get install -y openjdk-17-jdk-headless
 
-      - name: 📦 Setup Android
+      - name: '📦 Setup Android'
         run: |
           curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
-          mkdir -p ${HOME}/android
-          unzip tools.zip -d ${HOME}/android
-          export ANDROID_HOME=${HOME}/android
+          mkdir -p ./android-tools
+          unzip tools.zip -d ./android-tools
+          export ANDROID_HOME=./android-tools
           export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
@@ -97,38 +97,40 @@ jobs:
       #   with:
       #     gradle-version: 'wrapper'
 
-      - name: 📦 Install npm dependencies
+      - name: '📦 Install npm dependencies'
         run: npm ci && npm rebuild lightningcss
 
-      - name: 📱 Build Development APK
+      - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
         run: |
+          export ANDROID_HOME=./android-tools
+          export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
 
-      - name: 📱 Build Production APK
+      - name: '📱 Build Production APK'
         if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-base'
         run: |
           bash ./scripts/android_build.sh prod
           mkdir -p ./outputs/prod
           cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
 
-      - name: 📱 Build Production APK (FOSS version)
+      - name: '📱 Build Production APK (FOSS version)'
         if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-foss'
         run: |
           bash ./scripts/android_build.sh prod-foss
           mkdir -p ./outputs/prod-foss
           cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
 
-      - name: 📱 Build Production AAB
+      - name: '📱 Build Production AAB'
         if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-google'
         run: |
           bash ./scripts/android_build.sh prod-google
           mkdir -p ./outputs/prod-google
           cp ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
 
-      - name: 🔑 Sign APKs and AABs
+      - name: '🔑 Sign APKs and AABs'
         if: github.event.inputs.buildType != 'dev'
         uses: https://github.com/ilharp/sign-android-release@v2
         id: sign
@@ -140,7 +142,7 @@ jobs:
           keyPassword: ${{ secrets.WAFRN_UPLOAD_KEY_PASSWORD }}
           buildToolsVersion: '35.0.0'
 
-      - name: 📦 Upload build artifacts to Codeberg
+      - name: '📦 Upload build artifacts to Codeberg'
         uses: actions/upload-artifact@v4
         with:
           name: signed-files
