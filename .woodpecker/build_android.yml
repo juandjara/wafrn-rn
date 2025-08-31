@@ -9,10 +9,10 @@ steps:
       UNSIGNED_APK: 1
     commands:
       - apt-get update -y
-      - apt-get install -y xz-utils openjdk-17-jdk-headless wget unzip bash coreutils
-      - wget https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
+      - apt-get install -y xz-utils openjdk-17-jdk-headless curl unzip bash coreutils
+      - curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > commandlinetoolst.zip
       - mkdir -p ${HOME}/android
-      - unzip commandlinetools-linux-6200805_latest.zip -d ${HOME}/android
+      - unzip commandlinetoolst.zip -d ${HOME}/android
       - export ANDROID_HOME=${HOME}/android
       - export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH"
       - curl "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz" > node.tar.xz
