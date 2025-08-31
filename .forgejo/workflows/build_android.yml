@@ -81,7 +81,7 @@ jobs:
       - name: '📦 Setup Java'
         run: |
           apt-get update -y
-          apt-get install -y openjdk-21-jdk
+          apt-get install -y openjdk-21
 
       - name: '📦 Setup Android'
         run: |
