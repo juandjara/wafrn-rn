@@ -16,7 +16,7 @@ steps:
       # - apk add openjdk17 # openjdk21
       - apk add "nodejs=~22" "npm=~10.9"
       - npm install && npm rebuild lightningcss
-      - cd android && ./gradlew clean && ./gradlew app:assembleDebug
+      - bash ./scripts/android_build.sh dev
 
   - name: publish
     image: woodpeckerci/plugin-release
