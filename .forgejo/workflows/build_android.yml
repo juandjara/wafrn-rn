@@ -20,15 +20,18 @@ env:
 jobs:
   test:
     runs-on: docker
+    container:
+      image: node:22-alpine
+
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🏗 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+      # - name: 🏗 Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '22'
+      #     cache: 'npm'
 
       - name: 📦 Setup npm cache
         uses: actions/cache@v3
