@@ -2,8 +2,15 @@ when:
   - event: manual
 
 steps:
+  - name: setup-node
+    uses: codeberg.org/woodpecker-plugins/node-pm
+    settings:
+      with: npm
+      frozen_lockfile: true
+      ignore_node_modules: true
+
   - name: build
     image: codeberg.org/native-ci/android-ndk:latest
     commands:
-      - npm ci && npm rebuild lightningcss
+      - npm rebuild lightningcss
       - bash ./scripts/android_build.sh dev
