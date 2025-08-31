@@ -10,9 +10,10 @@ steps:
       UNSIGNED_APK: 1
     commands:
       - export CI=1
+      - extras ndk
       - sed -i '2s/^# *//' /etc/apk/repositories
       - apk update
-      - apk add bash coreutils ninja-build xz-utils python3
+      - apk add bash coreutils ninja-build xz python3
       - apk add openjdk17 # openjdk21
       - apk add "nodejs=~22" "npm=~10.9"
       - npm ci && npm rebuild lightningcss
