@@ -82,11 +82,11 @@ jobs:
         run: |
           apk add openjdk17 openjdk21
 
-      # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-      - name: 📦 Setup Gradle
-        uses: https://github.com/gradle/gradle-build-action@v2
-        with:
-          gradle-version: 'wrapper'
+      # # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
+      # - name: 📦 Setup Gradle
+      #   uses: https://github.com/gradle/gradle-build-action@v2
+      #   with:
+      #     gradle-version: 'wrapper'
 
       - name: 📦 Install npm dependencies
         run: npm ci && npm rebuild lightningcss
