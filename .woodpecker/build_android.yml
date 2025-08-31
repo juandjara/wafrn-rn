@@ -15,5 +15,5 @@ steps:
       - nvm alias default 24
       - npm ci && npm rebuild lightningcss
       - export CI=1
-      - ./gradlew clean
+      - ./android/gradlew clean
       - bash ./scripts/android_build.sh dev
