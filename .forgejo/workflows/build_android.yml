@@ -86,11 +86,12 @@ jobs:
       - name: '📦 Setup Android'
         run: |
           curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
-          mkdir -p ./android-tools
-          unzip tools.zip -d ./android-tools
-          mkdir -p $PWD/android-tools/cmdline-tools/latest
-          mv $PWD/android-tools/tools/ $PWD/android-tools/cmdline-tools/latest
-          export ANDROID_HOME=$PWD/android-tools
+          export ANDROID_HOME=$PWD/.android
+          export GRADLE_USER_HOME=$PWD/.gradle
+          mkdir -p ./.android
+          unzip tools.zip -d ./.android
+          mkdir -p $PWD/.android/cmdline-tools/latest
+          mv $PWD/.android/tools/ $PWD/.android/cmdline-tools/latest
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
           export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH" >> $FORGEJO_ENV
           echo "sdkmanager version:"
@@ -102,6 +103,7 @@ jobs:
           export PATH=$PATH:${ANDROID_HOME}/platform-tools/
           echo ANDROID_HOME=${ANDROID_HOME} >> $FORGEJO_ENV
           echo PATH=$PATH >> $FORGEJO_ENV
+          echo GRADLE_USER_HOME=$GRADLE_USER_HOME >> $FORGEJO_ENV
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       # - name: 📦 Setup Gradle
@@ -116,6 +118,7 @@ jobs:
         if: github.event.inputs.buildType == 'dev'
         run: |
           echo "ANDROID_HOME: $ANDROID_HOME"
+          export UNSIGNED_APK=0 # sign with debug key
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
@@ -158,6 +161,7 @@ jobs:
         with:
           name: signed-files
           path: |
+            ./outputs/**/*-debug.apk
             ./outputs/**/*-signed.apk
             ./outputs/**/*-signed.aab
           retention-days: 7
