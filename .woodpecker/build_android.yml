@@ -1,5 +1,5 @@
 when:
-  event: workflow_dispatch
+  event: manual
 
 steps:
   build:
