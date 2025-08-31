@@ -70,28 +70,26 @@ jobs:
         run: |
           apk add bash coreutils
 
-      - name: 📦 Setup npm cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+      # - name: 📦 Setup npm cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-npm-
 
-      - name: 📦 Install npm dependencies
-        run: npm ci && npm rebuild lightningcss
-
-      - name: 🏗 Setup Java
-        uses: https://github.com/actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      - name: 📦 Setup Java
+        run: |
+          apk add openjdk21
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       - name: 📦 Setup Gradle
         uses: https://github.com/gradle/gradle-build-action@v2
         with:
           gradle-version: 'wrapper'
+
+      - name: 📦 Install npm dependencies
+        run: npm ci && npm rebuild lightningcss
 
       - name: 📱 Build Development APK
         if: github.event.inputs.buildType == 'dev'
