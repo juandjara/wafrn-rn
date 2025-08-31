@@ -88,6 +88,9 @@ jobs:
           curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
           mkdir -p ./android-tools
           unzip tools.zip -d ./android-tools
+          mkdir -p $PWD/android-tools/cmdline-tools/latest
+          mv $PWD/android-tools/tools/* $PWD/android-tools/cmdline-tools/latest
+          rm -rf $PWD/android-tools/tools
           export ANDROID_HOME=$PWD/android-tools
           echo ANDROID_HOME=$PWD/android-tools >> $FORGEJO_ENV
           echo PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $FORGEJO_ENV
