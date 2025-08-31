@@ -15,7 +15,7 @@ steps:
       - apk add bash coreutils ninja-build xz python3
       # - apk add openjdk17 # openjdk21
       - apk add "nodejs=~22" "npm=~10.9"
-      - npm ci && npm rebuild lightningcss
+      - npm install && npm rebuild lightningcss
       - cd android && ./gradlew clean && ./gradlew app:assembleDebug
 
   - name: publish
