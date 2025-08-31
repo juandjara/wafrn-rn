@@ -85,11 +85,12 @@ jobs:
 
       - name: '📦 Setup Android'
         run: |
-          curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
-          mkdir -p ./android-tools
-          unzip tools.zip -d ./android-tools
-          echo ANDROID_HOME=./android-tools >> $FORGEJO_ENV
-          echo PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $FORGEJO_ENV
+          apt-get install -y android-sdk-platform-tools-common
+          # curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
+          # mkdir -p ./android-tools
+          # unzip tools.zip -d ./android-tools
+          # echo ANDROID_HOME=./android-tools >> $FORGEJO_ENV
+          # echo PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH" >> $FORGEJO_ENV
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
       # - name: 📦 Setup Gradle
