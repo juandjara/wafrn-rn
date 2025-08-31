@@ -104,6 +104,10 @@ jobs:
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
         run: |
+          echo ANDROID_HOME
+          ls $ANDROID_HOME
+          echo JAVA_HOME
+          ls $JAVA_HOME
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
