@@ -3,19 +3,20 @@ when:
 
 steps:
   - name: build
-    image: node:22
+    image: runmymind/docker-android-sdk:latest
     environment:
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       UNSIGNED_APK: 1
     commands:
-      - export CI=1
       # - sed -i '2s/^# *//' /etc/apk/repositories
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
-      - export DEBIAN_FRONTEND=noninteractive
-      - apt update -y
-      - apt install -y git make openjdk-17-jdk android-sdk ninja-build python3
+      - wget -q -O /tmp/nodejs-lts.zip -- https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz
+      - sha256sum -c <<< '69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec  /tmp/nodejs-lts.zip'
+      - tar xf /tmp/nodejs-lts.zip -C /opt
+      - export CI=1
+      - export PATH="${PATH}:/opt/node-v22.14.0-linux-x64/bin:${HOME}/.node/bin"
       - npm config set prefix "${HOME}/.node"
       - npm install
       - npm ci && npm rebuild lightningcss
