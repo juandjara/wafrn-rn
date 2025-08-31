@@ -94,7 +94,10 @@ jobs:
           export ANDROID_HOME=$PWD/android-tools
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
           export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH" >> $FORGEJO_ENV
+          $ANDROID_BIN/tools/bin/sdkmanager --version
+          set +o pipefail
           yes | $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses
+          set -o pipefail
           $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
           export PATH=$PATH:${ANDROID_HOME}/platform-tools/
           echo ANDROID_HOME=${ANDROID_HOME} >> $FORGEJO_ENV
