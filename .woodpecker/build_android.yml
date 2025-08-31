@@ -12,7 +12,7 @@ steps:
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
-      - apt update -y && apt install -y xz-utils
+      - apt update -y && apt install -y xz-utils coreutils bash
       - curl "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz" > node.tar.xz
       - mkdir -p ${HOME}/opt
       - tar xf node.tar.xz -C ${HOME}/opt
