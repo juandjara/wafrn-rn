@@ -21,7 +21,7 @@ steps:
       - npm config set prefix "${HOME}/.node"
       - npm install
       - npm ci && npm rebuild lightningcss
-      - sh ./scripts/android_build.sh dev
+      - ./scripts/android_build.sh dev
 
   - name: publish
     image: woodpeckerci/plugin-release
