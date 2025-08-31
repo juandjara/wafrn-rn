@@ -19,7 +19,7 @@ env:
 
 jobs:
   test:
-    runs-on: codeberg-tiny
+    runs-on: docker
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
 
   build:
     needs: test
-    runs-on: codeberg-small
+    runs-on: docker
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
