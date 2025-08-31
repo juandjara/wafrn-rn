@@ -66,6 +66,10 @@ jobs:
       #     node-version: '22'
       #     cache: 'npm'
 
+      - name: 📦 Setup bash
+        run: |
+          apk add bash coreutils
+
       - name: 📦 Setup npm cache
         uses: actions/cache@v3
         with:
@@ -84,15 +88,10 @@ jobs:
           java-version: '21'
 
       # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-
-      # - name: 📦 Setup Gradle
-      #   uses: https://github.com/gradle/gradle-build-action@v3.5.0
-      #   with:
-      #     gradle-version: 'wrapper'
-
-      - name: Setup bash
-        run: |
-          apk add bash coreutils
+      - name: 📦 Setup Gradle
+        uses: https://github.com/gradle/gradle-build-action@v3.5.0
+        with:
+          gradle-version: 'wrapper'
 
       - name: 📱 Build Development APK
         if: github.event.inputs.buildType == 'dev'
@@ -123,6 +122,7 @@ jobs:
           cp ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
 
       - name: 🔑 Sign APKs and AABs
+        if: github.event.inputs.buildType != 'dev'
         uses: https://github.com/ilharp/sign-android-release@v2
         id: sign
         with:
