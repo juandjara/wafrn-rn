@@ -21,8 +21,6 @@ steps:
       - npm config set prefix "${HOME}/.node"
       - npm install
       - npm ci && npm rebuild lightningcss
-      - sudo chmod +x ./scripts/android_build.sh
-      - sudo chmod +x ./android/gradlew
       - /bin/bash ./scripts/android_build.sh dev
 
   - name: publish
