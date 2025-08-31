@@ -60,24 +60,6 @@ jobs:
       - name: '🏗 Checkout repository'
         uses: actions/checkout@v4
 
-      # - name: 🏗 Setup Node.js
-      #   uses: https://github.com/actions/setup-node@v4
-      #   with:
-      #     node-version: '22'
-      #     cache: 'npm'
-
-      # - name: 📦 Setup bash
-      #   run: |
-      #     apk add bash coreutils
-
-      # - name: 📦 Setup npm cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.npm
-      #     key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-npm-
-
       - name: '📦 Setup Java'
         run: |
           apt-get update -y
@@ -105,14 +87,8 @@ jobs:
           echo PATH=$PATH >> $FORGEJO_ENV
           echo GRADLE_USER_HOME=$GRADLE_USER_HOME >> $FORGEJO_ENV
 
-      # this adds a caching layer specific to Gradle and sets gradle version from the wrapper file
-      # - name: 📦 Setup Gradle
-      #   uses: https://github.com/gradle/gradle-build-action@v2
-      #   with:
-      #     gradle-version: 'wrapper'
-
       - name: '📦 Install npm dependencies'
-        run: npm install && npm rebuild lightningcss
+        run: npm ci && npm rebuild lightningcss
 
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
