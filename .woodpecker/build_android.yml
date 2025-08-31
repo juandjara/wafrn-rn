@@ -4,17 +4,16 @@ when:
 steps:
   - name: build
     # image: node:22-alpine
-    image: alvrme/alpine-android:android-35-jdk21
+    image: alvrme/alpine-android:android-35-jdk17
     environment:
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       UNSIGNED_APK: 1
     commands:
       - export CI=1
-      - extras ndk
       - sed -i '2s/^# *//' /etc/apk/repositories
       - apk update
       - apk add bash coreutils ninja-build xz python3
-      - apk add openjdk17 # openjdk21
+      # - apk add openjdk17 # openjdk21
       - apk add "nodejs=~22" "npm=~10.9"
       - npm ci && npm rebuild lightningcss
       - cd android && ./gradlew clean && ./gradlew app:assembleDebug
