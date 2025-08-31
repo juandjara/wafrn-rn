@@ -157,7 +157,7 @@ jobs:
           buildToolsVersion: '35.0.0'
 
       - name: '📦 Upload build artifacts to Codeberg'
-        uses: actions/upload-artifact@v4
+        uses: https://data.forgejo.org/forgejo/upload-artifact@v4
         with:
           name: signed-files
           path: |
