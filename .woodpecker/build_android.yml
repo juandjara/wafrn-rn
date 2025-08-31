@@ -9,6 +9,8 @@ steps:
       UNSIGNED_APK: 1
     commands:
       - export CI=1
+      - sed -i '2s/^# *//' /etc/apk/repositories
+      - apk update
       - apk add bash coreutils
       - apk add openjdk17 openjdk21
       - npm ci && npm rebuild lightningcss
