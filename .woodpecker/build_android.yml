@@ -3,7 +3,7 @@ when:
 
 steps:
   - name: setup-node
-    uses: codeberg.org/woodpecker-plugins/node-pm
+    image: codeberg.org/woodpecker-plugins/node-pm
     settings:
       with: npm
       frozen_lockfile: true
