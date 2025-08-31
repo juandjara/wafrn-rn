@@ -12,12 +12,11 @@ steps:
       # - apk update
       # - apk add bash coreutils
       # - apk add openjdk17 ninja-build xz python3 android-tools
-      - curl --output /tmp/nodejs-lts.zip "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz"
-      - sudo apt update -y && sudo apt install -y unzip
-      - mkdir -p /opt
-      - unzip /tmp/nodejs-lts.zip -d /opt
+      - curl "https://nodejs.org/dist/v22.14.0/node-v22.14.0-linux-x64.tar.xz" > node.tar.xz
+      - mkdir ${HOME}/opt
+      - tar xf node.tar.xz -C ${HOME}/opt
       - export CI=1
-      - export PATH="${PATH}:/opt/node-v22.14.0-linux-x64/bin:${HOME}/.node/bin"
+      - export PATH="${PATH}:${HOME}/opt/node-v22.14.0-linux-x64/bin:${HOME}/.node/bin"
       - npm config set prefix "${HOME}/.node"
       - npm install
       - npm ci && npm rebuild lightningcss
