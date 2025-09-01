@@ -42,6 +42,13 @@ export default function SignIn() {
     notificationCleanup({ deleteExpo: true, deleteUP: true })
   }, [logout, notificationCleanup])
 
+  async function completeLogin(token: string) {
+    await setToken(token)
+    setImmediate(() => {
+      router.replace('/')
+    })
+  }
+
   function login() {
     if (env) {
       loginMutation.mutate(
@@ -51,8 +58,7 @@ export default function SignIn() {
             if (firstPassResponse.mfaRequired) {
               setFirstPassToken(firstPassResponse.token)
             } else {
-              await setToken(firstPassResponse.token)
-              router.replace('/')
+              await completeLogin(firstPassResponse.token)
             }
           },
           onError: (error) => {
@@ -69,10 +75,7 @@ export default function SignIn() {
       loginMfaMutation.mutate(
         { firstPassToken, mfaToken },
         {
-          onSuccess: async (response) => {
-            await setToken(response)
-            router.replace('/')
-          },
+          onSuccess: (token) => completeLogin(token),
           onError: (error) => {
             console.error(error)
             showToastError('Invalid credentials')
