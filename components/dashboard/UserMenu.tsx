@@ -109,20 +109,19 @@ export default function UserMenu() {
         <MenuOption onSelect={() => router.push(`/user/${me?.url}`)}>
           <View
             accessibilityLabel="My profile"
-            className="flex-row px-2 mb-2 gap-3 items-start"
+            className="flex-row px-2 mb-2 gap-2 items-start"
           >
-            <View>
+            <View className="my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
               <Image
                 source={{ uri: formatSmallAvatar(me?.avatar) }}
                 style={{
                   width: 48,
                   height: 48,
                   borderRadius: 12,
-                  marginVertical: 6,
                 }}
               />
             </View>
-            <View className="flex-1">
+            <View className="flex-1 mt-1">
               <TextWithEmojis text={me?.name || ''} />
               <Text className="text-sm text-gray-500">
                 {formatUserUrl(me?.url)}
