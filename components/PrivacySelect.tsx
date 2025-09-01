@@ -5,6 +5,7 @@ import {
   PRIVACY_ORDER,
   PrivacyLevel,
 } from '@/lib/api/privacy'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
 import { Modal, Pressable, Text, View } from 'react-native'
@@ -31,6 +32,8 @@ export default function PrivacySelect({
   maxPrivacy,
   disabled = false,
 }: PrivacyModalProps) {
+  const sx = useSafeAreaPadding()
+
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
     return PRIVACY_ORDER.indexOf(p) < PRIVACY_ORDER.indexOf(maxPrivacy)
@@ -72,7 +75,12 @@ export default function PrivacySelect({
           className="bg-black/50 flex-grow"
           onPress={() => setOpen(false)}
         ></Pressable>
-        <View className="bg-white pb-2">
+        <View
+          className="bg-white"
+          style={{
+            paddingBottom: sx.paddingBottom,
+          }}
+        >
           <Text className="p-4 text-lg font-medium">Select privacy level</Text>
           {options.map((p) => (
             <Pressable
