@@ -512,23 +512,26 @@ function getAppliedMute(post: Post, context: DashboardContextData, options: Priv
     return false
   })
 
-  const softMutedWords = [] as string[]
-  const hardMutedWords = [] as string[]
+  const softMutedWords = new Set<string>()
+  const hardMutedWords = new Set<string>()
 
   for (const m of applicableBySource) {
     const words = m.words.split(',').map((w) => w.trim().toLocaleLowerCase())
     for (const word of words) {
       if (word.length > 0 && postText.includes(word)) {
         if (m.muteType === MuteType.Soft) {
-          softMutedWords.push(word)
+          softMutedWords.add(word)
         } else {
-          hardMutedWords.push(word)
+          hardMutedWords.add(word)
         }
       }
     }
   }
 
-  return { softMutedWords, hardMutedWords }
+  return {
+    softMutedWords: Array.from(softMutedWords),
+    hardMutedWords: Array.from(hardMutedWords),
+  }
 }
 
 /**
