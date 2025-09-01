@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { router, Stack } from 'expo-router'
+import { router } from 'expo-router'
 import { useMemo, useState } from 'react'
 import {
   Keyboard,
@@ -243,16 +243,13 @@ export default function EditorView() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Stack.Screen
-        options={{
-          presentation: 'fullScreenModal',
-          animation: 'slide_from_bottom',
-        }}
-      />
-      <View
+      <KeyboardAvoidingView
         style={{
+          flex: 1,
           marginTop: sx.paddingTop,
+          marginBottom: sx.paddingBottom,
         }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <EditorHeader
           privacy={form.privacy}
@@ -263,14 +260,6 @@ export default function EditorView() {
           maxPrivacy={maxPrivacy}
           privacySelectDisabled={privacySelectDisabled}
         />
-      </View>
-      <KeyboardAvoidingView
-        style={{
-          flex: 1,
-          marginBottom: sx.paddingBottom,
-        }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
         <ScrollView
           id="editor-scroll"
           className="flex-grow-0 pb-1"

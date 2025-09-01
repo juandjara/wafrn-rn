@@ -32,6 +32,11 @@ export default function ProtectedLayout() {
         ...rootStyles,
         headerShown: false,
       }}
-    />
+    >
+      <Stack.Screen
+        name="editor"
+        options={{ animation: 'slide_from_bottom' }}
+      />
+    </Stack>
   )
 }
