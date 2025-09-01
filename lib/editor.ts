@@ -144,6 +144,9 @@ export function useEditorData() {
         )
         
         privacySelectDisabled = !!replyPost.bskyUri && !!userMap[replyPost.userId]?.url.startsWith('@')
+        if (privacySelectDisabled) {
+          formState.privacy = PrivacyLevel.PUBLIC
+        }
 
         // NOTE: complex stuff here
         // when creating a quote to a post, a mention is created to notify the quoted post author
