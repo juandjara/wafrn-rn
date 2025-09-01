@@ -303,6 +303,7 @@ export default function EditorView() {
             selection={selection}
             mentionState={mentionApi.mentionState}
             disabled={isLoading}
+            onSelectionChange={setSelection}
           />
           <ImageList
             images={form.medias}

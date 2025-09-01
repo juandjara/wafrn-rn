@@ -38,6 +38,7 @@ type EditorProps = MentionApi & {
   mentionState: MentionApi['mentionState']
   showTags?: boolean
   disabled?: boolean
+  onSelectionChange?: (selection: Selection) => void
 }
 
 const EDITOR_MIN_HEIGHT = 140
@@ -51,6 +52,7 @@ export default function EditorInput({
   mentionState,
   showTags = true,
   disabled = false,
+  onSelectionChange,
 }: EditorProps) {
   const { env } = useAuth()
   const tagsLine = formState.tags
@@ -86,10 +88,16 @@ export default function EditorInput({
     const remoteId =
       (data as PostUser).remoteId ||
       `${env?.BASE_URL}/blog/${(data as PostUser).url}`
-    const newText = mentionState.plainText.replace(
-      `@${debouncedMentionKeyword}`,
-      `[${data.name}](${remoteId}?id=${id}) `,
-    )
+    const replaceTarget = `@${debouncedMentionKeyword}`
+    const replaceValue = `[${data.name}](${remoteId}?id=${id}) `
+    const newText = mentionState.plainText.replace(replaceTarget, replaceValue)
+    const newSelection =
+      debouncedSelectionStart + (replaceValue.length - replaceTarget.length)
+    onSelectionChange?.({
+      start: newSelection,
+      end: newSelection,
+    })
+
     updateFormState(
       'content',
       generateValueFromMentionStateAndChangedText(
