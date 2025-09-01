@@ -96,8 +96,13 @@ export function useEditorData() {
     let replyLabel = ''
     let mentionedUsers = [] as PostUser[]
     const context = getDashboardContext(reply ? [reply] : [], settings)
-    const formState: Partial<EditorFormState> = {
+    const formState: EditorFormState = {
+      content: '',
+      contentWarning: '',
+      contentWarningOpen: false,
+      tags: '',
       privacy: defaultPrivacy,
+      medias: [] as EditorImage[],
     }
 
     if (params.type === 'ask') {
@@ -236,12 +241,11 @@ export function useEditorData() {
       formState,
       params,
       disableForceAltText,
-      defaultPrivacy,
       mentionedUsers,
       isLoading,
       privacySelectDisabled,
     }
     // NOTE: explicitly ignoring dependency on other props in `params` like `params.askId`
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [me, env, asks, reply, settings, params.type, isLoading])
+  }, [me, env?.BASE_URL, asks, reply, settings, params.type, isLoading])
 }

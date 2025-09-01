@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons'
 import { router, Stack } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -46,7 +46,6 @@ export default function EditorView() {
     formState,
     params,
     disableForceAltText,
-    defaultPrivacy,
     isLoading,
     mentionedUsers,
     replyLabel,
@@ -55,43 +54,22 @@ export default function EditorView() {
 
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const [mentions, setMentions] = useState<PostUser[]>([])
-  const [form, setForm] = useState<EditorFormState>({
-    content: '',
-    contentWarning: '',
-    contentWarningOpen: false,
-    tags: '',
-    privacy: defaultPrivacy,
-    medias: [] as EditorImage[],
-  })
+  const [_mentions, setMentions] = useState<PostUser[]>([])
+  const [_form, setForm] = useState<EditorFormState | null>(null)
 
-  function update<T extends keyof typeof form>(
+  const mentions = _mentions.length > 0 ? _mentions : mentionedUsers
+  const form = _form || formState
+
+  function update<T extends keyof EditorFormState>(
     key: T,
     value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
   ) {
     // disable updates if initial editor data is still loading
     if (!isLoading) {
-      setForm((prev) => {
-        const newValue = typeof value === 'function' ? value(prev[key]) : value
-        return { ...prev, [key]: newValue }
-      })
+      const newValue = typeof value === 'function' ? value(form[key]) : value
+      setForm({ ...form, [key]: newValue })
     }
   }
-
-  useEffect(() => {
-    if (!isLoading) {
-      setForm((prev) => ({
-        ...prev,
-        ...formState,
-      }))
-    }
-  }, [isLoading, formState])
-
-  useEffect(() => {
-    if (!isLoading && mentionedUsers.length > 0) {
-      setMentions(mentionedUsers)
-    }
-  }, [isLoading, mentionedUsers])
 
   function deleteMention(id: string) {
     setMentions((prev) => prev.filter((u) => u.id !== id))
@@ -271,13 +249,10 @@ export default function EditorView() {
           animation: 'slide_from_bottom',
         }}
       />
-      <KeyboardAvoidingView
+      <View
         style={{
-          flex: 1,
           marginTop: sx.paddingTop,
-          marginBottom: sx.paddingBottom,
         }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <EditorHeader
           privacy={form.privacy}
@@ -288,6 +263,14 @@ export default function EditorView() {
           maxPrivacy={maxPrivacy}
           privacySelectDisabled={privacySelectDisabled}
         />
+      </View>
+      <KeyboardAvoidingView
+        style={{
+          flex: 1,
+          marginBottom: sx.paddingBottom,
+        }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <ScrollView
           id="editor-scroll"
           className="flex-grow-0 pb-1"
