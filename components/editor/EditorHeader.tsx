@@ -2,7 +2,6 @@ import { PrivacyLevel } from '@/lib/api/privacy'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
-import { useState } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'
 import { EditorSearchParams } from '@/lib/editor'
@@ -25,7 +24,6 @@ export default function EditorHeader({
   privacySelectDisabled?: boolean
 }) {
   const { type } = useLocalSearchParams<EditorSearchParams>()
-  const [modalOpen, setModalOpen] = useState(false)
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
@@ -38,8 +36,6 @@ export default function EditorHeader({
         })}
       >
         <PrivacySelect
-          open={modalOpen}
-          setOpen={setModalOpen}
           privacy={privacy}
           setPrivacy={setPrivacy}
           maxPrivacy={maxPrivacy}

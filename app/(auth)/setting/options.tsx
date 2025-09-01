@@ -138,8 +138,6 @@ export default function Options() {
     Number.isFinite(Number(form.threadAncestorLimit)) &&
     Number(form.threadAncestorLimit) >= minThreadLimit
 
-  const [modalOpen, setModalOpen] = useState(false)
-
   const editMutation = useEditProfileMutation()
   const canPublish = validThreadAncestorLimit && !editMutation.isPending
 
@@ -354,8 +352,6 @@ export default function Options() {
             <Text className="text-white mb-2">Default post privacy</Text>
             <PrivacySelect
               className="p-3 pl-4"
-              open={modalOpen}
-              setOpen={setModalOpen}
               privacy={form.defaultPostEditorPrivacy}
               setPrivacy={(privacy) =>
                 update('defaultPostEditorPrivacy', privacy)
