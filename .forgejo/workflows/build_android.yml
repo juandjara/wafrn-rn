@@ -18,40 +18,26 @@ env:
   NODE_OPTIONS: --openssl-legacy-provider --max_old_space_size=4096
 
 jobs:
-  # test:
-  #   runs-on: docker
-  #   container:
-  #     image: node:22-alpine
+  test:
+    runs-on: docker
+    container:
+      image: node:22-alpine
 
-  #   steps:
-  #     - name: 🏗 Checkout repository
-  #       uses: actions/checkout@v4
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
 
-  #     # - name: 🏗 Setup Node.js
-  #     #   uses: actions/setup-node@v4
-  #     #   with:
-  #     #     node-version: '22'
-  #     #     cache: 'npm'
+      - name: 📦 Install npm dependencies
+        run: npm ci && npm rebuild lightningcss
 
-  #     - name: 📦 Setup npm cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.npm
-  #         key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-npm-
+      - name: 🧪 Run TypeScript check
+        run: npm run tsc
 
-  #     - name: 📦 Install npm dependencies
-  #       run: npm ci && npm rebuild lightningcss
-
-  #     - name: 🧪 Run TypeScript check
-  #       run: npm run tsc
-
-  #     - name: 🧹 Run ESLint
-  #       run: npm run lint
+      - name: 🧹 Run ESLint
+        run: npm run lint
 
   build:
-    # needs: test
+    needs: test
     runs-on: docker
     container:
       image: node:22
@@ -60,12 +46,12 @@ jobs:
       - name: '🏗 Checkout repository'
         uses: actions/checkout@v4
 
-      - name: '📦 Setup Java'
+      - name: '📦 Install Java'
         run: |
           apt-get update -y
           apt-get install -y openjdk-17-jdk-headless
 
-      - name: '📦 Setup Android'
+      - name: '📦 Setup Android environment'
         run: |
           curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
           export ANDROID_HOME=$PWD/.android
