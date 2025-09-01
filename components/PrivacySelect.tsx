@@ -1,4 +1,5 @@
 import {
+  isLessPrivateThan,
   PRIVACY_DESCRIPTIONS,
   PRIVACY_ICONS,
   PRIVACY_LABELS,
@@ -36,7 +37,7 @@ export default function PrivacySelect({
 
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
-    return PRIVACY_ORDER.indexOf(p) < PRIVACY_ORDER.indexOf(maxPrivacy)
+    return isLessPrivateThan(p, maxPrivacy)
   }
 
   return (

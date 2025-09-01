@@ -39,3 +39,8 @@ export const PRIVACY_ORDER = [
   PrivacyLevel.INSTANCE_ONLY,
   PrivacyLevel.DIRECT_MESSAGE,
 ]
+
+/** returns true if a is less private than b */
+export function isLessPrivateThan(a: PrivacyLevel, b: PrivacyLevel) {
+  return PRIVACY_ORDER.indexOf(a) < PRIVACY_ORDER.indexOf(b)
+}

@@ -4,7 +4,7 @@ import { getPostDetail } from "./api/posts"
 import { useLocalSearchParams } from "expo-router"
 import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "./api/settings"
 import { useMemo } from "react"
-import { PrivacyLevel } from "./api/privacy"
+import { isLessPrivateThan, PrivacyLevel } from "./api/privacy"
 import { formatUserUrl, formatMediaUrl } from "./formatters"
 import { getDashboardContext } from "./api/dashboard"
 import { useAsks } from "./asks"
@@ -125,7 +125,9 @@ export function useEditorData() {
       replyLabel = 'Replying to:'
       const replyPost = reply.posts[0]
       if (replyPost) {
-        formState.privacy = Math.max(replyPost.privacy, defaultPrivacy)
+        formState.privacy = isLessPrivateThan(replyPost.privacy, defaultPrivacy)
+          ? defaultPrivacy
+          : replyPost.privacy
         const replyCW = replyPost.content_warning || ''
         if (replyCW) {
           const cw = replyCW.toLowerCase().startsWith('re:')
