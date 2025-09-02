@@ -58,9 +58,9 @@ jobs:
           mkdir -p /opt/gradle
           export ANDROID_HOME=/opt/android
           export GRADLE_USER_HOME=/opt/gradle
-          unzip tools.zip -d $ANDROID_HOME
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          mv $ANDROID_HOME/tools/ $ANDROID_HOME/cmdline-tools/latest
+          unzip tools.zip -d /opt/android
+          mkdir -p /opt/android/cmdline-tools/latest
+          mv /opt/android/cmdline-tools/ /opt/android/cmdline-tools/latest/tools
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
           export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH" >> $FORGEJO_ENV
           echo "sdkmanager version:"
