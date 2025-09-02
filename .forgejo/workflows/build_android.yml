@@ -53,13 +53,14 @@ jobs:
 
       - name: '📦 Setup Android environment'
         run: |
-          curl "https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip" > tools.zip
-          export ANDROID_HOME=$PWD/.android
-          export GRADLE_USER_HOME=$PWD/.gradle
-          mkdir -p ./.android
-          unzip tools.zip -d ./.android
-          mkdir -p $PWD/.android/cmdline-tools/latest
-          mv $PWD/.android/tools/ $PWD/.android/cmdline-tools/latest
+          curl "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" > tools.zip
+          mkdir -p /opt/android
+          mkdir -p /opt/gradle
+          export ANDROID_HOME=/opt/android
+          export GRADLE_USER_HOME=/opt/gradle
+          unzip tools.zip -d $ANDROID_HOME
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
+          mv $ANDROID_HOME/tools/ $ANDROID_HOME/cmdline-tools/latest
           export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
           export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH" >> $FORGEJO_ENV
           echo "sdkmanager version:"
