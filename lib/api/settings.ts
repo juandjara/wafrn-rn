@@ -140,7 +140,12 @@ export function getPrivateOptionValue<
   const defaultValue = DEFAULT_PRIVATE_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
-  if (!json) return defaultValue
+  if (!json) {
+    if (Array.isArray(defaultValue)) {
+      return [...defaultValue] as PrivateOptionTypeMap[typeof key]
+    }
+    return defaultValue
+  }
   try {
     return JSON.parse(json) as PrivateOptionTypeMap[typeof key]
   } catch (e) {
@@ -190,7 +195,12 @@ export function getPublicOptionValue<
   const defaultValue = DEFAULT_PUBLIC_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
-  if (!json) return defaultValue
+  if (!json) {
+    if (Array.isArray(defaultValue)) {
+      return [...defaultValue] as PublicOptionTypeMap[typeof key]
+    }
+    return defaultValue
+  }
   try {
     return JSON.parse(json) as PublicOptionTypeMap[typeof key]
   } catch (e) {
