@@ -25,7 +25,7 @@ You can get the app in the following places:
 <a href="https://testflight.apple.com/join/k98B8bDq">
 <img height="60" alt="Get it on Testflight" src="assets/badges/testflight-margin.png" /></a>
 <a href="https://apps.apple.com/us/app/wafrn/id6737332622">
-<img style="margin: 10px" height="40" alt="Get it on the App Store" src="assets/badges/apple-app-store.png" /></a>
+<img style="margin: 10px" height="40" alt="Get it on the App Store" src="assets/badges/apple-app-store.svg" /></a>
 <div>
 <a href="https://codeberg.org/wafrn/wafrn-rn/releases/latest">
 <img style="margin: 10px" height="40" alt="Get it on Codeberg" src="assets/badges/codeberg.png" /></a>
