@@ -16,25 +16,24 @@ You can get the app in the following places:
 <a href="https://play.google.com/store/apps/details?id=dev.djara.wafrn_rn">
 <img height="60" alt="Get it on Google Play" src="assets/badges/google-play-margin.png" /></a>
 -->
-<a href="https://f-droid.org/packages/dev.djara.wafrn_rn/">
-<img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/dev.djara.wafrn_rn">
-<img height="60" alt="Get it on IzzyOnDroid" src="assets/badges/izzy-margin.png" /></a>
-<a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://codeberg.org/wafrn/wafrn-rn">
-<img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
-<br />
 <div>
-<a href="https://apps.apple.com/us/app/wafrn/id6737332622">
-<img height="40" alt="Get it on the App Store" src="assets/badges/apple-app-store.svg" /></a>
-<a href="https://testflight.apple.com/join/k98B8bDq">
-<img height="40" alt="Get it on Testflight" src="assets/badges/testflight.png" /></a>
+  <a href="https://f-droid.org/packages/dev.djara.wafrn_rn/">
+  <img height="60" alt="Get it on F-Droid" src="assets/badges/fdroid-margin.png" /></a>
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/dev.djara.wafrn_rn">
+  <img height="60" alt="Get it on IzzyOnDroid" src="assets/badges/izzy-margin.png" /></a>
+  <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://codeberg.org/wafrn/wafrn-rn">
+  <img height="60" alt="Get it on Obtanium" src="assets/badges/obtanium-margin.png" /></a>
 </div>
-<br />
 <div>
-<a href="https://codeberg.org/wafrn/wafrn-rn/releases/latest">
-<img height="40" alt="Get it on Codeberg" src="assets/badges/codeberg.png" /></a>
+  <a href="https://apps.apple.com/us/app/wafrn/id6737332622">
+  <img height="48" alt="Get it on the App Store" src="assets/badges/apple-app-store.svg" /></a>
+  <a href="https://testflight.apple.com/join/k98B8bDq">
+  <img height="48" alt="Get it on Testflight" src="assets/badges/testflight.png" /></a>
 </div>
-<br />
+<div>
+  <a href="https://codeberg.org/wafrn/wafrn-rn/releases/latest">
+  <img height="40" alt="Get it on Codeberg" src="assets/badges/codeberg.png" /></a>
+</div><br />
 
 For Android there are many choices, but I recommend using [Droid-ify](https://droidify.eu.org/) to install the versions from F-Droid (or IzyyOnDroid) and keep them updated with some extra stability. But if you want to get the latest version as soon as possible and still be notified of updates, you can use Obtanium.
 
