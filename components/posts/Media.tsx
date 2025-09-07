@@ -122,7 +122,7 @@ export default function Media({
       >
         {content}
       </MediaCloak>
-      <View className="absolute top-0 left-0 flex-row gap-1 p-1">
+      <View className="z-20 absolute top-0 left-0 flex-row gap-1 p-1">
         <Pressable
           onPress={() => setShowAlt((prev) => !prev)}
           className="rounded-md bg-indigo-950/75 p-2"
