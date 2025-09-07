@@ -211,19 +211,20 @@ export default function EditorView() {
         {
           onSuccess(data, variables) {
             // on success, update the images with the new data
-            update('medias', (prevMedias) => {
-              return prevMedias.map((m) => {
-                const dataIndex = variables.findIndex((v) => v.uri === m.uri)
-                if (dataIndex === -1) {
-                  return m
-                }
-                return {
-                  ...m,
-                  uri: formatMediaUrl(data[dataIndex].url || ''),
-                  id: data[dataIndex].id,
-                }
-              })
+            const inputUris = variables.map((v) => v.uri)
+            const otherMedias = form.medias
+              .filter((m) => !inputUris.includes(m.uri))
+
+            const newMedias = images.map((m) => {
+              const dataIndex = variables.findIndex((v) => v.uri === m.uri)
+              return {
+                ...m,
+                uri: formatMediaUrl(data[dataIndex].url || ''),
+                id: data[dataIndex].id,
+              }
             })
+
+            update('medias', otherMedias.concat(newMedias))
           },
           onError: () => {
             // on error, remove from the list the images that we were trying to upload
