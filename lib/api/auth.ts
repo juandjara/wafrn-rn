@@ -39,7 +39,7 @@ export function parseToken(token: string | null) {
     }
     return decoed
   } catch (error) {
-    console.error('Error parsing token', error)
+    console.error(`Error parsing token: ${token}`, error)
     return null
   }
 }

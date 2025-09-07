@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { QueryFunctionContext, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError, uploadFile } from '../http'
 import { getEnvironmentStatic, parseToken } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
@@ -16,6 +16,7 @@ import type { MediaUploadPayload } from './media'
 import { FileSystemUploadType } from 'expo-file-system'
 import { formatCachedUrl, formatUserUrl } from '../formatters'
 import { useNotificationTokensCleanup } from '../notifications'
+import useAsyncStorage from '../useLocalStorage'
 
 export type User = {
   createdAt: string // iso date
@@ -101,6 +102,66 @@ export function useUser(handle: string) {
     queryFn: ({ signal }) => getUser(token!, signal, handle),
     enabled: !!token,
   })
+}
+
+type Signal = QueryFunctionContext["signal"]
+
+function useAccountsQueries(tokens: string[]) {
+  return useQueries({
+    queries: tokens.map((token) => ({
+      queryKey: ['user', token],
+      queryFn: ({ signal }: { signal: Signal }) => getUser(token, signal),
+      enabled: !!token,
+    })),
+  })
+}
+
+const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
+
+export function useAccounts() {
+  const qc = useQueryClient()
+  const { token, setToken } = useAuth()
+  const {
+    loading: accountTokensLoading,
+    value: _accountTokens,
+    setValue: setAccountTokens,
+  } = useAsyncStorage<string[]>(ACCOUNT_SWITCHER_KEY, [])
+  const accountTokens = _accountTokens?.length ? _accountTokens : [token!]
+  const accountQueries = useAccountsQueries(accountTokens)
+  const loading =
+    accountTokensLoading || accountQueries.some((query) => query.isLoading)
+  const accounts = accountQueries.map((query) => query.data).filter(a => !!a)
+  const error = accountQueries.find((query) => query.error)?.error ?? null
+
+  function addAccount(token: string) {
+    setAccountTokens([...(accountTokens ?? []), token])
+  }
+  function removeAccount(token: string) {
+    setAccountTokens(accountTokens?.filter((t) => t !== token) ?? [])
+  }
+  function removeAll() {
+    setAccountTokens([])
+  }
+  async function selectAccount(index: number) {
+    const newToken = accountTokens?.[index] ?? null
+    // set the new token in the auth context
+    setToken(newToken)
+    // invalidate all queries
+    setImmediate(() => {
+      qc.invalidateQueries({
+        predicate: ({ queryKey }) => queryKey[0] !== 'environment'
+      })
+    })
+  }
+  return {
+    accounts,
+    loading,
+    error,
+    addAccount,
+    removeAccount,
+    selectAccount,
+    removeAll
+  }
 }
 
 export type Follow = Omit<PostUser, 'remoteId'> & {

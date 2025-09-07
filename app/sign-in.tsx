@@ -22,7 +22,13 @@ import { useNotificationTokensCleanup } from '@/lib/notifications'
 
 const bigW = require('@/assets/images/logo_w.png')
 
-export default function SignIn() {
+export default function SignIn({
+  isInModal,
+  onLoginComplete,
+}: {
+  isInModal?: boolean
+  onLoginComplete?: (token: string) => void
+}) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
@@ -37,16 +43,22 @@ export default function SignIn() {
   const notificationCleanup = useNotificationTokensCleanup()
 
   useEffect(() => {
-    // reset local storage when entering sign in screen
-    logout()
-    notificationCleanup({ deleteExpo: true, deleteUP: true })
-  }, [logout, notificationCleanup])
+    if (!isInModal) {
+      // reset local storage when entering sign in screen
+      logout()
+      notificationCleanup({ deleteExpo: true, deleteUP: true })
+    }
+  }, [isInModal, logout, notificationCleanup])
 
   async function completeLogin(token: string) {
-    await setToken(token)
-    setImmediate(() => {
-      router.replace('/')
-    })
+    if (!isInModal) {
+      await setToken(token)
+      setImmediate(() => {
+        router.replace('/')
+      })
+    } else {
+      onLoginComplete?.(token)
+    }
   }
 
   function login() {
@@ -91,28 +103,32 @@ export default function SignIn() {
     <View
       className="flex-1 mx-4"
       style={{
-        ...sx,
+        ...(isInModal ? { paddingTop: 16 } : sx),
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
+      {isInModal ? null : <Toasts />}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView>
-          <Image
-            source={bigW}
-            style={{
-              marginTop: 48,
-              width: 120,
-              height: 120,
-              alignSelf: 'center',
-            }}
-          />
-          <Text className="text-center text-white my-6">
-            Hi! Welcome to WAFRN!
-          </Text>
+          {isInModal ? null : (
+            <>
+              <Image
+                source={bigW}
+                style={{
+                  marginTop: 48,
+                  width: 120,
+                  height: 120,
+                  alignSelf: 'center',
+                }}
+              />
+              <Text className="text-center text-white my-6">
+                Hi! Welcome to WAFRN!
+              </Text>
+            </>
+          )}
           <InstanceProvider>
             {!firstPassToken && (
               <>

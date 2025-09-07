@@ -1,4 +1,4 @@
-import { useCurrentUser } from '@/lib/api/user'
+import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
 import { router } from 'expo-router'
 import { Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
@@ -12,24 +12,25 @@ import {
 import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
-import { optionStyleBig } from '@/lib/styles'
+import { optionStyle, optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import TextWithEmojis from '../TextWithEmojis'
+import { useRef } from 'react'
+import clsx from 'clsx'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
   const sx = useSafeAreaPadding()
+  const menuRef = useRef<Menu>(null)
+
+  // TODO: remove this, find a way in backend to get avatars only without fetching the full user
+  const { accounts, loading } = useAccounts()
 
   const options = [
-    // {
-    //   icon: 'account-outline' as const,
-    //   label: 'My profile',
-    //   action: () => router.push(`/user/${me?.url}`),
-    // },
     {
       icon: 'chat-question-outline' as const,
       label: 'Asks',
@@ -80,9 +81,14 @@ export default function UserMenu() {
   })
 
   return (
-    <Menu renderer={renderers.SlideInMenu}>
+    <Menu ref={menuRef} renderer={renderers.SlideInMenu}>
       <MenuTrigger
-        customStyles={{ TriggerTouchableComponent: TouchableOpacity }}
+        customStyles={{
+          TriggerTouchableComponent: TouchableOpacity,
+          triggerTouchable: {
+            accessibilityLabel: 'Main menu',
+          },
+        }}
       >
         <View className="border border-gray-200/20 rounded-full">
           <Image
@@ -107,10 +113,7 @@ export default function UserMenu() {
         }}
       >
         <MenuOption onSelect={() => router.push(`/user/${me?.url}`)}>
-          <View
-            accessibilityLabel="My profile"
-            className="flex-row px-2 mb-2 gap-2 items-start"
-          >
+          <View className="flex-row px-2 mb-2 gap-2 items-start">
             <View className="my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
               <Image
                 source={{ uri: formatSmallAvatar(me?.avatar) }}
@@ -127,23 +130,57 @@ export default function UserMenu() {
                 {formatUserUrl(me?.url)}
               </Text>
             </View>
-            {/* <TouchableOpacity
+            <TouchableOpacity
               activeOpacity={0.5}
-              className="flex-shrink-0 rounded-lg p-2"
+              className={clsx('self-center flex-row items-center gap-1 mt-2', {
+                'opacity-50': loading,
+              })}
+              accessibilityLabel={`Account switcher (${accounts.length} accounts)`}
+              disabled={loading}
+              onPress={() => {
+                router.navigate('/setting/account-switcher')
+                menuRef.current?.close()
+              }}
             >
-              <MaterialCommunityIcons
-                name="plus-circle"
-                size={20}
-                color={colors.gray[500]}
-              />
-            </TouchableOpacity> */}
+              {accounts.filter((a => a.id !== me?.id)).slice(0, 2).map((acc) => (
+                <View
+                  key={acc?.id}
+                  style={{ width: 48, height: 48 }}
+                  className="relative rounded-xl border-2 border-gray-200"
+                >
+                  <Image
+                    source={{ uri: formatSmallAvatar(acc?.avatar) }}
+                    style={{ width: 42, height: 42 }}
+                    className="rounded-full"
+                  />
+                  {acc?.avatar ? null : (
+                    <Text className='absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>{acc.url.substring(0, 1)}</Text>
+                  )}
+                </View>
+              ))}
+              <View className="flex-shrink-0 rounded-lg p-2 bg-blue-100/75">
+                <MaterialCommunityIcons
+                  name="plus-circle"
+                  size={20}
+                  color={colors.blue[900]}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{ ...optionStyle(0) }}>
+            <MaterialCommunityIcons
+              name="account-outline"
+              size={20}
+              color={colors.gray[600]}
+            />
+            <Text className="text-sm flex-grow">My profile</Text>
           </View>
         </MenuOption>
         {filteredOptions.map((option, i) => (
           <MenuOption
             key={i}
             onSelect={option.action}
-            style={{ ...optionStyleBig(i) }}
+            style={{ ...optionStyleBig(i + 1) }}
           >
             {typeof option.icon === 'string' ? (
               <MaterialCommunityIcons

@@ -33,6 +33,9 @@ export default function ProtectedLayout() {
         headerShown: false,
       }}
     >
+      {/* this is the root route, so it must be always declared */}
+      <Stack.Screen name="(tabs)" />
+      {/* is better in terms of performance to declare the animation config here than ñinside of the component */}
       <Stack.Screen
         name="editor"
         options={{ animation: 'slide_from_bottom' }}

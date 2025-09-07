@@ -142,6 +142,7 @@ export function getPrivateOptionValue<
   const json = option?.optionValue
   if (!json) {
     if (Array.isArray(defaultValue)) {
+      // this is important so every caller of this function does not share the same reference to the same array 
       return [...defaultValue] as PrivateOptionTypeMap[typeof key]
     }
     return defaultValue
