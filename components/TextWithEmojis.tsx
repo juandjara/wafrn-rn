@@ -3,7 +3,7 @@ import { useSettings } from '@/lib/api/settings'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import clsx from 'clsx'
 import { useMemo } from 'react'
-import { Image, Text, TextProps, ViewProps } from 'react-native'
+import { Image, Text, TextProps } from 'react-native'
 
 const EMOJI_REGEX = /:[a-zA-Z0-9_]+:/g
 
@@ -25,9 +25,7 @@ export default function TextWithEmojis({
   }, [emojis, settings])
 
   const elements = useMemo(() => {
-    // console.log('running textWithEmojis useMemo')
     const matches = text.matchAll(EMOJI_REGEX)
-
     const elements = [] as React.ReactNode[]
     let lastIndex = 0
     let matchIndex = 0

@@ -1,17 +1,22 @@
-import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import { Pressable, Text, View } from 'react-native'
 import InstancePicker from './InstancePicker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function InstanceProvider({
   children,
-}: React.PropsWithChildren) {
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-
+  savedInstance,
+  setSavedInstance,
+}: React.PropsWithChildren & {
+  savedInstance: string | null
+  setSavedInstance: (url: string | null) => void
+}) {
   if (!savedInstance) {
-    return <InstancePicker />
+    return (
+      <InstancePicker
+        savedInstance={savedInstance}
+        setSavedInstance={setSavedInstance}
+      />
+    )
   }
 
   return (

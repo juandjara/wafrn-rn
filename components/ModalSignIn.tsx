@@ -1,11 +1,10 @@
 import {
   useLoginMutation,
   useLoginMfaMutation,
-  SAVED_INSTANCE_KEY,
+  getInstanceEnvironment,
 } from '@/lib/api/auth'
-import { useAuth, useLogout } from '@/lib/contexts/AuthContext'
-import { Link, router } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { Link } from 'expo-router'
+import { useState } from 'react'
 import {
   TextInput,
   Button,
@@ -14,46 +13,36 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useThemeColor } from '@/hooks/useThemeColor'
-import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { Toasts } from '@backpackapp-io/react-native-toast'
 import { showToastError } from '@/lib/interaction'
 import InstanceProvider from '@/components/InstanceProvider'
-import { useNotificationTokensCleanup } from '@/lib/notifications'
-import useAsyncStorage from '@/lib/useLocalStorage'
+import { useQuery } from '@tanstack/react-query'
 
-const bigW = require('@/assets/images/logo_w.png')
-
-export default function SignIn() {
+export default function ModalSignIn({
+  onLoginComplete,
+}: {
+  onLoginComplete: (token: string, instance: string) => void
+}) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const { setToken, env } = useAuth()
-  const sx = useSafeAreaPadding()
+  const [instance, setInstance] = useState<string | null>(null)
+
+  const { data: env } = useQuery({
+    queryKey: ['modalSignIn-environment'],
+    queryFn: () => getInstanceEnvironment(instance!),
+    enabled: !!instance,
+  })
+
   const color = useThemeColor({}, 'text')
-
-  const loginMfaMutation = useLoginMfaMutation(env!)
-  const loginMutation = useLoginMutation(env!)
-  const logout = useLogout()
-  const notificationCleanup = useNotificationTokensCleanup()
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-
-  useEffect(() => {
-    // reset local storage when entering sign in screen
-    logout()
-    notificationCleanup({ deleteExpo: true, deleteUP: true })
-  }, [logout, notificationCleanup])
+  const loginMfaMutation = useLoginMfaMutation(env)
+  const loginMutation = useLoginMutation(env)
 
   async function completeLogin(token: string) {
-    await setToken(token)
-    setImmediate(() => {
-      router.replace('/')
-    })
+    onLoginComplete(token, instance!)
   }
 
   function login() {
@@ -98,31 +87,18 @@ export default function SignIn() {
     <View
       className="flex-1 mx-4"
       style={{
-        ...sx,
+        paddingTop: 16,
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView>
-          <Image
-            source={bigW}
-            style={{
-              marginTop: 48,
-              width: 120,
-              height: 120,
-              alignSelf: 'center',
-            }}
-          />
-          <Text className="text-center text-white my-6">
-            Hi! Welcome to WAFRN!
-          </Text>
           <InstanceProvider
-            savedInstance={savedInstance}
-            setSavedInstance={setSavedInstance}
+            savedInstance={instance}
+            setSavedInstance={setInstance}
           >
             {!firstPassToken && (
               <>

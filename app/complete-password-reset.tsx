@@ -15,6 +15,8 @@ import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Image } from 'expo-image'
 import { usePasswordChangeCompleteMutation } from '@/lib/api/user'
 import InstanceProvider from '@/components/InstanceProvider'
+import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
+import useAsyncStorage from '@/lib/useLocalStorage'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -26,6 +28,8 @@ export default function CompletePasswordReset() {
     code: string
     email: string
   }>()
+  const { value: savedInstance, setValue: setSavedInstance } =
+    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   const mutation = usePasswordChangeCompleteMutation()
 
@@ -73,7 +77,10 @@ export default function CompletePasswordReset() {
           <Text className="text-white mt-2 mb-3">
             And just log in after that!
           </Text>
-          <InstanceProvider>
+          <InstanceProvider
+            savedInstance={savedInstance}
+            setSavedInstance={setSavedInstance}
+          >
             <TextInput
               secureTextEntry
               autoCapitalize="none"

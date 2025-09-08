@@ -1,30 +1,27 @@
 import { Colors } from '@/constants/Colors'
-import {
-  DEFAULT_INSTANCE,
-  SAVED_INSTANCE_KEY,
-  useEnvCheckMutation,
-} from '@/lib/api/auth'
+import { DEFAULT_INSTANCE, useEnvCheckMutation } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
 import { showToastError, showToastSuccess } from '@/lib/interaction'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import { useState } from 'react'
 import { Button, Text, TextInput, View } from 'react-native'
 
-export default function InstancePicker() {
-  const [instance, setInstance] = useState('')
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+export default function InstancePicker({
+  savedInstance,
+  setSavedInstance,
+}: {
+  savedInstance: string | null
+  setSavedInstance: (url: string) => void
+}) {
+  const [url, setUrl] = useState('')
   const color = Colors.dark.text
-
   const envMutation = useEnvCheckMutation()
 
   function connect(url: string) {
-    // const url = instance || DEFAULT_INSTANCE
     envMutation.mutate(url, {
       onSuccess: async () => {
         // the instance environment is valid, save the url to local storage
         showToastSuccess('Instance is good')
-        await setSavedInstance(url)
+        setSavedInstance(url)
       },
       onError: (error) => {
         console.error('Error fetching environment', error)
@@ -44,12 +41,12 @@ export default function InstancePicker() {
           placeholder="https://"
           style={{ color }}
           className="p-3 border border-gray-500 rounded-md placeholder:text-gray-400"
-          value={instance}
-          onChangeText={setInstance}
+          value={url}
+          onChangeText={setUrl}
           autoCapitalize="none"
           autoCorrect={false}
         />
-        {instance && !isValidURL(instance) && (
+        {url && !isValidURL(url) && (
           <Text className="text-red-500 text-sm">Invalid URL</Text>
         )}
       </View>
@@ -57,9 +54,9 @@ export default function InstancePicker() {
         <Button
           title={envMutation.isPending ? 'Loading...' : 'Connect'}
           disabled={
-            envMutation.isPending || !!savedInstance || !isValidURL(instance)
+            envMutation.isPending || !!savedInstance || !isValidURL(url)
           }
-          onPress={() => connect(instance)}
+          onPress={() => connect(url)}
         />
       </View>
       <View className="mt-3">
