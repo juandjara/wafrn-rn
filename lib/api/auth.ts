@@ -181,23 +181,23 @@ export async function loginMfa(env: Environment, mfaPayload: LoginMfaPayload) {
   return json.token
 }
 
-export function useLoginMutation() {
-  const { data: env } = useEnvironment()
-
+export function useLoginMutation(env?: Environment) {
   return useMutation<TokenResponse, Error, { email: string; password: string }>(
     {
       mutationKey: ['signIn'],
-      mutationFn: (body) => login(env!, body),
+      mutationFn: (body) => env
+        ? login(env, body)
+        : Promise.reject(new Error('Environment is not ready')),
     },
   )
 }
 
-export function useLoginMfaMutation() {
-  const { data: env } = useEnvironment()
-
+export function useLoginMfaMutation(env?: Environment) {
   return useMutation<string, Error, LoginMfaPayload>({
     mutationKey: ['signIn'],
-    mutationFn: (body) => loginMfa(env!, body),
+    mutationFn: (body) => env
+      ? loginMfa(env, body)
+      : Promise.reject(new Error('Environment is not ready')),
   })
 }
 
