@@ -20,15 +20,6 @@ Notifications.setNotificationHandler({
 })
 
 async function setupPushNotifications(authToken: string) {
-  if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.DEFAULT,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    })
-  }
-
   if (!Device.isDevice) {
     // NOTE: must use physical device to setup push notifications
     return null
@@ -110,7 +101,7 @@ export function usePushNotifications() {
     if (
       lastNotification &&
       lastNotification.actionIdentifier ===
-        Notifications.DEFAULT_ACTION_IDENTIFIER
+      Notifications.DEFAULT_ACTION_IDENTIFIER
     ) {
       const data = lastNotification.notification.request.content
         .data as PushNotificationPayload
@@ -148,7 +139,7 @@ export function getDistributors(): Distributor[] {
 }
 
 // explicit noop
-export function saveDistributor(distributorId: string | null) {}
+export function saveDistributor(distributorId: string | null) { }
 
 // explicit noop
-export function registerDevice(vapidKey: string, userId: string) {}
+export function registerDevice(vapidKey: string, userId: string) { }
