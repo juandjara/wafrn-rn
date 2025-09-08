@@ -1,6 +1,6 @@
 import { QueryFunctionContext, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError, uploadFile } from '../http'
-import { getEnvironmentStatic, parseToken } from './auth'
+import { getEnvironmentStatic, getInstanceEnvironment, parseToken, SAVED_INSTANCE_KEY } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
@@ -106,51 +106,80 @@ export function useUser(handle: string) {
 
 type Signal = QueryFunctionContext["signal"]
 
-function useAccountsQueries(tokens: string[]) {
+// all of this just to get the fucking avatars and names for the account switcher
+function useAccountsQueries(data: SavedAccount[], currentInstance: string) {
   return useQueries({
-    queries: tokens.map((token) => ({
-      queryKey: ['user', token],
-      queryFn: ({ signal }: { signal: Signal }) => getUser(token, signal),
-      enabled: !!token,
+    queries: data.map((account) => ({
+      queryKey: ['user', account.token, account.instance],
+      queryFn: ({ signal }: { signal: Signal }) => {
+        const user = parseToken(account.token)
+        let handle = user?.url || ''
+        if (account.instance !== currentInstance && !handle.includes('@')) {
+          const host = new URL(account.instance).hostname
+          handle = `@${handle}@${host}`
+        }
+        return getUser(account.token, signal, handle)
+      },
     })),
   })
 }
 
 const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 
+type SavedAccount = {
+  token: string
+  instance: string
+}
+
 export function useAccounts() {
   const qc = useQueryClient()
-  const { token, setToken } = useAuth()
+  const { token, setToken, env } = useAuth()
+  const currentInstance = env?.BASE_URL
   const {
-    loading: accountTokensLoading,
-    value: _accountTokens,
-    setValue: setAccountTokens,
-  } = useAsyncStorage<string[]>(ACCOUNT_SWITCHER_KEY, [])
-  const accountTokens = _accountTokens?.length ? _accountTokens : [token!]
-  const accountQueries = useAccountsQueries(accountTokens)
+    loading: accountsDataLoading,
+    value: _accountsData,
+    setValue: setAccountsData,
+  } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
+  const { setValue: setSavedInstance } =
+    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  
+  const accountsData = _accountsData?.length
+    ? _accountsData
+    : [{ token: token!, instance: currentInstance! }]
+  
+  const accountQueries = useAccountsQueries(accountsData, currentInstance!)
   const loading =
-    accountTokensLoading || accountQueries.some((query) => query.isLoading)
+    accountsDataLoading || accountQueries.some((query) => query.isLoading)
+  
   const accounts = accountQueries.map((query) => query.data).filter(a => !!a)
   const error = accountQueries.find((query) => query.error)?.error ?? null
 
-  function addAccount(token: string) {
-    setAccountTokens([...(accountTokens ?? []), token])
+  function addAccount(token: string, instance: string) {
+    setAccountsData([...(accountsData ?? []), { token, instance }])
   }
-  function removeAccount(token: string) {
-    setAccountTokens(accountTokens?.filter((t) => t !== token) ?? [])
+  function removeAccount(index: number) {
+    setAccountsData(accountsData?.filter((t, i) => i !== index) ?? [])
   }
   function removeAll() {
-    setAccountTokens([])
+    setAccountsData([])
   }
+
+  function nextTick() {
+    return new Promise((resolve) => {
+      setImmediate(resolve)
+    })
+  }
+
   async function selectAccount(index: number) {
-    const newToken = accountTokens?.[index] ?? null
-    // set the new token in the auth context
-    setToken(newToken)
-    // invalidate all queries
-    setImmediate(() => {
-      qc.invalidateQueries({
-        predicate: ({ queryKey }) => queryKey[0] !== 'environment'
-      })
+    const newValues = accountsData?.[index] ?? null
+    const { token, instance } = newValues ?? {}
+    const env = await getInstanceEnvironment(instance)
+    qc.setQueryData(['environment'], env)
+    await setToken(token)
+    await nextTick()
+    await setSavedInstance(instance)
+    await qc.invalidateQueries({
+      predicate: ({ queryKey }) => queryKey[0] !== 'environment'
     })
   }
   return {

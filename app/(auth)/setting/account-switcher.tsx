@@ -1,6 +1,6 @@
-import SignIn from '@/app/sign-in'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import Loading from '@/components/Loading'
+import ModalSignIn from '@/components/ModalSignIn'
 import TextWithEmojis from '@/components/TextWithEmojis'
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
@@ -30,13 +30,13 @@ export default function AccountSwitcherSettings() {
     addAccount,
     removeAccount,
     selectAccount,
-    removeAll
+    removeAll,
   } = useAccounts()
   const [showLogin, setShowLogin] = useState(false)
 
-  function onLoginComplete(token: string) {
+  function onLoginComplete(token: string, instance: string) {
     setShowLogin(false)
-    addAccount(token)
+    addAccount(token, instance)
   }
 
   return (
@@ -54,14 +54,14 @@ export default function AccountSwitcherSettings() {
           <Loading />
         </View>
       )}
-      <View className='flex-row gap-2 items-center mb-2'>
+      <View className="flex-row gap-2 items-center mb-2">
         <Text className="text-white px-4 text-sm flex-grow">
           Click on an account to switch to it
         </Text>
         <Pressable
           className={clsx(
-            "flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2",
-            { 'opacity-50': accounts.length === 0 }
+            'flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2',
+            { 'opacity-50': accounts.length === 0 },
           )}
           onPress={removeAll}
           disabled={accounts.length === 0}
@@ -98,7 +98,9 @@ export default function AccountSwitcherSettings() {
                 }}
               />
               {acc?.avatar ? null : (
-                <Text className='absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>{acc.url.substring(0, 1)}</Text>
+                <Text className="absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
+                  {acc.url.substring(0, 1)}
+                </Text>
               )}
             </View>
             <View className="flex-1 mb-2">
@@ -109,7 +111,7 @@ export default function AccountSwitcherSettings() {
             </View>
             <TouchableOpacity
               className="p-2 rounded-full"
-              onPress={() => removeAccount(acc.id)}
+              onPress={() => removeAccount(index)}
               disabled={acc.id === me?.id}
             >
               {showLogin ? (
@@ -140,7 +142,7 @@ export default function AccountSwitcherSettings() {
             onPress={() => setShowLogin(false)}
           />
           <View className="flex-1">
-            <SignIn isInModal onLoginComplete={onLoginComplete} />
+            <ModalSignIn onLoginComplete={onLoginComplete} />
           </View>
         </Modal>
       </View>
