@@ -1,4 +1,8 @@
-import { useLoginMutation, useLoginMfaMutation } from '@/lib/api/auth'
+import {
+  useLoginMutation,
+  useLoginMfaMutation,
+  SAVED_INSTANCE_KEY,
+} from '@/lib/api/auth'
 import { useAuth, useLogout } from '@/lib/contexts/AuthContext'
 import { Link, router } from 'expo-router'
 import { useEffect, useState } from 'react'
@@ -19,16 +23,11 @@ import { Toasts } from '@backpackapp-io/react-native-toast'
 import { showToastError } from '@/lib/interaction'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useNotificationTokensCleanup } from '@/lib/notifications'
+import useAsyncStorage from '@/lib/useLocalStorage'
 
 const bigW = require('@/assets/images/logo_w.png')
 
-export default function SignIn({
-  isInModal,
-  onLoginComplete,
-}: {
-  isInModal?: boolean
-  onLoginComplete?: (token: string) => void
-}) {
+export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
@@ -37,28 +36,24 @@ export default function SignIn({
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
 
-  const loginMfaMutation = useLoginMfaMutation()
-  const loginMutation = useLoginMutation()
+  const loginMfaMutation = useLoginMfaMutation(env!)
+  const loginMutation = useLoginMutation(env!)
   const logout = useLogout()
   const notificationCleanup = useNotificationTokensCleanup()
+  const { value: savedInstance, setValue: setSavedInstance } =
+    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   useEffect(() => {
-    if (!isInModal) {
-      // reset local storage when entering sign in screen
-      logout()
-      notificationCleanup({ deleteExpo: true, deleteUP: true })
-    }
-  }, [isInModal, logout, notificationCleanup])
+    // reset local storage when entering sign in screen
+    logout()
+    notificationCleanup({ deleteExpo: true, deleteUP: true })
+  }, [logout, notificationCleanup])
 
   async function completeLogin(token: string) {
-    if (!isInModal) {
-      await setToken(token)
-      setImmediate(() => {
-        router.replace('/')
-      })
-    } else {
-      onLoginComplete?.(token)
-    }
+    await setToken(token)
+    setImmediate(() => {
+      router.replace('/')
+    })
   }
 
   function login() {
@@ -103,33 +98,32 @@ export default function SignIn({
     <View
       className="flex-1 mx-4"
       style={{
-        ...(isInModal ? { paddingTop: 16 } : sx),
+        ...sx,
         backgroundColor: Colors.dark.background,
       }}
     >
-      {isInModal ? null : <Toasts />}
+      <Toasts />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView>
-          {isInModal ? null : (
-            <>
-              <Image
-                source={bigW}
-                style={{
-                  marginTop: 48,
-                  width: 120,
-                  height: 120,
-                  alignSelf: 'center',
-                }}
-              />
-              <Text className="text-center text-white my-6">
-                Hi! Welcome to WAFRN!
-              </Text>
-            </>
-          )}
-          <InstanceProvider>
+          <Image
+            source={bigW}
+            style={{
+              marginTop: 48,
+              width: 120,
+              height: 120,
+              alignSelf: 'center',
+            }}
+          />
+          <Text className="text-center text-white my-6">
+            Hi! Welcome to WAFRN!
+          </Text>
+          <InstanceProvider
+            savedInstance={savedInstance}
+            setSavedInstance={setSavedInstance}
+          >
             {!firstPassToken && (
               <>
                 <View className="mt-3">
