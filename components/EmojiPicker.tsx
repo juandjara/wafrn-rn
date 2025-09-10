@@ -69,7 +69,8 @@ export default function EmojiPicker({
         }
         return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       })
-    return (recentEmojis || []).concat(list)
+    const recent = (recentEmojis || []).map((e) => ({ ...e, id: e.id ? `${e.id}-recent` : e.id }))
+    return recent.concat(list)
   }, [recentEmojis, settings, debouncedSearch])
 
   const headers = useMemo(() => {
@@ -115,12 +116,18 @@ export default function EmojiPicker({
   }, [settings, emojiList])
 
   function haveIReacted(emoji: Emoji) {
+    if (emoji.id.endsWith('-recent')) {
+      emoji.id = emoji.id.replace('-recent', '')
+    }
     return reactions.some(
       (r) => r.emojiId === emoji.id || r.content === emoji.content,
     )
   }
 
   function handlePick(emoji: Emoji) {
+    if (emoji.id.endsWith('-recent')) {
+      emoji.id = emoji.id.replace('-recent', '')
+    }
     const prev = (recentEmojis || []).filter((item) => item.id !== emoji.id)
     const next = [emoji, ...prev].slice(0, RECENT_EMOJI_LIMIT)
     setRecentEmojis(next)
