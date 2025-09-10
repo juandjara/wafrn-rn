@@ -34,7 +34,7 @@ export default function InstancePicker({
     <>
       <View className="my-3">
         <Text className="text-sm text-gray-200 mb-2">
-          please enter the URL of your WAFRN server
+          Please enter the URL of your WAFRN server
         </Text>
         <TextInput
           readOnly={envMutation.isPending || !!savedInstance}
