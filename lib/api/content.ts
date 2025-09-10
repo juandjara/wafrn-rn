@@ -488,7 +488,7 @@ function getAppliedMute(post: Post, context: DashboardContextData, options: Priv
   const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
   const isLocalPost = !post.remotePostId && !user?.url.startsWith('@')
   const isFediversePost = post.remotePostId && !post.bskyUri
-  
+
   const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
   const mutedWords = getPrivateOptionValue(options, PrivateOptionNames.AdvancedMutedWords)
   if (mutedWordsLine.trim().length > 0) {
@@ -660,16 +660,21 @@ export function getDerivedThreadState(
   }
 
   const ancestorLimitReached = ancestors.length >= threadAncestorLimit
-  let posts = [...ancestors, interactionPost]
+  // this is the shape the array will have if thread ancestor limit is not reached (ex. for threads with only or two posts)
+  let posts = [...ancestors, interactionPost] as (Post | null)[]
   let morePostsCount = 0
   if (ancestorLimitReached) {
     if (threadAncestorLimit === 1) {
       posts = [interactionPost]
     } else if (threadAncestorLimit === 2) {
-      posts = [ancestors[0], interactionPost].filter(Boolean)
+      posts = [null, ancestors[ancestors.length - 1], interactionPost]
       morePostsCount = ancestors.length - 1
     } else {
-      posts = [ancestors[0], ancestors[ancestors.length - 1], interactionPost].filter(Boolean)
+      // the `-1` cuts from the tail of ancestors and
+      // thread ancestor limit is a minimum of 3 here, and we are already showing 2 other posts,
+      // so `tail` will at least have one element
+      const tail = ancestors.slice(-1 * (threadAncestorLimit - 2))
+      posts = [ancestors[0], ...tail, interactionPost].filter(Boolean)
       morePostsCount = ancestors.length - 2
     }
   }
@@ -694,7 +699,7 @@ export function getDerivedThreadState(
     interactionPost,
     postHidden,
     firstPost,
-    threadPosts,
+    threadPosts: threadPosts.filter(t => !!t),
     morePostsCount,
     ancestorLimitReached,
   }

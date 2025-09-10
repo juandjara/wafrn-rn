@@ -27,7 +27,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
   } = context.threadData[thread.id]
 
   const userHidden =
-    hiddenUserIds.includes(firstPost.userId) ||
+    (firstPost ? hiddenUserIds.includes(firstPost.userId) : false) ||
     threadPosts.some((a) => hiddenUserIds.includes(a.userId))
 
   if (postHidden || userHidden) {
@@ -55,7 +55,9 @@ function ThreadInner({ thread }: { thread: PostThread }) {
           )}
         </>
       ) : null}
-      <PostFragment post={firstPost} />
+      {firstPost && (
+        <PostFragment post={firstPost} />
+      )}
       {morePostsCount > 0 && (
         <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
           <Link
