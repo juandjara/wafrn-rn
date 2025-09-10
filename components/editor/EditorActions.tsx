@@ -8,8 +8,6 @@ import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorImage } from '@/lib/editor'
-import { getPrivateOptionValue, useSettings } from '@/lib/api/settings'
-import { PrivateOptionNames } from '@/lib/api/settings'
 
 export type EditorActionProps = {
   actions: {
@@ -22,12 +20,6 @@ export type EditorActionProps = {
 }
 
 export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
-  const { data: settings } = useSettings()
-  const hasGifSupport = !!getPrivateOptionValue(
-    settings?.options || [],
-    PrivateOptionNames.GifApiKey,
-  )
-
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
@@ -117,14 +109,12 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
         >
           <MaterialCommunityIcons name="image" color="white" size={24} />
         </Pressable>
-        {hasGifSupport && (
-          <Pressable
-            onPress={() => setShowGifPicker(true)}
-            className="active:bg-white/50 bg-white/15 p-2 rounded-full"
-          >
-            <MaterialIcons name="gif" color="white" size={24} />
-          </Pressable>
-        )}
+        <Pressable
+          onPress={() => setShowGifPicker(true)}
+          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+        >
+          <MaterialIcons name="gif" color="white" size={24} />
+        </Pressable>
         <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"

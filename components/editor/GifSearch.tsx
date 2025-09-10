@@ -6,6 +6,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -20,6 +21,7 @@ import { EditorImage } from '@/lib/editor'
 import { PrivateOptionNames } from '@/lib/api/settings'
 import { getPrivateOptionValue } from '@/lib/api/settings'
 import { useSettings } from '@/lib/api/settings'
+import { Link } from 'expo-router'
 
 type GifMediaFormat = {
   dims: number[]
@@ -100,6 +102,7 @@ export default function GifSearch({
         return data.results as GifResponse[]
       }
     },
+    enabled: !!gifApiKey
   })
 
   const downloadMutation = useMutation({
@@ -152,11 +155,37 @@ export default function GifSearch({
             autoFocus
             onSubmitEditing={() => setQuery(search)}
             enterKeyHint="search"
+            readOnly={!gifApiKey}
           />
           <Pressable onPress={onClose} className="p-2">
             <MaterialIcons name="close" size={24} color="white" />
           </Pressable>
         </View>
+        {!gifApiKey && (
+          <View className='my-4'>
+            <Text className='text-white text-center mb-4'>
+              You need a Tenor API Key to use the GIF search.
+            </Text>
+            <Text className='text-white text-center leading-6'>
+              You can get one{' '}
+              <Link
+                href="https://developers.google.com/tenor/guides/quickstart"
+                className="text-cyan-500 underline"
+              >
+                here
+              </Link>{' '}
+              or ask{' '}
+              <Link
+                href="wafrn://search/?q=@javascript@app.wafrn.net"
+                className='text-cyan-500 underline'
+              >@javascript</Link> to give you one to write it in your{' '}
+              <Link
+                href="wafrn://setting/options"
+                className='text-cyan-500 underline'
+              >app settings</Link>.
+            </Text>
+          </View>
+        )}
         {isLoading && <Loading />}
         <FlatList
           data={data}
