@@ -96,13 +96,16 @@ export default function UserMenu() {
           triggerTouchable: {
             accessibilityLabel: 'Main menu',
           },
+          triggerWrapper: {
+            position: 'relative'
+          }
         }}
       >
-        <View className="border border-gray-200/20 rounded-full">
+        <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
             className="rounded-full"
             source={{ uri: formatSmallAvatar(me?.avatar) }}
-            style={{ width: 40, height: 40 }}
+            style={{ width: 42, height: 42 }}
           />
         </View>
         {anyBadge && (
@@ -110,6 +113,12 @@ export default function UserMenu() {
             {options.reduce((acc, option) => acc + (option.badge || 0), 0)}
           </Text>
         )}
+        {me?.avatar ? null : (
+          <Text className='text-white absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>
+            {me?.url.substring(0, 1)}
+          </Text>
+        )}
+
       </MenuTrigger>
       <MenuOptions
         customStyles={{
