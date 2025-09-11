@@ -137,12 +137,14 @@ export default function RollScreen() {
             </Text>
           </View>
         )}
-        <View className="mt-6">
-          <Text className="text-white text-xl text-center mb-8">
+        <View className="mt-6 mb-8">
+          <Text className="text-white text-xl text-center mb-2">
             Tap to{' '}
             <Text className="font-bold">{isRolling ? 'stop' : 'roll'}</Text> the
             dice
           </Text>
+          <Text className='my-1 text-white text-sm text-center'>If you get a 6, you will see some nice words.</Text>
+          <Text className='text-white text-sm text-center'>If you get a 1, you are dead.</Text>
         </View>
         <View className="border-t border-white rounded-lg py-6">
           <Text className="text-white text-sm text-center">
