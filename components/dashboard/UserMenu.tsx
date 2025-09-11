@@ -17,7 +17,7 @@ import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import TextWithEmojis from '../TextWithEmojis'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import clsx from 'clsx'
 
 export default function UserMenu() {
@@ -28,7 +28,10 @@ export default function UserMenu() {
   const menuRef = useRef<Menu>(null)
 
   // TODO: remove this, find a way in backend to get avatars only without fetching the full user
-  const { accounts, loading } = useAccounts()
+  const { accounts, loading, selectAccount } = useAccounts()
+  const accountList = useMemo(() => {
+    return accounts.map((a, index) => ({ ...a, index }))
+  }, [accounts])
 
   const options = [
     {
@@ -80,6 +83,11 @@ export default function UserMenu() {
     return true
   })
 
+  function navAndClose(href: string) {
+    router.navigate(href)
+    menuRef.current?.close()
+  }
+
   return (
     <Menu ref={menuRef} renderer={renderers.SlideInMenu}>
       <MenuTrigger
@@ -130,42 +138,41 @@ export default function UserMenu() {
                 {formatUserUrl(me?.url)}
               </Text>
             </View>
-            <TouchableOpacity
-              activeOpacity={0.5}
-              className={clsx('self-center flex-row items-center gap-1 mt-2', {
-                'opacity-50': loading,
-              })}
-              accessibilityLabel={`Account switcher (${accounts.length} accounts)`}
-              disabled={loading}
-              onPress={() => {
-                router.navigate('/setting/account-switcher')
-                menuRef.current?.close()
-              }}
-            >
-              {accounts.filter((a => a.id !== me?.id)).slice(0, 2).map((acc) => (
-                <View
+            <View className='self-center flex-row items-center gap-1 mt-2'>
+              {accountList.filter((a => a.id !== me?.id)).slice(0, 2).map((acc) => (
+                <TouchableOpacity
                   key={acc?.id}
                   style={{ width: 48, height: 48 }}
                   className="relative rounded-xl border-2 border-gray-200"
+                  accessibilityLabel={`Switch to ${formatUserUrl(acc.url)}`}
+                  onPress={() => selectAccount(acc.index)}
+                  activeOpacity={0.5}
                 >
                   <Image
                     source={{ uri: formatSmallAvatar(acc?.avatar) }}
-                    style={{ width: 42, height: 42 }}
-                    className="rounded-full"
+                    style={{ width: 44, height: 44, borderRadius: 8 }}
                   />
                   {acc?.avatar ? null : (
                     <Text className='absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>{acc.url.substring(0, 1)}</Text>
                   )}
-                </View>
+                </TouchableOpacity>
               ))}
-              <View className="flex-shrink-0 rounded-lg p-2 bg-blue-100/75">
+              <TouchableOpacity
+                activeOpacity={0.5}
+                className={clsx("flex-shrink-0 rounded-lg p-2 bg-blue-100/75", {
+                  'opacity-50': loading,
+                })}
+                onPress={() => navAndClose('/setting/account-switcher')}
+                disabled={loading}
+                accessibilityLabel='Add new account'
+              >
                 <MaterialCommunityIcons
                   name="plus-circle"
                   size={20}
                   color={colors.blue[900]}
                 />
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={{ ...optionStyle(0) }}>
             <MaterialCommunityIcons
