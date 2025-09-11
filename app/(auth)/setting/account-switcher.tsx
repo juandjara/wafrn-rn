@@ -87,12 +87,7 @@ export default function AccountSwitcherSettings() {
               accessibilityLabel="My profile"
               className="flex-row px-2 mb-4 gap-3 items-center bg-blue-950/50 rounded-2xl"
               disabled={acc.id === me?.id}
-              onPress={() => {
-                Alert.alert('Switch account', `Switch to ${acc.name}?`, [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Switch', onPress: () => selectAccount(index) },
-                ])
-              }}
+              onPress={() => selectAccount(index)}
             >
               <View className="relative my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
                 <Image
@@ -117,18 +112,20 @@ export default function AccountSwitcherSettings() {
               </View>
               <TouchableOpacity
                 className="p-2 rounded-full"
-                onPress={() => removeAccount(index)}
                 disabled={acc.id === me?.id}
+                accessibilityLabel='Delete account'
+                onPress={() => {
+                  Alert.alert('Delete account', `Do you want to remove ${formatUserUrl(acc.url)} from the account switcher?`, [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Switch', onPress: () => removeAccount(index) },
+                  ])
+                }}
               >
-                {showLogin ? (
-                  <ActivityIndicator />
-                ) : (
-                  <MaterialCommunityIcons
-                    name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
-                    size={24}
-                    color={colors.gray[200]}
-                  />
-                )}
+                <MaterialCommunityIcons
+                  name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
+                  size={24}
+                  color={colors.gray[200]}
+                />
               </TouchableOpacity>
             </Pressable>
           ))}
