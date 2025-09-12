@@ -10,7 +10,6 @@ import clsx from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   Button,
   KeyboardAvoidingView,

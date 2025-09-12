@@ -12,6 +12,7 @@ import {
 import { BSKY_URL } from './content'
 import { getEnvironmentStatic } from './auth'
 import { EditorImage } from '../editor'
+import { useAccounts } from './user'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 0,
@@ -129,6 +130,7 @@ export type CreatePostPayload = {
   privacy: PrivacyLevel
   medias: Required<Omit<EditorImage, 'fileName' | 'mimeType'>>[]
   mentionedUserIds: string[]
+  postingAccountId: string
 }
 
 export async function wait(ms: number) {
@@ -139,7 +141,7 @@ export async function arbitraryWaitPostQueue() {
   await wait(500)
 }
 
-export async function createPost(token: string, payload: CreatePostPayload) {
+export async function createPost(token: string, payload: Omit<CreatePostPayload, 'postingAccountId'>) {
   const env = getEnvironmentStatic()
   const data = await getJSON(`${env?.API_URL}/v3/createPost`, {
     method: 'POST',
@@ -167,12 +169,13 @@ export async function createPost(token: string, payload: CreatePostPayload) {
 }
 
 export function useCreatePostMutation() {
-  const { token } = useAuth()
   const qc = useQueryClient()
+  const { getAccountToken } = useAccounts()
 
   return useMutation<string, Error, CreatePostPayload>({
     mutationKey: ['createPost'],
     mutationFn: async (payload) => {
+      const token = getAccountToken(payload.postingAccountId)
       return await createPost(token!, payload)
     },
     onError: (err, variables, context) => {

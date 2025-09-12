@@ -1,5 +1,4 @@
 import { PostUser } from '@/lib/api/posts.types'
-import { PrivacyLevel } from '@/lib/api/privacy'
 import useDebounce from '@/lib/useDebounce'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
@@ -14,22 +13,13 @@ import colors from 'tailwindcss/colors'
 import EditorSuggestions from './EditorSuggestions'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { EditorImage } from '@/lib/editor'
+import { EditorFormState } from '@/lib/editor'
 
 type MentionApi = ReturnType<typeof useMentions>
 
-export type EditorFormState = {
-  content: string
-  contentWarning: string
-  contentWarningOpen: boolean
-  tags: string
-  privacy: PrivacyLevel
-  medias: EditorImage[]
-}
-
 type Selection = { start: number; end: number }
 type EditorProps = MentionApi & {
-  formState: EditorFormState
+  formState: Omit<EditorFormState, 'postingAs'>
   updateFormState: (
     key: keyof EditorFormState,
     value: EditorFormState[keyof EditorFormState],

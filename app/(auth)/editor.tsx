@@ -23,7 +23,7 @@ import EditorActions, {
   EditorActionProps,
 } from '@/components/editor/EditorActions'
 import ImageList from '@/components/editor/EditorImages'
-import EditorInput, { EditorFormState } from '@/components/editor/EditorInput'
+import EditorInput from '@/components/editor/EditorInput'
 import { useMediaUploadMutation } from '@/lib/api/media'
 import { formatMediaUrl } from '@/lib/formatters'
 import {
@@ -32,7 +32,7 @@ import {
   getTextFromMentionState,
 } from '@/lib/api/content'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { EditorImage, useEditorData } from '@/lib/editor'
+import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
 import colors from 'tailwindcss/colors'
 import { PostUser } from '@/lib/api/posts.types'
@@ -83,9 +83,6 @@ export default function EditorView() {
       return false
     }
     const invalidMedias = form.medias.some((m) => {
-      // if (m.id) {
-      //   return false
-      // }
       return disableForceAltText ? false : !m.description
     })
     if (invalidMedias) {
@@ -158,6 +155,7 @@ export default function EditorView() {
           NSFW: m.NSFW || false,
         })),
         mentionedUserIds,
+        postingAccountId: form.postingAs
       },
       {
         onSuccess(data) {
@@ -189,9 +187,8 @@ export default function EditorView() {
         return
       }
       const textAfterCursor = text.substring(selection.end)
-      const newText = `${textBeforeCursor}${start}${textInCursor}${
-        end || start
-      }${textAfterCursor}`
+      const newText = `${textBeforeCursor}${start}${textInCursor}${end || start
+        }${textAfterCursor}`
       update(
         'content',
         generateValueFromMentionStateAndChangedText(
@@ -255,6 +252,8 @@ export default function EditorView() {
         <EditorHeader
           privacy={form.privacy}
           setPrivacy={(p) => update('privacy', p)}
+          postingAs={form.postingAs}
+          setPostingAs={(userId) => update('postingAs', userId)}
           isLoading={createMutation.isPending}
           canPublish={canPublish}
           onPublish={onPublish}

@@ -142,15 +142,15 @@ export function useAccounts() {
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
   const { setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-  
+
   const accountsData = _accountsData?.length
     ? _accountsData
     : [{ token: token!, instance: currentInstance! }]
-  
+
   const accountQueries = useAccountsQueries(accountsData, currentInstance!)
   const loading =
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
-  
+
   const accounts = accountQueries.map((query) => query.data).filter(a => !!a)
   const error = accountQueries.find((query) => query.error)?.error ?? null
 
@@ -162,6 +162,10 @@ export function useAccounts() {
   }
   function removeAll() {
     setAccountsData([])
+  }
+  function getAccountToken(userId: string) {
+    const index = accounts.findIndex((a) => a.id === userId)
+    return accountsData[index]?.token
   }
 
   function nextTick() {
@@ -189,7 +193,8 @@ export function useAccounts() {
     addAccount,
     removeAccount,
     selectAccount,
-    removeAll
+    removeAll,
+    getAccountToken
   }
 }
 

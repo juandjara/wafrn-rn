@@ -5,11 +5,14 @@ import { Link, useLocalSearchParams } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'
 import { EditorSearchParams } from '@/lib/editor'
+import PostingAsSelector from './PostingAsSelector'
 
 export default function EditorHeader({
   isLoading,
   privacy,
   setPrivacy,
+  postingAs,
+  setPostingAs,
   canPublish,
   onPublish,
   maxPrivacy,
@@ -18,6 +21,8 @@ export default function EditorHeader({
   isLoading: boolean
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
+  postingAs: string,
+  setPostingAs: (userId: string) => void
   canPublish: boolean
   onPublish: () => void
   maxPrivacy?: PrivacyLevel
@@ -43,6 +48,10 @@ export default function EditorHeader({
         />
       </View>
       <View className="flex-grow"></View>
+      <PostingAsSelector
+        selectedUserId={postingAs}
+        setSelectedUserId={setPostingAs}
+      />
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}

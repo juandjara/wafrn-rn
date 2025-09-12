@@ -118,7 +118,6 @@ export default function UserMenu() {
             {me?.url.substring(0, 1)}
           </Text>
         )}
-
       </MenuTrigger>
       <MenuOptions
         customStyles={{

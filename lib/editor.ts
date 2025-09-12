@@ -31,6 +31,7 @@ export type EditorFormState = {
   tags: string
   privacy: PrivacyLevel
   medias: EditorImage[]
+  postingAs: string // user id
 }
 
 export type EditorImage = {
@@ -103,6 +104,7 @@ export function useEditorData() {
       tags: '',
       privacy: defaultPrivacy,
       medias: [] as EditorImage[],
+      postingAs: me?.userId || ''
     }
 
     if (params.type === 'ask') {
@@ -142,7 +144,7 @@ export function useEditorData() {
         const userMap = Object.fromEntries(
           reply.users.map((user) => [user.id, user]),
         )
-        
+
         privacySelectDisabled = !!replyPost.bskyUri && !!userMap[replyPost.userId]?.url.startsWith('@')
         if (privacySelectDisabled) {
           formState.privacy = PrivacyLevel.PUBLIC
@@ -156,7 +158,7 @@ export function useEditorData() {
         const mentionsToIgnore = [] as string[]
         const thread = [replyPost, ...(replyPost.ancestors || [])]
         const topPost = thread.find((p) => p.hierarchyLevel <= 1)
-        
+
         // TODO: review if we still need this, logic complexity could be reduced
         // because right now we are only picking mentions from the reply post
         if (topPost) {
@@ -181,7 +183,7 @@ export function useEditorData() {
         if (userId !== me?.userId) {
           mentionIds.add(userId)
         }
-       
+
         const replyPostMentions = reply.mentions.filter((m) => m.post === replyPost.id)
         for (const mention of replyPostMentions) {
           const isMe = mention.userMentioned === me?.userId
@@ -222,9 +224,8 @@ export function useEditorData() {
           continue
         }
         const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
-        const mentionText = `[${formatUserUrl(user.url)}](${remoteId}?id=${
-          user.id
-        })`
+        const mentionText = `[${formatUserUrl(user.url)}](${remoteId}?id=${user.id
+          })`
         content = content.replace(formatUserUrl(user.url), mentionText)
       }
 

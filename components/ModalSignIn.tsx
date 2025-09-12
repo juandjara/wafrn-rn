@@ -9,9 +9,7 @@ import {
   TextInput,
   Button,
   View,
-  Text,
-  Platform,
-  KeyboardAvoidingView,
+  Text
 } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
