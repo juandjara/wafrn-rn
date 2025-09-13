@@ -10,9 +10,10 @@ import {
   showToastSuccess,
 } from '../interaction'
 import { BSKY_URL } from './content'
-import { getEnvironmentStatic } from './auth'
+import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
 import { EditorImage } from '../editor'
 import { useAccounts } from './user'
+import { router } from 'expo-router'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 0,
@@ -141,9 +142,18 @@ export async function arbitraryWaitPostQueue() {
   await wait(500)
 }
 
-export async function createPost(token: string, payload: Omit<CreatePostPayload, 'postingAccountId'>) {
+export async function createPost(
+  token: string,
+  payload: Omit<CreatePostPayload, 'postingAccountId'>,
+  instance?: string
+) {
   const env = getEnvironmentStatic()
-  const data = await getJSON(`${env?.API_URL}/v3/createPost`, {
+  let apiURL = env.API_URL
+  if (instance && instance !== env.BASE_URL) {
+    const env = await getInstanceEnvironment(instance)
+    apiURL = env.API_URL
+  }
+  const data = await getJSON(`${apiURL}/v3/createPost`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -170,13 +180,17 @@ export async function createPost(token: string, payload: Omit<CreatePostPayload,
 
 export function useCreatePostMutation() {
   const qc = useQueryClient()
-  const { getAccountToken } = useAccounts()
+  const { env } = useAuth()
+  const { getAccountData } = useAccounts()
 
   return useMutation<string, Error, CreatePostPayload>({
     mutationKey: ['createPost'],
     mutationFn: async (payload) => {
-      const token = getAccountToken(payload.postingAccountId)
-      return await createPost(token!, payload)
+      const data = getAccountData(payload.postingAccountId)
+      if (!data.token || !data.instance) {
+        throw new Error(`cannot post with invalid account data: ${JSON.stringify(data)}`)
+      }
+      return await createPost(data.token, payload, data.instance)
     },
     onError: (err, variables, context) => {
       console.error(err)
@@ -184,6 +198,12 @@ export function useCreatePostMutation() {
     },
     onSuccess: (data, variables) => {
       showToastSuccess('Woot Created')
+      const instance = getAccountData(variables.postingAccountId)?.instance ?? ''
+      if (env?.BASE_URL === instance) {
+        router.replace(`/post/${data}`)
+      } else {
+        router.back()
+      }
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: async (data, error, variables) => {

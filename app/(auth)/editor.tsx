@@ -1,5 +1,4 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { router } from 'expo-router'
 import { useMemo, useState } from 'react'
 import {
   Keyboard,
@@ -156,12 +155,7 @@ export default function EditorView() {
         })),
         mentionedUserIds,
         postingAccountId: form.postingAs
-      },
-      {
-        onSuccess(data) {
-          router.replace(`/post/${data}`)
-        },
-      },
+      }
     )
   }
 

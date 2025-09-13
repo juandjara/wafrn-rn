@@ -4,7 +4,7 @@ import { optionStyleBig } from "@/lib/styles";
 import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
 import { Image } from "expo-image";
 import { useMemo } from "react";
-import { Text, TouchableHighlight, View } from "react-native";
+import { Keyboard, Text, TouchableHighlight, View } from "react-native";
 import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu";
 import TextWithEmojis from "../TextWithEmojis";
 
@@ -30,6 +30,9 @@ export default function PostingAsSelector({
             accessibilityLabel: `Posting as ${formatUserUrl(selectedAccount?.url)}`
           }
         }}
+        onPress={() => {
+          Keyboard.dismiss()
+        }}
       >
         <Image
           source={formatSmallAvatar(selectedAccount?.avatar)}
@@ -47,7 +50,7 @@ export default function PostingAsSelector({
         }}
       >
         <Text className="p-4 text-lg font-medium">
-          Select the user you are posting as
+          Select the account you are posting as
         </Text>
         {accounts.map((acc, i) => (
           <MenuOption
