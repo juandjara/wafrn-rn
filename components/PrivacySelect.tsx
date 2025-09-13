@@ -9,7 +9,7 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
-import { Text, TouchableHighlight, View } from 'react-native'
+import { Keyboard, Text, TouchableHighlight, View } from 'react-native'
 import {
   Menu,
   MenuOption,
@@ -47,6 +47,9 @@ export default function PrivacySelect({
     <Menu renderer={renderers.SlideInMenu}>
       <MenuTrigger
         customStyles={{ TriggerTouchableComponent: TouchableHighlight }}
+        onPress={() => {
+          Keyboard.dismiss()
+        }}
       >
         <View
           className={clsx(
