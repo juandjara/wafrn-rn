@@ -59,8 +59,8 @@ export default function RootLayout() {
                 },
               }}
             >
-              <Slot />
               <Toasts />
+              <Slot />
             </MenuProvider>
           </ThemeProvider>
         </AuthProvider>
