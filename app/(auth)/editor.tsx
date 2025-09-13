@@ -71,7 +71,7 @@ export default function EditorView() {
   }
 
   function deleteMention(id: string) {
-    setMentions((prev) => prev.filter((u) => u.id !== id))
+    setMentions(mentions.filter((u) => u.id !== id))
   }
 
   const uploadMutation = useMediaUploadMutation()
