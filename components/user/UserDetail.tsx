@@ -57,7 +57,7 @@ export default function UserDetail({ user }: { user: User }) {
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
-  const height = width * 0.5
+  const height = width / 2
   const { data: settings } = useSettings()
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
@@ -160,7 +160,7 @@ export default function UserDetail({ user }: { user: User }) {
       ) : (
         <View
           collapsable={false}
-          style={{ height, width, backgroundColor: colors.gray[800] }}
+          style={{ height: 230, width, backgroundColor: colors.gray[800] }}
         />
       )}
       <View className="flex-row justify-center items-center my-4 rounded-md -mt-12">
