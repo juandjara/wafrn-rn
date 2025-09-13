@@ -126,7 +126,7 @@ function useAccountsQueries(data: SavedAccount[], currentInstance: string) {
 
 const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 
-type SavedAccount = {
+export type SavedAccount = {
   token: string
   instance: string
 }
@@ -163,9 +163,9 @@ export function useAccounts() {
   function removeAll() {
     setAccountsData([])
   }
-  function getAccountToken(userId: string) {
+  function getAccountData(userId: string) {
     const index = accounts.findIndex((a) => a.id === userId)
-    return accountsData[index]?.token
+    return accountsData[index]
   }
 
   function nextTick() {
@@ -194,7 +194,7 @@ export function useAccounts() {
     removeAccount,
     selectAccount,
     removeAll,
-    getAccountToken
+    getAccountData
   }
 }
 
