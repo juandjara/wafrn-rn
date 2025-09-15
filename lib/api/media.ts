@@ -164,7 +164,7 @@ export async function pickEditableImage() {
   const img = result.assets[0]
   return {
     uri: img.uri,
-    name: img.fileName!,
+    name: img.fileName ?? img.uri.split('/').pop(),
     type: img.mimeType!,
   }
 }
