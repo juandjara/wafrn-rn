@@ -49,7 +49,7 @@ export default function PostingAsSelector({
           },
         }}
       >
-        <Text className="p-4 text-lg font-medium">
+        <Text numberOfLines={1} className="p-4 text-lg font-medium">
           Select the account you are posting as
         </Text>
         {accounts.map((acc, i) => (
