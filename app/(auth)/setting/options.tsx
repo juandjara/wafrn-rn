@@ -6,6 +6,7 @@ import {
   DEFAULT_PRIVATE_OPTIONS,
   getPrivateOptionValue,
   getPublicOptionValue,
+  MINIMUM_THREAD_ANCESTOR_LIMIT,
   PrivateOptionNames,
   PublicOptionNames,
   useSettings,
@@ -132,11 +133,9 @@ export default function Options() {
     .split(',')
     .map((tag) => tag.trim())
     .filter(Boolean)
-  const minThreadLimit =
-    DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit]
   const validThreadAncestorLimit =
     Number.isFinite(Number(form.threadAncestorLimit)) &&
-    Number(form.threadAncestorLimit) >= minThreadLimit
+    Number(form.threadAncestorLimit) >= MINIMUM_THREAD_ANCESTOR_LIMIT
 
   const editMutation = useEditProfileMutation()
   const canPublish = validThreadAncestorLimit && !editMutation.isPending
@@ -401,7 +400,7 @@ export default function Options() {
             <Text className="text-white mb-2">
               Thread collapse limit{' '}
               <Text className="text-gray-200 text-sm">
-                (minimum is {minThreadLimit})
+                (minimum is {MINIMUM_THREAD_ANCESTOR_LIMIT})
               </Text>
             </Text>
             <TextInput
