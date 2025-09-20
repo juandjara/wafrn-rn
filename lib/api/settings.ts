@@ -231,7 +231,11 @@ export async function getSettings(token: string, signal: AbortSignal) {
     },
     signal,
   })
-  return json as Settings
+  const data = json as Settings
+  data.emojis = data.emojis
+    .filter((g) => g.emojis.length > 0)
+    .map((g) => ({ ...g, emojis: g.emojis.filter((e) => !!e) }))
+  return data
 }
 
 export function useSettings() {
