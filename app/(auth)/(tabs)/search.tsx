@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   TextInput,
   TouchableOpacity,
   View,
@@ -15,6 +16,7 @@ import useAsyncStorage from '@/lib/useLocalStorage'
 import { detectSearchType, SearchType } from '@/lib/api/search'
 import SearchResultsUsers from '@/components/search/SearchResultsUsers'
 import SearchResultsPosts from '@/components/search/SearchResultsPosts'
+import { Keyboard } from 'react-native'
 
 const HISTORY_LIMIT = 20
 
@@ -38,6 +40,7 @@ export default function Search() {
       const prev = (recent || []).filter((item) => item !== query)
       const next = [query, ...prev].slice(0, HISTORY_LIMIT)
       setRecent(next)
+      Keyboard.dismiss()
       router.push(`/search?q=${encodeURIComponent(query)}`)
     }
   }
@@ -63,13 +66,13 @@ export default function Search() {
       style={{ marginTop: sx.paddingTop, flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className="flex-row items-center border-b border-gray-600 h-16">
-        <MaterialCommunityIcons
-          className="pl-4 pr-1"
-          name="magnify"
-          size={24}
-          color={colors.gray[300]}
-        />
+      <View className="flex-row items-center border-b border-gray-600 h-16 pr-12">
+        <Pressable
+          className="mx-2 bg-black/30 rounded-full p-2"
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
+        </Pressable>
         <TextInput
           autoFocus
           style={{ marginRight: 48 }}
@@ -82,13 +85,11 @@ export default function Search() {
           onSubmitEditing={(e) => search(e.nativeEvent.text)}
         />
         <TouchableOpacity
-          className="absolute top-4 right-0 z-10"
-          style={{ display: searchTerm ? 'flex' : 'none' }}
+          className="absolute top-3 right-2 z-10 p-2 rounded-full"
           onPress={clear}
         >
           <MaterialCommunityIcons
-            className="px-3"
-            name="close"
+            name={searchTerm ? 'close' : 'magnify'}
             size={24}
             color={colors.gray[300]}
           />
