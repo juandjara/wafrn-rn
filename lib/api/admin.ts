@@ -97,7 +97,10 @@ async function getReportList(token: string) {
   })
   const data = json as Report[]
   return data.sort((a, b) => {
-    return new Date(b.post?.createdAt ?? 0).getTime() - new Date(a.post?.createdAt ?? 0).getTime()
+    return (
+      new Date(b.post?.createdAt ?? 0).getTime() -
+      new Date(a.post?.createdAt ?? 0).getTime()
+    )
   })
 }
 
@@ -245,39 +248,43 @@ async function getUserBlocklist(token: string) {
     },
   })
   const data = json as BlockList
-  const blockedUsers = data.userBlocks.filter(b => !!b.blocked && !!b.blocker).map((b) => ({
-    createdAt: b.createdAt,
-    updatedAt: b.updatedAt,
-    id: `${b.blockerId}-${b.blockedId}`,
-    reason: b.reason,
-    type: 'user' as const,
-    user: {
-      id: b.blockerId,
-      url: b.blocker.url,
-      avatar: b.blocker.avatar,
-    },
-    blockedUser: {
-      id: b.blockedId,
-      url: b.blocked.url,
-      avatar: b.blocked.avatar,
-    },
-  }))
-  const blockedServers = data.userServerBlocks.filter(b => !!b.blockedServer && !!b.userBlocker).map((b) => ({
-    createdAt: b.createdAt,
-    updatedAt: b.updatedAt,
-    id: `${b.userBlockerId}-${b.blockedServerId}`,
-    reason: null,
-    type: 'server' as const,
-    user: {
-      id: b.userBlockerId,
-      url: b.userBlocker.url,
-      avatar: b.userBlocker.avatar,
-    },
-    blockedServer: {
-      id: b.blockedServerId,
-      displayName: b.blockedServer.displayName,
-    },
-  }))
+  const blockedUsers = data.userBlocks
+    .filter((b) => !!b.blocked && !!b.blocker)
+    .map((b) => ({
+      createdAt: b.createdAt,
+      updatedAt: b.updatedAt,
+      id: `${b.blockerId}-${b.blockedId}`,
+      reason: b.reason,
+      type: 'user' as const,
+      user: {
+        id: b.blockerId,
+        url: b.blocker.url,
+        avatar: b.blocker.avatar,
+      },
+      blockedUser: {
+        id: b.blockedId,
+        url: b.blocked.url,
+        avatar: b.blocked.avatar,
+      },
+    }))
+  const blockedServers = data.userServerBlocks
+    .filter((b) => !!b.blockedServer && !!b.userBlocker)
+    .map((b) => ({
+      createdAt: b.createdAt,
+      updatedAt: b.updatedAt,
+      id: `${b.userBlockerId}-${b.blockedServerId}`,
+      reason: null,
+      type: 'server' as const,
+      user: {
+        id: b.userBlockerId,
+        url: b.userBlocker.url,
+        avatar: b.userBlocker.avatar,
+      },
+      blockedServer: {
+        id: b.blockedServerId,
+        displayName: b.blockedServer.displayName,
+      },
+    }))
   const list = [...blockedUsers, ...blockedServers].sort(sortByTimestamp)
   return list
 }
@@ -359,11 +366,14 @@ async function getWellKnownNodeInfo() {
 }
 
 type QueueStats = {
+  createKeyPairWaiting: number
   sendPostAwaiting: number
   prepareSendPostAwaiting: number
   inboxAwaiting: number
   deletePostAwaiting: number
   atProtoAwaiting: number
+  sendPostBskyAwaiting: number
+  socketPending: number
 }
 
 async function getQueueStats(token: string) {

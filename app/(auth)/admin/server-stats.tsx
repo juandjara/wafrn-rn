@@ -63,30 +63,36 @@ export default function ServerStats() {
                   {data?.queueStats.atProtoAwaiting}
                 </Text>
                 {'  '}
-                <Text className="text-gray-200 text-sm">ATProto</Text>
+                <Text className="text-gray-200 text-sm">ATProto incoming</Text>
+              </Text>
+              <Text className="text-white text-lg">
+                <Text className="text-xl">
+                  {data?.queueStats.sendPostBskyAwaiting}
+                </Text>
+                {'  '}
+                <Text className="text-gray-200 text-sm">ATProto outgoing</Text>
               </Text>
               <Text className="text-white text-lg">
                 <Text className="text-xl">
                   {data?.queueStats.inboxAwaiting}
                 </Text>
                 {'  '}
-                <Text className="text-gray-200 text-sm">Inbox</Text>
-              </Text>
-              <Text className="text-white text-lg">
-                <Text className="text-xl">
-                  {data?.queueStats.prepareSendPostAwaiting}
-                </Text>
-                {'  '}
-                <Text className="text-gray-200 text-sm">
-                  Prepare send posts
-                </Text>
+                <Text className="text-gray-200 text-sm">Inbox incoming</Text>
               </Text>
               <Text className="text-white text-lg">
                 <Text className="text-xl">
                   {data?.queueStats.sendPostAwaiting}
                 </Text>
                 {'  '}
-                <Text className="text-gray-200 text-sm">Send posts</Text>
+                <Text className="text-gray-200 text-sm">Inbox outgoing</Text>
+              </Text>
+
+              <Text className="text-white text-lg">
+                <Text className="text-xl">
+                  {data?.queueStats.prepareSendPostAwaiting}
+                </Text>
+                {'  '}
+                <Text className="text-gray-200 text-sm">Post send prepare</Text>
               </Text>
               <Text className="text-white text-lg">
                 <Text className="text-xl">
@@ -94,6 +100,16 @@ export default function ServerStats() {
                 </Text>
                 {'  '}
                 <Text className="text-gray-200 text-sm">Delete posts</Text>
+              </Text>
+
+              <Text className="text-white text-lg">
+                <Text className="text-xl">
+                  {data?.queueStats.createKeyPairWaiting}
+                </Text>
+                {'  '}
+                <Text className="text-gray-200 text-sm">
+                  Create keypair for new user
+                </Text>
               </Text>
             </View>
           </>
