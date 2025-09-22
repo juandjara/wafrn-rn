@@ -23,7 +23,15 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import clsx from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Dimensions, FlatList, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
 import { EmojiBase } from '@/lib/api/emojis'
@@ -178,7 +186,7 @@ export default function PostDetail() {
   // Pagination strategy copied and adapted from https://github.com/bluesky-social/social-app/blob/main/src/view/com/post-thread/PostThread.tsx#L377
 
   const PARENTS_CHUNK_SIZE = 10
-  const REPLIES_CHUNK_SIZE = 20
+  const REPLIES_CHUNK_SIZE = 30
 
   // start with no parents so we show the main post first
   const [maxParents, setMaxParents] = useState(0)
@@ -225,7 +233,7 @@ export default function PostDetail() {
     if (isFetching || replyCount < maxReplies) {
       return
     }
-    setMaxReplies((prev) => prev + 50)
+    setMaxReplies((prev) => prev + REPLIES_CHUNK_SIZE)
   }, [isFetching, maxReplies, replyCount])
 
   const bumpMaxParentsIfNeeded = useCallback(() => {
@@ -244,7 +252,7 @@ export default function PostDetail() {
     [],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // reset pagination when a new post is fetched
     setMaxParents(0)
     setMaxReplies(REPLIES_CHUNK_SIZE)
@@ -252,16 +260,16 @@ export default function PostDetail() {
     // make it so on the next scroll event, we bump the max parents without disturbing the current scroll position
     needsBumpMaxParents.current = true
 
-    // scroll to the top with a small delay (I don't know how much to set here, just need the first list item to be rendered)
-    if (data) {
+    // scroll to the top on next frame
+    if (mainPost?.id) {
       setTimeout(() => {
         listRef.current?.scrollToIndex({ index: 0, animated: false })
-      }, 100)
+      })
     }
 
-    // react on "data" to run this effect everytime a new post is fetched
+    // run this effect everytime a new post is fetched
     // like when navigating between posts on a thread
-  }, [data, bumpMaxParentsIfNeeded])
+  }, [mainPost?.id])
 
   const header = (
     <Header
