@@ -23,14 +23,14 @@ export default function UserBlocklists() {
         renderItem={({ item }) => {
           if (item.type === 'user') {
             return (
-              <View className="rounded-lg mb-3">
+              <View className="rounded-xl mb-3 bg-gray-800">
                 <BlockRibbon
                   user={item.user}
                   className="rounded-t-xl"
                   type="user"
                 />
                 <Link href={`/user/${item.blockedUser.url}`} asChild>
-                  <Pressable className="rounded-b-xl p-2 bg-gray-800 active:bg-gray-700 flex-row items-center gap-3">
+                  <Pressable className="p-2 bg-gray-800 active:bg-gray-700 flex-row items-center gap-3">
                     <Image
                       recyclingKey={item.blockedUser.id}
                       source={{
@@ -51,6 +51,9 @@ export default function UserBlocklists() {
                     </Text>
                   </Pressable>
                 </Link>
+                <Text className="p-3 text-sm text-gray-200">
+                  Reason: {item.reason}
+                </Text>
               </View>
             )
           }
