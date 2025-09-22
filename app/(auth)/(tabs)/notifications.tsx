@@ -21,7 +21,6 @@ import {
 import { useLayoutData } from '@/lib/store'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
-import { FlashList } from '@shopify/flash-list'
 import { useQueryClient } from '@tanstack/react-query'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Link } from 'expo-router'
@@ -33,9 +32,13 @@ import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
 import FollowRibbon from '@/components/ribbons/FollowRibbon'
 import ReplyRibbon from '@/components/ribbons/ReplyRibbon'
+import { FlatList } from 'react-native'
+import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
+  const bottomPadding = useBottomTabBarHeight()
   const { data, fetchNextPage, hasNextPage, isFetching } = useNotifications()
 
   const layoutData = useLayoutData()
@@ -53,7 +56,7 @@ export default function NotificationList() {
     return getNotificationList(data.pages)
   }, [data])
 
-  const listRef = useRef<FlashList<FullNotification>>(null)
+  const listRef = useRef<FlatList<FullNotification>>(null)
 
   useScrollToTop(listRef as any)
 
@@ -68,19 +71,23 @@ export default function NotificationList() {
     <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header title="Notifications" />
       <DashboardContextProvider data={context}>
-        <FlashList
+        <FlatList
           ref={listRef}
-          data={notifications}
-          extraData={layoutData}
-          estimatedItemSize={300}
-          getItemType={(item) => item.notificationType}
           refreshing={isFetching}
           onRefresh={refresh}
-          onEndReachedThreshold={2}
+          data={notifications}
+          extraData={layoutData}
           keyExtractor={(n) => String(n.id)}
-          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
-          ListFooterComponent={isFetching ? <Loading /> : null}
           renderItem={({ item }) => <NotificationItem notification={item} />}
+          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
+          onEndReachedThreshold={2}
+          ListFooterComponent={isFetching ? <Loading /> : null}
+          contentInset={{ bottom: bottomPadding }}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+          }}
+          progressViewOffset={isFetching ? -1 : 0}
+          {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </DashboardContextProvider>
     </View>
