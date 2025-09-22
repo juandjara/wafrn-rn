@@ -19,7 +19,7 @@ import {
 } from '@expo/vector-icons'
 import colors from 'tailwindcss/colors'
 import { PRIVACY_ICONS, PRIVACY_LABELS } from '@/lib/api/privacy'
-import PostHtmlRenderer from '../posts/PostHtmlRenderer'
+import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
 import clsx from 'clsx'
@@ -56,7 +56,6 @@ export default function PostFragment({
     postContent,
     tags,
     medias,
-    inlineMedias,
     quotedPost,
     ask,
     poll,
@@ -313,9 +312,8 @@ export default function PostFragment({
                 </ScrollView>
               )}
               <View collapsable={false} className="py-2">
-                <PostHtmlRenderer
+                <HtmlEngineRenderer
                   html={postContent}
-                  inlineMedias={inlineMedias}
                   contentWidth={contentWidth}
                   hiddenLinks={hiddenLinks}
                 />

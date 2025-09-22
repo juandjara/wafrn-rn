@@ -18,8 +18,9 @@ import {
 } from './settings'
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
-
-export const BSKY_URL = 'https://bsky.app'
+import { collapseWhitespace, BSKY_URL, replaceInlineImages } from './html'
+import { Dimensions } from 'react-native'
+import { POST_MARGIN } from './posts'
 
 export const HTTP_LINK_REGEX = /(https?:\/\/[^\s$.?#].[^\s]*)/gi
 export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
@@ -65,6 +66,11 @@ export function processPostContent(
   context: DashboardContextData,
   options: PrivateOption[],
 ) {
+  if (post.content === '<p></p>') {
+    return ''
+  }
+
+  let content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
   const enableReplaceAIWord = getPrivateOptionValue(
     options,
     PrivateOptionNames.EnableReplaceAIWord,
@@ -73,7 +79,6 @@ export function processPostContent(
     options,
     PrivateOptionNames.ReplaceAIWord,
   )
-  let content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
   if (enableReplaceAIWord && replaceAIWord) {
     content = content.replace(AI_REPLACE_REGEX, (match, g1, g2) => {
       if (g1 && !g2) {
@@ -83,13 +88,26 @@ export function processPostContent(
     })
   }
 
+  if (!isBlueskyPost(post, context)) {
+    content = collapseWhitespace(content)
+  }
+
   const ids =
     context.emojiRelations.postEmojiRelation
       .filter((e) => e.postId === post.id)
       .map((e) => e.emojiId) ?? []
+
   const emojis =
     context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+
   return replaceEmojis(content, emojis)
+}
+
+export function isBlueskyPost(post: Post, context: DashboardContextData) {
+  return (
+    !!post.bskyUri &&
+    context.users.some((u) => u.id === post.userId && u.url.startsWith('@'))
+  )
 }
 
 export function getUserEmojis(user: PostUser, context: DashboardContextData) {
@@ -475,22 +493,34 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   return fullReactions
 }
 
-function getAppliedMute(post: Post, context: DashboardContextData, options: PrivateOption[]) {
+function getAppliedMute(
+  post: Post,
+  context: DashboardContextData,
+  options: PrivateOption[],
+) {
   const isRewoot = isEmptyRewoot(post, context)
   const rewootedPost = isRewoot ? (post as PostThread).ancestors?.[0] : null
   if (rewootedPost) {
     return getAppliedMute(rewootedPost, context, options)
   }
 
-  const tags = context.tags.filter((t) => t.postId === post.id).map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
+  const tags = context.tags
+    .filter((t) => t.postId === post.id)
+    .map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
   const user = context.users.find((u) => u.id === post.userId)
   const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
   const isLocalPost = !post.remotePostId && !user?.url.startsWith('@')
   const isFediversePost = post.remotePostId && !post.bskyUri
 
-  const mutedWordsLine = getPrivateOptionValue(options, PrivateOptionNames.MutedWords)
-  const mutedWords = getPrivateOptionValue(options, PrivateOptionNames.AdvancedMutedWords)
+  const mutedWordsLine = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.MutedWords,
+  )
+  const mutedWords = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.AdvancedMutedWords,
+  )
   if (mutedWordsLine.trim().length > 0) {
     mutedWords.push({
       words: mutedWordsLine,
@@ -555,7 +585,7 @@ export function getDerivedPostState(
   const options = settings?.options || []
   const user = context.users.find((u) => u.id === post.userId)
   const userEmojis = user ? getUserEmojis(user, context) : []
-  const postContent = processPostContent(post, context, options)
+  let postContent = processPostContent(post, context, options)
   const tags = context.tags
     .filter((t) => t.postId === post.id)
     .map((t) => t.tagName)
@@ -563,11 +593,19 @@ export function getDerivedPostState(
   // this processes the option "wafrn.disableNSFWCloak"
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)
 
+  if (inlineMedias.length) {
+    const width = Dimensions.get('window').width
+    const isQuote = context.quotedPosts.some((p) => p.id === post.id)
+    const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
+    postContent = replaceInlineImages(postContent, inlineMedias, contentWidth)
+  }
+
   const quotedPostId = /* !isQuote &&  */ context.quotes.find(
     (q) => q.quoterPostId === post.id,
   )?.quotedPostId
-  const quotedPost =
-    quotedPostId ? context.quotedPosts.find((p) => p.id === quotedPostId) : undefined
+  const quotedPost = quotedPostId
+    ? context.quotedPosts.find((p) => p.id === quotedPostId)
+    : undefined
   const ask = getAskData(post, context)
   const poll = context.polls.find((p) => p.postId === post.id)
   const reactions = groupPostReactions(post, context)
@@ -578,23 +616,32 @@ export function getDerivedPostState(
     1000 * 60
 
   // this proccesses the options "wafrn.mutedWords" and "wafrn.advancedMutedWords"
-  const { softMutedWords, hardMutedWords } = getAppliedMute(post, context, options)
+  const { softMutedWords, hardMutedWords } = getAppliedMute(
+    post,
+    context,
+    options,
+  )
 
   // this proccesses the options "wafrn.disableCW"
   const { contentWarning, initialCWOpen } = processContentWarning(
     post,
     options,
-    softMutedWords
+    softMutedWords,
   )
 
   const isRewoot = isEmptyRewoot(post, context)
   const isHidden = isRewoot || hardMutedWords.length > 0
 
   if (hardMutedWords.length > 0) {
-    console.log('[getDerivedPostState] hiding post becuase of hardMutedWords:', hardMutedWords)
+    console.log(
+      '[getDerivedPostState] hiding post becuase of hardMutedWords:',
+      hardMutedWords,
+    )
   }
 
-  const hiddenLinks = medias.filter((m) => m.mediaType === 'text/html').map((m) => m.url)
+  const hiddenLinks = medias
+    .filter((m) => m.mediaType === 'text/html')
+    .map((m) => m.url)
   if (quotedPost?.remotePostId) {
     hiddenLinks.push(quotedPost.remotePostId)
   }
@@ -608,7 +655,9 @@ export function getDerivedPostState(
       .filter((m) => m.post === post.id && m.userMentioned !== post.userId)
       .map((m) => m.userMentioned)
 
-    mentionedUsers = Array.from(new Set(mentionedUserIds)).map((id) => userMap[id])
+    mentionedUsers = Array.from(new Set(mentionedUserIds)).map(
+      (id) => userMap[id],
+    )
   }
 
   return {
@@ -617,7 +666,6 @@ export function getDerivedPostState(
     postContent,
     tags,
     medias,
-    inlineMedias,
     quotedPost,
     ask,
     poll,
@@ -699,7 +747,7 @@ export function getDerivedThreadState(
     interactionPost,
     postHidden,
     firstPost,
-    threadPosts: threadPosts.filter(t => !!t),
+    threadPosts: threadPosts.filter((t) => !!t),
     morePostsCount,
     ancestorLimitReached,
   }

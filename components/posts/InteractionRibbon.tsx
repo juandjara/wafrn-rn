@@ -47,10 +47,11 @@ import { useSilenceMutation } from '@/lib/api/mutes-and-blocks'
 import { useSettings } from '@/lib/api/settings'
 import ReportPostModal from './ReportPostModal'
 import { toggleCollapsed, usePostLayout } from '@/lib/store'
-import { BSKY_URL } from '@/lib/api/content'
+import { BSKY_URL } from '@/lib/api/html'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { collapseWhitespace } from '@/lib/api/html'
 
 export default function InteractionRibbon({
   post,
@@ -257,6 +258,16 @@ export default function InteractionRibbon({
     const remoteUrl = getRemotePostUrl(post)
     const secondaryOptions = [
       {
+        action: () => {
+          console.log(collapseWhitespace(post.content))
+        },
+        label: 'Log HTML',
+        icon: (
+          <MaterialCommunityIcons name="content-copy" size={20} color={iconColor} />
+        ),
+        enabled: true
+      },
+      {
         action: () => toggleCollapsed(post.id, !collapsed),
         icon: <MaterialCommunityIcons name="arrow-collapse" size={20} />,
         label: collapsed ? 'Expand' : 'Collapse',
@@ -323,8 +334,7 @@ export default function InteractionRibbon({
         action: () => {
           Alert.alert(
             `${isSilenced ? 'Uns' : 'S'}ilence post`,
-            `All notifications for this post (including replies) will be ${
-              isSilenced ? 'un' : ''
+            `All notifications for this post (including replies) will be ${isSilenced ? 'un' : ''
             }silenced. Are you sure you want to do this?`,
             [
               { text: 'Cancel', style: 'cancel' },

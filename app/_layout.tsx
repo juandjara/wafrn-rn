@@ -30,6 +30,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Colors } from '@/constants/Colors'
 import { queryClient } from '@/lib/queryClient'
+import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -59,8 +60,10 @@ export default function RootLayout() {
                 },
               }}
             >
-              <Toasts />
-              <Slot />
+              <HtmlEngineProvider>
+                <Toasts />
+                <Slot />
+              </HtmlEngineProvider>
             </MenuProvider>
           </ThemeProvider>
         </AuthProvider>

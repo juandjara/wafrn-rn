@@ -73,6 +73,7 @@
     "react-native-awesome-gallery": "^0.4.3",
     "react-native-edge-to-edge": "^1.6.2",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-html-engine": "^8.0.4",
     "react-native-more-controlled-mentions": "3.0.1",
     "react-native-pager-view": "6.9.1",
     "react-native-popup-menu": "0.17.0",

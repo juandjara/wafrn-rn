@@ -9,7 +9,7 @@ import {
   showToastError,
   showToastSuccess,
 } from '../interaction'
-import { BSKY_URL } from './content'
+import { BSKY_URL } from './html'
 import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
 import { EditorImage } from '../editor'
 import { useAccounts } from './user'

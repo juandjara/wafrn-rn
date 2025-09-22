@@ -6,7 +6,7 @@ import { Timestamps } from './types'
 import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
 import { PostUser } from './posts.types'
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
-import { BSKY_URL } from './content'
+import { BSKY_URL } from './html'
 import {
   showToastError,
   showToastSuccess,
@@ -260,9 +260,15 @@ export function getRemoteInfo(user: User) {
     }
   }
   if (user.bskyDid && user.url.startsWith('@')) {
-    return {
-      href: `${BSKY_URL}/profile/${user.bskyDid}`,
-      name: 'bsky.app',
+    try {
+      const url = new URL(`${BSKY_URL}/profile/${user.bskyDid}`)
+      return {
+        href: url.toString(),
+        name: url.hostname
+      }
+    } catch (err) {
+      console.error(err)
+      return null
     }
   }
   return null

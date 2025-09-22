@@ -25,10 +25,10 @@ import {
 } from '@/lib/formatters'
 import { useMemo, useState } from 'react'
 import { isValidURL, replaceEmojis } from '@/lib/api/content'
-import HtmlRenderer from '../HtmlRenderer'
+import HtmlSimpleRenderer from '../HtmlSimpleRenderer'
 import ZoomableImage from '../posts/ZoomableImage'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
-import PostHtmlRenderer from '../posts/PostHtmlRenderer'
+import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import { Image, ImageProps } from 'expo-image'
 import { Link } from 'expo-router'
 import clsx from 'clsx'
@@ -51,6 +51,7 @@ import {
   useServerBlockMutation,
 } from '@/lib/api/mutes-and-blocks'
 import TextWithEmojis from '../TextWithEmojis'
+import { collapseWhitespace } from '@/lib/api/html'
 
 export default function UserDetail({ user }: { user: User }) {
   const { env } = useAuth()
@@ -73,15 +74,17 @@ export default function UserDetail({ user }: { user: User }) {
         user?.id!,
       )
       const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
-      const commonFollows =
-        followers?.filter(
-          (f) => f.id !== me?.userId && settings?.followedUsers.includes(f.id),
-        ) || []
+      const commonFollows = followers
+        ? followers.filter(
+            (f) =>
+              f.id !== me?.userId && settings?.followedUsers.includes(f.id),
+          )
+        : []
       return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
     }, [user, me?.userId, settings, myFollowers, followers])
 
   const description = useMemo(() => {
-    return replaceEmojis(user.description, user.emojis)
+    return collapseWhitespace(replaceEmojis(user.description, user.emojis))
   }, [user])
 
   const customFields = useMemo(() => {
@@ -91,7 +94,7 @@ export default function UserDetail({ user }: { user: User }) {
     )
     return fields.map((f) => ({
       name: replaceEmojis(f.name, user.emojis),
-      value: replaceEmojis(f.value, user.emojis),
+      value: collapseWhitespace(replaceEmojis(f.value, user.emojis)),
     }))
   }, [user])
 
@@ -344,7 +347,7 @@ export default function UserDetail({ user }: { user: User }) {
         </View>
         <View style={{ maxWidth: width - 40 }}>
           <View style={{ paddingVertical: 8 }}>
-            <PostHtmlRenderer
+            <HtmlEngineRenderer
               html={description}
               contentWidth={width - 48}
               disableLinkCards
@@ -354,10 +357,9 @@ export default function UserDetail({ user }: { user: User }) {
             {customFields.map((field, i) => (
               <View key={i} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
                 <View className="flex-row">
-                  <HtmlRenderer
+                  <HtmlSimpleRenderer
                     html={field.name}
                     color={colors.gray[400]}
-                    renderTextRoot
                   />
                 </View>
                 <View className="mt-3 items-start">
@@ -372,7 +374,7 @@ export default function UserDetail({ user }: { user: User }) {
                       <Text className="text-cyan-500">{field.value}</Text>
                     </Link>
                   ) : (
-                    <PostHtmlRenderer
+                    <HtmlEngineRenderer
                       html={field.value}
                       contentWidth={width - 48}
                       disableLinkCards

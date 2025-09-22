@@ -87,26 +87,24 @@ type ElementNode = DomNode & {
 This renderer is only used for simple inline html rendering
 for things such as usernames and rewoot ribbons.
 It does not support the complex html rendering needed for post contents.
-For that, use the PostHtmlRenderer component.
+For that, use the HtmlEngineRenderer component.
 */
-const HtmlRenderer = React.memo(_HtmlRenderer)
-export default HtmlRenderer
+const HtmlSimpleRenderer = React.memo(_HtmlSimpleRenderer)
+export default HtmlSimpleRenderer
 
-function _HtmlRenderer({
+function _HtmlSimpleRenderer({
   html,
   color,
-  renderTextRoot,
 }: {
   html: string
   color?: string
-  renderTextRoot?: boolean
 }) {
   if (!html) {
     return null
   }
   const document = parseDocument(html)
   const children = document.children.map((n, i) => renderNode(n, i, color))
-  return renderTextRoot ? <>{children}</> : <View>{children}</View>
+  return <>{children}</>
 }
 
 function renderNode(node: DomNode, index: number, color?: string) {

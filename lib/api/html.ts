@@ -1,12 +1,12 @@
-import { Platform, TextStyle, ViewStyle } from 'react-native'
+import { Platform, TextStyle } from 'react-native'
 import colors from 'tailwindcss/colors'
-import { DashboardContextData } from '../contexts/DashboardContext'
-import { ChildNode, Element } from 'domhandler'
-import { formatCachedUrl, formatMediaUrl } from '../formatters'
+import { ChildNode } from 'domhandler'
+import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
 import { getEnvironmentStatic } from './auth'
-import { DomUtils } from 'htmlparser2'
+import { crush } from 'html-crush'
 
+export const BSKY_URL = 'https://bsky.app'
 export const BR = '\n'
 
 export const HTML_BLOCK_STYLES = {
@@ -15,19 +15,64 @@ export const HTML_BLOCK_STYLES = {
     margin: 12,
     borderLeftWidth: 2,
     borderLeftColor: colors.gray[400],
-    // backgroundColor: colors.gray[900],
   },
   ul: {
-    marginLeft: 16,
-    paddingBottom: 16,
+    //marginLeft: 12,
+    // paddingBottom: 16,
+    // listStyleType: 'none',
   },
   ol: {
-    paddingLeft: 16,
+    // marginLeft: 12,
+    // paddingBottom: 16,
+    // listStyleType: 'none',
   },
   // li: {
   //   paddingLeft: 8,
   // },
+  h1: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 47.78,
+    lineHeight: 54.94,
+  },
+  h2: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 39.81,
+    lineHeight: 45.78,
+  },
+  h3: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 33.18,
+    lineHeight: 38.15,
+  },
+  h4: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 27.65,
+    lineHeight: 31.79,
+  },
+  h5: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 23.04,
+    lineHeight: 26.49,
+  },
+  h6: {
+    marginTop: 4,
+    marginBottom: 12,
+    fontWeight: 'bold',
+    fontSize: 19.2,
+    lineHeight: 22.08,
+  },
   p: {
+    marginTop: 0,
     marginBottom: 16,
   },
   figure: {
@@ -41,7 +86,7 @@ export const HTML_BLOCK_STYLES = {
     paddingTop: 0,
     marginBottom: 8,
   },
-} satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
+} as const // satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
 const boldStyle = { fontWeight: 'bold' as const }
 const italicStyle = { fontStyle: 'italic' as const }
@@ -62,13 +107,8 @@ export const HTML_INLINE_STYLES = {
   code: codeStyle,
   a: {
     color: colors.cyan[400],
+    textDecorationLine: 'none',
   },
-  h1: { fontWeight: 'bold', fontSize: 56, lineHeight: 64 },
-  h2: { fontWeight: 'bold', fontSize: 44, lineHeight: 52 },
-  h3: { fontWeight: 'bold', fontSize: 36, lineHeight: 44 },
-  h4: { fontWeight: 'bold', fontSize: 32, lineHeight: 40 },
-  h5: { fontWeight: 'bold', fontSize: 28, lineHeight: 36 },
-  h6: { fontWeight: 'bold', fontSize: 24, lineHeight: 32 },
   small: { fontSize: 12, lineHeight: 18 },
   text: {
     color: 'white',
@@ -181,112 +221,11 @@ export function inheritedStyle(node: ChildNode | null): TextStyle | null {
   return { ...parentStyle, ...style }
 }
 
-export function replaceHref(node: ChildNode, context: DashboardContextData) {
-  const isA = node.type === 'tag' && node.name === 'a'
-  const validNode = isA && !!node.attribs['href']
-  if (!validNode) {
-    return
-  }
-
-  const className = node.attribs['class']
-  // TODO: consider whether to replace hashtag link or not
-  // since we already display a line with hastags at the bottom of the post
-  if (className?.includes('hashtag')) {
-    return replaceHashtagLink(node, context)
-  }
-
-  const env = getEnvironmentStatic()
-  const isWafrnMentionLink = node.attribs['href'].startsWith(
-    `${env?.BASE_URL}/blog/`,
-  )
-  if (isWafrnMentionLink || className?.includes('mention')) {
-    return replaceMentionLink(node, context)
-  }
-}
-
-function replaceMentionLink(node: Element, context: DashboardContextData) {
-  if (node.attribs['href'].startsWith('wafrn:///')) {
-    return
-  }
-
-  const userId = node.attribs['data-id']
-  if (userId) {
-    const user = context.users.find((u) => u.id === userId)
-    if (user) {
-      node.attribs['href'] = `wafrn:///user/${user.url}`
-    }
-  } else {
-    const link = node.attribs['href']
-    const env = getEnvironmentStatic()
-
-    if (node.children.length === 1) {
-      const child = node.children[0]
-      if (child.type === 'text') {
-        const handle = buildFullHandle(
-          child.data || '',
-          new URL(link, env!.BASE_URL).host,
-          new URL(env!.BASE_URL).host,
-        )
-        const user = context.users.find((u) => u.url === handle)
-        if (user) {
-          node.attribs['href'] = `wafrn:///user/${user.url}`
-        }
-      }
-    }
-    if (node.children.length === 2) {
-      const [part1, part2] = node.children
-      const firstPartIsAt = part1 && part1.type === 'text' && part1.data === '@'
-      const secondPartIsSpan =
-        part2 && part2.type === 'tag' && part2.name === 'span'
-      if (firstPartIsAt && secondPartIsSpan) {
-        const spanText = part2.children[0]
-        if (spanText.type === 'text') {
-          const handle = buildFullHandle(
-            `@${spanText.data}`,
-            new URL(link, env!.BASE_URL).host,
-            new URL(env!.BASE_URL).host,
-          )
-          const user = context.users.find((u) => u.url === handle)
-          if (user) {
-            node.attribs['href'] = `wafrn:///user/${user.url}`
-          }
-        }
-      }
-    }
-  }
-}
-
-function buildFullHandle(handle: string, host: string, wafrnHost: string) {
-  if (handle.lastIndexOf('@') === 0) {
-    if (host === wafrnHost) {
-      return handle.replace('@', '')
-    }
-    return `${handle}@${host}`
-  }
-  return handle
-}
-
 export function normalizeTagName(tagName: string) {
-  return tagName.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
-}
-
-function replaceHashtagLink(node: Element, context: DashboardContextData) {
-  if (node.attribs['href'].startsWith('wafrn:///')) {
-    return
-  }
-
-  let tagName = node.attribs['data-tag']
-  if (!tagName) {
-    const text = normalizeTagName(DomUtils.textContent(node))
-    if (text.startsWith('#')) {
-      tagName = text.slice(1)
-    }
-  }
-
-  const tag = context.tags.find((t) => t.tagName === tagName)
-  if (tag) {
-    node.attribs['href'] = `wafrn:///search?q=${encodeURIComponent(`#${tag.tagName}`)}`
-  }
+  return tagName
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
 }
 
 export function replaceInlineImages(
@@ -297,10 +236,80 @@ export function replaceInlineImages(
   medias.forEach((media, index) => {
     const ratio = (media.height || 1) / (media.width || 1)
     const src = formatCachedUrl(formatMediaUrl(media.url))
+    const width = contentWidth - 12
+    const height = width * ratio
     html = html.replace(
       `![media-${index + 1}]`,
-      `<figure><img data-index="${index}" src="${src}" width="${contentWidth - 12}" height="${contentWidth * ratio}" alt="${media.description}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
+      `<figure><img data-index="${index}" src="${src}" width="${width}" height="${height}" alt="${media.description}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
     )
   })
   return html
+}
+
+export function minifyHtml(html: string) {
+  const miniHtml = crush(html, {
+    removeLineBreaks: true,
+    lineLengthLimit: Infinity,
+  }).result
+  return miniHtml
+}
+
+/**
+ * Whitespace characters directly after a tag opening and directly before a tag closing should always be collapsed to one whitespace
+ * with the exception for the br tag, around which whitespaces always disappear.
+ * Whitespace characters are spaces, tabs and line breaks
+ */
+export function collapseWhitespace(html: string) {
+  const miniHtml = minifyHtml(html)
+  return miniHtml
+    .replace(/(<\w+[^>]*>)\s+|\s+(<\/\w+>)/g, '$1 $2')
+    .replace(/\s*<br\s*\/?>\s*/g, '<br>')
+}
+
+export function handleLinkClick(href: string, attribs: Record<string, string>) {
+  if (href.startsWith('wafrn://')) {
+    return href
+  }
+
+  let url = null
+  try {
+    url = new URL(href)
+  } catch {
+    console.error('invalid url in html: ', href)
+    return href
+  }
+
+  if (href.startsWith(`${BSKY_URL}/profile/`)) {
+    let user = href.replace(`${BSKY_URL}/profile/`, '')
+    if (!user.startsWith('did:')) {
+      user = formatUserUrl(user)
+    }
+    return `wafrn://user/${user}`
+  }
+
+  const env = getEnvironmentStatic()
+  if (href.startsWith(`${env.BASE_URL}/dashboard/search/`)) {
+    const tag = href.replace(`${env.BASE_URL}/dashboard/search/`, '')
+    return `wafrn://search/?q=${encodeURIComponent(`#${tag}`)}`
+  }
+  if (attribs.class?.includes('hashtag')) {
+    const tag = attribs['data-text']
+    return `wafrn://search/?q=${encodeURIComponent(`#${tag}`)}`
+  }
+  if (href.startsWith(`${env.BASE_URL}/blog/`)) {
+    const user = href.replace(`${env.BASE_URL}/blog/`, '')
+    return `wafrn://user/${user}`
+  }
+  if (href.startsWith(`${env.BASE_URL}/fediverse/blog/`)) {
+    const user = href.replace(`${env.BASE_URL}/fediverse/blog/`, '')
+    return `wafrn://user/${user}`
+  }
+  if (attribs.class?.includes('mention')) {
+    const text = attribs['data-text']
+    // remove text after the second @ if exists
+    const firstAtOnly = text.split('@').slice(0, 2).join('@')
+    const fullHandle = `${firstAtOnly}@${url.hostname}`
+    return `wafrn://user/${fullHandle}`
+  }
+  return href
 }
