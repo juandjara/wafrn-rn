@@ -13,7 +13,7 @@ import {
   REPORT_SEVERITY_LABELS,
 } from '@/lib/api/reports'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { FlashList } from '@shopify/flash-list'
 import clsx from 'clsx'
 import { Link } from 'expo-router'
@@ -78,17 +78,9 @@ export default function ReportList() {
             }}
           >
             {filter === option.value ? (
-              <MaterialCommunityIcons
-                name="checkbox-blank-circle"
-                size={20}
-                color="black"
-              />
+              <MaterialIcons name="radio-button-on" size={20} color="black" />
             ) : (
-              <MaterialCommunityIcons
-                name="checkbox-blank-circle-outline"
-                size={20}
-                color="black"
-              />
+              <MaterialIcons name="radio-button-off" size={20} color="black" />
             )}
             <Text>{option.label}</Text>
           </MenuOption>
@@ -164,43 +156,40 @@ function ReportListItem({ report }: { report: Report }) {
           <Text className="text-white">{report.description}</Text>
         </View>
       </View>
+      {report.resolved ? (
+        <Text className="text-white py-2 text-center">Report resolved</Text>
+      ) : null}
       <View className="flex-row pt-4 gap-3 pr-3">
         <Pressable
           disabled={actionDisabled}
           className={clsx(
-            'flex-row items-center gap-3 rounded-lg p-2',
+            'flex-row w-1/2 items-center gap-3 rounded-lg p-2',
             'bg-cyan-700/50',
             {
               'active:bg-cyan-700/75': !actionDisabled,
               'opacity-50': actionDisabled,
-              'basis-1/2': !report.resolved,
-              'w-full': report.resolved,
             },
           )}
           onPress={() => ignoreReportMutation.mutate(report.id)}
         >
           <MaterialCommunityIcons name="check" size={20} color="white" />
-          <Text className="text-white">
-            {report.resolved ? 'Resolved' : 'Mark resolved'}
-          </Text>
+          <Text className="text-white">Ignore report</Text>
         </Pressable>
-        {!report.resolved ? (
-          <Pressable
-            disabled={actionDisabled}
-            className={clsx(
-              'flex-row items-center gap-3 rounded-lg p-2 basis-1/2',
-              'bg-red-700/50',
-              {
-                'active:bg-red-700/75': !actionDisabled,
-                'opacity-50': actionDisabled,
-              },
-            )}
-            onPress={banUser}
-          >
-            <MaterialCommunityIcons name="close" size={20} color="white" />
-            <Text className="text-white">Ban user</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          disabled={actionDisabled}
+          className={clsx(
+            'flex-row w-1/2 items-center gap-3 rounded-lg p-2',
+            'bg-red-700/50',
+            {
+              'active:bg-red-700/75': !actionDisabled,
+              'opacity-50': actionDisabled,
+            },
+          )}
+          onPress={banUser}
+        >
+          <MaterialCommunityIcons name="close" size={20} color="white" />
+          <Text className="text-white">Ban user</Text>
+        </Pressable>
       </View>
     </View>
   )
