@@ -5,7 +5,6 @@ import {
 } from '@/lib/api/html'
 import { router } from 'expo-router'
 import { PropsWithChildren } from 'react'
-import { Linking } from 'react-native'
 import { Pressable } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import {
@@ -21,7 +20,6 @@ import {
   TPhrasing,
   RenderersProps,
 } from 'react-native-html-engine'
-import colors from 'tailwindcss/colors'
 
 const customHTMLElementModels = {
   img: defaultHTMLElementModels.img.extend({
