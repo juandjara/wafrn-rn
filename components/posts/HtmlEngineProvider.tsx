@@ -3,6 +3,7 @@ import {
   HTML_BLOCK_STYLES,
   HTML_INLINE_STYLES,
 } from '@/lib/api/html'
+import { router } from 'expo-router'
 import { PropsWithChildren } from 'react'
 import { Linking } from 'react-native'
 import { Pressable } from 'react-native'
@@ -38,15 +39,6 @@ const allowedStyles = [
 const tagStyles = {
   ...inlineStyles,
   ...HTML_BLOCK_STYLES,
-  img: {
-    transform: 'translateY(6px)',
-    alignSelf: 'flex-start',
-  },
-  pre: {
-    borderRadius: 8,
-    padding: 8,
-    backgroundColor: colors.blue[950],
-  },
 } satisfies MixedStyleRecord
 
 function PRERenderer({
@@ -84,7 +76,10 @@ const rendererProps = {
     onPress(event, href, htmlAttribs, target) {
       const link = handleLinkClick(href, htmlAttribs)
       if (link) {
-        Linking.openURL(link)
+        if (!Linking.canOpenURL(link)) {
+          console.warn('Linking cannot open this url: ', link)
+        }
+        router.navigate(link)
       }
     },
   },

@@ -86,6 +86,15 @@ export const HTML_BLOCK_STYLES = {
     paddingTop: 0,
     marginBottom: 8,
   },
+  img: {
+    transform: 'translateY(6px)',
+    alignSelf: 'flex-start',
+  },
+  pre: {
+    borderRadius: 8,
+    padding: 8,
+    backgroundColor: colors.blue[950],
+  },
 } as const // satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
 const boldStyle = { fontWeight: 'bold' as const }
@@ -268,7 +277,7 @@ export function collapseWhitespace(html: string) {
 
 export function handleLinkClick(href: string, attribs: Record<string, string>) {
   if (href.startsWith('wafrn://')) {
-    return href
+    return href.replace('wafrn://', '')
   }
 
   let url = null
@@ -284,32 +293,32 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
     if (!user.startsWith('did:')) {
       user = formatUserUrl(user)
     }
-    return `wafrn://user/${user}`
+    return `/user/${user}`
   }
 
   const env = getEnvironmentStatic()
   if (href.startsWith(`${env.BASE_URL}/dashboard/search/`)) {
     const tag = href.replace(`${env.BASE_URL}/dashboard/search/`, '')
-    return `wafrn://search/?q=${encodeURIComponent(`#${tag}`)}`
+    return `/search/?q=${encodeURIComponent(`#${tag}`)}`
   }
   if (attribs.class?.includes('hashtag')) {
     const tag = attribs['data-text']
-    return `wafrn://search/?q=${encodeURIComponent(`#${tag}`)}`
+    return `/search/?q=${encodeURIComponent(`#${tag}`)}`
   }
   if (href.startsWith(`${env.BASE_URL}/blog/`)) {
     const user = href.replace(`${env.BASE_URL}/blog/`, '')
-    return `wafrn://user/${user}`
+    return `/user/${user}`
   }
   if (href.startsWith(`${env.BASE_URL}/fediverse/blog/`)) {
     const user = href.replace(`${env.BASE_URL}/fediverse/blog/`, '')
-    return `wafrn://user/${user}`
+    return `/user/${user}`
   }
   if (attribs.class?.includes('mention')) {
     const text = attribs['data-text']
     // remove text after the second @ if exists
     const firstAtOnly = text.split('@').slice(0, 2).join('@')
     const fullHandle = `${firstAtOnly}@${url.hostname}`
-    return `wafrn://user/${fullHandle}`
+    return `/user/${fullHandle}`
   }
   return href
 }
