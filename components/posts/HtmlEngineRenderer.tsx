@@ -3,6 +3,7 @@ import { memo, useMemo } from 'react'
 import { View } from 'react-native'
 import { Document, RenderHTMLSource } from 'react-native-html-engine'
 import LinkPreviewCard from './LinkPreviewCard'
+import { useAuth } from '@/lib/contexts/AuthContext'
 
 function HtmlEngineRendererInner({
   html,
@@ -15,19 +16,21 @@ function HtmlEngineRendererInner({
   hiddenLinks?: string[]
   disableLinkCards?: boolean
 }) {
-  const { links, dom } = useMemo(() => {
+  const { env } = useAuth()
+  const { links, source } = useMemo(() => {
     const dom = parseDocument(html)
     const links = DomUtils.findAll((node) => {
       if (node.name === 'a') {
-        node.attribs['data-text'] = DomUtils.textContent(node)
+        const text = DomUtils.textContent(node)
         const href = node.attribs.href
+        node.attribs['data-text'] = text
         if (disableLinkCards) {
           return false
         }
         if (hiddenLinks?.includes(href)) {
           return false
         }
-        return DomUtils.textContent(node) === href
+        return text === href
       }
       return false
     }, dom.children)
@@ -39,16 +42,16 @@ function HtmlEngineRendererInner({
 
     return {
       links: uniqueLinks,
-      dom: body,
+      source: {
+        dom: body as Document,
+        baseUrl: env?.BASE_URL,
+      },
     }
-  }, [html, hiddenLinks, disableLinkCards])
+  }, [html, hiddenLinks, disableLinkCards, env?.BASE_URL])
 
   return (
     <>
-      <RenderHTMLSource
-        contentWidth={contentWidth}
-        source={{ dom: dom as Document }}
-      />
+      <RenderHTMLSource contentWidth={contentWidth} source={source} />
       <View id="link-cards">
         {links.map((link) => (
           <LinkPreviewCard
