@@ -76,9 +76,6 @@ const rendererProps = {
     onPress(event, href, htmlAttribs, target) {
       const link = handleLinkClick(href, htmlAttribs)
       if (link) {
-        if (!Linking.canOpenURL(link)) {
-          console.warn('Linking cannot open this url: ', link)
-        }
         router.navigate(link)
       }
     },
