@@ -144,7 +144,7 @@ export function getPrivateOptionValue<
   const json = option?.optionValue
   if (!json) {
     if (Array.isArray(defaultValue)) {
-      // this is important so every caller of this function does not share the same reference to the same array 
+      // this is important so every caller of this function does not share the same reference to the same array
       return [...defaultValue] as PrivateOptionTypeMap[typeof key]
     }
     return defaultValue
@@ -235,8 +235,8 @@ export async function getSettings(token: string, signal: AbortSignal) {
   })
   const data = json as Settings
   data.emojis = data.emojis
+    .map((g) => ({ ...g, emojis: (g.emojis || []).filter((e) => !!e) }))
     .filter((g) => g.emojis.length > 0)
-    .map((g) => ({ ...g, emojis: g.emojis.filter((e) => !!e) }))
   return data
 }
 
