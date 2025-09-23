@@ -10,28 +10,28 @@ import { getEnvironmentStatic } from './auth'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 
 const AUDIO_EXTENSIONS = [
-  'aac',
-  'm4a',
-  'mp3',
-  'oga',
-  'ogg',
-  'opus',
-  'wav',
-  'weba',
+  '.aac',
+  '.m4a',
+  '.mp3',
+  '.oga',
+  '.ogg',
+  '.opus',
+  '.wav',
+  '.weba',
 ]
-const VIDEO_EXTENSIONS = ['mp4', 'webm']
+const VIDEO_EXTENSIONS = ['.mp4', '.webm']
 const IMG_EXTENSIONS = [
-  'bmp',
-  'gif',
-  'ico',
-  'jpeg',
-  'jpg',
-  'png',
-  'svg',
-  'webp',
-  'avif',
-  'blob', // weird ¿misskey? thing
-  'jfif', // I dont know what this is but it's in the wild
+  '.bmp',
+  '.gif',
+  '.ico',
+  '.jpeg',
+  '.jpg',
+  '.png',
+  '.svg',
+  '.webp',
+  '.avif',
+  '.blob', // weird ¿misskey? thing
+  '.jfif', // I dont know what this is but it's in the wild
 ]
 
 export function isVideo(mime: string | undefined, url: string) {
@@ -83,7 +83,7 @@ export function getGIFAspectRatio(media: PostMedia) {
   const sp = new URL(media.url).searchParams
   const h = sp.get('hh') ? Number(sp.get('hh')) : media.width
   const w = sp.get('ww') ? Number(sp.get('ww')) : media.height
-  return w && h ? (w / h) : 1
+  return w && h ? w / h : 1
 }
 
 export function getAspectRatio(media: PostMedia) {
@@ -164,7 +164,8 @@ export async function pickEditableImage() {
   const img = result.assets[0]
   return {
     uri: img.uri,
-    name: img.fileName ?? img.uri.split('/').pop() ?? `picked-image-${Date.now()}`,
+    name:
+      img.fileName ?? img.uri.split('/').pop() ?? `picked-image-${Date.now()}`,
     type: img.mimeType!,
   }
 }
@@ -181,9 +182,12 @@ export type LinkPreview = {
 
 export async function getLinkPreview(signal: AbortSignal, link: string) {
   const env = getEnvironmentStatic()
-  const data = await getJSON(`${env?.API_URL}/linkPreview/?url=${encodeURIComponent(link)}`, {
-    signal,
-  })
+  const data = await getJSON(
+    `${env?.API_URL}/linkPreview/?url=${encodeURIComponent(link)}`,
+    {
+      signal,
+    },
+  )
   return data as LinkPreview
 }
 
@@ -191,6 +195,6 @@ export function useLinkPreview(link: string | null) {
   return useQuery({
     queryKey: ['linkPreview', link],
     queryFn: ({ signal }) => getLinkPreview(signal, link!),
-    enabled: !!link
+    enabled: !!link,
   })
 }
