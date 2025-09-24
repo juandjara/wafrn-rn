@@ -338,12 +338,12 @@ export function useEditProfileMutation() {
     mutationFn: (payload: EditProfilePayload) => (
       updateProfile(token!, {
         ...payload,
-        name: me?.name || payload.name,
-        description: me?.description || payload.description,
-        manuallyAcceptsFollows: me?.manuallyAcceptsFollows || payload.manuallyAcceptsFollows,
-        hideFollows: me?.hideFollows || payload.hideFollows,
-        hideProfileNotLoggedIn: me?.hideProfileNotLoggedIn || payload.hideProfileNotLoggedIn,
-        disableEmailNotifications: me?.disableEmailNotifications || payload.disableEmailNotifications,
+        name: payload.name || me?.name,
+        description: payload.description || me?.description,
+        manuallyAcceptsFollows: payload.manuallyAcceptsFollows || me?.manuallyAcceptsFollows,
+        hideFollows: payload.hideFollows || me?.hideFollows,
+        hideProfileNotLoggedIn: payload.hideProfileNotLoggedIn || me?.hideProfileNotLoggedIn,
+        disableEmailNotifications: payload.disableEmailNotifications || me?.disableEmailNotifications,
       })
     ),
     onError: (err, variables, context) => {
