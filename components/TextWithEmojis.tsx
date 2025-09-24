@@ -1,7 +1,7 @@
 import { EmojiBase } from '@/lib/api/emojis'
 import { useSettings } from '@/lib/api/settings'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
-import clsx from 'clsx'
+import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
 import { Image, Text, TextProps } from 'react-native'
 
@@ -25,7 +25,7 @@ export default function TextWithEmojis({
   }, [emojis, settings])
 
   const elements = useMemo(() => {
-    const matches = text.matchAll(EMOJI_REGEX)
+    const matches = Array.from(text.matchAll(EMOJI_REGEX))
     const elements = [] as React.ReactNode[]
     let lastIndex = 0
     let matchIndex = 0
@@ -38,27 +38,35 @@ export default function TextWithEmojis({
           {textBefore}
         </Text>,
       )
-      const emoji = emojiList.find((emoji) => emoji.name === matchText)
+      const emoji = emojiList.find(
+        (emoji) =>
+          emoji.name.replaceAll(':', '') === matchText.replaceAll(':', ''),
+      )
       if (emoji) {
         elements.push(
           <Image
             key={`${matchIndex}-${emoji.name}`}
             source={{
               uri: formatCachedUrl(formatMediaUrl(emoji.url)),
-              width: 24,
-              height: 24,
+              width: 20,
+              height: 20,
             }}
             alt={emoji.name.replaceAll(':', '')}
             style={{
-              transform: [{ translateY: '25%' }],
+              overflow: 'hidden',
+              transform: [{ translateY: (20 - 14) / 2 + 2 }],
+              marginHorizontal: 1,
             }}
           />,
         )
       } else {
         elements.push(
-          <Text key={`${matchIndex}--text2`} {...innerTextProps}>
-            {matchText}
-          </Text>,
+          <MaterialIcons
+            key={`${matchIndex}--empty-emoji`}
+            name="check-box-outline-blank"
+            color="white"
+            size={20}
+          />,
         )
       }
       matchIndex++
@@ -66,14 +74,20 @@ export default function TextWithEmojis({
 
     elements.push(
       <Text key={`${matchIndex}--text-end`} {...innerTextProps}>
-        {text.slice(lastIndex)}
+        {text.slice(lastIndex)}{' '}
       </Text>,
     )
     return elements
   }, [text, emojiList, innerTextProps])
 
   return (
-    <Text {...props} className={clsx(className, '')}>
+    <Text
+      {...props}
+      className={className}
+      style={[props.style, { fontSize: 14, lineHeight: 28 }]}
+      textBreakStrategy="simple"
+      id="text-with-emojis"
+    >
       {elements}
     </Text>
   )

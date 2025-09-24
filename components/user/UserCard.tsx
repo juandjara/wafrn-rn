@@ -44,17 +44,19 @@ export default function UserCard({
         className="flex-shrink-0 mt-3 rounded-md border border-gray-500"
       />
       <View id="user-name-and-url" className="flex-1">
-        <View className="flex-row gap-2 items-center mt-2 mr-6">
+        <View className="flex-row gap-1 items-center mt-2 mr-7">
           {user.name && (
-            <TextWithEmojis
-              text={user.name}
-              emojis={emojis}
-              className="text-white"
-              numberOfLines={1}
-            />
+            <View className="overflow-hidden flex-shrink">
+              <TextWithEmojis
+                text={user.name}
+                emojis={emojis}
+                className="text-white"
+                numberOfLines={1}
+              />
+            </View>
           )}
           {showFollowButtons && (
-            <View>
+            <View className="flex-shrink-0">
               {!amIFollowing && !amIAwaitingApproval ? (
                 <TouchableOpacity
                   className={clsx({ 'opacity-50': followMutation.isPending })}
@@ -75,7 +77,7 @@ export default function UserCard({
             </View>
           )}
         </View>
-        <Text className="mb-1 text-sm text-cyan-400">
+        <Text numberOfLines={1} className="mb-1 text-sm text-cyan-400">
           {formatUserUrl(user.url)}
         </Text>
       </View>
