@@ -26,7 +26,6 @@ import { Link, useLocalSearchParams } from 'expo-router'
 import {
   memo,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,

@@ -18,7 +18,7 @@ import {
 } from './settings'
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
-import { collapseWhitespace, BSKY_URL, replaceInlineImages } from './html'
+import { collapseWhitespace, replaceInlineImages } from './html'
 import { Dimensions } from 'react-native'
 import { POST_MARGIN } from './posts'
 
