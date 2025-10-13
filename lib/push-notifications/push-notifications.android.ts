@@ -1,11 +1,16 @@
 import { useEffect } from 'react'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
-import { registerUnifiedPush, unregisterUnifiedPush, useNotificationBadges, useNotificationTokensCleanup } from '../notifications'
+import {
+  registerUnifiedPush,
+  unregisterUnifiedPush,
+  useNotificationBadges,
+  useNotificationTokensCleanup,
+} from '../notifications'
 import ExpoUnifiedPush, {
   checkPermissions,
   RegisteredPayload,
   requestPermissions,
-  subscribeDistributorMessages
+  subscribeDistributorMessages,
 } from 'expo-unified-push'
 import useAsyncStorage from '../useLocalStorage'
 import { AppState } from 'react-native'
@@ -24,16 +29,14 @@ export function saveDistributor(distributorId: string | null) {
 }
 
 export function registerDevice(vapidKey: string, userId: string) {
-  ExpoUnifiedPush.registerDevice(vapidKey, userId)
+  return ExpoUnifiedPush.registerDevice(vapidKey, userId)
 }
 
 export function usePushNotifications() {
   const tokenData = useParsedToken()
   const { token: authToken, env } = useAuth()
-  const {
-    value: upData,
-    setValue: setUpData
-  } = useAsyncStorage<RegisteredPayload>(`UnifiedPushData-${tokenData?.userId}`)
+  const { value: upData, setValue: setUpData } =
+    useAsyncStorage<RegisteredPayload>(`UnifiedPushData-${tokenData?.userId}`)
   const { refetch: refetchBadges } = useNotificationBadges()
   const SERVER_VAPID_KEY = env?.SERVER_VAPID_KEY
   const notificationCleanup = useNotificationTokensCleanup()
@@ -45,16 +48,16 @@ export function usePushNotifications() {
     // to avoid duplicated notifications
     if (__DEV__) {
       notificationCleanup({ deleteExpo: true, deleteUP: true })
-      return 
+      return
     }
 
     async function checkNotificationPermissions() {
-      const granted = await checkPermissions();
+      const granted = await checkPermissions()
       if (granted) {
-        return true;
+        return true
       } else {
-        const state = await requestPermissions();
-        return state === "granted"
+        const state = await requestPermissions()
+        return state === 'granted'
       }
     }
 
@@ -66,22 +69,24 @@ export function usePushNotifications() {
       // but we allow the user to select the distributor they want to use in the settings
       saveDistributor(distributors[0].id)
     }
-    
+
     if (tokenData?.userId) {
       if (!SERVER_VAPID_KEY) {
         throw new Error('webpush public key not found in instance env')
       }
 
-      checkNotificationPermissions().then(async (granted) => {
-        notificationCleanup({ deleteExpo: true, deleteUP: false })
-        if (granted) {
-          await registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
-        } else {
-          console.error('Notification permissions not granted')
-        }
-      }).catch((error) => {
-        console.error('Error checking notification permissions: ', error)
-      })
+      checkNotificationPermissions()
+        .then(async (granted) => {
+          notificationCleanup({ deleteExpo: true, deleteUP: false })
+          if (granted) {
+            await registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
+          } else {
+            console.error('Notification permissions not granted')
+          }
+        })
+        .catch((error) => {
+          console.error('Error checking notification permissions: ', error)
+        })
     }
   }, [SERVER_VAPID_KEY, tokenData?.userId, notificationCleanup])
 
@@ -96,33 +101,43 @@ export function usePushNotifications() {
       }
 
       if (message.action === 'registered') {
-        console.log(`[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`)
+        console.log(
+          `[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`,
+        )
         try {
           await registerUnifiedPush(authToken, message.data)
           setUpData(message.data)
         } catch (error) {
-          console.error('[expo-unified-push] error in registerUnifiedPush: ', error)
+          console.error(
+            '[expo-unified-push] error in registerUnifiedPush: ',
+            error,
+          )
         }
       }
-      
+
       if (message.action === 'unregistered' && upData) {
-        console.log(`[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`)
+        console.log(
+          `[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`,
+        )
         try {
           await unregisterUnifiedPush(authToken, upData)
           setUpData(null)
         } catch (error) {
-          console.error('[expo-unified-push] error in unregisterUnifiedPush: ', error)
+          console.error(
+            '[expo-unified-push] error in unregisterUnifiedPush: ',
+            error,
+          )
         }
       }
-      
+
       if (message.action === 'error') {
         console.error('[expo-unified-push] error: ', message.data)
       }
-      
+
       if (message.action === 'registrationFailed') {
         console.error('[expo-unified-push] registrationFailed: ', message.data)
       }
-      
+
       if (message.action === 'message') {
         console.log('[expo-unified-push] message: ', message)
         refetchBadges()
@@ -130,5 +145,3 @@ export function usePushNotifications() {
     })
   }, [authToken, setUpData, upData, refetchBadges])
 }
-
-
