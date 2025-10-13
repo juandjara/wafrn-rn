@@ -2,9 +2,19 @@ import { Link, router, Stack, usePathname } from 'expo-router'
 import { StyleSheet, View } from 'react-native'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
+import parseIncomingPath from '@/lib/parseIncomingPath'
+import { useEffect } from 'react'
 
 export default function NotFoundScreen() {
   const pathname = usePathname()
+
+  useEffect(() => {
+    const parsedPath = parseIncomingPath(pathname)
+    if (pathname !== parsedPath) {
+      router.replace(parsedPath)
+    }
+  }, [pathname])
+
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />

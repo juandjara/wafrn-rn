@@ -1,6 +1,17 @@
-import { QueryFunctionContext, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  QueryFunctionContext,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { getJSON, statusError, StatusError, uploadFile } from '../http'
-import { getEnvironmentStatic, getInstanceEnvironment, parseToken, SAVED_INSTANCE_KEY } from './auth'
+import {
+  getEnvironmentStatic,
+  getInstanceEnvironment,
+  parseToken,
+  SAVED_INSTANCE_KEY,
+} from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
@@ -63,7 +74,11 @@ export type UserEmoji = EmojiBase &
     userEmojiRelations: Timestamps & UserEmojiRelation
   }
 
-export async function getUser(token: string, signal: AbortSignal, handle?: string) {
+export async function getUser(
+  token: string,
+  signal: AbortSignal,
+  handle?: string,
+) {
   if (!handle) {
     const parsed = parseToken(token)!
     handle = parsed.url
@@ -104,7 +119,7 @@ export function useUser(handle: string) {
   })
 }
 
-type Signal = QueryFunctionContext["signal"]
+type Signal = QueryFunctionContext['signal']
 
 // all of this just to get the fucking avatars and names for the account switcher
 function useAccountsQueries(data: SavedAccount[], currentInstance: string) {
@@ -151,7 +166,7 @@ export function useAccounts() {
   const loading =
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
 
-  const accounts = accountQueries.map((query) => query.data).filter(a => !!a)
+  const accounts = accountQueries.map((query) => query.data).filter((a) => !!a)
   const error = accountQueries.find((query) => query.error)?.error ?? null
 
   function addAccount(token: string, instance: string) {
@@ -183,7 +198,7 @@ export function useAccounts() {
     await nextTick()
     await setSavedInstance(instance)
     await qc.invalidateQueries({
-      predicate: ({ queryKey }) => queryKey[0] !== 'environment'
+      predicate: ({ queryKey }) => queryKey[0] !== 'environment',
     })
   }
   return {
@@ -194,7 +209,7 @@ export function useAccounts() {
     removeAccount,
     selectAccount,
     removeAll,
-    getAccountData
+    getAccountData,
   }
 }
 
@@ -207,7 +222,11 @@ export type Follow = Omit<PostUser, 'remoteId'> & {
   }
 }
 
-export async function getFollowers(token: string, signal: AbortSignal, handle: string) {
+export async function getFollowers(
+  token: string,
+  signal: AbortSignal,
+  handle: string,
+) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/${handle}/follows?followers=false`,
@@ -220,7 +239,11 @@ export async function getFollowers(token: string, signal: AbortSignal, handle: s
   )
   return json as Follow[]
 }
-export async function getFollowed(token: string, signal: AbortSignal, handle: string) {
+export async function getFollowed(
+  token: string,
+  signal: AbortSignal,
+  handle: string,
+) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/${handle}/follows?followers=true`,
@@ -264,7 +287,7 @@ export function getRemoteInfo(user: User) {
       const url = new URL(`${BSKY_URL}/profile/${user.bskyDid}`)
       return {
         href: url.toString(),
-        name: url.hostname
+        name: url.hostname,
       }
     } catch (err) {
       console.error(err)
@@ -297,10 +320,7 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
     'manuallyAcceptsFollows',
     payload.manuallyAcceptsFollows ? 'true' : 'false',
   )
-  formData.append(
-    'hideFollows',
-    payload.hideFollows ? 'true' : 'false',
-  )
+  formData.append('hideFollows', payload.hideFollows ? 'true' : 'false')
   formData.append(
     'hideProfileNotLoggedIn',
     payload.hideProfileNotLoggedIn ? 'true' : 'false',
@@ -335,17 +355,19 @@ export function useEditProfileMutation() {
 
   return useMutation({
     mutationKey: ['editProfile'],
-    mutationFn: (payload: EditProfilePayload) => (
+    mutationFn: (payload: EditProfilePayload) =>
       updateProfile(token!, {
         ...payload,
         name: payload.name || me?.name,
         description: payload.description || me?.description,
-        manuallyAcceptsFollows: payload.manuallyAcceptsFollows || me?.manuallyAcceptsFollows,
+        manuallyAcceptsFollows:
+          payload.manuallyAcceptsFollows || me?.manuallyAcceptsFollows,
         hideFollows: payload.hideFollows || me?.hideFollows,
-        hideProfileNotLoggedIn: payload.hideProfileNotLoggedIn || me?.hideProfileNotLoggedIn,
-        disableEmailNotifications: payload.disableEmailNotifications || me?.disableEmailNotifications,
-      })
-    ),
+        hideProfileNotLoggedIn:
+          payload.hideProfileNotLoggedIn || me?.hideProfileNotLoggedIn,
+        disableEmailNotifications:
+          payload.disableEmailNotifications || me?.disableEmailNotifications,
+      }),
     onError: (err, variables, context) => {
       console.error(err)
       showToastError('Failed editing profile')
@@ -359,7 +381,7 @@ export function useEditProfileMutation() {
         predicate: (query) =>
           query.queryKey[0] === 'settings' ||
           query.queryKey[0] === 'currentUser' ||
-          query.queryKey[0] === 'user' && query.queryKey[1] === handle,
+          (query.queryKey[0] === 'user' && query.queryKey[1] === handle),
       })
     },
   })
@@ -676,7 +698,44 @@ export function usePasswordChangeCompleteMutation() {
       showToastSuccess('Password changed!')
     },
     onError: (err) => {
+      console.error(err)
       showToastError('Password change failed')
+    },
+  })
+}
+
+export function useAccountActivateMutation() {
+  const { token } = useAuth()
+  return useMutation({
+    mutationKey: ['account-activation'],
+    mutationFn: (payload: AccountActivationPayload) =>
+      activateAccount(token!, payload),
+    onSuccess: () => {
+      showToastSuccess('Your account was activated')
+    },
+    onError: (err) => {
+      console.error(err)
+      showToastError('Account activation failed')
+    },
+  })
+}
+
+type AccountActivationPayload = {
+  email: string
+  code: string
+}
+
+async function activateAccount(
+  token: string,
+  payload: AccountActivationPayload,
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/activateUser`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
   })
 }
@@ -713,7 +772,7 @@ export function useEnableBlueskyMutation() {
         predicate: (query) =>
           query.queryKey[0] === 'settings' ||
           query.queryKey[0] === 'currentUser' ||
-          query.queryKey[0] === 'user' && query.queryKey[1] === handle,
+          (query.queryKey[0] === 'user' && query.queryKey[1] === handle),
       })
     },
   })
