@@ -19,8 +19,8 @@ export default function Messages() {
           <Text className="text-white text-sm p-3">
             <Text className="font-bold">Attention: </Text>
             Private messages are not encrypted point to point. Do not share any
-            sensitive information. Admins both of your instance and the target
-            instance can read the DMs.
+            sensitive information. Admins both of your server and the target
+            server can read the DMs.
           </Text>
         }
       />

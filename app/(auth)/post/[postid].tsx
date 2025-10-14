@@ -369,7 +369,7 @@ export default function PostDetail() {
                         },
                       )}
                     >
-                      Fetch more replies from remote instance
+                      Fetch more replies from remote server
                     </Text>
                   ))}
               </View>

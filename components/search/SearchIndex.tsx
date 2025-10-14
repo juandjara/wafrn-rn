@@ -51,7 +51,7 @@ export default function SearchIndex({
             </Text>
             <Text className="text-white text-sm mb-2">
               To search for a remote user in the fediverse, enter their full
-              username starting with an @ and include the instance. As example,
+              username starting with an @ and including the server. As example,
               "@torvalds@social.kernel.org"
             </Text>
             <Text className="text-white text-sm mb-2">

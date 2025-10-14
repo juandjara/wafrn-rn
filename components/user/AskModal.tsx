@@ -158,14 +158,14 @@ export default function AskModal({
                 </Pressable>
                 <Collapsible
                   className="px-3 pt-4 pb-5"
-                  title="How to ask from your fedi instance?"
+                  title="How to ask from your fedi server?"
                 >
                   <Text
                     className="text-white text-sm"
                     style={{ marginLeft: 2 }}
                   >
                     To ask a question (non anonymous) to this user from other
-                    fedi instances, send a DM to this user with the following
+                    fedi servers, send a DM to this user with the following
                     format: "!ask @{user.url} {'<your question here>'}" (only
                     one mention per message). Emojis and other media will be
                     removed from the displayed question text but the DM content

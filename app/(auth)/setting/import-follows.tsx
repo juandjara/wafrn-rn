@@ -147,7 +147,7 @@ export default function ImportFollows() {
       ) : (
         <View className="p-3">
           <Text className="text-white">
-            Pick a CSV file to import your follows from another instance.
+            Pick a CSV file to import your follows from another server.
             {'\n\n'}
             The first row of the CSV file (the column names) will be ignored.
             {'\n\n'}

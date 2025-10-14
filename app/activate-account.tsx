@@ -59,8 +59,7 @@ export default function ActivateScreen() {
             {mutation.isError ? (
               <Text className="text-red-200 leading-relaxed">
                 Something went wrong! Try again in a few minutes and if it does
-                not work please send an email to the administrator of the
-                instance
+                not work please send an email to the administrator of the server
               </Text>
             ) : mutation.isSuccess ? (
               <Text className="text-green-100 leading-relaxed">
