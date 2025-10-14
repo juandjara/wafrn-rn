@@ -70,19 +70,19 @@ export function usePushNotifications() {
       saveDistributor(distributors[0].id)
     }
 
-    if (tokenData?.userId) {
-      if (!SERVER_VAPID_KEY) {
-        throw new Error('webpush public key not found in instance env')
-      }
+    if (!SERVER_VAPID_KEY) {
+      throw new Error('webpush public key not found in instance env')
+    }
 
+    if (tokenData?.userId) {
       checkNotificationPermissions()
         .then(async (granted) => {
-          notificationCleanup({ deleteExpo: true, deleteUP: false })
           if (granted) {
             await registerDevice(SERVER_VAPID_KEY, tokenData?.userId)
           } else {
             console.error('Notification permissions not granted')
           }
+          notificationCleanup({ deleteExpo: true, deleteUP: false })
         })
         .catch((error) => {
           console.error('Error checking notification permissions: ', error)
