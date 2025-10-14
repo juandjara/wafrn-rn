@@ -96,17 +96,13 @@ export function usePushNotifications() {
     }
 
     return subscribeDistributorMessages(async (message) => {
-      if (!authToken || AppState.currentState !== 'active') {
-        return
-      }
-
-      if (message.action === 'registered') {
+      if (message.action === 'registered' && authToken) {
         console.log(
           `[expo-unified-push] registered user ${message.data.instance} with url ${message.data.url}`,
         )
         try {
           await registerUnifiedPush(authToken, message.data)
-          setUpData(message.data)
+          await setUpData(message.data)
         } catch (error) {
           console.error(
             '[expo-unified-push] error in registerUnifiedPush: ',
@@ -115,13 +111,13 @@ export function usePushNotifications() {
         }
       }
 
-      if (message.action === 'unregistered' && upData) {
+      if (message.action === 'unregistered' && authToken && upData) {
         console.log(
           `[expo-unified-push] unregistered user ${message.data.instance} with url ${upData.url}`,
         )
         try {
           await unregisterUnifiedPush(authToken, upData)
-          setUpData(null)
+          await setUpData(null)
         } catch (error) {
           console.error(
             '[expo-unified-push] error in unregisterUnifiedPush: ',
@@ -138,9 +134,9 @@ export function usePushNotifications() {
         console.error('[expo-unified-push] registrationFailed: ', message.data)
       }
 
-      if (message.action === 'message') {
+      if (message.action === 'message' && AppState.currentState === 'active') {
         console.log('[expo-unified-push] message: ', message)
-        refetchBadges()
+        await refetchBadges()
       }
     })
   }, [authToken, setUpData, upData, refetchBadges])
