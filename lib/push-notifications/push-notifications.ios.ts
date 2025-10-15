@@ -1,11 +1,15 @@
-import { Platform } from 'react-native'
 import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'
 import { useEffect } from 'react'
 import { showToastError } from '../interaction'
 import { useAuth } from '../contexts/AuthContext'
-import { type Notification, PUSH_TOKEN_KEY, registerPushNotificationToken, useNotificationBadges } from '../notifications'
+import {
+  type Notification,
+  PUSH_TOKEN_KEY,
+  registerPushNotificationToken,
+  useNotificationBadges,
+} from '../notifications'
 import { router } from 'expo-router'
 import useAsyncStorage from '../useLocalStorage'
 
@@ -101,14 +105,17 @@ export function usePushNotifications() {
     if (
       lastNotification &&
       lastNotification.actionIdentifier ===
-      Notifications.DEFAULT_ACTION_IDENTIFIER
+        Notifications.DEFAULT_ACTION_IDENTIFIER
     ) {
       const data = lastNotification.notification.request.content
         .data as PushNotificationPayload
 
       if (data.notification) {
         // parse app link from notification
-        if (data.notification.notificationType === 'FOLLOW') {
+        if (
+          data.notification.notificationType === 'FOLLOW' ||
+          data.notification.notificationType === 'USERBITE'
+        ) {
           const url = `/user/${data.context?.userUrl}`
           router.navigate(url)
         } else {
@@ -122,13 +129,13 @@ export function usePushNotifications() {
 }
 
 type Distributor = {
-  id: string;
-  name?: string;
-  icon?: string;
-  isInternal?: boolean;
-  isSaved?: boolean;
-  isConnected?: boolean;
-};
+  id: string
+  name?: string
+  icon?: string
+  isInternal?: boolean
+  isSaved?: boolean
+  isConnected?: boolean
+}
 
 export function getSavedDistributor(): string | null {
   return null
@@ -139,7 +146,7 @@ export function getDistributors(): Distributor[] {
 }
 
 // explicit noop
-export function saveDistributor(distributorId: string | null) { }
+export function saveDistributor(distributorId: string | null) {}
 
 // explicit noop
-export function registerDevice(vapidKey: string, userId: string) { }
+export function registerDevice(vapidKey: string, userId: string) {}
