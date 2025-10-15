@@ -53,7 +53,6 @@ import { BSKY_URL } from '@/lib/api/html'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { collapseWhitespace } from '@/lib/api/html'
 
 export default function InteractionRibbon({
   post,
