@@ -174,14 +174,17 @@ export async function toggleBookmarkPost({
   undo: boolean
 }) {
   const env = getEnvironmentStatic()
-  await getJSON(`${env?.API_URL}/user/${undo ? 'unbookmark' : 'bookmark'}Post`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+  await getJSON(
+    `${env?.API_URL}/user/${undo ? 'unbookmark' : 'bookmark'}Post`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ postId }),
     },
-    body: JSON.stringify({ postId }),
-  })
+  )
 }
 
 export function useBookmarkMutation(post: Post) {
@@ -217,14 +220,17 @@ export async function toggleFollowTag({
   isFollowing: boolean
 }) {
   const env = getEnvironmentStatic()
-  await getJSON(`${env?.API_URL}/${isFollowing ? 'unfollowHashtag' : 'followHashtag'}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+  await getJSON(
+    `${env?.API_URL}/${isFollowing ? 'unfollowHashtag' : 'followHashtag'}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ hashtag: normalizeTagName(tag).replace('#', '') }),
     },
-    body: JSON.stringify({ hashtag: normalizeTagName(tag).replace('#', '') }),
-  })
+  )
 }
 
 export function useFollowTagMutation() {
@@ -243,13 +249,67 @@ export function useFollowTagMutation() {
       console.error(err)
       showToastError(`Failed to ${variables.isFollowing ? 'un' : ''}follow tag`)
     },
-    onSuccess: (data, variables) => { 
+    onSuccess: (data, variables) => {
       showToastSuccess(`Tag ${variables.isFollowing ? 'un' : ''}followed`)
     },
     onSettled: async () => {
       await qc.invalidateQueries({
         predicate: (query) => query.queryKey[0] === 'settings',
       })
+    },
+  })
+}
+
+async function bitePost(token: string, postId: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/bitePost`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
+  })
+}
+
+export function useBitePostMutation() {
+  const { token } = useAuth()
+  return useMutation<void, Error, string>({
+    mutationKey: ['bitePost'],
+    mutationFn: (postId) => bitePost(token!, postId),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to bite post`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`You have bitten this post`)
+    },
+  })
+}
+
+async function biteUser(token: string, userId: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/bite`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ userId }),
+  })
+}
+
+export function useBiteUserMutation() {
+  const { token } = useAuth()
+  return useMutation<void, Error, string>({
+    mutationKey: ['biteUser'],
+    mutationFn: (userId) => biteUser(token!, userId),
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Failed to bite user`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`You have bitten this user`)
     },
   })
 }
