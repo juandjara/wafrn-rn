@@ -10,14 +10,7 @@ import {
   getPublicOptionValue,
   PublicOptionNames,
 } from '@/lib/api/settings'
-import {
-  Pressable,
-  Share,
-  Text,
-  TouchableHighlight,
-  useWindowDimensions,
-  View,
-} from 'react-native'
+import { Pressable, Text, useWindowDimensions, View } from 'react-native'
 import {
   formatUserUrl,
   formatCachedUrl,
@@ -27,7 +20,7 @@ import { useMemo, useState } from 'react'
 import { isValidURL, replaceEmojis } from '@/lib/api/content'
 import HtmlSimpleRenderer from '../HtmlSimpleRenderer'
 import ZoomableImage from '../posts/ZoomableImage'
-import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
 import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import { Image, ImageProps } from 'expo-image'
 import { Link } from 'expo-router'
@@ -35,26 +28,11 @@ import clsx from 'clsx'
 import colors from 'tailwindcss/colors'
 import AskModal from './AskModal'
 import { useFollowMutation } from '@/lib/interaction'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { optionStyle } from '@/lib/styles'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import {
-  useBlockMutation,
-  useMuteMutation,
-  useServerBlockMutation,
-} from '@/lib/api/mutes-and-blocks'
 import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
+import UserActionsMenu from './UserActionsMenu'
 
 export default function UserDetail({ user }: { user: User }) {
-  const { env } = useAuth()
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
@@ -63,9 +41,6 @@ export default function UserDetail({ user }: { user: User }) {
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
   const followMutation = useFollowMutation(user)
-  const muteMutation = useMuteMutation(user)
-  const blockMutation = useBlockMutation(user)
-  const serverBlockMutation = useServerBlockMutation(user)
 
   const { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows } =
     useMemo(() => {
@@ -106,40 +81,6 @@ export default function UserDetail({ user }: { user: User }) {
   )
   const hasAsks = !remoteInfo && askFlag !== AskOptionValue.AllowNoAsks
 
-  const userActions = useMemo(
-    () => [
-      {
-        name: 'Share user',
-        icon: 'share-variant' as const,
-        action: () =>
-          user &&
-          Share.share({
-            message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}`,
-          }),
-      },
-      {
-        name: `${user.muted ? 'Unmute' : 'Mute'} user`,
-        icon: 'volume-off' as const,
-        disabled: isMe || muteMutation.isPending,
-        action: () => muteMutation.mutate(user.muted),
-      },
-      {
-        name: `${user.blocked ? 'Unblock' : 'Block'} user`,
-        icon: 'account-cancel-outline' as const,
-        disabled: isMe || blockMutation.isPending,
-        action: () => blockMutation.mutate(user.blocked),
-      },
-      {
-        name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
-        icon: 'server-off' as const,
-        disabled: isMe || serverBlockMutation.isPending,
-        action: () => serverBlockMutation.mutate(user.serverBlocked),
-      },
-    ],
-    [user, env, isMe, muteMutation, blockMutation, serverBlockMutation],
-  )
-
-  const sx = useSafeAreaPadding()
   const [instanceIcon, setInstanceIcon] = useState<ImageProps['source'] | null>(
     getUrlDecoration(user),
   )
@@ -236,51 +177,7 @@ export default function UserDetail({ user }: { user: User }) {
               )}
             </View>
           )}
-          <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger
-              style={{
-                padding: 6,
-                backgroundColor: `${colors.gray[500]}20`,
-                borderRadius: 40,
-              }}
-            >
-              <MaterialCommunityIcons
-                size={24}
-                name={`dots-vertical`}
-                color={colors.gray[400]}
-              />
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{
-                OptionTouchableComponent: TouchableHighlight,
-                optionsContainer: {
-                  paddingBottom: sx.paddingBottom,
-                  borderRadius: 16,
-                },
-              }}
-            >
-              {userActions.map((action, i) => (
-                <MenuOption
-                  key={i}
-                  disabled={action.disabled}
-                  style={{
-                    ...optionStyle(i),
-                    padding: 16,
-                    gap: 16,
-                    opacity: action.disabled ? 0.5 : 1,
-                  }}
-                  onSelect={action.action}
-                >
-                  <MaterialCommunityIcons
-                    name={action.icon}
-                    size={20}
-                    color={colors.gray[600]}
-                  />
-                  <Text className="text-sm flex-grow">{action.name}</Text>
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
+          <UserActionsMenu user={user} />
         </View>
         {!isMe && commonFollows.length > 0 && (
           <>
