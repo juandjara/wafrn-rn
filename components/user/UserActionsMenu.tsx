@@ -5,9 +5,10 @@ import {
 } from '@/lib/api/mutes-and-blocks'
 import { User } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
+import { useBiteUserMutation } from '@/lib/interaction'
 import { optionStyle } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
 import { Text } from 'react-native'
 import { Share } from 'react-native'
@@ -29,6 +30,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const muteMutation = useMuteMutation(user)
   const blockMutation = useBlockMutation(user)
   const serverBlockMutation = useServerBlockMutation(user)
+  const biteMutation = useBiteUserMutation()
   const actions = useMemo(
     () => [
       {
@@ -39,6 +41,18 @@ export default function UserActionsMenu({ user }: { user: User }) {
           Share.share({
             message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}`,
           }),
+      },
+      {
+        name: 'Bite user',
+        icon: (
+          <FontAwesome6
+            name="drumstick-bite"
+            size={20}
+            color={colors.gray[600]}
+          />
+        ),
+        disabled: isMe || biteMutation.isPending,
+        action: () => biteMutation.mutate(user.id),
       },
       {
         name: `${user.muted ? 'Unmute' : 'Mute'} user`,
@@ -59,7 +73,15 @@ export default function UserActionsMenu({ user }: { user: User }) {
         action: () => serverBlockMutation.mutate(user.serverBlocked),
       },
     ],
-    [user, env, isMe, muteMutation, blockMutation, serverBlockMutation],
+    [
+      user,
+      env,
+      isMe,
+      muteMutation,
+      blockMutation,
+      serverBlockMutation,
+      biteMutation,
+    ],
   )
 
   return (
@@ -98,11 +120,15 @@ export default function UserActionsMenu({ user }: { user: User }) {
             }}
             onSelect={action.action}
           >
-            <MaterialCommunityIcons
-              name={action.icon}
-              size={20}
-              color={colors.gray[600]}
-            />
+            {typeof action.icon === 'string' ? (
+              <MaterialCommunityIcons
+                name={action.icon}
+                size={20}
+                color={colors.gray[600]}
+              />
+            ) : (
+              action.icon
+            )}
             <Text className="text-sm flex-grow">{action.name}</Text>
           </MenuOption>
         ))}

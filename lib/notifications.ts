@@ -52,7 +52,8 @@ export function useNotificationBadges() {
   const time = useMemo(() => Date.now(), [])
   return useQuery({
     queryKey: ['notificationsBadge', token],
-    queryFn: ({ signal }) => getNotificationBadges({ token: token!, time, signal }),
+    queryFn: ({ signal }) =>
+      getNotificationBadges({ token: token!, time, signal }),
     enabled: !!token,
   })
 }
@@ -77,6 +78,9 @@ export type NotificationBase = Timestamps & {
   userId: string
 }
 
+export type UserBiteNotification = NotificationBase & {
+  notificationType: 'USERBITE'
+}
 export type FollowNotification = NotificationBase & {
   notificationType: 'FOLLOW'
 }
@@ -101,13 +105,19 @@ export type EmojiReactionNotification = NotificationBase & {
   postId: string
   emojiReactionId: string
 }
+export type PostBiteNotification = NotificationBase & {
+  notificationType: 'POSTBITE'
+  postId: string
+}
 export type Notification =
+  | UserBiteNotification
   | FollowNotification
   | LikeNotification
   | ReblogNotification
   | MentionNotification
   | QuoteNotification
   | EmojiReactionNotification
+  | PostBiteNotification
 
 export async function getNotifications({
   token,
@@ -189,7 +199,10 @@ export function getNotificationList(pages: NotificationsPage[]) {
       .filter((n) => n?.notificationType)
       .map((n) => {
         const user = page.users.find((u) => u.id === n.userId)!
-        if (n.notificationType === 'FOLLOW') {
+        if (
+          n.notificationType === 'FOLLOW' ||
+          n.notificationType === 'USERBITE'
+        ) {
           return { ...n, user }
         }
 
@@ -197,7 +210,7 @@ export function getNotificationList(pages: NotificationsPage[]) {
         if (!post) {
           return null
         }
-        
+
         if (n.notificationType === 'EMOJIREACT') {
           const emoji = page.emojiRelations.postEmojiReactions.find(
             (e) => e.id === n.emojiReactionId,
@@ -243,13 +256,16 @@ export async function unregisterPushNotificationToken(
 }
 
 type RegisteredPayload = {
-  url: string;
-  pubKey: string;
-  auth: string;
-  instance: string;
+  url: string
+  pubKey: string
+  auth: string
+  instance: string
 }
 
-export async function registerUnifiedPush(authToken: string, data: RegisteredPayload) {
+export async function registerUnifiedPush(
+  authToken: string,
+  data: RegisteredPayload,
+) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/v3/registerUnifiedPushData`, {
     method: 'POST',
@@ -266,7 +282,10 @@ export async function registerUnifiedPush(authToken: string, data: RegisteredPay
   })
 }
 
-export async function unregisterUnifiedPush(authToken: string, data: RegisteredPayload) {
+export async function unregisterUnifiedPush(
+  authToken: string,
+  data: RegisteredPayload,
+) {
   const env = getEnvironmentStatic()
   await getJSON(`${env?.API_URL}/v3/unregisterUnifiedPushData`, {
     method: 'POST',
@@ -290,7 +309,7 @@ export function useNotificationTokensCleanup() {
     mutationKey: ['notificationCleanup', token],
     mutationFn: async ({
       deleteExpo = true,
-      deleteUP = true
+      deleteUP = true,
     }: {
       deleteExpo?: boolean
       deleteUP?: boolean

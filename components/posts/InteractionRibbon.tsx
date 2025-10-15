@@ -3,6 +3,7 @@ import { PrivacyLevel } from '@/lib/api/privacy'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import {
   AntDesign,
+  FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
@@ -34,6 +35,7 @@ import { useSharedValue, withSpring } from 'react-native-reanimated'
 import {
   showToastError,
   showToastSuccess,
+  useBitePostMutation,
   useBookmarkMutation,
   useLikeMutation,
 } from '@/lib/interaction'
@@ -107,6 +109,7 @@ export default function InteractionRibbon({
   const deleteMutation = useDeleteMutation(post)
   const silenceMutation = useSilenceMutation(post)
   const bookmarkMutation = useBookmarkMutation(post)
+  const biteMutation = useBitePostMutation()
 
   const { mainOptions, secondaryOptions } = useMemo(() => {
     const createdByMe = post.userId === me?.userId
@@ -258,14 +261,10 @@ export default function InteractionRibbon({
     const remoteUrl = getRemotePostUrl(post)
     const secondaryOptions = [
       {
-        action: () => {
-          console.log(collapseWhitespace(post.content))
-        },
-        label: 'Log HTML',
-        icon: (
-          <MaterialCommunityIcons name="content-copy" size={20} color={iconColor} />
-        ),
-        enabled: true
+        action: () => biteMutation.mutate(post.id),
+        label: 'Bite post',
+        icon: <FontAwesome6 name="drumstick-bite" size={20} />,
+        enabled: !createdByMe && !biteMutation.isPending,
       },
       {
         action: () => toggleCollapsed(post.id, !collapsed),
@@ -334,7 +333,8 @@ export default function InteractionRibbon({
         action: () => {
           Alert.alert(
             `${isSilenced ? 'Uns' : 'S'}ilence post`,
-            `All notifications for this post (including replies) will be ${isSilenced ? 'un' : ''
+            `All notifications for this post (including replies) will be ${
+              isSilenced ? 'un' : ''
             }silenced. Are you sure you want to do this?`,
             [
               { text: 'Cancel', style: 'cancel' },
@@ -460,7 +460,7 @@ export default function InteractionRibbon({
               },
             }}
           >
-            <ScrollView>
+            <ScrollView fadingEdgeLength={300}>
               {secondaryOptions.map((option, i) => (
                 <MenuOption
                   key={i}

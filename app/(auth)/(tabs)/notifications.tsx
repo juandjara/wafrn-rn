@@ -35,6 +35,7 @@ import ReplyRibbon from '@/components/ribbons/ReplyRibbon'
 import { FlatList } from 'react-native'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import BiteRibbon from '@/components/ribbons/BiteRibbon'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
@@ -143,6 +144,12 @@ function NotificationItem({
       />
     )
   }
+  if (notification.notificationType === 'POSTBITE') {
+    ribbon = <BiteRibbon user={user} emojis={userEmojis} type="post" />
+  }
+  if (notification.notificationType === 'USERBITE') {
+    ribbon = <BiteRibbon user={user} emojis={userEmojis} type="user" />
+  }
   if (notification.notificationType === 'FOLLOW') {
     ribbon = <FollowRibbon user={user} emojis={userEmojis} />
   }
@@ -158,7 +165,10 @@ function NotificationItem({
   }
 
   let content = null
-  if (notification.notificationType === 'FOLLOW') {
+  if (
+    notification.notificationType === 'FOLLOW' ||
+    notification.notificationType === 'USERBITE'
+  ) {
     content = (
       <Link href={`/user/${notification.user.url}`} className="mx-3">
         <UserCard user={user} emojis={userEmojis} />
@@ -180,6 +190,8 @@ function NotificationItem({
     LIKE: 'liked',
     EMOJIREACT: 'reacted',
     FOLLOW: 'followed',
+    USERBITE: 'bit',
+    POSTBITE: 'bit',
   }
 
   return (

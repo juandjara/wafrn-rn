@@ -282,7 +282,7 @@ export function useBitePostMutation() {
       showToastError(`Failed to bite post`)
     },
     onSuccess: (data, variables) => {
-      showToastSuccess(`You have bitten this post`)
+      showToastSuccess(`Post bitten`)
     },
   })
 }
@@ -309,7 +309,7 @@ export function useBiteUserMutation() {
       showToastError(`Failed to bite user`)
     },
     onSuccess: (data, variables) => {
-      showToastSuccess(`You have bitten this user`)
+      showToastSuccess(`User bitten`)
     },
   })
 }
