@@ -1,6 +1,7 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
+const MetroSymlinksResolver = require('@rnx-kit/metro-resolver-symlinks')
 const { getDefaultConfig } = require('expo/metro-config')
-const { withNativeWind } = require('nativewind/metro')
+const { withUniwindConfig } = require('uniwind/metro')
 const {
   wrapWithReanimatedMetroConfig,
 } = require('react-native-reanimated/metro-config')
@@ -9,5 +10,7 @@ const {
 const config = getDefaultConfig(__dirname)
 
 module.exports = wrapWithReanimatedMetroConfig(
-  withNativeWind(config, { input: './styles.css' }),
+  withUniwindConfig(config, {
+    cssEntryFile: './styles.css',
+  }),
 )

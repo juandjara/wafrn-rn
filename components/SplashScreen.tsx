@@ -1,12 +1,15 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { Image } from 'react-native'
-import { ThemedView } from './ThemedView'
+import { Image, View } from 'react-native'
 import { ThemedText } from './ThemedText'
+import { Colors } from '@/constants/Colors'
 
 export default function SplashScreen() {
   const sx = useSafeAreaPadding()
   return (
-    <ThemedView style={sx} className="flex-1 items-center justify-center">
+    <View
+      style={[sx, { backgroundColor: Colors.dark.background }]}
+      className="flex-1 items-center justify-center"
+    >
       <Image
         source={require('@/assets/images/wafrn-logo.png')}
         style={{
@@ -16,6 +19,6 @@ export default function SplashScreen() {
         }}
       />
       <ThemedText className="mt-8 text-xl font-medium">Loading...</ThemedText>
-    </ThemedView>
+    </View>
   )
 }

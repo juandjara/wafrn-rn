@@ -17,8 +17,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '@/lib/contexts/AuthContext'
 import { ErrorBoundaryProps, Slot } from 'expo-router'
 import { MenuProvider } from 'react-native-popup-menu'
-import { cssInterop } from 'nativewind'
-import { Image } from 'expo-image'
 import * as Clipboard from 'expo-clipboard'
 import { showToastSuccess } from '@/lib/interaction'
 import {
@@ -38,7 +36,7 @@ configureReanimatedLogger({
   strict: false,
 })
 
-cssInterop(Image, { className: 'style' })
+// cssInterop(Image, { className: 'style' })
 
 export default function RootLayout() {
   const colorScheme = useColorScheme()
