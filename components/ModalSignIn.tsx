@@ -5,12 +5,7 @@ import {
 } from '@/lib/api/auth'
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import {
-  TextInput,
-  Button,
-  View,
-  Text
-} from 'react-native'
+import { TextInput, Button, View, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
@@ -160,9 +155,7 @@ export default function ModalSignIn({
               <View className="py-3">
                 <Button
                   disabled={loginMfaMutation.isPending || !env || !mfaToken}
-                  title={
-                    loginMfaMutation.isPending ? 'Loading...' : 'Sign in'
-                  }
+                  title={loginMfaMutation.isPending ? 'Loading...' : 'Sign in'}
                   onPress={loginMfa}
                 />
               </View>

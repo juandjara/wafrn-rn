@@ -97,8 +97,8 @@ export default function UserMenu() {
             accessibilityLabel: 'Main menu',
           },
           triggerWrapper: {
-            position: 'relative'
-          }
+            position: 'relative',
+          },
         }}
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
@@ -114,7 +114,7 @@ export default function UserMenu() {
           </Text>
         )}
         {me?.avatar ? null : (
-          <Text className='text-white absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>
+          <Text className="text-white absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
             {me?.url.substring(0, 1)}
           </Text>
         )}
@@ -146,33 +146,38 @@ export default function UserMenu() {
                 {formatUserUrl(me?.url)}
               </Text>
             </View>
-            <View className='self-center flex-row items-center gap-1 mt-2'>
-              {accountList.filter((a => a.id !== me?.id)).slice(0, 2).map((acc) => (
-                <TouchableOpacity
-                  key={acc?.id}
-                  style={{ width: 48, height: 48 }}
-                  className="relative rounded-xl border-2 border-gray-200"
-                  accessibilityLabel={`Switch to ${formatUserUrl(acc.url)}`}
-                  onPress={() => selectAccount(acc.index)}
-                  activeOpacity={0.5}
-                >
-                  <Image
-                    source={{ uri: formatSmallAvatar(acc?.avatar) }}
-                    style={{ width: 44, height: 44, borderRadius: 8 }}
-                  />
-                  {acc?.avatar ? null : (
-                    <Text className='absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2'>{acc.url.substring(0, 1)}</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
+            <View className="self-center flex-row items-center gap-1 mt-2">
+              {accountList
+                .filter((a) => a.id !== me?.id)
+                .slice(0, 2)
+                .map((acc) => (
+                  <TouchableOpacity
+                    key={acc?.id}
+                    style={{ width: 48, height: 48 }}
+                    className="relative rounded-xl border-2 border-gray-200"
+                    accessibilityLabel={`Switch to ${formatUserUrl(acc.url)}`}
+                    onPress={() => selectAccount(acc.index)}
+                    activeOpacity={0.5}
+                  >
+                    <Image
+                      source={{ uri: formatSmallAvatar(acc?.avatar) }}
+                      style={{ width: 44, height: 44, borderRadius: 8 }}
+                    />
+                    {acc?.avatar ? null : (
+                      <Text className="absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
+                        {acc.url.substring(0, 1)}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
               <TouchableOpacity
                 activeOpacity={0.5}
-                className={clsx("flex-shrink-0 rounded-lg p-2 bg-blue-100/75", {
+                className={clsx('flex-shrink-0 rounded-lg p-2 bg-blue-100/75', {
                   'opacity-50': loading,
                 })}
                 onPress={() => navAndClose('/setting/account-switcher')}
                 disabled={loading}
-                accessibilityLabel='Add new account'
+                accessibilityLabel="Add new account"
               >
                 <MaterialCommunityIcons
                   name="plus-circle"

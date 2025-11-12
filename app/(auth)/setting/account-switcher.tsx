@@ -112,12 +112,16 @@ export default function AccountSwitcherSettings() {
               <TouchableOpacity
                 className="p-2 rounded-full"
                 disabled={acc.id === me?.id}
-                accessibilityLabel='Delete account'
+                accessibilityLabel="Delete account"
                 onPress={() => {
-                  Alert.alert('Delete account', `Do you want to remove ${formatUserUrl(acc.url)} from the account switcher?`, [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Switch', onPress: () => removeAccount(index) },
-                  ])
+                  Alert.alert(
+                    'Delete account',
+                    `Do you want to remove ${formatUserUrl(acc.url)} from the account switcher?`,
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Switch', onPress: () => removeAccount(index) },
+                    ],
+                  )
                 }}
               >
                 <MaterialCommunityIcons

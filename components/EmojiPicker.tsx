@@ -69,7 +69,10 @@ export default function EmojiPicker({
         }
         return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       })
-    const recent = (recentEmojis || []).map((e) => ({ ...e, id: e.id ? `${e.id}-recent` : e.id }))
+    const recent = (recentEmojis || []).map((e) => ({
+      ...e,
+      id: e.id ? `${e.id}-recent` : e.id,
+    }))
     return recent.concat(list)
   }, [recentEmojis, settings, debouncedSearch])
 

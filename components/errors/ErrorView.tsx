@@ -1,6 +1,5 @@
 import { router } from 'expo-router'
-import { Pressable, Text, View } from 'react-native'
-import { StyleProp, ViewStyle } from 'react-native'
+import { Pressable, Text, View, StyleProp, ViewStyle } from 'react-native'
 
 export default function ErrorView({
   style,

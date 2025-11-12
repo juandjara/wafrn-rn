@@ -18,9 +18,11 @@ import { Image } from 'expo-image'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { downloadFile } from '@/lib/downloads'
 import { EditorImage } from '@/lib/editor'
-import { PrivateOptionNames } from '@/lib/api/settings'
-import { getPrivateOptionValue } from '@/lib/api/settings'
-import { useSettings } from '@/lib/api/settings'
+import {
+  PrivateOptionNames,
+  getPrivateOptionValue,
+  useSettings,
+} from '@/lib/api/settings'
 import { Link } from 'expo-router'
 
 type GifMediaFormat = {
@@ -102,7 +104,7 @@ export default function GifSearch({
         return data.results as GifResponse[]
       }
     },
-    enabled: !!gifApiKey
+    enabled: !!gifApiKey,
   })
 
   const downloadMutation = useMutation({
@@ -162,11 +164,11 @@ export default function GifSearch({
           </Pressable>
         </View>
         {!gifApiKey && (
-          <View className='my-4'>
-            <Text className='text-white text-center mb-4'>
+          <View className="my-4">
+            <Text className="text-white text-center mb-4">
               You need a Tenor API Key to use the GIF search.
             </Text>
-            <Text className='text-white text-center leading-6'>
+            <Text className="text-white text-center leading-6">
               You can get one{' '}
               <Link
                 href="https://developers.google.com/tenor/guides/quickstart"
@@ -177,12 +179,18 @@ export default function GifSearch({
               or ask{' '}
               <Link
                 href="wafrn://search/?q=@javascript@app.wafrn.net"
-                className='text-cyan-500 underline'
-              >@javascript</Link> to give you one to write it in your{' '}
+                className="text-cyan-500 underline"
+              >
+                @javascript
+              </Link>{' '}
+              to give you one to write it in your{' '}
               <Link
                 href="wafrn://setting/options"
-                className='text-cyan-500 underline'
-              >app settings</Link>.
+                className="text-cyan-500 underline"
+              >
+                app settings
+              </Link>
+              .
             </Text>
           </View>
         )}

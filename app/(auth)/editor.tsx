@@ -135,28 +135,26 @@ export default function EditorView() {
       new Set([...editorMentionedUserIds, ...mentions.map((u) => u.id)]),
     )
 
-    createMutation.mutate(
-      {
-        content: text,
-        parentId: params.type === 'reply' ? params.replyId : undefined,
-        askId: params.type === 'ask' ? params.askId : undefined,
-        quotedPostId: params.type === 'quote' ? params.quoteId : undefined,
-        editingPostId: params.type === 'edit' ? params.editId : undefined,
-        contentWarning: form.contentWarning,
-        privacy: form.privacy,
-        joinedTags: form.tags,
-        medias: form.medias.map((m) => ({
-          id: m.id!,
-          uri: m.uri,
-          width: m.width,
-          height: m.height,
-          description: m.description || '',
-          NSFW: m.NSFW || false,
-        })),
-        mentionedUserIds,
-        postingAccountId: form.postingAs
-      }
-    )
+    createMutation.mutate({
+      content: text,
+      parentId: params.type === 'reply' ? params.replyId : undefined,
+      askId: params.type === 'ask' ? params.askId : undefined,
+      quotedPostId: params.type === 'quote' ? params.quoteId : undefined,
+      editingPostId: params.type === 'edit' ? params.editId : undefined,
+      contentWarning: form.contentWarning,
+      privacy: form.privacy,
+      joinedTags: form.tags,
+      medias: form.medias.map((m) => ({
+        id: m.id!,
+        uri: m.uri,
+        width: m.width,
+        height: m.height,
+        description: m.description || '',
+        NSFW: m.NSFW || false,
+      })),
+      mentionedUserIds,
+      postingAccountId: form.postingAs,
+    })
   }
 
   const actions: EditorActionProps['actions'] = {
@@ -181,8 +179,9 @@ export default function EditorView() {
         return
       }
       const textAfterCursor = text.substring(selection.end)
-      const newText = `${textBeforeCursor}${start}${textInCursor}${end || start
-        }${textAfterCursor}`
+      const newText = `${textBeforeCursor}${start}${textInCursor}${
+        end || start
+      }${textAfterCursor}`
       update(
         'content',
         generateValueFromMentionStateAndChangedText(
@@ -203,8 +202,9 @@ export default function EditorView() {
           onSuccess(data, variables) {
             // on success, update the images with the new data
             const inputUris = variables.map((v) => v.uri)
-            const otherMedias = form.medias
-              .filter((m) => !inputUris.includes(m.uri))
+            const otherMedias = form.medias.filter(
+              (m) => !inputUris.includes(m.uri),
+            )
 
             const newMedias = images.map((m) => {
               const dataIndex = variables.findIndex((v) => v.uri === m.uri)

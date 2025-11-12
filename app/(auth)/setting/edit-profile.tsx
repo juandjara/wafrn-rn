@@ -7,8 +7,8 @@ import {
   Text,
   useWindowDimensions,
   View,
+  ScrollView,
 } from 'react-native'
-import { ScrollView } from 'react-native'
 import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'

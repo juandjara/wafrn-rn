@@ -1,18 +1,24 @@
-import { useAccounts } from "@/lib/api/user";
-import { formatSmallAvatar, formatUserUrl } from "@/lib/formatters";
-import { optionStyleBig } from "@/lib/styles";
-import useSafeAreaPadding from "@/lib/useSafeAreaPadding";
-import { Image } from "expo-image";
-import { useMemo } from "react";
-import { Keyboard, Text, TouchableHighlight, View } from "react-native";
-import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from "react-native-popup-menu";
-import TextWithEmojis from "../TextWithEmojis";
+import { useAccounts } from '@/lib/api/user'
+import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { optionStyleBig } from '@/lib/styles'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { Image } from 'expo-image'
+import { useMemo } from 'react'
+import { Keyboard, Text, TouchableHighlight, View } from 'react-native'
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+  renderers,
+} from 'react-native-popup-menu'
+import TextWithEmojis from '../TextWithEmojis'
 
 export default function PostingAsSelector({
   selectedUserId,
-  setSelectedUserId
+  setSelectedUserId,
 }: {
-  selectedUserId: string,
+  selectedUserId: string
   setSelectedUserId: (userId: string) => void
 }) {
   const sx = useSafeAreaPadding()
@@ -27,8 +33,8 @@ export default function PostingAsSelector({
         customStyles={{
           TriggerTouchableComponent: TouchableHighlight,
           triggerTouchable: {
-            accessibilityLabel: `Posting as ${formatUserUrl(selectedAccount?.url)}`
-          }
+            accessibilityLabel: `Posting as ${formatUserUrl(selectedAccount?.url)}`,
+          },
         }}
         onPress={() => {
           Keyboard.dismiss()
@@ -37,7 +43,7 @@ export default function PostingAsSelector({
         <Image
           source={formatSmallAvatar(selectedAccount?.avatar)}
           style={{ width: 32, height: 32 }}
-          className='rounded-full'
+          className="rounded-full"
         />
       </MenuTrigger>
       <MenuOptions

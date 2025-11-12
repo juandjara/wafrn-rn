@@ -21,7 +21,7 @@ export default function EditorHeader({
   isLoading: boolean
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
-  postingAs: string,
+  postingAs: string
   setPostingAs: (userId: string) => void
   canPublish: boolean
   onPublish: () => void

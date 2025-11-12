@@ -55,9 +55,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
           )}
         </>
       ) : null}
-      {firstPost && (
-        <PostFragment post={firstPost} />
-      )}
+      {firstPost && <PostFragment post={firstPost} />}
       {morePostsCount > 0 && (
         <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
           <Link

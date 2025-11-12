@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Keyboard,
 } from 'react-native'
 import colors from 'tailwindcss/colors'
 import SearchIndex from '@/components/search/SearchIndex'
@@ -16,7 +17,6 @@ import useAsyncStorage from '@/lib/useLocalStorage'
 import { detectSearchType, SearchType } from '@/lib/api/search'
 import SearchResultsUsers from '@/components/search/SearchResultsUsers'
 import SearchResultsPosts from '@/components/search/SearchResultsPosts'
-import { Keyboard } from 'react-native'
 
 const HISTORY_LIMIT = 20
 

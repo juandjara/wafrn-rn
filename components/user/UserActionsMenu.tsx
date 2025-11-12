@@ -10,9 +10,7 @@ import { optionStyle } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
-import { Text } from 'react-native'
-import { Share } from 'react-native'
-import { TouchableHighlight } from 'react-native'
+import { Text, Share, TouchableHighlight } from 'react-native'
 import {
   Menu,
   MenuOption,
