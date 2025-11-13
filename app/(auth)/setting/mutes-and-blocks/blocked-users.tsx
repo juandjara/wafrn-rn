@@ -22,7 +22,6 @@ export default function BlockedUsers() {
             <Pressable className="p-3 bg-gray-800 active:bg-gray-700 rounded-lg m-2 mb-6">
               <View className="flex-row items-center gap-3">
                 <Image
-                  recyclingKey={item.user.id}
                   source={{ uri: item.user.avatar }}
                   style={{ width: 52, height: 52, borderRadius: 10 }}
                 />

@@ -24,7 +24,6 @@ export default function BanList() {
           <View className="p-3 bg-gray-800 rounded-lg mb-3 m-2">
             <View className="flex-row items-center gap-3">
               <Image
-                recyclingKey={item.id}
                 source={{ uri: formatCachedUrl(formatMediaUrl(item.avatar)) }}
                 style={{
                   width: 52,

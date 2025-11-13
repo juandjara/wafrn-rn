@@ -74,7 +74,6 @@ export default function Media({
       <Pressable className="max-w-full" onPress={onPress}>
         <Image
           cachePolicy={'memory'}
-          recyclingKey={media.id}
           source={src}
           placeholderContentFit="cover"
           placeholder={{

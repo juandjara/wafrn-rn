@@ -2,13 +2,15 @@ import type { ExpoConfig } from 'expo/config'
 import pkg from './package.json'
 
 const versionName = pkg.version
-const [major, minor, patch] = versionName.split('.').map(Number);
-const versionNumber = major * 1000000 + minor * 1000 + patch;
+const [major, minor, patch] = versionName.split('.').map(Number)
+const versionNumber = major * 1000000 + minor * 1000 + patch
 
 const isDev = process.env.NODE_ENV === 'development'
 const appId = isDev ? 'dev.djara.wafrn_rn.dev' : 'dev.djara.wafrn_rn'
 const name = isDev ? 'Wafrn Dev' : 'Wafrn'
-const icon = isDev ? './assets/images/logo_w_dev.png' : './assets/images/logo_w.png'
+const icon = isDev
+  ? './assets/images/logo_w_dev.png'
+  : './assets/images/logo_w.png'
 
 export default {
   expo: {
@@ -48,9 +50,7 @@ export default {
         {
           action: 'VIEW',
           autoVerify: true,
-          data: [
-            { scheme: 'https', host: 'app.wafrn.net' },
-          ],
+          data: [{ scheme: 'https', host: 'app.wafrn.net' }],
           category: ['BROWSABLE', 'DEFAULT'],
         },
       ],
@@ -64,16 +64,15 @@ export default {
         'expo-dev-client',
         {
           launchMode: 'launcher',
-        }
+        },
       ],
       [
         'expo-video',
         {
           supportsBackgroundPlayback: true,
           supportsPictureInPicture: true,
-        }
+        },
       ],
-      'react-native-edge-to-edge'
     ],
     experiments: {
       typedRoutes: false,

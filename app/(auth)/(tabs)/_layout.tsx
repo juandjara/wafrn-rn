@@ -26,13 +26,13 @@ export default function TabsLayout() {
         headerStyle: {
           backgroundColor: Colors.dark.background,
         },
-        tabBarStyle: {
-          backgroundColor: colors.blue[950],
-        },
-        tabBarInactiveTintColor: colors.indigo[300],
-        tabBarActiveTintColor: colors.gray[200],
-        tabBarInactiveBackgroundColor: colors.blue[950],
-        tabBarActiveBackgroundColor: colors.blue[950],
+        // tabBarStyle: {
+        //   backgroundColor: colors.blue[950],
+        // },
+        // tabBarInactiveTintColor: colors.indigo[300],
+        // tabBarActiveTintColor: colors.gray[200],
+        // tabBarInactiveBackgroundColor: colors.blue[950],
+        // tabBarActiveBackgroundColor: colors.blue[950],
         tabBarLabelStyle: {
           fontWeight: 'bold',
         },
@@ -71,7 +71,7 @@ export default function TabsLayout() {
           title: 'Notifications',
           tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
-            backgroundColor: colors.cyan[600],
+            // backgroundColor: colors.cyan[600],
             color: colors.white,
           },
           tabBarIcon: ({ color, size }) => (

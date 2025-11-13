@@ -32,7 +32,6 @@ export default function UserBlocklists() {
                 <Link href={`/user/${item.blockedUser.url}`} asChild>
                   <Pressable className="p-2 bg-gray-800 active:bg-gray-700 flex-row items-center gap-3">
                     <Image
-                      recyclingKey={item.blockedUser.id}
                       source={{
                         uri: formatCachedUrl(
                           formatMediaUrl(item.blockedUser.avatar),

@@ -231,7 +231,6 @@ export default function EmojiPicker({
                   <Text className="text-2xl">{item.content}</Text>
                 ) : (
                   <Image
-                    recyclingKey={item.url}
                     source={{ uri: formatCachedUrl(formatMediaUrl(item.url)) }}
                     style={{ resizeMode: 'contain', width: 32, height: 32 }}
                   />

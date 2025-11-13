@@ -141,7 +141,6 @@ export default function ZoomableImage({
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <Image
           cachePolicy={'memory'}
-          recyclingKey={id}
           source={src}
           placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}
