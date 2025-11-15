@@ -131,7 +131,7 @@ export const htmlInlineStyles = ({ cyan400 }: { cyan400: string }) =>
       fontSize: 16,
       lineHeight: 24,
     },
-  }) satisfies Record<string, TextStyle> as Record<string, TextStyle>
+  }) as const
 
 const BLOCK_TAGS = [
   'blockquote',

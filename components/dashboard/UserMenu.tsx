@@ -37,6 +37,16 @@ export default function UserMenu() {
   const blue900 = useCSSVariable('--color-blue-900') as string
   const options = [
     {
+      icon: 'dice-multiple' as const,
+      label: 'Try your luck',
+      action: () => router.navigate('/roll'),
+    },
+    {
+      icon: 'message-processing-outline' as const,
+      label: 'Messages',
+      action: () => router.navigate('/messages'),
+    },
+    {
       icon: 'chat-question-outline' as const,
       label: 'Asks',
       action: () => router.navigate('/asks'),
@@ -48,11 +58,6 @@ export default function UserMenu() {
       action: () => router.navigate(`/user/followers/${me?.url}`),
       badge: badges?.followsAwaitingApproval || 0,
       hidden: me?.manuallyAcceptsFollows === false,
-    },
-    {
-      icon: 'dice-multiple' as const,
-      label: 'Try your luck',
-      action: () => router.navigate('/roll'),
     },
     {
       icon: 'bookmark-outline' as const,

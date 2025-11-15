@@ -1,8 +1,10 @@
+import UserMenu from '@/components/dashboard/UserMenu'
 import { Colors, getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
+import { View } from 'react-native'
 import { useColorScheme } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 
@@ -90,10 +92,12 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="messages"
         options={{
-          href: '/messages',
-          title: 'Messages',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="envelope-o" size={size} color={color} />
+          title: '',
+          tabBarLabel: '',
+          tabBarButton: () => (
+            <View className="flex-row justify-center mt-1">
+              <UserMenu />
+            </View>
           ),
         }}
       />

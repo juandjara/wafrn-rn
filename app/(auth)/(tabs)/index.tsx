@@ -6,10 +6,20 @@ import DashboardModeMenu, {
   PublicDashboardMode,
 } from '@/components/dashboard/DashboardModeMenu'
 import PagerView from 'react-native-pager-view'
-import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
+import {
+  NativeSyntheticEvent,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import { Link } from 'expo-router'
+import { Pressable } from 'react-native'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { useCSSVariable } from 'uniwind'
 
 const MODES = [
   DashboardMode.FEED,
@@ -21,7 +31,8 @@ export default function Index() {
   const sx = useSafeAreaPadding()
   const pagerRef = useRef<PagerView>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
-  const bottomTabBarHeight = sx.paddingBottom + BOTTOM_BAR_HEIGHT
+  const bottomTabBarHeight = useBottomTabBarHeight()
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
@@ -58,8 +69,25 @@ export default function Index() {
       <Header
         style={{ minHeight: 60, paddingLeft: 8 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
-        right={<UserMenu />}
+        right={
+          <Link href="/settings" asChild>
+            <TouchableOpacity>
+              <MaterialCommunityIcons
+                name="cog-outline"
+                size={28}
+                color={gray300}
+              />
+            </TouchableOpacity>
+          </Link>
+        }
       />
+      <View key="editor-link" className="absolute bottom-3 right-3 z-20">
+        <Link href="/editor" asChild>
+          <Pressable className="p-4 rounded-full bg-white">
+            <MaterialIcons name="mode-edit" size={24} />
+          </Pressable>
+        </Link>
+      </View>
       <PagerView
         ref={pagerRef}
         onPageScroll={onPageScroll}

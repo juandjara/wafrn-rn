@@ -7,10 +7,10 @@ export default function useHTMLStyles() {
   const cyan400 = useCSSVariable('--color-cyan-400') as string
 
   const blockStyles = htmlBlockStyles({ blue950, gray400 })
-  const { textStyle, ...inlineStyles } = htmlInlineStyles({ cyan400 })
+  const { text, ...inlineStyles } = htmlInlineStyles({ cyan400 })
 
   return {
-    textStyle,
+    textStyle: text,
     tagStyles: {
       ...blockStyles,
       ...inlineStyles,

@@ -4,9 +4,7 @@ import {
   getDashboardContext,
   useDashboard,
 } from '@/lib/api/dashboard'
-import { FlatList, Pressable, View } from 'react-native'
-import { Link } from 'expo-router'
-import { MaterialIcons } from '@expo/vector-icons'
+import { FlatList } from 'react-native'
 import { useMemo, useRef } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
@@ -53,32 +51,12 @@ export default function Dashboard({
 
   const layoutData = useLayoutData()
 
-  const cornerButton = (
-    <View
-      key="editor-link"
-      className="absolute bottom-3 right-3 z-20"
-      style={{ paddingBottom: bottomPadding }}
-    >
-      <Link href="/editor" asChild>
-        <Pressable className="p-4 rounded-full bg-white">
-          <MaterialIcons name="mode-edit" size={24} />
-        </Pressable>
-      </Link>
-    </View>
-  )
-
   if (!context) {
-    return (
-      <>
-        <Loading />
-        {cornerButton}
-      </>
-    )
+    return <Loading />
   }
 
   return (
     <DashboardContextProvider data={context}>
-      {cornerButton}
       <FlatList
         ref={listRef}
         refreshing={isFetching}

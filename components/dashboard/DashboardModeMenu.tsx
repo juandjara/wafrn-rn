@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import {
   Menu,
   MenuOption,
@@ -23,7 +23,7 @@ const MODES = [
 ] as const
 
 const MODE_LABELS = {
-  [DashboardMode.FEED]: 'Feed',
+  [DashboardMode.FEED]: 'Home',
   [DashboardMode.LOCAL]: 'Local',
   [DashboardMode.FEDERATED]: 'Wafrn & Friends',
 } as const
@@ -61,66 +61,110 @@ export default function DashboardModeMenu({
     : `${env?.BASE_URL}/assets/logo_w.png`
 
   return (
-    <Menu onSelect={setMode}>
-      <MenuTrigger>
-        <View className="flex-row items-center">
-          {__DEV__ && (
-            <MaterialCommunityIcons
-              name="cog"
-              size={20}
-              color="black"
-              className="mr-1 absolute bottom-0 left-5 z-20"
-            />
-          )}
-          <Image
-            source={{ uri: logoUrl }}
-            style={[
-              useResolveClassNames('ml-1 mr-3'),
-              { width: forceClassicLogo ? 64 : 32, height: 32 },
-            ]}
-          />
-          <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
-            <MaterialCommunityIcons
-              name={MODE_ICONS[mode]}
-              size={20}
-              color="white"
-            />
-            <Text className="text-white font-semibold text-lg">
-              {MODE_LABELS[mode]}
-            </Text>
-            <MaterialCommunityIcons
-              className=""
-              name="chevron-down"
-              color={gray400}
-              size={24}
-            />
-          </View>
-        </View>
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          optionsContainer: {
-            transformOrigin: 'top left',
-            marginTop: 42,
-            marginLeft: 52,
-            borderRadius: 8,
-          },
-        }}
-      >
+    <View className="flex-row items-center">
+      {__DEV__ && (
+        <MaterialCommunityIcons
+          name="cog"
+          size={20}
+          color="black"
+          className="mr-1 absolute bottom-0 left-5 z-20"
+        />
+      )}
+      <Image
+        source={{ uri: logoUrl }}
+        style={[
+          useResolveClassNames('ml-1 mr-3'),
+          { width: forceClassicLogo ? 64 : 32, height: 32 },
+        ]}
+      />
+      <View className="flex-row gap-2 items-center rounded-full bg-slate-800 px-2 py-1">
         {MODES.map((m, i) => (
-          <MenuOption key={m} value={m} style={i > 0 ? menuCn : menuCnFirst}>
+          <TouchableOpacity
+            key={m}
+            onPress={() => setMode(m)}
+            className="flex-row items-center gap-2"
+            aria-label={`Show ${MODE_LABELS[m]} feed`}
+          >
             <MaterialCommunityIcons
               name={MODE_ICONS[m]}
-              size={20}
-              color="black"
+              size={24}
+              color="white"
             />
-            <Text className="text-sm flex-grow">{MODE_LABELS[m]}</Text>
-            {mode === m && (
-              <MaterialCommunityIcons name="check" size={20} color="black" />
+            {mode === m ? (
+              <Text className="text-white font-semibold text-lg">
+                {MODE_LABELS[m]}
+              </Text>
+            ) : null}
+            {i < MODES.length - 1 && (
+              <View className="ml-px h-6 border-l border-l-gray-400" />
             )}
-          </MenuOption>
+          </TouchableOpacity>
         ))}
-      </MenuOptions>
-    </Menu>
+      </View>
+    </View>
   )
+
+  // return (
+  //   <Menu onSelect={setMode}>
+  //     <MenuTrigger>
+  //       <View className="flex-row items-center">
+  //         {__DEV__ && (
+  //           <MaterialCommunityIcons
+  //             name="cog"
+  //             size={20}
+  //             color="black"
+  //             className="mr-1 absolute bottom-0 left-5 z-20"
+  //           />
+  //         )}
+  //         <Image
+  //           source={{ uri: logoUrl }}
+  //           style={[
+  //             useResolveClassNames('ml-1 mr-3'),
+  //             { width: forceClassicLogo ? 64 : 32, height: 32 },
+  //           ]}
+  //         />
+  //         <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
+  //           <MaterialCommunityIcons
+  //             name={MODE_ICONS[mode]}
+  //             size={20}
+  //             color="white"
+  //           />
+  //           <Text className="text-white font-semibold text-lg">
+  //             {MODE_LABELS[mode]}
+  //           </Text>
+  //           <MaterialCommunityIcons
+  //             className=""
+  //             name="chevron-down"
+  //             color={gray400}
+  //             size={24}
+  //           />
+  //         </View>
+  //       </View>
+  //     </MenuTrigger>
+  //     <MenuOptions
+  //       customStyles={{
+  //         optionsContainer: {
+  //           transformOrigin: 'top left',
+  //           marginTop: 42,
+  //           marginLeft: 52,
+  //           borderRadius: 8,
+  //         },
+  //       }}
+  //     >
+  //       {MODES.map((m, i) => (
+  //         <MenuOption key={m} value={m} style={i > 0 ? menuCn : menuCnFirst}>
+  //           <MaterialCommunityIcons
+  //             name={MODE_ICONS[m]}
+  //             size={20}
+  //             color="black"
+  //           />
+  //           <Text className="text-sm flex-grow">{MODE_LABELS[m]}</Text>
+  //           {mode === m && (
+  //             <MaterialCommunityIcons name="check" size={20} color="black" />
+  //           )}
+  //         </MenuOption>
+  //       ))}
+  //     </MenuOptions>
+  //   </Menu>
+  // )
 }
