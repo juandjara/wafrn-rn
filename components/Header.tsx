@@ -25,7 +25,7 @@ export default function Header({
   return (
     <View
       className={clsx(
-        'absolute right-0 left-0 z-10 px-3 py-2 flex-row gap-4 items-center',
+        'absolute right-0 left-0 z-10 px-3 py-2 flex-row gap-3 items-center',
         // !transparent && 'border-b border-gray-700',
       )}
       style={[
@@ -45,7 +45,7 @@ export default function Header({
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
       )}
-      <View className="flex-grow flex-shrink flex-row items-center">
+      <View className="grow shrink flex-row items-center">
         {typeof title === 'string' ? (
           <Text numberOfLines={1} className="text-white text-lg">
             {title}

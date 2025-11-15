@@ -71,7 +71,7 @@ export default function Index() {
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
         right={
           <Link href="/settings" asChild>
-            <TouchableOpacity>
+            <TouchableOpacity className="shrink-0">
               <MaterialCommunityIcons
                 name="cog-outline"
                 size={28}
