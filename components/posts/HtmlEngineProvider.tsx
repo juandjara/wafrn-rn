@@ -1,8 +1,5 @@
-import {
-  handleLinkClick,
-  HTML_BLOCK_STYLES,
-  HTML_INLINE_STYLES,
-} from '@/lib/api/html'
+import { handleLinkClick } from '@/lib/api/html'
+import useHTMLStyles from '@/lib/useHTMLStyles'
 import { router } from 'expo-router'
 import { PropsWithChildren } from 'react'
 import { Pressable } from 'react-native'
@@ -13,7 +10,6 @@ import {
   defaultHTMLElementModels,
   HTMLContentModel,
   MixedStyleDeclaration,
-  MixedStyleRecord,
   RenderHTMLConfigProvider,
   TRenderEngineProvider,
   TText,
@@ -27,17 +23,10 @@ const customHTMLElementModels = {
   }),
 }
 
-const { text: textStyle, ...inlineStyles } = HTML_INLINE_STYLES
-
 const allowedStyles = [
   'color',
   'backgroundColor',
 ] as CSSLongNativeTranslatableBlockPropKey[]
-
-const tagStyles = {
-  ...inlineStyles,
-  ...HTML_BLOCK_STYLES,
-} satisfies MixedStyleRecord
 
 function PRERenderer({
   TDefaultRenderer,
@@ -83,6 +72,7 @@ const rendererProps = {
 const ignoredDomTags = ['input', 'textarea', 'select']
 
 export default function HtmlEngineProvider({ children }: PropsWithChildren) {
+  const { textStyle, tagStyles } = useHTMLStyles()
   return (
     <TRenderEngineProvider
       customHTMLElementModels={customHTMLElementModels}

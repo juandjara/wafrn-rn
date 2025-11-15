@@ -1,5 +1,4 @@
 import { Platform, TextStyle } from 'react-native'
-import colors from 'tailwindcss/colors'
 import { ChildNode } from 'domhandler'
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
@@ -9,93 +8,100 @@ import { crush } from 'html-crush'
 export const BSKY_URL = 'https://bsky.app'
 export const BR = '\n'
 
-export const HTML_BLOCK_STYLES = {
-  blockquote: {
-    paddingLeft: 12,
-    margin: 12,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.gray[400],
-  },
-  ul: {
-    //marginLeft: 12,
-    // paddingBottom: 16,
-    // listStyleType: 'none',
-  },
-  ol: {
-    // marginLeft: 12,
-    // paddingBottom: 16,
-    // listStyleType: 'none',
-  },
-  // li: {
-  //   paddingLeft: 8,
-  // },
-  h1: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 47.78,
-    lineHeight: 54.94,
-  },
-  h2: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 39.81,
-    lineHeight: 45.78,
-  },
-  h3: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 33.18,
-    lineHeight: 38.15,
-  },
-  h4: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 27.65,
-    lineHeight: 31.79,
-  },
-  h5: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 23.04,
-    lineHeight: 26.49,
-  },
-  h6: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontWeight: 'bold',
-    fontSize: 19.2,
-    lineHeight: 22.08,
-  },
-  p: {
-    marginTop: 0,
-    marginBottom: 16,
-  },
-  figure: {
-    backgroundColor: colors.blue[950],
-    padding: 8,
-    marginTop: 8,
-  },
-  figcaption: {
-    backgroundColor: colors.blue[950],
-    padding: 8,
-    paddingTop: 0,
-    marginBottom: 8,
-  },
-  img: {
-    transform: 'translateY(6px)',
-    alignSelf: 'flex-start',
-  },
-  pre: {
-    borderRadius: 8,
-    padding: 8,
-    backgroundColor: colors.blue[950],
-  },
-} as const // satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
+export const htmlBlockStyles = ({
+  gray400,
+  blue950,
+}: {
+  gray400: string
+  blue950: string
+}) =>
+  ({
+    blockquote: {
+      paddingLeft: 12,
+      margin: 12,
+      borderLeftWidth: 2,
+      borderLeftColor: gray400,
+    },
+    ul: {
+      //marginLeft: 12,
+      // paddingBottom: 16,
+      // listStyleType: 'none',
+    },
+    ol: {
+      // marginLeft: 12,
+      // paddingBottom: 16,
+      // listStyleType: 'none',
+    },
+    // li: {
+    //   paddingLeft: 8,
+    // },
+    h1: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 47.78,
+      lineHeight: 54.94,
+    },
+    h2: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 39.81,
+      lineHeight: 45.78,
+    },
+    h3: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 33.18,
+      lineHeight: 38.15,
+    },
+    h4: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 27.65,
+      lineHeight: 31.79,
+    },
+    h5: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 23.04,
+      lineHeight: 26.49,
+    },
+    h6: {
+      marginTop: 4,
+      marginBottom: 12,
+      fontWeight: 'bold',
+      fontSize: 19.2,
+      lineHeight: 22.08,
+    },
+    p: {
+      marginTop: 0,
+      marginBottom: 16,
+    },
+    figure: {
+      backgroundColor: blue950,
+      padding: 8,
+      marginTop: 8,
+    },
+    figcaption: {
+      backgroundColor: blue950,
+      padding: 8,
+      paddingTop: 0,
+      marginBottom: 8,
+    },
+    img: {
+      transform: 'translateY(6px)',
+      alignSelf: 'flex-start',
+    },
+    pre: {
+      borderRadius: 8,
+      padding: 8,
+      backgroundColor: blue950,
+    },
+  }) as const // satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
 
 const boldStyle = { fontWeight: 'bold' as const }
 const italicStyle = { fontStyle: 'italic' as const }
@@ -103,28 +109,29 @@ const underlineStyle = { textDecorationLine: 'underline' as const }
 const strikethroughStyle = { textDecorationLine: 'line-through' as const }
 const codeStyle = { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }
 
-export const HTML_INLINE_STYLES = {
-  b: boldStyle,
-  strong: boldStyle,
-  i: italicStyle,
-  em: italicStyle,
-  u: underlineStyle,
-  s: strikethroughStyle,
-  del: strikethroughStyle,
-  strike: strikethroughStyle,
-  pre: codeStyle,
-  code: codeStyle,
-  a: {
-    color: colors.cyan[400],
-    textDecorationLine: 'none',
-  },
-  small: { fontSize: 12, lineHeight: 18 },
-  text: {
-    color: 'white',
-    fontSize: 16,
-    lineHeight: 24,
-  },
-} satisfies Record<string, TextStyle> as Record<string, TextStyle>
+export const htmlInlineStyles = ({ cyan400 }: { cyan400: string }) =>
+  ({
+    b: boldStyle,
+    strong: boldStyle,
+    i: italicStyle,
+    em: italicStyle,
+    u: underlineStyle,
+    s: strikethroughStyle,
+    del: strikethroughStyle,
+    strike: strikethroughStyle,
+    pre: codeStyle,
+    code: codeStyle,
+    a: {
+      color: cyan400,
+      textDecorationLine: 'none',
+    },
+    small: { fontSize: 12, lineHeight: 18 },
+    text: {
+      color: 'white',
+      fontSize: 16,
+      lineHeight: 24,
+    },
+  }) satisfies Record<string, TextStyle> as Record<string, TextStyle>
 
 const BLOCK_TAGS = [
   'blockquote',
@@ -171,63 +178,6 @@ export function isDisplayBlock(node: ChildNode) {
   }
   const style = (node.attribs.style as string) || ''
   return style.includes('display: block')
-}
-
-function getNodeStyle(node: ChildNode) {
-  if (node.type !== 'tag') {
-    return {}
-  }
-
-  const styleText = (node.attribs.style as string) || ''
-  if (!styleText) {
-    return {}
-  }
-
-  const style = styleText.split(';').reduce(
-    (acc, style) => {
-      const [key, value] = style.split(':')
-      if (key && value) {
-        acc[key.trim()] = value.trim()
-      }
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-  const filteredStyle = {} as TextStyle
-  if (style.color) {
-    filteredStyle.color = style.color
-  }
-  if (style['background-color']) {
-    filteredStyle.backgroundColor = style['background-color']
-  }
-  if (style.lineHeight) {
-    filteredStyle.lineHeight = Number(style.lineHeight)
-  }
-  if (style.fontSize) {
-    filteredStyle.fontSize = Number(style.fontSize)
-  }
-  return filteredStyle as TextStyle
-}
-
-function getTagStyle(node: ChildNode) {
-  if (node.type !== 'tag') {
-    return {}
-  }
-  const tag = node.name
-  return HTML_INLINE_STYLES[tag]
-  // const block = HTML_BLOCK_STYLES[tag]
-  // return { ...inline, ...block }
-}
-
-export function inheritedStyle(node: ChildNode | null): TextStyle | null {
-  if (!node) {
-    return null
-  }
-  const tagStyle = getTagStyle(node)
-  const nodeStyle = getNodeStyle(node)
-  const style = { ...tagStyle, ...nodeStyle }
-  const parentStyle = inheritedStyle(node.parent)
-  return { ...parentStyle, ...style }
 }
 
 export function normalizeTagName(tagName: string) {
