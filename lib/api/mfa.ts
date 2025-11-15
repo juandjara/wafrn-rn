@@ -1,8 +1,8 @@
-import { useAuth } from "@/lib/contexts/AuthContext"
-import { getJSON } from "@/lib/http"
-import { getEnvironmentStatic } from "@/lib/api/auth"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { showToastError, showToastSuccess } from "../interaction"
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { getJSON } from '@/lib/http'
+import { getEnvironmentStatic } from '@/lib/api/auth'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useToasts } from '../toasts'
 
 type MfaDetails = {
   id: string
@@ -60,6 +60,7 @@ export async function createMfa(token: string, payload: CreateMfaPayload) {
 export function useCreateMfaMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation({
     mutationKey: ['createMfa'],
@@ -97,6 +98,7 @@ export async function verifyMfa(token: string, payload: VerifyMfaPayload) {
 export function useVerifyMfaMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation({
     mutationKey: ['verifyMfa'],
@@ -127,6 +129,7 @@ export async function deleteMfa(token: string, id: string) {
 export function useDeleteMfaMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation({
     mutationKey: ['deleteMfa'],

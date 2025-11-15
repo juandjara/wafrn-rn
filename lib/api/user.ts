@@ -18,16 +18,13 @@ import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
 import { PostUser } from './posts.types'
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
-import {
-  showToastError,
-  showToastSuccess,
-  toggleFollowUser,
-} from '../interaction'
+import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
 import { FileSystemUploadType } from 'expo-file-system'
 import { formatCachedUrl, formatUserUrl } from '../formatters'
 import { useNotificationTokensCleanup } from '../notifications'
 import useAsyncStorage from '../useLocalStorage'
+import { useToasts } from '../toasts'
 
 export type User = {
   createdAt: string // iso date
@@ -350,6 +347,7 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
 export function useEditProfileMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
   const { data: me } = useCurrentUser()
   const handle = me?.url
 
@@ -400,6 +398,7 @@ export function useApproveFollowMutation() {
   const qc = useQueryClient()
   const me = useParsedToken()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['approveFollow'],
@@ -438,6 +437,7 @@ export function useDeleteFollowMutation() {
   const qc = useQueryClient()
   const me = useParsedToken()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['deleteFollow'],
@@ -502,6 +502,7 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
 export function useFollowsParserMutation() {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['importFollows'],
@@ -531,6 +532,7 @@ export function useFollowsParserMutation() {
 export function useFollowAllMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['followAll'],
@@ -613,6 +615,7 @@ export async function register(token: string, payload: RegisterPayload) {
 
 export function useRegisterMutation() {
   const { token } = useAuth()
+  const { showToastError } = useToasts()
 
   return useMutation({
     mutationKey: ['register'],
@@ -645,6 +648,7 @@ export async function requestPasswordChange(token: string, email: string) {
 
 export function usePasswordChangeRequestMutation() {
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['password-change-request'],
@@ -689,6 +693,7 @@ async function completePasswordChange(
 
 export function usePasswordChangeCompleteMutation() {
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['password-change-complete'],
@@ -706,6 +711,8 @@ export function usePasswordChangeCompleteMutation() {
 
 export function useAccountActivateMutation() {
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
+
   return useMutation({
     mutationKey: ['account-activation'],
     mutationFn: (payload: AccountActivationPayload) =>
@@ -757,6 +764,7 @@ export function useEnableBlueskyMutation() {
   const qc = useQueryClient()
   const me = useParsedToken()
   const handle = me?.url
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['enableBluesky'],
@@ -827,6 +835,7 @@ export function useDeleteAccountMutation() {
   const { token } = useAuth()
   const logout = useLogout()
   const notificationCleanup = useNotificationTokensCleanup()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['deleteAccount'],

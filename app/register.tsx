@@ -26,8 +26,8 @@ import { GENDERS } from '@/lib/genders'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import { router } from 'expo-router'
 import { useRegisterMutation } from '@/lib/api/user'
-import { showToastSuccess } from '@/lib/interaction'
 import { useCSSVariable } from 'uniwind'
+import { useToasts } from '@/lib/toasts'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -57,9 +57,9 @@ function parseDate(input: string) {
 export default function Register() {
   const sx = useSafeAreaPadding()
   const inputTextColor = Colors.dark.text
-  const gray600 = useCSSVariable('--color-gray-600') as string
-
   const mutation = useRegisterMutation()
+  const { showToastSuccess } = useToasts()
+  const gray600 = useCSSVariable('--color-gray-600') as string
 
   function onSubmit(values: RegisterFormState) {
     mutation.mutate(
@@ -74,7 +74,7 @@ export default function Register() {
       {
         onSuccess: () => {
           showToastSuccess(
-            'Registration sent! You will receive an email when an admin approves your application.',
+            'Registration sent! You will receive an email shortly to activate your account. If you do not recieve an email today in thw following hours, please contact the administrators.',
           )
           router.navigate('/sign-in')
         },

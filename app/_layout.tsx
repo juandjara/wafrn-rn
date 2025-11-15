@@ -14,7 +14,6 @@ import { AuthProvider } from '@/lib/contexts/AuthContext'
 import { ErrorBoundaryProps, Slot } from 'expo-router'
 import { MenuProvider } from 'react-native-popup-menu'
 import * as Clipboard from 'expo-clipboard'
-import { showToastSuccess } from '@/lib/interaction'
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -25,6 +24,7 @@ import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Colors } from '@/constants/Colors'
 import { queryClient } from '@/lib/queryClient'
 import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
+import { useToasts } from '@/lib/toasts'
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -64,6 +64,8 @@ export default function RootLayout() {
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const sx = useSafeAreaPadding()
+  const { showToastSuccess } = useToasts()
+
   return (
     <SafeAreaProvider>
       <View

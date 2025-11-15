@@ -2,10 +2,9 @@ import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Post, PostUser } from './api/posts.types'
 import { useAuth } from './contexts/AuthContext'
 import { getJSON } from './http'
-import { toast } from '@backpackapp-io/react-native-toast'
-import colors from 'tailwindcss/colors'
 import { getEnvironmentStatic } from './api/auth'
 import { normalizeTagName } from './api/html'
+import { useToasts } from './toasts'
 
 export async function toggleLikePost({
   token,
@@ -27,62 +26,10 @@ export async function toggleLikePost({
   })
 }
 
-export function showToastSuccess(message: string) {
-  toast.success(message, {
-    styles: {
-      text: {
-        color: colors.green[900],
-      },
-      view: {
-        backgroundColor: colors.green[100],
-        borderRadius: 8,
-      },
-    },
-  })
-}
-
-export function showToastError(message: string) {
-  toast.error(message, {
-    styles: {
-      text: {
-        color: colors.red[900],
-      },
-      view: {
-        backgroundColor: colors.red[100],
-        borderRadius: 8,
-      },
-    },
-  })
-}
-
-export function showToastDarkSouls(message: string) {
-  toast(message.toUpperCase(), {
-    duration: 3000,
-    styles: {
-      text: {
-        color: colors.red[500],
-        fontSize: 24,
-      },
-      view: {
-        backgroundColor: colors.black,
-        borderRadius: 8,
-      },
-    },
-  })
-}
-
-export function showToastInfo(message: string) {
-  toast(message, {
-    styles: {
-      text: {
-        color: colors.blue[900],
-      },
-    },
-  })
-}
 export function useLikeMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['like', post.id],
@@ -130,6 +77,7 @@ export function useFollowMutation(user: {
 }) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['follow', user.id],
@@ -190,6 +138,7 @@ export async function toggleBookmarkPost({
 export function useBookmarkMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['bookmark', post.id],
@@ -236,6 +185,7 @@ export async function toggleFollowTag({
 export function useFollowTagMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, { tag: string; isFollowing: boolean }>({
     mutationKey: ['followTag'],
@@ -274,6 +224,8 @@ async function bitePost(token: string, postId: string) {
 
 export function useBitePostMutation() {
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
+
   return useMutation<void, Error, string>({
     mutationKey: ['bitePost'],
     mutationFn: (postId) => bitePost(token!, postId),
@@ -301,6 +253,8 @@ async function biteUser(token: string, userId: string) {
 
 export function useBiteUserMutation() {
   const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
+
   return useMutation<void, Error, string>({
     mutationKey: ['biteUser'],
     mutationFn: (userId) => biteUser(token!, userId),

@@ -9,13 +9,9 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useRef, useState } from 'react'
-import {
-  showToastDarkSouls,
-  showToastInfo,
-  showToastSuccess,
-} from '@/lib/interaction'
 import { useLogout } from '@/lib/contexts/AuthContext'
 import { useNotificationTokensCleanup } from '@/lib/notifications'
+import { useToasts } from '@/lib/toasts'
 
 const FAIL_MESSAGES = [
   'You die! No more wafrn for you',
@@ -48,6 +44,7 @@ export default function RollScreen() {
 
   const logout = useLogout()
   const notificationCleanup = useNotificationTokensCleanup()
+  const { showToastDarkSouls, showToastInfo, showToastSuccess } = useToasts()
 
   function handleLogout() {
     logout()

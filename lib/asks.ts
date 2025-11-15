@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { PostAsk, PostUser } from './api/posts.types'
 import { getJSON } from './http'
 import { useAuth } from './contexts/AuthContext'
-import { showToastError, showToastSuccess } from './interaction'
+import { useToasts } from './toasts'
 import { getEnvironmentStatic } from './api/auth'
 
 export type UserAsksData = {
@@ -10,7 +10,11 @@ export type UserAsksData = {
   asks: PostAsk[]
 }
 
-export async function getAsks(token: string, signal: AbortSignal, answered: boolean) {
+export async function getAsks(
+  token: string,
+  signal: AbortSignal,
+  answered: boolean,
+) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/user/myAsks?answered=${answered ? 'true' : 'false'}`,
@@ -39,7 +43,13 @@ export async function getAsks(token: string, signal: AbortSignal, answered: bool
   })
 }
 
-export function useAsks({ answered, enabled = true }: { answered: boolean, enabled?: boolean }) {
+export function useAsks({
+  answered,
+  enabled = true,
+}: {
+  answered: boolean
+  enabled?: boolean
+}) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['asks', answered],
@@ -63,6 +73,8 @@ async function deleteAsk(token: string, askId: number) {
 export function useDeleteAskMutation() {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastSuccess, showToastError } = useToasts()
+
   return useMutation({
     mutationKey: ['deleteAsk'],
     mutationFn: (askId: number) => deleteAsk(token!, askId),
@@ -105,6 +117,8 @@ async function ask(token: string, payload: Omit<AskPayload, 'anonymous'>) {
 export function useAskMutation() {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastSuccess, showToastError } = useToasts()
+
   return useMutation({
     mutationKey: ['ask'],
     mutationFn: ({ anonymous, question, userAskedUrl }: AskPayload) => {

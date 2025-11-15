@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
-import { showToastSuccess } from '../interaction'
 import type { Report } from './reports'
 import { getEnvironmentStatic } from './auth'
 import { Timestamps } from './types'
+import { useToasts } from '../toasts'
 
 export type UserForApproval = {
   id: string
@@ -63,6 +63,8 @@ async function requireEmailConfirmation(token: string, userId: string) {
 export function useNewUserMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess } = useToasts()
+
   return useMutation({
     mutationKey: ['new-user'],
     mutationFn: async ({

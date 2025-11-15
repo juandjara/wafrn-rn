@@ -90,7 +90,7 @@ export default function AccountSwitcherSettings() {
               disabled={acc.id === me?.id}
               onPress={() => selectAccount(index)}
             >
-              <View className="relative my-1.5 rounded-xl bg-gray-100 flex-shrink-0">
+              <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
                 <Image
                   source={{ uri: formatSmallAvatar(acc.avatar) }}
                   style={{

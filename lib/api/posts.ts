@@ -4,16 +4,13 @@ import { getJSON, statusError, StatusError } from '../http'
 import { DashboardData, Post, PostUser } from './posts.types'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
-import {
-  invalidatePostQueries,
-  showToastError,
-  showToastSuccess,
-} from '../interaction'
+import { invalidatePostQueries } from '../interaction'
 import { BSKY_URL } from './html'
 import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
 import { EditorImage } from '../editor'
 import { useAccounts } from './user'
 import { router } from 'expo-router'
+import { useToasts } from '../toasts'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 0,
@@ -37,14 +34,18 @@ const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
 export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
-export async function getPostDetail(token: string, signal: AbortSignal, id: string) {
+export async function getPostDetail(
+  token: string,
+  signal: AbortSignal,
+  id: string,
+) {
   try {
     const env = getEnvironmentStatic()
     const json = await getJSON(`${env?.API_URL}/v2/post/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      signal
+      signal,
     })
     const data = json as DashboardData
     return data
@@ -89,7 +90,11 @@ export type PostDescendants = {
   - includes complete replies and rewoots,
   - not paginated, can return lots of posts
 */
-export async function getPostReplies(token: string, signal: AbortSignal, id: string) {
+export async function getPostReplies(
+  token: string,
+  signal: AbortSignal,
+  id: string,
+) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
     headers: {
@@ -145,7 +150,7 @@ export async function arbitraryWaitPostQueue() {
 export async function createPost(
   token: string,
   payload: Omit<CreatePostPayload, 'postingAccountId'>,
-  instance?: string
+  instance?: string,
 ) {
   const env = getEnvironmentStatic()
   let apiURL = env.API_URL
@@ -182,13 +187,16 @@ export function useCreatePostMutation() {
   const qc = useQueryClient()
   const { env } = useAuth()
   const { getAccountData } = useAccounts()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<string, Error, CreatePostPayload>({
     mutationKey: ['createPost'],
     mutationFn: async (payload) => {
       const data = getAccountData(payload.postingAccountId)
       if (!data.token || !data.instance) {
-        throw new Error(`cannot post with invalid account data: ${JSON.stringify(data)}`)
+        throw new Error(
+          `cannot post with invalid account data: ${JSON.stringify(data)}`,
+        )
       }
       return await createPost(data.token, payload, data.instance)
     },
@@ -198,7 +206,8 @@ export function useCreatePostMutation() {
     },
     onSuccess: (data, variables) => {
       showToastSuccess('Woot Created')
-      const instance = getAccountData(variables.postingAccountId)?.instance ?? ''
+      const instance =
+        getAccountData(variables.postingAccountId)?.instance ?? ''
       if (env?.BASE_URL === instance) {
         router.replace(`/post/${data}`)
       } else {
@@ -217,7 +226,11 @@ export function useCreatePostMutation() {
   })
 }
 
-export async function rewoot(token: string, postId: string, privacy: PrivacyLevel) {
+export async function rewoot(
+  token: string,
+  postId: string,
+  privacy: PrivacyLevel,
+) {
   return await createPost(token, {
     content: '',
     parentId: postId,
@@ -240,6 +253,7 @@ export async function deleteRewoot(token: string, postId: string) {
 export function useRewootMutation(post: Post) {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['rewoot', post.id],
@@ -275,6 +289,7 @@ export async function deletePost(token: string, postId: string) {
 export function useDeleteMutation(post: Post) {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['deletePost', post.id],
@@ -319,6 +334,7 @@ export async function voteOnPoll(
 export function useVoteMutation(pollId: number | null, post: Post) {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
     mutationKey: ['votePoll', pollId],

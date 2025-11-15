@@ -8,7 +8,7 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { use, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Pressable,
@@ -32,8 +32,6 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import AnimatedIcon from './AnimatedIcon'
 import { useSharedValue, withSpring } from 'react-native-reanimated'
 import {
-  showToastError,
-  showToastSuccess,
   useBitePostMutation,
   useBookmarkMutation,
   useLikeMutation,
@@ -53,6 +51,7 @@ import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useCSSVariable } from 'uniwind'
+import { useToasts } from '@/lib/toasts'
 
 export default function InteractionRibbon({
   post,
@@ -105,6 +104,8 @@ export default function InteractionRibbon({
     // ignore update on 'liked' and 'rewooted'
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context, post.id, me?.userId])
+
+  const { showToastSuccess, showToastError } = useToasts()
 
   const likeMutation = useLikeMutation(post)
   const rewootMutation = useRewootMutation(post)
@@ -311,7 +312,7 @@ export default function InteractionRibbon({
             showToastSuccess('Link copied!')
           } catch (err) {
             showToastError('Cannot copy link')
-            showToastError(String(err))
+            console.error('Cannot copy link', String(err))
           }
         },
         icon: <MaterialCommunityIcons name="content-copy" size={20} />,
@@ -469,7 +470,7 @@ export default function InteractionRibbon({
                   onSelect={option.action}
                 >
                   {option.icon}
-                  <Text className="text-sm flex-grow">{option.label}</Text>
+                  <Text className="text-sm grow">{option.label}</Text>
                 </MenuOption>
               ))}
             </ScrollView>
@@ -497,7 +498,7 @@ export default function InteractionRibbon({
       >
         {post.notes !== undefined ? (
           <Link id="notes" href={`/post/${post.id}`} asChild>
-            <Text className="flex-grow text-gray-200 text-sm active:bg-indigo-900/75 py-1 px-1 -mx-1 rounded-md">
+            <Text className="grow text-gray-200 text-sm active:bg-indigo-900/75 py-1 px-1 -mx-1 rounded-md">
               {post.notes} Notes
             </Text>
           </Link>

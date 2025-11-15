@@ -5,8 +5,8 @@ import { useLinkPreview } from '@/lib/api/media'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
-import { showToastError, showToastSuccess } from '@/lib/interaction'
 import { clsx } from 'clsx'
+import { useToasts } from '@/lib/toasts'
 
 export default function LinkPreviewCard({
   url,
@@ -22,6 +22,7 @@ export default function LinkPreviewCard({
   const isYTLink = isValidYTLink(url)
   const isGiphy = isGiphyLink(url)
   const { data } = useLinkPreview(isYTLink ? null : url)
+  const { showToastError, showToastSuccess } = useToasts()
 
   if (isYTLink) {
     return (
@@ -49,7 +50,7 @@ export default function LinkPreviewCard({
       showToastSuccess('Link copied!')
     } catch (err) {
       showToastError('Cannot copy link')
-      showToastError(String(err))
+      console.error('Cannot copy link: ', String(err))
     }
   }
 
@@ -66,7 +67,7 @@ export default function LinkPreviewCard({
           'bg-black/20 flex-row items-start rounded-lg',
         )}
       >
-        <View className="p-4 flex-shrink-0">
+        <View className="p-4 shrink-0">
           <Image
             style={{ width: 60, height: 60, borderRadius: 4 }}
             source={{ uri: image }}

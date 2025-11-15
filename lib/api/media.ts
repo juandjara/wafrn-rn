@@ -3,11 +3,11 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { isValidURL } from './content'
 import { Timestamps } from './types'
 import { useAuth } from '../contexts/AuthContext'
-import { showToastError, showToastSuccess } from '../interaction'
 import { getJSON, uploadFile } from '../http'
 import { FileSystemUploadType } from 'expo-file-system'
 import { getEnvironmentStatic } from './auth'
 import { launchImageLibraryAsync } from 'expo-image-picker'
+import { useToasts } from '../toasts'
 
 const AUDIO_EXTENSIONS = [
   '.aac',
@@ -118,6 +118,8 @@ export async function uploadMedia(token: string, payload: MediaUploadPayload) {
 
 export function useMediaUploadMutation() {
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
+
   return useMutation({
     mutationKey: ['mediaUpload'],
     mutationFn: (medias: MediaUploadPayload[]) =>

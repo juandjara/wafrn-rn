@@ -24,9 +24,9 @@ import {
 import encodeQR from 'qr'
 import { saveFileToGallery } from '@/lib/downloads'
 import { cacheDirectory, writeAsStringAsync } from 'expo-file-system'
-import { showToastSuccess } from '@/lib/interaction'
 import { setStringAsync } from 'expo-clipboard'
 import { Image } from 'expo-image'
+import { useToasts } from '@/lib/toasts'
 
 export default function MfaSettings() {
   const sx = useSafeAreaPadding()
@@ -37,6 +37,7 @@ export default function MfaSettings() {
   const createMutation = useCreateMfaMutation()
   const verifyMutation = useVerifyMfaMutation()
   const deleteMutation = useDeleteMfaMutation()
+  const { showToastSuccess } = useToasts()
 
   const newMfa = createMutation.data
   const canCreate = createMutation.status === 'idle' && !!name
@@ -116,7 +117,7 @@ export default function MfaSettings() {
           {isLoading && <Loading />}
           {!isLoading && mfas.length === 0 && (
             <View className="my-6 items-center justify-center">
-              <Text className="text-gray-200 font-medium text-lg leading-6 flex-grow flex-shrink">
+              <Text className="text-gray-200 font-medium text-lg leading-6 grow shrink">
                 No MFA methods configured.
               </Text>
             </View>
@@ -136,7 +137,7 @@ export default function MfaSettings() {
                 },
               )}
             >
-              <View className="flex-grow flex-shrink">
+              <View className="grow shrink">
                 <Text className="text-white">{mfa.name}</Text>
                 <Text className="text-gray-400 text-sm">{mfa.type}</Text>
               </View>

@@ -1,13 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
-import {
-  invalidatePostQueries,
-  showToastError,
-  showToastSuccess,
-} from '../interaction'
+import { invalidatePostQueries } from '../interaction'
 import { Post } from './posts.types'
 import { getEnvironmentStatic } from './auth'
+import { useToasts } from '../toasts'
 
 export type EmojiBase = {
   external: boolean
@@ -49,6 +46,7 @@ export async function emojiReact(
 export function useEmojiReactMutation(post: Post) {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, EmojiReactPayload>({
     mutationKey: ['emojiReact', post.id],
@@ -58,11 +56,7 @@ export function useEmojiReactMutation(post: Post) {
       showToastError(`Failed to react to woot`)
     },
     onSuccess: (data, variables) => {
-      showToastSuccess(
-        variables.undo
-          ? `Reaction removed`
-          : `Reaction sent`,
-      )
+      showToastSuccess(variables.undo ? `Reaction removed` : `Reaction sent`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
     onSettled: () => invalidatePostQueries(qc, post),

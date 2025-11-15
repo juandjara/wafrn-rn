@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors'
 import { DEFAULT_INSTANCE, useEnvCheckMutation } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
-import { showToastError, showToastSuccess } from '@/lib/interaction'
+import { useToasts } from '@/lib/toasts'
 import { useState } from 'react'
 import { Button, Text, TextInput, View } from 'react-native'
 
@@ -15,6 +15,7 @@ export default function InstancePicker({
   const [url, setUrl] = useState('')
   const color = Colors.dark.text
   const envMutation = useEnvCheckMutation()
+  const { showToastError, showToastSuccess } = useToasts()
 
   function connect(url: string) {
     envMutation.mutate(url, {

@@ -90,7 +90,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="messages"
+        name="profile"
         options={{
           title: '',
           tabBarLabel: '',

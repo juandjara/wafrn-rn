@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { useAuth } from '../contexts/AuthContext'
-import { showToastError, showToastSuccess } from '../interaction'
 import { Post, PostUser } from './posts.types'
 import { useMemo } from 'react'
 import { getEnvironmentStatic } from './auth'
 import { useSettings } from './settings'
+import { useToasts } from '../toasts'
 
 /*
  * USER BLOCKS
@@ -34,6 +34,7 @@ export async function toggleBlockUser({
 export function useBlockMutation(user: PostUser) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['block', user.id],
@@ -119,6 +120,7 @@ export async function toggleMuteUser({
 export function useMuteMutation(user: PostUser) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['mute', user.id],
@@ -210,6 +212,7 @@ export async function toggleSilencePost({
 export function useSilenceMutation(post: Post) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['silence', post.id],
@@ -260,6 +263,7 @@ async function toggleServerBlock({
 export function useServerBlockMutation(user: PostUser) {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation<void, Error, boolean>({
     mutationKey: ['serverBlock', user.id],
@@ -334,6 +338,7 @@ async function unblockServer(token: string, serverId: string) {
 export function useUnblockServerMutation() {
   const qc = useQueryClient()
   const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation<void, Error, string>({
     mutationKey: ['unblockServer'],

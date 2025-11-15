@@ -3,8 +3,8 @@ import { getJSON } from '../http'
 import { Post, PostUser } from './posts.types'
 import { Timestamps } from './types'
 import { useAuth } from '../contexts/AuthContext'
-import { showToastError, showToastSuccess } from '../interaction'
 import { getEnvironmentStatic } from './auth'
+import { useToasts } from '../toasts'
 
 export enum ReportSeverity {
   SPAM = 1,
@@ -72,6 +72,8 @@ async function reportPost(token: string, payload: ReportPayload) {
 export function useReportPostMutation() {
   const { token } = useAuth()
   const qc = useQueryClient()
+  const { showToastSuccess, showToastError } = useToasts()
+
   return useMutation({
     mutationKey: ['report-post'],
     mutationFn: async (payload: ReportPayload) => reportPost(token!, payload),
