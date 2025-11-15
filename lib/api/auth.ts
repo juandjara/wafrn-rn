@@ -96,11 +96,19 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const BASE_URL = new URL(env.baseUrl, instanceURL).origin
   const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
 
-  return { API_URL, MEDIA_URL, CACHE_URL, BASE_URL, CACHE_HOST, SERVER_VAPID_KEY }
+  return {
+    API_URL,
+    MEDIA_URL,
+    CACHE_URL,
+    BASE_URL,
+    CACHE_HOST,
+    SERVER_VAPID_KEY,
+  }
 }
 
 export function useEnvironment() {
-  const { value, loading, setValue } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const { value, loading, setValue } =
+    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const { data, isLoading } = useQuery({
     queryKey: ['environment'],
     queryFn: async () => {
@@ -185,9 +193,10 @@ export function useLoginMutation(env?: Environment) {
   return useMutation<TokenResponse, Error, { email: string; password: string }>(
     {
       mutationKey: ['signIn'],
-      mutationFn: (body) => env
-        ? login(env, body)
-        : Promise.reject(new Error('Environment is not ready')),
+      mutationFn: (body) =>
+        env
+          ? login(env, body)
+          : Promise.reject(new Error('Environment is not ready')),
     },
   )
 }
@@ -195,9 +204,10 @@ export function useLoginMutation(env?: Environment) {
 export function useLoginMfaMutation(env?: Environment) {
   return useMutation<string, Error, LoginMfaPayload>({
     mutationKey: ['signIn'],
-    mutationFn: (body) => env
-      ? loginMfa(env, body)
-      : Promise.reject(new Error('Environment is not ready')),
+    mutationFn: (body) =>
+      env
+        ? loginMfa(env, body)
+        : Promise.reject(new Error('Environment is not ready')),
   })
 }
 

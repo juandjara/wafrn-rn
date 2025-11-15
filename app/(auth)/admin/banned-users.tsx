@@ -2,15 +2,18 @@ import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useBanList, useToggleBanUserMutation } from '@/lib/api/admin'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { FlatList, Pressable, Text, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useResolveClassNames } from 'uniwind'
 
 export default function BanList() {
   const sx = useSafeAreaPadding()
   const { data, refetch, isFetching } = useBanList()
   const mutation = useToggleBanUserMutation()
+  const cn = useResolveClassNames(
+    'border border-gray-500 rounded-lg w-[52px] h-[52px]',
+  )
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
@@ -25,17 +28,9 @@ export default function BanList() {
             <View className="flex-row items-center gap-3">
               <Image
                 source={{ uri: formatCachedUrl(formatMediaUrl(item.avatar)) }}
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 10,
-                  borderColor: colors.gray[500],
-                  borderWidth: 1,
-                }}
+                style={cn}
               />
-              <Text className="text-white flex-grow flex-shrink">
-                {item.url}
-              </Text>
+              <Text className="text-white grow shrink">{item.url}</Text>
             </View>
             <Pressable
               disabled={mutation.isPending || item.url === '@deleted_user'}

@@ -12,7 +12,7 @@ import {
   Text,
   View,
 } from 'react-native'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 export default function BlockedServers() {
   const sx = useSafeAreaPadding()

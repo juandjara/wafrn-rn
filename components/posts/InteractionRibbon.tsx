@@ -8,7 +8,7 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Pressable,
@@ -26,7 +26,6 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
 import EmojiPicker, { Emoji } from '../EmojiPicker'
 import { optionStyleBig } from '@/lib/styles'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
@@ -53,6 +52,7 @@ import { BSKY_URL } from '@/lib/api/html'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { useCSSVariable } from 'uniwind'
 
 export default function InteractionRibbon({
   post,
@@ -61,6 +61,10 @@ export default function InteractionRibbon({
   post: Post
   orientation?: 'horizontal' | 'vertical'
 }) {
+  const green500 = useCSSVariable('--color-green-500') as string
+  const red500 = useCSSVariable('--color-red-500') as string
+  const gray300 = useCSSVariable('--color-gray-300') as string
+
   const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
   const me = useParsedToken()
@@ -147,9 +151,7 @@ export default function InteractionRibbon({
           <AnimatedIcon
             animValue={rewooted}
             icon={<AntDesign name="retweet" size={20} color={iconColor} />}
-            iconActive={
-              <AntDesign name="retweet" size={20} color={colors.green[500]} />
-            }
+            iconActive={<AntDesign name="retweet" size={20} color={green500} />}
           />
         ),
         disabled: rewootMutation.isPending,
@@ -177,11 +179,7 @@ export default function InteractionRibbon({
               />
             }
             iconActive={
-              <MaterialCommunityIcons
-                name="heart"
-                size={20}
-                color={colors.red[500]}
-              />
+              <MaterialCommunityIcons name="heart" size={20} color={red500} />
             }
           />
         ),
@@ -445,7 +443,7 @@ export default function InteractionRibbon({
             <MaterialCommunityIcons
               size={20}
               name={`dots-${orientation}`}
-              color={colors.gray[300]}
+              color={gray300}
               style={{ opacity: 0.75 }}
             />
           </MenuTrigger>

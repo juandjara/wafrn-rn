@@ -2,8 +2,8 @@ import useAsyncStorage from '../useLocalStorage'
 import {
   createContext,
   PropsWithChildren,
+  use,
   useCallback,
-  useContext,
   useMemo,
 } from 'react'
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query'
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 }
 
 export function useAuth() {
-  const value = useContext(AuthContext)
+  const value = use(AuthContext)
   if (process.env.NODE_ENV !== 'production') {
     if (!value) {
       throw new Error('useAuth must be wrapped in a <AuthProvider />')

@@ -1,9 +1,5 @@
 import '../styles.css'
-import {
-  ThemeProvider,
-  DarkTheme,
-  DefaultTheme,
-} from '@react-navigation/native'
+import { ThemeProvider, DarkTheme } from '@react-navigation/native'
 import { QueryClientProvider } from '@tanstack/react-query'
 import {
   Platform,
@@ -36,8 +32,6 @@ configureReanimatedLogger({
   strict: false,
 })
 
-// cssInterop(Image, { className: 'style' })
-
 export default function RootLayout() {
   const colorScheme = useColorScheme()
   return (
@@ -46,9 +40,7 @@ export default function RootLayout() {
     >
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ThemeProvider
-            value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-          >
+          <ThemeProvider value={DarkTheme}>
             <MenuProvider
               backHandler
               customStyles={{

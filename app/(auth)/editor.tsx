@@ -33,9 +33,9 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
-import colors from 'tailwindcss/colors'
-import { PostUser } from '@/lib/api/posts.types'
 import AskRibbon from '@/components/ribbons/AskRibbon'
+import { PostUser } from '@/lib/api/posts.types'
+import { useCSSVariable } from 'uniwind'
 
 export default function EditorView() {
   const {
@@ -50,7 +50,7 @@ export default function EditorView() {
     replyLabel,
     privacySelectDisabled,
   } = useEditorData()
-
+  const gray300 = useCSSVariable('--color-gray-300') as string
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [_mentions, setMentions] = useState<PostUser[]>([])
@@ -256,7 +256,7 @@ export default function EditorView() {
         />
         <ScrollView
           id="editor-scroll"
-          className="flex-grow-0 pb-1"
+          className="grow-0 pb-1"
           keyboardShouldPersistTaps="handled"
         >
           {isLoading ? (
@@ -268,7 +268,7 @@ export default function EditorView() {
             <ScrollView
               horizontal
               contentContainerClassName="gap-3"
-              className="flex-shrink-0 flex-grow-0 m-2"
+              className="shrink-0 grow-0 m-2"
             >
               {mentions.map((u) => (
                 <View
@@ -280,11 +280,7 @@ export default function EditorView() {
                     className="rounded-md bg-white/5 p-1"
                     onPress={() => deleteMention(u.id)}
                   >
-                    <MaterialIcons
-                      name="close"
-                      size={20}
-                      color={colors.gray[300]}
-                    />
+                    <MaterialIcons name="close" size={20} color={gray300} />
                   </Pressable>
                 </View>
               ))}

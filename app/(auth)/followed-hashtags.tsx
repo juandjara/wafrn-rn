@@ -3,7 +3,7 @@ import { useSettings } from '@/lib/api/settings'
 import { useFollowTagMutation } from '@/lib/interaction'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { router } from 'expo-router'
 import { useState } from 'react'
 import {
@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function FollowedHashtags() {
   const sx = useSafeAreaPadding()
@@ -23,6 +23,7 @@ export default function FollowedHashtags() {
   const followedHashtags = settings?.followedHashtags || []
   const mutation = useFollowTagMutation()
   const [newHashtag, setNewHashtag] = useState('')
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   function removeTag(tag: string) {
     mutation.mutate({
@@ -52,7 +53,7 @@ export default function FollowedHashtags() {
               placeholder="new hashtag"
               value={newHashtag}
               onChangeText={setNewHashtag}
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               className="p-3 border border-gray-500 rounded-lg flex-1 text-white"
             />
             <TouchableOpacity
@@ -83,17 +84,17 @@ export default function FollowedHashtags() {
                   router.push(`/search?q=${encodeURIComponent(`#${hashtag}`)}`)
                 }
               >
-                <Text className="text-white text-xl py-2 flex-grow flex-shrink">
+                <Text className="text-white text-xl py-2 grow shrink">
                   #{hashtag}
                 </Text>
                 <Pressable
                   onPress={() => removeTag(hashtag)}
-                  className="p-2 flex-shrink-0 rounded-full active:bg-gray-700"
+                  className="p-2 shrink-0 rounded-full active:bg-gray-700"
                 >
                   <MaterialCommunityIcons
                     name="close"
                     size={20}
-                    color={colors.gray[300]}
+                    color={gray300}
                   />
                 </Pressable>
               </TouchableOpacity>

@@ -4,7 +4,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function ServerList() {
   const sx = useSafeAreaPadding()
@@ -12,6 +12,7 @@ export default function ServerList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [query, setQuery] = useState('')
   const { data, refetch, isFetching } = useServerList(query)
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   function search(term: string) {
     setQuery(term)
@@ -28,7 +29,7 @@ export default function ServerList() {
         Server list
       </Text>
       <Pressable
-        className="flex-shrink-0 bg-black/30 rounded-full p-2"
+        className="shrink-0 bg-black/30 rounded-full p-2"
         onPress={() => setShowSearch(true)}
       >
         <MaterialCommunityIcons name="magnify" size={20} color="white" />
@@ -36,20 +37,20 @@ export default function ServerList() {
     </>
   )
   const headerSearch = (
-    <View className="flex-grow">
+    <View className="grow">
       <View className="flex-row items-center border-b border-gray-600">
         <MaterialCommunityIcons
           className="pl-4 pr-1"
           name="magnify"
           size={24}
-          color={colors.gray[300]}
+          color={gray300}
         />
         <TextInput
           autoFocus
           style={{ marginRight: 48 }}
-          placeholderTextColor={colors.gray[500]}
+          placeholderTextColorClassName="accent-gray-500"
           placeholder="Search server"
-          className="text-white flex-grow"
+          className="text-white grow"
           value={searchTerm}
           onChangeText={setSearchTerm}
           inputMode="search"
@@ -60,7 +61,7 @@ export default function ServerList() {
             className="px-3"
             name="close"
             size={24}
-            color={colors.gray[300]}
+            color={gray300}
           />
         </Pressable>
       </View>
@@ -77,7 +78,7 @@ export default function ServerList() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View className="rounded-lg p-3 bg-gray-800 mb-3 flex-row items-center">
-            <View className="flex-grow">
+            <View className="grow">
               <Text className="text-white font-medium text-lg">
                 {item.displayName}
               </Text>

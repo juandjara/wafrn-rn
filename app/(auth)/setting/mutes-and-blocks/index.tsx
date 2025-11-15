@@ -4,7 +4,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 const options = [
   {
@@ -36,6 +36,7 @@ const options = [
 
 export default function MutesAndBlock() {
   const sx = useSafeAreaPadding()
+  const gray200 = useCSSVariable('--color-gray-200') as string
   return (
     <View>
       <Header title="Mutes and Blocks" />
@@ -50,8 +51,8 @@ export default function MutesAndBlock() {
             >
               <MaterialCommunityIcons
                 name={opt.icon}
+                color={gray200}
                 size={24}
-                color={colors.gray[200]}
               />
               <Text className="text-white">{opt.label}</Text>
             </Pressable>

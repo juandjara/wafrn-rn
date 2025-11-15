@@ -24,15 +24,16 @@ import { useParsedToken } from '@/lib/contexts/AuthContext'
 import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import { Image, ImageProps } from 'expo-image'
 import { Link } from 'expo-router'
-import clsx from 'clsx'
-import colors from 'tailwindcss/colors'
+import { clsx } from 'clsx'
 import AskModal from './AskModal'
 import { useFollowMutation } from '@/lib/interaction'
 import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
+import { useCSSVariable } from 'uniwind'
 
 export default function UserDetail({ user }: { user: User }) {
+  const gray400 = useCSSVariable('--color-gray-400') as string
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const { width } = useWindowDimensions()
@@ -104,7 +105,8 @@ export default function UserDetail({ user }: { user: User }) {
       ) : (
         <View
           collapsable={false}
-          style={{ height: 230, width, backgroundColor: colors.gray[800] }}
+          className="bg-gray-800"
+          style={{ height: 230, width }}
         />
       )}
       <View className="flex-row justify-center items-center my-4 rounded-md -mt-12">
@@ -190,8 +192,7 @@ export default function UserDetail({ user }: { user: User }) {
                   <Image
                     key={f.id}
                     source={formatCachedUrl(formatMediaUrl(f.avatar))}
-                    style={{ width: 32, height: 32 }}
-                    className="rounded-full"
+                    style={{ width: 32, height: 32, borderRadius: 100 }}
                   />
                 </Link>
               ))}
@@ -254,10 +255,7 @@ export default function UserDetail({ user }: { user: User }) {
             {customFields.map((field, i) => (
               <View key={i} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
                 <View className="flex-row">
-                  <HtmlSimpleRenderer
-                    html={field.name}
-                    color={colors.gray[400]}
-                  />
+                  <HtmlSimpleRenderer html={field.name} color={gray400} />
                 </View>
                 <View className="mt-3 items-start">
                   {isValidURL(field.value) ? (

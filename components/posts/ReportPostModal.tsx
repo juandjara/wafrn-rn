@@ -9,7 +9,7 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -22,7 +22,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function ReportPostModal({
   open,
@@ -33,6 +33,7 @@ export default function ReportPostModal({
   onClose: () => void
   post: Post
 }) {
+  const cyan200 = useCSSVariable('--color-cyan-200') as string
   const sx = useSafeAreaPadding()
   const [severity, setSeverity] = useState<ReportSeverity>(ReportSeverity.SPAM)
   const [description, setDescription] = useState('')
@@ -108,7 +109,7 @@ export default function ReportPostModal({
               multiline
               numberOfLines={4}
               textAlignVertical="top"
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               className="bg-gray-900 text-white m-4 mt-2 p-4 rounded-lg min-h-[100px]"
               value={description}
               onChangeText={setDescription}
@@ -120,13 +121,9 @@ export default function ReportPostModal({
             >
               <Text className="text-cyan-200 text-lg">Send</Text>
               {mutation.isPending ? (
-                <ActivityIndicator color={colors.cyan[200]} />
+                <ActivityIndicator colorClassName="accent-cyan-200" />
               ) : (
-                <MaterialCommunityIcons
-                  name="send"
-                  size={24}
-                  color={colors.cyan[200]}
-                />
+                <MaterialCommunityIcons name="send" size={24} color={cyan200} />
               )}
             </Pressable>
           </ScrollView>

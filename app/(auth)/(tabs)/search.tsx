@@ -11,12 +11,12 @@ import {
   View,
   Keyboard,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
 import SearchIndex from '@/components/search/SearchIndex'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { detectSearchType, SearchType } from '@/lib/api/search'
 import SearchResultsUsers from '@/components/search/SearchResultsUsers'
 import SearchResultsPosts from '@/components/search/SearchResultsPosts'
+import { useCSSVariable } from 'uniwind'
 
 const HISTORY_LIMIT = 20
 
@@ -25,6 +25,7 @@ export default function Search() {
   const _query = decodeURIComponent(q || '').toLowerCase()
   const [searchTerm, setSearchTerm] = useState(_query)
   const sx = useSafeAreaPadding()
+
   const {
     value: recent,
     setValue: setRecent,
@@ -61,6 +62,8 @@ export default function Search() {
     return <SearchIndex onSearch={search} />
   }
 
+  const gray300 = useCSSVariable('--color-gray-300') as string
+
   return (
     <KeyboardAvoidingView
       style={{ marginTop: sx.paddingTop, flex: 1 }}
@@ -76,9 +79,9 @@ export default function Search() {
         <TextInput
           autoFocus
           style={{ marginRight: 48 }}
-          placeholderTextColor={colors.gray[500]}
+          placeholderTextColorClassName="accent-gray-500"
           placeholder="Search text or enter URL"
-          className="text-white flex-grow"
+          className="text-white grow"
           value={searchTerm}
           onChangeText={setSearchTerm}
           inputMode="search"
@@ -89,9 +92,9 @@ export default function Search() {
           onPress={clear}
         >
           <MaterialCommunityIcons
+            color={gray300}
             name={searchTerm ? 'close' : 'magnify'}
             size={24}
-            color={colors.gray[300]}
           />
         </TouchableOpacity>
       </View>

@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
 import UserCard from '../user/UserCard'
+import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 
 export default function SearchResultsUsers({ query }: { query: string }) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
@@ -38,7 +39,9 @@ export default function SearchResultsUsers({ query }: { query: string }) {
       refreshing={isFetching}
       onRefresh={refresh}
       data={users}
-      estimatedItemSize={400}
+      contentContainerStyle={{
+        paddingBottom: BOTTOM_BAR_HEIGHT,
+      }}
       onEndReachedThreshold={2}
       keyExtractor={(item) => item.user.id}
       renderItem={({ item }) => (

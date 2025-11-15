@@ -6,14 +6,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View } from 'react-native'
-import colors from 'tailwindcss/colors'
 import { useNotificationTokensCleanup } from '@/lib/notifications'
+import { useCSSVariable } from 'uniwind'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
   const isAdmin = useAdminCheck()
   const logout = useLogout()
   const notificationCleanup = useNotificationTokensCleanup()
+  const red400 = useCSSVariable('--color-red-400') as string
+  const gray200 = useCSSVariable('--color-gray-200') as string
 
   function handleLogout() {
     logout()
@@ -117,11 +119,7 @@ export default function Settings() {
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >
-          <MaterialCommunityIcons
-            name="logout"
-            size={24}
-            color={colors.red[400]}
-          />
+          <MaterialCommunityIcons name="logout" size={24} color={red400} />
           <Text className="text-red-400">Log out</Text>
         </Pressable>
         {options.map((option, i) => (
@@ -136,7 +134,7 @@ export default function Settings() {
             <MaterialCommunityIcons
               name={option.icon}
               size={24}
-              color={colors.gray[200]}
+              color={gray200}
             />
             <Text className="text-white">{option.label}</Text>
           </Pressable>

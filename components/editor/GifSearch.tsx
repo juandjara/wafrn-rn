@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
 import Tenor from 'tenor-gif-api'
 import Loading from '../Loading'
 import { Image } from 'expo-image'
@@ -24,6 +23,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { Link } from 'expo-router'
+import { useCSSVariable } from 'uniwind'
 
 type GifMediaFormat = {
   dims: number[]
@@ -73,6 +73,7 @@ export default function GifSearch({
   onClose: () => void
   onSelect: (gif: EditorImage) => void
 }) {
+  const gray500 = useCSSVariable('--color-gray-500') as string
   const sx = useSafeAreaPadding()
   const { data: settings } = useSettings()
   const gifApiKey = getPrivateOptionValue(
@@ -151,7 +152,7 @@ export default function GifSearch({
             value={search}
             onChangeText={setSearch}
             placeholder="Search GIFs on Tenor..."
-            placeholderTextColor={colors.gray[500]}
+            placeholderTextColor={gray500}
             className="flex-grow text-white bg-gray-700 p-2 rounded-md"
             numberOfLines={1}
             autoFocus
@@ -206,8 +207,7 @@ export default function GifSearch({
             >
               <Image
                 source={{ uri: item.media_formats.webp.url }}
-                className="rounded-xl"
-                style={{ width: '100%', aspectRatio: 1 }}
+                style={{ width: '100%', aspectRatio: 1, borderRadius: 12 }}
               />
             </TouchableOpacity>
           )}

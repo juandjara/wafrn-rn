@@ -18,9 +18,12 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function UserActionsMenu({ user }: { user: User }) {
+  const gray400 = useCSSVariable('--color-gray-400') as string
+  const gray500 = useCSSVariable('--color-gray-500') as string
+  const gray600 = useCSSVariable('--color-gray-600') as string
   const sx = useSafeAreaPadding()
   const { env } = useAuth()
   const me = useParsedToken()
@@ -42,13 +45,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
       },
       {
         name: 'Bite user',
-        icon: (
-          <FontAwesome6
-            name="drumstick-bite"
-            size={20}
-            color={colors.gray[600]}
-          />
-        ),
+        icon: <FontAwesome6 name="drumstick-bite" size={20} color={gray600} />,
         disabled: isMe || biteMutation.isPending,
         action: () => biteMutation.mutate(user.id),
       },
@@ -72,6 +69,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
       },
     ],
     [
+      gray600,
       user,
       env,
       isMe,
@@ -87,14 +85,14 @@ export default function UserActionsMenu({ user }: { user: User }) {
       <MenuTrigger
         style={{
           padding: 6,
-          backgroundColor: `${colors.gray[500]}20`,
+          backgroundColor: `${gray500}20`,
           borderRadius: 40,
         }}
       >
         <MaterialCommunityIcons
           size={24}
           name={`dots-vertical`}
-          color={colors.gray[400]}
+          color={gray400}
         />
       </MenuTrigger>
       <MenuOptions
@@ -122,7 +120,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
               <MaterialCommunityIcons
                 name={action.icon}
                 size={20}
-                color={colors.gray[600]}
+                color={gray600}
               />
             ) : (
               action.icon

@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import {
   getPrivateOptionValue,
@@ -27,13 +27,13 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import {
   getSavedDistributor,
   getDistributors,
   saveDistributor,
 } from '@/lib/push-notifications/push-notifications'
+import { useCSSVariable } from 'uniwind'
 
 const notificationsCategories = [
   { label: 'Notify mentions', value: 'notifyMentions' },
@@ -49,6 +49,12 @@ export default function NotificationSettings() {
   const sx = useSafeAreaPadding()
   const editMutation = useEditProfileMutation()
   const canPublish = !editMutation.isPending
+  const gray600 = useCSSVariable('--color-gray-600') as string
+  const yellow600 = useCSSVariable('--color-yellow-600') as string
+  const gray700 = useCSSVariable('--color-gray-700') as string
+  const cyan900 = useCSSVariable('--color-cyan-900') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   const [form, setForm] = useState(() => {
     return {
@@ -174,12 +180,12 @@ export default function NotificationSettings() {
                     source={savedDistributor?.icon}
                     style={{ width: 32, height: 32 }}
                   />
-                  <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                  <Text className="text-white text-sm px-1 grow shrink">
                     {savedDistributor?.name}
                   </Text>
                   <MaterialCommunityIcons
                     name="chevron-down"
-                    color={colors.gray[600]}
+                    color={gray600}
                     size={20}
                   />
                 </View>
@@ -206,12 +212,10 @@ export default function NotificationSettings() {
                       source={savedDistributor?.icon}
                       style={{ width: 32, height: 32 }}
                     />
-                    <Text className="font-semibold flex-shrink flex-grow">
-                      {d.name}
-                    </Text>
+                    <Text className="font-semibold shrink grow">{d.name}</Text>
                     {d.id === form.distributorId && (
                       <Ionicons
-                        className="flex-shrink-0"
+                        className="shrink-0"
                         name="checkmark-sharp"
                         color="black"
                         size={24}
@@ -226,10 +230,10 @@ export default function NotificationSettings() {
         <View className="flex-row gap-2 p-4">
           <MaterialCommunityIcons
             name="information"
-            color={colors.yellow[600]}
+            color={yellow600}
             size={20}
           />
-          <Text className="flex-shrink text-white leading-relaxed">
+          <Text className="shrink text-white leading-relaxed">
             <Text>
               <Text className="font-bold">Warning</Text>: Removing a
               notification category from here will mean that type of
@@ -248,12 +252,12 @@ export default function NotificationSettings() {
           <Menu renderer={renderers.SlideInMenu}>
             <MenuTrigger>
               <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
-                <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                <Text className="text-white text-sm px-1 grow shrink">
                   {NOTIFICATIONS_FROM_LABELS[form.showNotificationsFrom]}
                 </Text>
                 <MaterialCommunityIcons
                   name="chevron-down"
-                  color={colors.gray[600]}
+                  color={gray600}
                   size={20}
                 />
               </View>
@@ -281,12 +285,12 @@ export default function NotificationSettings() {
                     padding: 16,
                   }}
                 >
-                  <Text className="font-semibold flex-shrink flex-grow">
+                  <Text className="font-semibold shrink grow">
                     {NOTIFICATIONS_FROM_LABELS[value]}
                   </Text>
                   {value === form.showNotificationsFrom && (
                     <Ionicons
-                      className="flex-shrink-0"
+                      className="shrink-0"
                       name="checkmark-sharp"
                       color="black"
                       size={24}
@@ -303,14 +307,14 @@ export default function NotificationSettings() {
             onPress={() => update(cat.value, (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
           >
-            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            <Text className="text-white text-base leading-6 grow shrink">
               {cat.label}
             </Text>
             <Switch
               value={form[cat.value]}
               onValueChange={(flag) => update(cat.value, flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={form[cat.value] ? colors.cyan[600] : colors.gray[300]}
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form[cat.value] ? cyan600 : gray300}
             />
           </Pressable>
         ))}

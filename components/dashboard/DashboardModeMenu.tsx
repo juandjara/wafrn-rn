@@ -8,13 +8,13 @@ import {
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { DashboardMode } from '@/lib/api/dashboard'
-import colors from 'tailwindcss/colors'
 import {
   getPrivateOptionValue,
   PrivateOptionNames,
   useSettings,
 } from '@/lib/api/settings'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { useCSSVariable, useResolveClassNames } from 'uniwind'
 
 const MODES = [
   DashboardMode.FEED,
@@ -45,6 +45,11 @@ export default function DashboardModeMenu({
   mode: PublicDashboardMode
   setMode: (mode: PublicDashboardMode) => void
 }) {
+  const menuCnFirst = useResolveClassNames('flex-row p-3 gap-3')
+  const menuCn = useResolveClassNames(
+    'flex-row border-t border-gray-200 p-3 gap-3',
+  )
+  const gray400 = useCSSVariable('--color-gray-400') as string
   const { env } = useAuth()
   const { data: settings } = useSettings()
   const forceClassicLogo = getPrivateOptionValue(
@@ -68,9 +73,11 @@ export default function DashboardModeMenu({
             />
           )}
           <Image
-            className="ml-1 mr-3"
-            style={{ width: forceClassicLogo ? 64 : 32, height: 32 }}
             source={{ uri: logoUrl }}
+            style={[
+              useResolveClassNames('ml-1 mr-3'),
+              { width: forceClassicLogo ? 64 : 32, height: 32 },
+            ]}
           />
           <View className="flex-row gap-2 items-center rounded-full bg-slate-800 pl-2 pr-1 py-1">
             <MaterialCommunityIcons
@@ -84,7 +91,7 @@ export default function DashboardModeMenu({
             <MaterialCommunityIcons
               className=""
               name="chevron-down"
-              color={colors.gray[400]}
+              color={gray400}
               size={24}
             />
           </View>
@@ -101,17 +108,7 @@ export default function DashboardModeMenu({
         }}
       >
         {MODES.map((m, i) => (
-          <MenuOption
-            key={m}
-            value={m}
-            style={{
-              padding: 12,
-              borderTopWidth: i > 0 ? 1 : 0,
-              borderTopColor: colors.gray[200],
-              flexDirection: 'row',
-              gap: 12,
-            }}
-          >
+          <MenuOption key={m} value={m} style={i > 0 ? menuCn : menuCnFirst}>
             <MaterialCommunityIcons
               name={MODE_ICONS[m]}
               size={20}

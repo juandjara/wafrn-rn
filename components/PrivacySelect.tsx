@@ -8,7 +8,7 @@ import {
 } from '@/lib/api/privacy'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Keyboard, Text, TouchableHighlight, View } from 'react-native'
 import {
   Menu,
@@ -17,7 +17,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 type PrivacyModalProps = {
   className?: string
@@ -37,6 +37,7 @@ export default function PrivacySelect({
   disabled = false,
 }: PrivacyModalProps) {
   const sx = useSafeAreaPadding()
+  const gray600 = useCSSVariable('--color-gray-600') as string
 
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
@@ -70,7 +71,7 @@ export default function PrivacySelect({
           </Text>
           <MaterialCommunityIcons
             name="chevron-down"
-            color={colors.gray[600]}
+            color={gray600}
             size={20}
           />
         </View>

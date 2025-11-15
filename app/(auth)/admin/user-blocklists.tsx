@@ -6,11 +6,14 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { FlatList, Pressable, Text, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useResolveClassNames } from 'uniwind'
 
 export default function UserBlocklists() {
   const sx = useSafeAreaPadding()
   const { data, refetch, isFetching } = useBlocklists()
+  const imageCn = useResolveClassNames(
+    'w-10 h-10 rounded-lg border border-gray-500',
+  )
 
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
@@ -32,20 +35,14 @@ export default function UserBlocklists() {
                 <Link href={`/user/${item.blockedUser.url}`} asChild>
                   <Pressable className="p-2 bg-gray-800 active:bg-gray-700 flex-row items-center gap-3">
                     <Image
+                      style={imageCn}
                       source={{
                         uri: formatCachedUrl(
                           formatMediaUrl(item.blockedUser.avatar),
                         ),
                       }}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 8,
-                        borderColor: colors.gray[500],
-                        borderWidth: 1,
-                      }}
                     />
-                    <Text className="text-white flex-grow flex-shrink">
+                    <Text className="text-white grow shrink">
                       {item.blockedUser.url}
                     </Text>
                   </Pressable>

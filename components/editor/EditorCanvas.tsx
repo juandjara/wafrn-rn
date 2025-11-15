@@ -18,7 +18,7 @@ import {
 import { useMemo, useState } from 'react'
 import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
 import ColorPicker from './ColorPicker'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import Animated, { useSharedValue } from 'react-native-reanimated'
 import {
   Gesture,

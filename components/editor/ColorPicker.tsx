@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { useState } from 'react'
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
 import colors from 'tailwindcss/colors'

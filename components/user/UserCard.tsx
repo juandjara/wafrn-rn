@@ -6,9 +6,10 @@ import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
 import { useFollowMutation } from '@/lib/interaction'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import TextWithEmojis from '../TextWithEmojis'
 import { EmojiBase } from '@/lib/api/emojis'
+import { useResolveClassNames } from 'uniwind'
 
 export default function UserCard({
   user,
@@ -30,6 +31,10 @@ export default function UserCard({
     }
   }
 
+  const cn = useResolveClassNames(
+    'shrink-0 mt-3 rounded-md border border-gray-500',
+  )
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -40,13 +45,12 @@ export default function UserCard({
     >
       <Image
         source={{ uri: formatSmallAvatar(user.avatar) }}
-        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-        className="flex-shrink-0 mt-3 rounded-md border border-gray-500"
+        style={[cn, { width: AVATAR_SIZE, height: AVATAR_SIZE }]}
       />
       <View id="user-name-and-url" className="flex-1">
         <View className="flex-row gap-1 items-center mt-2 mr-7">
           {user.name && (
-            <View className="overflow-hidden flex-shrink">
+            <View className="overflow-hidden shrink">
               <TextWithEmojis
                 text={user.name}
                 emojis={emojis}
@@ -56,7 +60,7 @@ export default function UserCard({
             </View>
           )}
           {showFollowButtons && (
-            <View className="flex-shrink-0">
+            <View className="shrink-0">
               {!amIFollowing && !amIAwaitingApproval ? (
                 <TouchableOpacity
                   className={clsx({ 'opacity-50': followMutation.isPending })}

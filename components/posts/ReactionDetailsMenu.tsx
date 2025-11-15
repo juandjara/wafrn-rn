@@ -10,7 +10,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function ReactionDetailsMenu({
   children,
@@ -25,6 +25,7 @@ export default function ReactionDetailsMenu({
   reactionName?: string
   onLongPress?: () => void
 }) {
+  const gray900 = useCSSVariable('--color-gray-900') as string
   const menuRef = useRef<Menu>(null)
   const renderItem = useCallback(
     ({ item: user }: { item: PostUser }) => (
@@ -38,11 +39,10 @@ export default function ReactionDetailsMenu({
       >
         <Pressable className="my-1 flex-row items-center gap-2">
           <Image
-            className="rounded-lg"
             source={{ uri: formatSmallAvatar(user.avatar) }}
-            style={{ width: 24, height: 24 }}
+            style={{ borderRadius: 8, width: 24, height: 24 }}
           />
-          <Text className="text-gray-200 flex-grow flex-shrink-0">
+          <Text className="text-gray-200 grow shrink-0">
             {formatUserUrl(user.url)}
           </Text>
         </Pressable>
@@ -59,7 +59,7 @@ export default function ReactionDetailsMenu({
         placement: 'auto',
         preferredPlacement: 'bottom',
         anchorStyle: {
-          backgroundColor: colors.gray[900],
+          backgroundColor: gray900,
         },
       }}
     >
@@ -67,7 +67,7 @@ export default function ReactionDetailsMenu({
       <MenuOptions
         customStyles={{
           optionsContainer: {
-            backgroundColor: colors.gray[900],
+            backgroundColor: gray900,
           },
         }}
       >

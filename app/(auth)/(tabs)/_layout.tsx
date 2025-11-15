@@ -4,7 +4,7 @@ import { usePushNotifications } from '@/lib/push-notifications/push-notification
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { useColorScheme } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -14,6 +14,10 @@ export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+  const blue950 = useCSSVariable('--color-blue-950') as string
+  const indigo300 = useCSSVariable('--color-indigo-300') as string
+  const gray200 = useCSSVariable('--color-gray-200') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
 
   // running this here to only register notifications after auth flow is complete
   usePushNotifications()
@@ -26,13 +30,13 @@ export default function TabsLayout() {
         headerStyle: {
           backgroundColor: Colors.dark.background,
         },
-        // tabBarStyle: {
-        //   backgroundColor: colors.blue[950],
-        // },
-        // tabBarInactiveTintColor: colors.indigo[300],
-        // tabBarActiveTintColor: colors.gray[200],
-        // tabBarInactiveBackgroundColor: colors.blue[950],
-        // tabBarActiveBackgroundColor: colors.blue[950],
+        tabBarStyle: {
+          backgroundColor: blue950,
+        },
+        tabBarInactiveTintColor: indigo300,
+        tabBarActiveTintColor: gray200,
+        tabBarInactiveBackgroundColor: blue950,
+        tabBarActiveBackgroundColor: blue950,
         tabBarLabelStyle: {
           fontWeight: 'bold',
         },
@@ -71,8 +75,8 @@ export default function TabsLayout() {
           title: 'Notifications',
           tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
-            // backgroundColor: colors.cyan[600],
-            color: colors.white,
+            backgroundColor: cyan600,
+            color: 'white',
           },
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons

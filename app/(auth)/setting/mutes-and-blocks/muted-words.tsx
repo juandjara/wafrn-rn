@@ -11,7 +11,7 @@ import { useEditProfileMutation } from '@/lib/api/user'
 import pluralize from '@/lib/pluralize'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link, router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -26,7 +26,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 const DEFAULT_BLOCK = {
   words: '',
@@ -36,6 +36,7 @@ const DEFAULT_BLOCK = {
 
 export default function MutedWords() {
   const sx = useSafeAreaPadding()
+  const indigo400 = useCSSVariable('--color-indigo-400') as string
   const { edit } = useLocalSearchParams<{ edit?: string }>()
   const { data: settings } = useSettings()
   const blocks = useMemo(() => {
@@ -171,7 +172,7 @@ export default function MutedWords() {
                   <MaterialCommunityIcons
                     name="delete-outline"
                     size={20}
-                    color={colors.indigo[400]}
+                    color={indigo400}
                   />
                 </Pressable>
               </View>
@@ -216,6 +217,7 @@ function MutedWordListItem({
   onDelete: () => void
   isLoading: boolean
 }) {
+  const gray300 = useCSSVariable('--color-gray-300') as string
   return (
     <Link
       push
@@ -236,13 +238,9 @@ function MutedWordListItem({
           <Pressable
             disabled={isLoading}
             onPress={onDelete}
-            className="p-2 flex-shrink-0"
+            className="p-2 shrink-0"
           >
-            <MaterialCommunityIcons
-              name="close"
-              size={20}
-              color={colors.gray[300]}
-            />
+            <MaterialCommunityIcons name="close" color={gray300} size={20} />
           </Pressable>
         </View>
         <View className="flex-row items-center gap-2">
@@ -279,6 +277,10 @@ function MutedWordForm({
   form: AdvancedMutedWord
   setForm: (form: AdvancedMutedWord) => void
 }) {
+  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray400 = useCSSVariable('--color-gray-400') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
+
   function updateForm(field: keyof AdvancedMutedWord, value: string) {
     const newForm = { ...form, [field]: value }
     setForm(newForm)
@@ -311,7 +313,7 @@ function MutedWordForm({
           onChangeText={(text) => updateForm('words', text)}
           className="p-3 rounded-lg text-white border border-gray-600"
           placeholder="Muted words"
-          placeholderTextColor={colors.gray[400]}
+          placeholderTextColor={gray400}
           numberOfLines={1}
         />
         <Text className="text-gray-300 text-sm mt-1">
@@ -332,9 +334,7 @@ function MutedWordForm({
                   form.muteType === type ? 'radiobox-marked' : 'radiobox-blank'
                 }
                 size={24}
-                color={
-                  form.muteType === type ? colors.cyan[600] : colors.gray[300]
-                }
+                color={form.muteType === type ? cyan600 : gray300}
               />
               <View className="flex-1">
                 <Text className="text-white mb-1 capitalize">{type} mute</Text>
@@ -363,11 +363,7 @@ function MutedWordForm({
                       : 'checkbox-blank-outline'
                   }
                   size={24}
-                  color={
-                    form.muteSources.includes(source)
-                      ? colors.cyan[600]
-                      : colors.gray[300]
-                  }
+                  color={form.muteSources.includes(source) ? cyan600 : gray300}
                 />
                 <View className="flex-1">
                   <Text className="text-white mb-1 capitalize">{source}</Text>

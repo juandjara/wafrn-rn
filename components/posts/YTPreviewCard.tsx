@@ -1,7 +1,7 @@
 import { Image, ImageBackground } from 'expo-image'
 import { Link } from 'expo-router'
 import { TouchableOpacity, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function YTPreviewCard({
   href,
@@ -12,6 +12,7 @@ export default function YTPreviewCard({
   image: string
   width: number
 }) {
+  const gray200 = useCSSVariable('--color-gray-200') as string
   return (
     <Link href={href} asChild>
       <TouchableOpacity className="mt-4">
@@ -20,7 +21,7 @@ export default function YTPreviewCard({
           style={{
             width,
             height: width / 1.77,
-            backgroundColor: colors.gray[200],
+            backgroundColor: gray200,
           }}
         >
           <View className="flex flex-1 justify-center items-center">

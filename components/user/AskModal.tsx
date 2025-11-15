@@ -12,7 +12,6 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
 import { Collapsible } from '../Collapsible'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { User } from '@/lib/api/user'
@@ -22,9 +21,10 @@ import {
   PublicOptionNames,
 } from '@/lib/api/settings'
 import { useAskMutation } from '@/lib/asks'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { EmojiBase } from '@/lib/api/emojis'
 import TextWithEmojis from '../TextWithEmojis'
+import { useCSSVariable } from 'uniwind'
 
 export default function AskModal({
   user,
@@ -33,6 +33,12 @@ export default function AskModal({
   user: User
   emojis: EmojiBase[]
 }) {
+  const gray700 = useCSSVariable('--color-gray-700') as string
+  const cyan900 = useCSSVariable('--color-cyan-900') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const gray300 = useCSSVariable('--color-gray-300') as string
+  const cyan200 = useCSSVariable('--color-cyan-200') as string
+
   const sx = useSafeAreaPadding()
   const askOptionValue = getPublicOptionValue(
     user.publicOptions,
@@ -75,7 +81,7 @@ export default function AskModal({
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <Pressable
-              className="bg-black/50 flex-grow"
+              className="bg-black/50 grow"
               onPress={() => setOpen(false)}
             ></Pressable>
             <View
@@ -89,7 +95,7 @@ export default function AskModal({
                     <TextWithEmojis text={user.name} emojis={emojis} />
                   </Text>
                   <Pressable
-                    className="flex-shrink-0 active:bg-white/10 rounded-full p-2"
+                    className="shrink-0 active:bg-white/10 rounded-full p-2"
                     onPress={() => setOpen(false)}
                   >
                     <MaterialCommunityIcons
@@ -104,7 +110,7 @@ export default function AskModal({
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  placeholderTextColor={colors.gray[400]}
+                  placeholderTextColorClassName="accent-gray-400"
                   className="bg-gray-900 text-white m-4 p-4 rounded-lg min-h-[100px]"
                   value={question}
                   onChangeText={setQuestion}
@@ -114,19 +120,17 @@ export default function AskModal({
                     onPress={() => setAnonymous((prev) => !prev)}
                     className="flex-row items-center rounded-lg gap-4 mx-4 mb-4 px-2 active:bg-white/10"
                   >
-                    <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+                    <Text className="text-white text-base leading-6 grow shrink">
                       Ask anonymously
                     </Text>
                     <Switch
                       value={anonymous}
                       onValueChange={(flag) => setAnonymous(flag)}
                       trackColor={{
-                        false: colors.gray[700],
-                        true: colors.cyan[900],
+                        false: gray700,
+                        true: cyan900,
                       }}
-                      thumbColor={
-                        anonymous ? colors.cyan[600] : colors.gray[300]
-                      }
+                      thumbColor={anonymous ? cyan600 : gray300}
                     />
                   </Pressable>
                 ) : (
@@ -147,12 +151,12 @@ export default function AskModal({
                 >
                   <Text className="text-cyan-200 text-lg">Send</Text>
                   {mutation.isPending ? (
-                    <ActivityIndicator color={colors.cyan[200]} />
+                    <ActivityIndicator colorClassName="accent-cyan-200" />
                   ) : (
                     <MaterialCommunityIcons
                       name="send"
                       size={24}
-                      color={colors.cyan[200]}
+                      color={cyan200}
                     />
                   )}
                 </Pressable>
@@ -166,7 +170,7 @@ export default function AskModal({
                   >
                     To ask a question (non anonymous) to this user from other
                     fedi servers, send a DM to this user with the following
-                    format: "!ask @{user.url} {'<your question here>'}" (only
+                    format: {'"!ask @{user.url} <your question here>"'} (only
                     one mention per message). Emojis and other media will be
                     removed from the displayed question text but the DM content
                     will be kept as is in the federated message.

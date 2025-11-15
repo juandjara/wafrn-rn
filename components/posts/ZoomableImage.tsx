@@ -18,6 +18,7 @@ import { downloadFile } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { unfurlCacheUrl } from '@/lib/formatters'
 import Loading from '../Loading'
+import { useResolveClassNames } from 'uniwind'
 
 const ImageRenderer = ({
   item,
@@ -144,8 +145,8 @@ export default function ZoomableImage({
           source={src}
           placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}
-          className={imgClassName}
           style={[
+            useResolveClassNames(imgClassName ?? ''),
             style as ImageStyle,
             { width, height, resizeMode: contentFit },
           ]}

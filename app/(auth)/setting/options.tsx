@@ -14,7 +14,7 @@ import {
 import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import {
@@ -35,7 +35,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 const AUTO_GIF_SUPPORT = !!process.env.EXPO_PUBLIC_TENOR_KEY
 
@@ -61,6 +61,12 @@ type FormState = {
 
 export default function Options() {
   const sx = useSafeAreaPadding()
+  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray700 = useCSSVariable('--color-gray-700') as string
+  const cyan900 = useCSSVariable('--color-cyan-900') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const gray300 = useCSSVariable('--color-gray-300') as string
+
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
   const [form, setForm] = useState<FormState>(() => {
@@ -273,8 +279,6 @@ export default function Options() {
                 value={form.gifApiKey}
                 onChangeText={(text) => update('gifApiKey', text)}
                 className="p-3 rounded-lg text-white border border-gray-600"
-                placeholder=""
-                placeholderTextColor={colors.gray[400]}
                 numberOfLines={1}
               />
               <Text className="text-gray-300 text-sm mt-2">
@@ -299,12 +303,12 @@ export default function Options() {
                     'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
                   )}
                 >
-                  <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                  <Text className="text-white text-sm px-1 grow shrink">
                     {ASKS_LABELS[form.asks]}
                   </Text>
                   <MaterialCommunityIcons
                     name="chevron-down"
-                    color={colors.gray[600]}
+                    color={gray600}
                     size={20}
                   />
                 </View>
@@ -331,12 +335,12 @@ export default function Options() {
                       padding: 16,
                     }}
                   >
-                    <Text className="font-semibold flex-shrink flex-grow">
+                    <Text className="font-semibold shrink grow">
                       {ASKS_LABELS[value]}
                     </Text>
                     {value === form.asks && (
                       <Ionicons
-                        className="flex-shrink-0"
+                        className="shrink-0"
                         name="checkmark-sharp"
                         color="black"
                         size={24}
@@ -380,7 +384,7 @@ export default function Options() {
               onChangeText={(text) => update('mutedWords', text)}
               className="p-3 rounded-lg text-white border border-gray-600"
               placeholder="Muted words"
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               numberOfLines={1}
             />
             {parsedMutedWords.length > 0 && (
@@ -411,7 +415,7 @@ export default function Options() {
                 'border-red-200': !validThreadAncestorLimit,
               })}
               placeholder="Limit"
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               numberOfLines={1}
             />
             {!validThreadAncestorLimit && (
@@ -422,48 +426,42 @@ export default function Options() {
             onPress={() => update('manuallyAcceptsFollows', (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
           >
-            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            <Text className="text-white text-base leading-6 grow shrink">
               Manually accept follow requests
             </Text>
             <Switch
               value={form.manuallyAcceptsFollows}
               onValueChange={(flag) => update('manuallyAcceptsFollows', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.manuallyAcceptsFollows
-                  ? colors.cyan[600]
-                  : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.manuallyAcceptsFollows ? cyan600 : gray300}
             />
           </Pressable>
           <Pressable
             onPress={() => update('disableCW', (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
           >
-            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            <Text className="text-white text-base leading-6 grow shrink">
               Disable CW unless post contains muted words
             </Text>
             <Switch
               value={form.disableCW}
               onValueChange={(flag) => update('disableCW', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={form.disableCW ? colors.cyan[600] : colors.gray[300]}
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.disableCW ? cyan600 : gray300}
             />
           </Pressable>
           <Pressable
             onPress={() => update('disableNSFWCloak', (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
           >
-            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            <Text className="text-white text-base leading-6 grow shrink">
               Disable hiding sensitive media behind a cloak for all posts
             </Text>
             <Switch
               value={form.disableNSFWCloak}
               onValueChange={(flag) => update('disableNSFWCloak', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.disableNSFWCloak ? colors.cyan[600] : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.disableNSFWCloak ? cyan600 : gray300}
             />
           </Pressable>
 
@@ -491,10 +489,8 @@ export default function Options() {
             <Switch
               value={form.forceClassicLogo}
               onValueChange={(flag) => update('forceClassicLogo', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.forceClassicLogo ? colors.cyan[600] : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.forceClassicLogo ? cyan600 : gray300}
             />
           </Pressable>
           <Pressable
@@ -504,16 +500,14 @@ export default function Options() {
             <Text className="text-white text-base leading-6 flex-grow flex-shrink">
               Allow uploading media without alt text{' '}
               <Text className="text-red-100">
-                (enable this only if you're evil)
+                (enable this only if {"you're"} evil)
               </Text>
             </Text>
             <Switch
               value={form.disableForceAltText}
               onValueChange={(flag) => update('disableForceAltText', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.disableForceAltText ? colors.cyan[600] : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.disableForceAltText ? cyan600 : gray300}
             />
           </Pressable>
           {/* <Pressable
@@ -548,10 +542,8 @@ export default function Options() {
               <Switch
                 value={form.enableReplaceAIWord}
                 onValueChange={(flag) => update('enableReplaceAIWord', flag)}
-                trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-                thumbColor={
-                  form.enableReplaceAIWord ? colors.cyan[600] : colors.gray[300]
-                }
+                trackColor={{ false: gray700, true: cyan900 }}
+                thumbColor={form.enableReplaceAIWord ? cyan600 : gray300}
               />
             </Pressable>
             <TextInput
@@ -559,12 +551,12 @@ export default function Options() {
               onChangeText={(text) => update('replaceAIWord', text)}
               className="p-3 rounded-lg text-white border border-gray-600"
               placeholder="Write your word here"
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               numberOfLines={1}
             />
             <Text className="text-gray-200 text-sm mt-2">
-              Whenever the word "AI" is detected in a post, it will be replaced
-              with the word you write here.
+              Whenever the word {'"AI"'} is detected in a post, it will be
+              replaced with the word you write here.
             </Text>
           </View>
           <Pressable
@@ -579,12 +571,8 @@ export default function Options() {
               onValueChange={(flag) =>
                 update('disableEmailNotifications', flag)
               }
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.disableEmailNotifications
-                  ? colors.cyan[600]
-                  : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.disableEmailNotifications ? cyan600 : gray300}
             />
           </Pressable>
           <Pressable
@@ -597,10 +585,8 @@ export default function Options() {
             <Switch
               value={form.hideFollows}
               onValueChange={(flag) => update('hideFollows', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.hideFollows ? colors.cyan[600] : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.hideFollows ? cyan600 : gray300}
             />
           </Pressable>
           <Pressable
@@ -619,12 +605,8 @@ export default function Options() {
             <Switch
               value={form.hideProfileNotLoggedIn}
               onValueChange={(flag) => update('hideProfileNotLoggedIn', flag)}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                form.hideProfileNotLoggedIn
-                  ? colors.cyan[600]
-                  : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.hideProfileNotLoggedIn ? cyan600 : gray300}
             />
           </Pressable>
         </ScrollView>

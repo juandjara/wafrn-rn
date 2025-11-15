@@ -1,7 +1,7 @@
 import { toast, Toast } from '@backpackapp-io/react-native-toast'
 import { Pressable, Text, View } from 'react-native'
-import colors from 'tailwindcss/colors'
 import * as Clipboard from 'expo-clipboard'
+import { useCSSVariable } from 'uniwind'
 
 export default function ErrorCopyToast({
   toast: _toast,
@@ -11,10 +11,13 @@ export default function ErrorCopyToast({
   error: Error
 }) {
   const { id, width } = _toast
+  const red800 = useCSSVariable('--color-red-800') as string
+  const green900 = useCSSVariable('--color-green-900') as string
+  const green100 = useCSSVariable('--color-green-100') as string
   return (
     <View
       key={id}
-      style={{ width, backgroundColor: colors.red[800] }}
+      style={{ width, backgroundColor: red800 }}
       className="p-3 rounded-lg flex-row items-center gap-2"
     >
       <Text className="text-white flex-grow flex-shrink">{error.message}</Text>
@@ -26,10 +29,10 @@ export default function ErrorCopyToast({
             toast.success('Error details copied!', {
               styles: {
                 text: {
-                  color: colors.green[900],
+                  color: green900,
                 },
                 view: {
-                  backgroundColor: colors.green[100],
+                  backgroundColor: green100,
                   borderRadius: 8,
                 },
               },

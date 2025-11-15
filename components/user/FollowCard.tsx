@@ -3,9 +3,10 @@ import { useSettings } from '@/lib/api/settings'
 import { Follow } from '@/lib/api/user'
 import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
 import { useFollowMutation } from '@/lib/interaction'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { Text, TouchableOpacity, View } from 'react-native'
+import { useResolveClassNames } from 'uniwind'
 
 export default function FollowCard({ follow }: { follow: Follow }) {
   const { data: settings } = useSettings()
@@ -24,10 +25,14 @@ export default function FollowCard({ follow }: { follow: Follow }) {
     <View className="flex-row gap-3 items-stretch">
       <Image
         source={{ uri: formatSmallAvatar(follow.avatar) }}
-        style={{ width: AVATAR_SIZE, height: AVATAR_SIZE }}
-        className="rounded-md border border-gray-500 flex-shrink-0 my-3 mx-1"
+        style={[
+          useResolveClassNames(
+            'rounded-md border border-gray-500 shrink-0 my-3 mx-1',
+          ),
+          { width: AVATAR_SIZE, height: AVATAR_SIZE },
+        ]}
       />
-      <View className="flex-grow my-2">
+      <View className="grow my-2">
         <Text className="text-cyan-400 mb-2 text-sm">
           {formatUserUrl(follow.url)}
         </Text>

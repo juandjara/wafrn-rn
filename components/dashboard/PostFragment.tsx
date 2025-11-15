@@ -17,12 +17,11 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
-import colors from 'tailwindcss/colors'
 import { PRIVACY_ICONS, PRIVACY_LABELS } from '@/lib/api/privacy'
 import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import InteractionRibbon from '../posts/InteractionRibbon'
 import PostReaction from '../posts/PostReaction'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
@@ -33,6 +32,7 @@ import { useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
+import { useCSSVariable } from 'uniwind'
 
 export default function PostFragment({
   post,
@@ -77,14 +77,16 @@ export default function PostFragment({
   const cwOpen = layout.cwOpen ?? initialCWOpen
   const collapsed = layout.collapsed ?? false
 
+  const cyan700 = useCSSVariable('--color-cyan-700') as string
+  const gray200 = useCSSVariable('--color-gray-200') as string
+  const yellow500 = useCSSVariable('--color-yellow-500') as string
+
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
   const clickable = _clickable && !isDetailView
   const rootProps = clickable
     ? {
-        android_ripple: {
-          color: `${colors.cyan[700]}40`,
-        },
+        android_ripple: { color: `${cyan700}40` },
         onPress: () => router.push(`/post/${post.id}`),
       }
     : {}
@@ -235,11 +237,7 @@ export default function PostFragment({
                 className="flex-row items-start gap-3 p-2"
               >
                 <View className="ml-1 gap-1">
-                  <Ionicons
-                    name="warning"
-                    size={24}
-                    color={colors.yellow[500]}
-                  />
+                  <Ionicons name="warning" size={24} color={yellow500} />
                   {medias.length > 0 && (
                     <MaterialCommunityIcons
                       name="image"
@@ -251,7 +249,7 @@ export default function PostFragment({
                     <MaterialIcons
                       name="format-quote"
                       size={24}
-                      color={colors.gray[200]}
+                      color={gray200}
                     />
                   )}
                 </View>

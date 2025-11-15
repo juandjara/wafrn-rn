@@ -30,9 +30,13 @@ export default function EmojiReactRibbon({
           <Text className="mx-1">{reactionEmoji}</Text>
         ) : (
           <Image
-            className="mx-1"
             source={{ uri: formatCachedUrl(formatMediaUrl(reactionEmoji.url)) }}
-            style={{ resizeMode: 'contain', width: 20, height: 20 }}
+            style={{
+              marginInline: 4,
+              resizeMode: 'contain',
+              width: 20,
+              height: 20,
+            }}
           />
         )
       }

@@ -15,13 +15,13 @@ import { getUnicodeEmojiGroups } from '@/lib/emojis'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import colors from 'tailwindcss/colors'
 import { FlashList } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { PostEmojiReaction } from '@/lib/api/posts.types'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import useAsyncStorage from '@/lib/useLocalStorage'
+import { useCSSVariable } from 'uniwind'
 
 export type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -49,6 +49,7 @@ export default function EmojiPicker({
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
+  const gray400 = useCSSVariable('--color-gray-400') as string
 
   const { value: recentEmojis, setValue: setRecentEmojis } = useAsyncStorage<
     Emoji[]
@@ -155,25 +156,17 @@ export default function EmojiPicker({
             React with an emoji
           </Text>
           <Pressable onPress={() => setOpen(false)}>
-            <MaterialCommunityIcons
-              name="close"
-              size={24}
-              color={colors.white}
-            />
+            <MaterialCommunityIcons name="close" size={24} color={'white'} />
           </Pressable>
         </View>
         <View className="m-3 mt-0 pl-2 bg-indigo-900 rounded-lg flex-row items-center justify-between">
-          <MaterialCommunityIcons
-            name="magnify"
-            size={24}
-            color={colors.gray[400]}
-          />
+          <MaterialCommunityIcons name="magnify" size={24} color={gray400} />
           <TextInput
             value={search}
             onChangeText={setSearch}
             placeholder="Search emoji"
             inputMode="search"
-            placeholderTextColor={colors.gray[400]}
+            placeholderTextColor={gray400}
             className="text-white p-2 flex-1"
           />
         </View>

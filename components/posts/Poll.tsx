@@ -1,11 +1,11 @@
 import { PostPoll } from '@/lib/api/posts.types'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { MaterialIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { router } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function Poll({
   poll,
@@ -20,6 +20,7 @@ export default function Poll({
   postId: string
   onVote: (votes: number[]) => void
 }) {
+  const blue500 = useCSSVariable('--color-blue-500') as string
   const me = useParsedToken()
 
   const { totalVotes, haveIVoted, questionMap, sortedQuestions } =
@@ -127,7 +128,7 @@ export default function Poll({
             )}
             style={{
               height: 3,
-              backgroundColor: colors.blue[500],
+              backgroundColor: blue500,
               width: `${getQuestionPercentage(q.id) * 100}%`,
             }}
           />

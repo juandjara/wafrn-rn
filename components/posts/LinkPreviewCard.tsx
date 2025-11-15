@@ -6,7 +6,7 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import * as Clipboard from 'expo-clipboard'
 import { showToastError, showToastSuccess } from '@/lib/interaction'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 export default function LinkPreviewCard({
   url,

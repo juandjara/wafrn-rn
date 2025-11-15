@@ -3,7 +3,7 @@ import { useVideoPlayer, VideoView } from 'expo-video'
 import { useMemo, useState, useEffect } from 'react'
 import { Pressable, View, Text, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 export default function Video({
   title,
@@ -106,8 +106,8 @@ export default function Video({
         nativeControls={false}
         style={{ width, height }}
         player={player}
-        allowsFullscreen
         allowsPictureInPicture
+        fullscreenOptions={{ enable: true }}
       />
       <Pressable
         onPress={() => setShowControls(!showControls)}

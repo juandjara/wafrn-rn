@@ -8,7 +8,7 @@ import {
 } from '@/lib/api/mfa'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { useMemo, useState } from 'react'
 import {
   ActivityIndicator,
@@ -17,7 +17,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -27,7 +26,6 @@ import { saveFileToGallery } from '@/lib/downloads'
 import { cacheDirectory, writeAsStringAsync } from 'expo-file-system'
 import { showToastSuccess } from '@/lib/interaction'
 import { setStringAsync } from 'expo-clipboard'
-import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 
 export default function MfaSettings() {
@@ -158,18 +156,12 @@ export default function MfaSettings() {
               </Pressable>
             </View>
           ))}
-          <View
-            style={{
-              marginTop: 8,
-              height: StyleSheet.hairlineWidth,
-              backgroundColor: colors.gray[500],
-            }}
-          />
+          <View className="h-hairline mt-0 bg-gray-500" />
           {newMfa ? (
             <View className="m-3">
               <Text className="text-white mt-3">
-                1. To complete the setup of "{newMfa.name}", choose one of the
-                following options for registering the MFA details in your
+                1. To complete the setup of {`"${newMfa.name}"`}, choose one of
+                the following options for registering the MFA details in your
                 authenticator app:
               </Text>
               <View className="py-3">

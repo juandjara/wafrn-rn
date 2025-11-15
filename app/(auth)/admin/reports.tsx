@@ -15,7 +15,7 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { FlashList } from '@shopify/flash-list'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'

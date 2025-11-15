@@ -9,11 +9,11 @@ import {
   Suggestion,
   useMentions,
 } from 'react-native-more-controlled-mentions'
-import colors from 'tailwindcss/colors'
 import EditorSuggestions from './EditorSuggestions'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { EditorFormState } from '@/lib/editor'
+import { useCSSVariable } from 'uniwind'
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -44,6 +44,8 @@ export default function EditorInput({
   disabled = false,
   onSelectionChange,
 }: EditorProps) {
+  const gray500 = useCSSVariable('--color-gray-500') as string
+  const yellow500 = useCSSVariable('--color-yellow-500') as string
   const { env } = useAuth()
   const tagsLine = formState.tags
   const parsedTags = tagsLine
@@ -104,12 +106,12 @@ export default function EditorInput({
           <MaterialIcons
             className="absolute left-2 top-2"
             name="warning-amber"
-            color={colors.yellow[500]}
+            color={yellow500}
             size={24}
           />
           <TextInput
             numberOfLines={1}
-            placeholderTextColor={colors.gray[500]}
+            placeholderTextColor={gray500}
             className="text-white py-2 px-3"
             placeholder="Content warning"
             value={formState.contentWarning}
@@ -122,7 +124,7 @@ export default function EditorInput({
           readOnly={disabled}
           multiline
           textAlignVertical="top"
-          placeholderTextColor={colors.gray[500]}
+          placeholderTextColor={gray500}
           className="text-white py-2 px-3"
           style={{
             minHeight: EDITOR_MIN_HEIGHT,
@@ -145,7 +147,7 @@ export default function EditorInput({
         <View className="overflow-hidden border-t border-gray-600 flex-shrink-0">
           <TextInput
             numberOfLines={1}
-            placeholderTextColor={colors.gray[500]}
+            placeholderTextColor={gray500}
             className="text-white py-2 px-3"
             placeholder="Tags"
             value={tagsLine}

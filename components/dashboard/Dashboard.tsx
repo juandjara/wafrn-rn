@@ -54,10 +54,14 @@ export default function Dashboard({
   const layoutData = useLayoutData()
 
   const cornerButton = (
-    <View key="editor-link" className="absolute bottom-3 right-3">
+    <View
+      key="editor-link"
+      className="absolute bottom-3 right-3 z-20"
+      style={{ paddingBottom: bottomPadding }}
+    >
       <Link href="/editor" asChild>
-        <Pressable className="p-3 rounded-full bg-white">
-          <MaterialIcons name="edit-square" size={24} />
+        <Pressable className="p-4 rounded-full bg-white">
+          <MaterialIcons name="mode-edit" size={24} />
         </Pressable>
       </Link>
     </View>
@@ -74,6 +78,7 @@ export default function Dashboard({
 
   return (
     <DashboardContextProvider data={context}>
+      {cornerButton}
       <FlatList
         ref={listRef}
         refreshing={isFetching}
@@ -92,7 +97,6 @@ export default function Dashboard({
         progressViewOffset={isFetching ? bottomPadding : 0}
         {...FLATLIST_PERFORMANCE_CONFIG}
       />
-      {cornerButton}
     </DashboardContextProvider>
   )
 }

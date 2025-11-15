@@ -9,7 +9,6 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { optionStyle, optionStyleBig } from '@/lib/styles'
@@ -18,7 +17,8 @@ import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useRef } from 'react'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
+import { useCSSVariable } from 'uniwind'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
@@ -33,6 +33,8 @@ export default function UserMenu() {
     return accounts.map((a, index) => ({ ...a, index }))
   }, [accounts])
 
+  const gray600 = useCSSVariable('--color-gray-600') as string
+  const blue900 = useCSSVariable('--color-blue-900') as string
   const options = [
     {
       icon: 'chat-question-outline' as const,
@@ -58,7 +60,7 @@ export default function UserMenu() {
       action: () => router.navigate('/bookmarks'),
     },
     {
-      icon: <FontAwesome6 name="hashtag" size={20} color={colors.gray[600]} />,
+      icon: <FontAwesome6 name="hashtag" size={20} color={gray600} />,
       label: 'Followed hashtags',
       action: () => router.navigate('/followed-hashtags'),
     },
@@ -103,9 +105,8 @@ export default function UserMenu() {
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
-            className="rounded-full"
             source={{ uri: formatSmallAvatar(me?.avatar) }}
-            style={{ width: 42, height: 42 }}
+            style={{ width: 42, height: 42, borderRadius: 100 }}
           />
         </View>
         {anyBadge && (
@@ -130,7 +131,7 @@ export default function UserMenu() {
       >
         <MenuOption onSelect={() => router.push(`/user/${me?.url}`)}>
           <View className="flex-row px-2 mb-2 gap-2 items-start">
-            <View className="my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
+            <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
                 source={{ uri: formatSmallAvatar(me?.avatar) }}
                 style={{
@@ -172,7 +173,7 @@ export default function UserMenu() {
                 ))}
               <TouchableOpacity
                 activeOpacity={0.5}
-                className={clsx('flex-shrink-0 rounded-lg p-2 bg-blue-100/75', {
+                className={clsx('shrink-0 rounded-lg p-2 bg-blue-100/75', {
                   'opacity-50': loading,
                 })}
                 onPress={() => navAndClose('/setting/account-switcher')}
@@ -182,7 +183,7 @@ export default function UserMenu() {
                 <MaterialCommunityIcons
                   name="plus-circle"
                   size={20}
-                  color={colors.blue[900]}
+                  color={blue900}
                 />
               </TouchableOpacity>
             </View>
@@ -190,10 +191,10 @@ export default function UserMenu() {
           <View style={{ ...optionStyle(0) }}>
             <MaterialCommunityIcons
               name="account-outline"
+              color={gray600}
               size={20}
-              color={colors.gray[600]}
             />
-            <Text className="text-sm flex-grow">My profile</Text>
+            <Text className="text-sm grow">My profile</Text>
           </View>
         </MenuOption>
         {filteredOptions.map((option, i) => (
@@ -205,13 +206,13 @@ export default function UserMenu() {
             {typeof option.icon === 'string' ? (
               <MaterialCommunityIcons
                 name={option.icon}
+                color={gray600}
                 size={20}
-                color={colors.gray[600]}
               />
             ) : (
               option.icon
             )}
-            <Text className="text-sm flex-grow">{option.label}</Text>
+            <Text className="text-sm grow">{option.label}</Text>
             {option.badge ? (
               <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
                 {option.badge}

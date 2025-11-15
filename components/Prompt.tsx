@@ -11,8 +11,8 @@ import {
   TextInputProps,
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import colors from 'tailwindcss/colors'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
+import { useCSSVariable } from 'uniwind'
 
 interface PromptProps {
   visible: boolean
@@ -37,6 +37,7 @@ export default function Prompt({
 }: PromptProps) {
   const [inputText, setInputText] = useState(inputProps?.defaultValue || '')
   const isPassword = inputProps?.secureTextEntry
+  const cyan200 = useCSSVariable('--color-cyan-200') as string
 
   function handleConfirm() {
     onConfirm?.(inputText)
@@ -79,7 +80,7 @@ export default function Prompt({
               multiline={!isPassword}
               numberOfLines={isPassword ? 1 : 4}
               textAlignVertical={isPassword ? 'center' : 'top'}
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColorClassName="accent-gray-400"
               className={clsx('bg-gray-900 text-white m-4 p-4 rounded-lg', {
                 'min-h-[100px]': !isPassword,
               })}
@@ -116,11 +117,7 @@ export default function Prompt({
                 )}
               >
                 <Text className="text-cyan-200 text-lg">{confirmText}</Text>
-                <MaterialCommunityIcons
-                  name="send"
-                  size={20}
-                  color={colors.cyan[200]}
-                />
+                <MaterialCommunityIcons name="send" size={20} color={cyan200} />
               </Pressable>
             </View>
           </ScrollView>

@@ -21,7 +21,7 @@ import pluralize from '@/lib/pluralize'
 import { useLayoutData } from '@/lib/store'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
 import {
   memo,

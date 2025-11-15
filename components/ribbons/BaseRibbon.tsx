@@ -1,9 +1,10 @@
 import { Link } from 'expo-router'
 import { Pressable, Text, View } from 'react-native'
 import { Image } from 'expo-image'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { EmojiBase } from '@/lib/api/emojis'
 import TextWithEmojis from '../TextWithEmojis'
+import { useResolveClassNames } from 'uniwind'
 
 export default function BaseRibbon({
   avatar,
@@ -31,9 +32,11 @@ export default function BaseRibbon({
     >
       {icon}
       <Image
-        className="rounded-md border border-gray-500 my-2"
-        style={{ width: 24, height: 24 }}
         source={{ uri: avatar }}
+        style={[
+          useResolveClassNames('rounded-md border border-gray-500 my-2'),
+          { width: 24, height: 24 },
+        ]}
       />
       <Text className="flex-1" numberOfLines={1}>
         <TextWithEmojis text={name} emojis={emojis} className="text-white" />

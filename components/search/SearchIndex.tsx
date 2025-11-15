@@ -1,5 +1,5 @@
 import Loading from '@/components/Loading'
-import { buttonCN } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT, buttonCN } from '@/lib/styles'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
@@ -10,13 +10,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function SearchIndex({
   onSearch,
 }: {
   onSearch: (term: string) => void
 }) {
+  const gray300 = useCSSVariable('--color-gray-300') as string
   const [showTips, setShowTips] = useState(false)
   const {
     value: recent,
@@ -33,10 +34,15 @@ export default function SearchIndex({
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="always">
+    <ScrollView
+      keyboardShouldPersistTaps="always"
+      contentContainerStyle={{
+        paddingBottom: BOTTOM_BAR_HEIGHT,
+      }}
+    >
       <View id="search-tips" className="mb-4 p-3">
         <View className="flex-row items-center mb-2">
-          <Text className="text-gray-300 font-medium text-sm flex-grow">
+          <Text className="text-gray-300 font-medium text-sm grow">
             Search tips
           </Text>
           <Pressable onPress={toggleTips} className="rounded-full">
@@ -52,18 +58,18 @@ export default function SearchIndex({
             <Text className="text-white text-sm mb-2">
               To search for a remote user in the fediverse, enter their full
               username starting with an @ and including the server. As example,
-              "@torvalds@social.kernel.org"
+              {'"@torvalds@social.kernel.org"'}
             </Text>
             <Text className="text-white text-sm mb-2">
               To search for a local user or a remote user in bluesky (AT
               Protocol), enter their full username starting with an @. As
-              example, "@gabboman" or "@dimension20.bsky.social"
+              example, {'"@gabboman"'} or {'"@dimension20.bsky.social"'}
             </Text>
             <Text className="text-white text-sm mb-2">
               To search posts with a hashtag, enter the hashtag starting with a
-              #. As example, "#dnd". You can limit the search to a specific user
-              by adding their username before the hashtag. As example,
-              "user:@alexia #WafrnDev"
+              #. As example, {'"#dnd"'}. You can limit the search to a specific
+              user by adding their username before the hashtag. As example,
+              {'"user:@alexia #WafrnDev"'}
             </Text>
             <Text className="text-white text-sm mb-2">
               You can also use full URLs to fetch a specific post from a
@@ -74,13 +80,13 @@ export default function SearchIndex({
       </View>
       <View id="search-history" className="p-3">
         <View className="mb-2 flex-row items-center">
-          <Text className="text-gray-300 font-medium text-sm flex-grow">
+          <Text className="text-gray-300 font-medium text-sm grow">
             Search history
           </Text>
           {(recent?.length || 0) > 0 && (
             <Pressable
               onPress={() => setRecent([])}
-              className="flex-shrink-0 rounded-full active:bg-white/10 px-3 py-1"
+              className="shrink-0 rounded-full active:bg-white/10 px-3 py-1"
             >
               <Text
                 numberOfLines={1}
@@ -101,17 +107,15 @@ export default function SearchIndex({
               className="flex-row items-center gap-2"
               onPress={() => onSearch(item)}
             >
-              <Text className="text-white py-2 flex-grow flex-shrink">
-                {item}
-              </Text>
+              <Text className="text-white py-2 grow shrink">{item}</Text>
               <Pressable
                 onPress={() => removeRecent(item)}
-                className="p-2 flex-shrink-0"
+                className="p-2 shrink-0"
               >
                 <MaterialCommunityIcons
                   name="close"
                   size={16}
-                  color={colors.gray[300]}
+                  color={gray300}
                 />
               </Pressable>
             </TouchableOpacity>

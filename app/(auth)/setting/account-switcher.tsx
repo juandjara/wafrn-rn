@@ -6,7 +6,7 @@ import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
@@ -20,7 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
@@ -34,6 +34,8 @@ export default function AccountSwitcherSettings() {
     removeAll,
   } = useAccounts()
   const [showLogin, setShowLogin] = useState(false)
+  const gray200 = useCSSVariable('--color-gray-200') as string
+  const indigo400 = useCSSVariable('--color-indigo-400') as string
 
   function onLoginComplete(token: string, instance: string) {
     setShowLogin(false)
@@ -60,7 +62,7 @@ export default function AccountSwitcherSettings() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View className="flex-row gap-2 items-center mb-2">
-          <Text className="text-white px-4 text-sm flex-grow">
+          <Text className="text-white px-4 text-sm grow">
             Click on an account to switch to it
           </Text>
           <Pressable
@@ -75,7 +77,7 @@ export default function AccountSwitcherSettings() {
             <MaterialCommunityIcons
               name="delete-outline"
               size={20}
-              color={colors.indigo[400]}
+              color={indigo400}
             />
           </Pressable>
         </View>
@@ -88,7 +90,7 @@ export default function AccountSwitcherSettings() {
               disabled={acc.id === me?.id}
               onPress={() => selectAccount(index)}
             >
-              <View className="relative my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
+              <View className="relative my-1.5 rounded-xl bg-gray-100 flex-shrink-0">
                 <Image
                   source={{ uri: formatSmallAvatar(acc.avatar) }}
                   style={{
@@ -127,7 +129,7 @@ export default function AccountSwitcherSettings() {
                 <MaterialCommunityIcons
                   name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
                   size={24}
-                  color={colors.gray[200]}
+                  color={gray200}
                 />
               </TouchableOpacity>
             </Pressable>

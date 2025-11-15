@@ -3,7 +3,7 @@ import { isVideo } from '@/lib/api/media'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useTheme } from '@react-navigation/native'
 import { useMutationState } from '@tanstack/react-query'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
@@ -18,11 +18,11 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
 import Video from '../Video'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { formatUserUrl } from '@/lib/formatters'
 import { EditorImage } from '@/lib/editor'
+import { useCSSVariable } from 'uniwind'
 
 const COMMON_MEDIA_LIMIT = 4
 
@@ -48,6 +48,12 @@ export default function ImageList({
   const selectedImage = images[openIndex ?? 0]
   const { width } = useWindowDimensions()
   const size = width - 24
+
+  const red700 = useCSSVariable('--color-red-700') as string
+  const gray700 = useCSSVariable('--color-gray-700') as string
+  const cyan900 = useCSSVariable('--color-cyan-900') as string
+  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   if (!images.length) {
     return null
@@ -100,7 +106,7 @@ export default function ImageList({
               }}
             >
               <Text className="text-sm font-medium text-red-700">Delete</Text>
-              <MaterialIcons name="delete" color={colors.red[700]} size={20} />
+              <MaterialIcons name="delete" color={red700} size={20} />
             </Pressable>
           </View>
           <View className="border border-gray-600 rounded-lg">
@@ -128,10 +134,8 @@ export default function ImageList({
             <Switch
               value={selectedImage.NSFW}
               onValueChange={(NSFW) => updateOpenImage({ NSFW })}
-              trackColor={{ false: colors.gray[700], true: colors.cyan[900] }}
-              thumbColor={
-                selectedImage.NSFW ? colors.cyan[600] : colors.gray[300]
-              }
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={selectedImage.NSFW ? cyan600 : gray300}
             />
           </Pressable>
           <View className="mt-3">

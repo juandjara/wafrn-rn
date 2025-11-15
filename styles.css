@@ -4,3 +4,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .h-hairline {
+    height: hairlineWidth();
+  }
+  .w-hairline {
+    width: hairlineWidth();
+  }
+}

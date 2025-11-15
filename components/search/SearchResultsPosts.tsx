@@ -15,7 +15,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useFollowTagMutation } from '@/lib/interaction'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 function useFollowButtonAnimation() {
   const lastContentOffset = useSharedValue(0)

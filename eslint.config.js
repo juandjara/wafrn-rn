@@ -8,5 +8,8 @@ module.exports = defineConfig([
   prettierConfig,
   {
     ignores: ['dist/*', '.expo', 'node_modules'],
+    rules: {
+      'react/no-children-prop': 'off',
+    },
   },
 ])

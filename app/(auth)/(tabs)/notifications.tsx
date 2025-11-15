@@ -22,23 +22,22 @@ import { useLayoutData } from '@/lib/store'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { useQueryClient } from '@tanstack/react-query'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Link } from 'expo-router'
 import { useMemo, useRef } from 'react'
 import { Text, useWindowDimensions, View, FlatList } from 'react-native'
-import colors from 'tailwindcss/colors'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
 import FollowRibbon from '@/components/ribbons/FollowRibbon'
 import ReplyRibbon from '@/components/ribbons/ReplyRibbon'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
+import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { clsx } from 'clsx'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
-  const bottomPadding = useBottomTabBarHeight()
+  const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
   const { data, fetchNextPage, hasNextPage, isFetching } = useNotifications()
 
   const layoutData = useLayoutData()
@@ -211,10 +210,12 @@ function NotificationItem({
       )}
       {content}
       {notification.notificationType !== 'FOLLOW' && (
-        <LinearGradient
-          className="flex-row justify-center absolute pt-4 pb-2 px-2 bottom-0 -left-3 -right-3"
-          colors={['transparent', colors.indigo[900]]}
-        />
+        <View
+          className={clsx(
+            'flex-row justify-center absolute pt-4 pb-2 px-2 bottom-0 -left-3 -right-3',
+            'bg-linear-to-t from-indigo-900 to-transparent',
+          )}
+        ></View>
       )}
     </View>
   )

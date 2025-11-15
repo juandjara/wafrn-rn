@@ -1,13 +1,13 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
-import colors from 'tailwindcss/colors'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorImage } from '@/lib/editor'
+import { useCSSVariable } from 'uniwind'
 
 export type EditorActionProps = {
   actions: {
@@ -24,6 +24,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showGifPicker, setShowGifPicker] = useState(false)
+  const yellow500 = useCSSVariable('--color-yellow-500') as string
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -100,7 +101,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           <MaterialCommunityIcons
             name="message-alert"
             size={24}
-            color={cwOpen ? colors.yellow[500] : 'white'}
+            color={cwOpen ? yellow500 : 'white'}
           />
         </Pressable>
         <Pressable

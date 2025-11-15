@@ -10,15 +10,16 @@ import {
 } from 'react-native'
 import { getDocumentAsync } from 'expo-document-picker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import colors from 'tailwindcss/colors'
 import UserCard from '@/components/user/UserCard'
 import { formatUserUrl } from '@/lib/formatters'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useState } from 'react'
+import { useCSSVariable } from 'uniwind'
 
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
+  const indigo600 = useCSSVariable('--accent-indigo-600') as string
   const mutation = useFollowsParserMutation()
   const followAllMutation = useFollowAllMutation()
   const canFollowAll =
@@ -162,12 +163,15 @@ export default function ImportFollows() {
               className={` py-2 px-3 bg-indigo-500/20 rounded-full flex-row items-center justify-center gap-2`}
             >
               {mutation.isPending ? (
-                <ActivityIndicator size="small" color={colors.indigo[600]} />
+                <ActivityIndicator
+                  size="small"
+                  colorClassName="accent-indigo-600"
+                />
               ) : (
                 <MaterialCommunityIcons
                   name="file-upload"
+                  color={indigo600}
                   size={20}
-                  color={colors.indigo[600]}
                 />
               )}
               <Text className="text-indigo-500">Select .CSV File</Text>

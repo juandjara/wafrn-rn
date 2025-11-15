@@ -42,8 +42,7 @@ export default function PostingAsSelector({
       >
         <Image
           source={formatSmallAvatar(selectedAccount?.avatar)}
-          style={{ width: 32, height: 32 }}
-          className="rounded-full"
+          style={{ width: 32, height: 32, borderRadius: 100 }}
         />
       </MenuTrigger>
       <MenuOptions
@@ -64,7 +63,7 @@ export default function PostingAsSelector({
             onSelect={() => setSelectedUserId(acc.id)}
             style={{ ...optionStyleBig(i), paddingVertical: 8 }}
           >
-            <View className="relative my-[6px] rounded-xl bg-gray-100 flex-shrink-0">
+            <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
                 source={{ uri: formatSmallAvatar(acc.avatar) }}
                 style={{

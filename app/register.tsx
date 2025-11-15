@@ -21,13 +21,13 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import colors from 'tailwindcss/colors'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { GENDERS } from '@/lib/genders'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import { router } from 'expo-router'
 import { useRegisterMutation } from '@/lib/api/user'
 import { showToastSuccess } from '@/lib/interaction'
+import { useCSSVariable } from 'uniwind'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -56,7 +56,8 @@ function parseDate(input: string) {
 
 export default function Register() {
   const sx = useSafeAreaPadding()
-  const color = Colors.dark.text
+  const inputTextColor = Colors.dark.text
+  const gray600 = useCSSVariable('--color-gray-600') as string
 
   const mutation = useRegisterMutation()
 
@@ -141,7 +142,7 @@ export default function Register() {
                           autoCapitalize="none"
                           inputMode="email"
                           placeholder="Email"
-                          style={{ color }}
+                          style={{ color: inputTextColor }}
                           className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
                           value={value}
                           onChangeText={setValue}
@@ -171,7 +172,7 @@ export default function Register() {
                           autoCorrect={false}
                           autoComplete="new-password"
                           placeholder="Password"
-                          style={{ color }}
+                          style={{ color: inputTextColor }}
                           className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
                           value={value}
                           onChangeText={setValue}
@@ -198,7 +199,7 @@ export default function Register() {
                         <TextInput
                           autoCapitalize="none"
                           placeholder="Your username"
-                          style={{ color }}
+                          style={{ color: inputTextColor }}
                           className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
                           value={value}
                           onChangeText={setValue}
@@ -242,7 +243,7 @@ export default function Register() {
                       <View className="my-3">
                         <TextInput
                           placeholder="Your birth date"
-                          style={{ color }}
+                          style={{ color: inputTextColor }}
                           className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
                           value={value}
                           onChangeText={setValue}
@@ -273,7 +274,7 @@ export default function Register() {
                           multiline
                           numberOfLines={3}
                           placeholder="Describe yourself (optional)"
-                          style={{ color }}
+                          style={{ color: inputTextColor }}
                           className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
                           value={value}
                           onChangeText={setValue}
@@ -309,13 +310,13 @@ export default function Register() {
                                 {value}
                                 {!value && (
                                   <Text className="text-gray-400">
-                                    Select your gender (or don't)
+                                    Select your gender (or {"don't"})
                                   </Text>
                                 )}
                               </Text>
                               <MaterialCommunityIcons
                                 name="chevron-down"
-                                color={colors.gray[600]}
+                                color={gray600}
                                 size={20}
                               />
                             </View>

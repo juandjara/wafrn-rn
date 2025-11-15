@@ -1,14 +1,15 @@
 import { reloadAsync } from 'expo-updates'
 import { type Toast } from '@backpackapp-io/react-native-toast'
 import { Pressable, Text, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function ExpoUpdateToast({ toast }: { toast: Toast }) {
   const { id, width } = toast
+  const blue900 = useCSSVariable('--color-blue-900') as string
   return (
     <View
       key={id}
-      style={{ width, backgroundColor: colors.blue[900] }}
+      style={{ width, backgroundColor: blue900 }}
       className="p-3 rounded-lg flex-row items-center gap-2"
     >
       <Text className="text-white flex-grow flex-shrink">

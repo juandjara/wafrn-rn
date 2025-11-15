@@ -9,7 +9,6 @@ import {
   View,
   ScrollView,
 } from 'react-native'
-import colors from 'tailwindcss/colors'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { TextInput } from 'react-native-gesture-handler'
@@ -28,7 +27,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { HTMLToMarkdown, markdownToHTML } from '@/lib/markdown'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import Header from '@/components/Header'
 import { Link } from 'expo-router'
@@ -254,11 +253,8 @@ export default function EditProfile() {
         >
           <Pressable
             onPress={pickHeaderImage}
-            style={{
-              minHeight: width * 0.5,
-              width: '100%',
-              backgroundColor: colors.gray[800],
-            }}
+            className="w-full bg-gray-800"
+            style={{ minHeight: width * 0.5 }}
           >
             {headerImage ? (
               <Image
@@ -292,7 +288,7 @@ export default function EditProfile() {
             </Text>
             <TextInput
               placeholder="Display name"
-              placeholderTextColor={colors.gray[500]}
+              placeholderTextColorClassName="accent-gray-500"
               value={form.name}
               autoCorrect={false}
               onChangeText={(value) => update('name', value)}
@@ -332,13 +328,13 @@ export default function EditProfile() {
                 <View className="flex-row items-center gap-2 mb-3">
                   <TextInput
                     placeholder="custom field name"
-                    placeholderTextColor={colors.gray[500]}
+                    placeholderTextColorClassName="accent-gray-500"
                     value={o.name}
                     onChangeText={(value) =>
                       updateCustomField(index, 'name', value)
                     }
                     numberOfLines={1}
-                    className="flex-grow text-lg text-white rounded-md p-2 border border-gray-600"
+                    className="grow text-lg text-white rounded-md p-2 border border-gray-600"
                   />
                   <Pressable
                     onPress={() =>
@@ -357,7 +353,7 @@ export default function EditProfile() {
                 </View>
                 <TextInput
                   placeholder="custom field value"
-                  placeholderTextColor={colors.gray[500]}
+                  placeholderTextColorClassName="accent-gray-500"
                   value={o.value}
                   onChangeText={(value) =>
                     updateCustomField(index, 'value', value)

@@ -1,6 +1,6 @@
 import { PrivacyLevel } from '@/lib/api/privacy'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'

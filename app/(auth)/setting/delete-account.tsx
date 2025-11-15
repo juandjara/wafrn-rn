@@ -3,12 +3,13 @@ import { useDeleteAccountMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useState } from 'react'
 import { Button, Text, TextInput, View } from 'react-native'
-import colors from 'tailwindcss/colors'
+import { useCSSVariable } from 'uniwind'
 
 export default function DeleteAccount() {
   const sx = useSafeAreaPadding()
   const [password, setPassword] = useState('')
   const deleteAccountMutation = useDeleteAccountMutation()
+  const color = useCSSVariable('--color-red-700') as string
 
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
@@ -37,7 +38,7 @@ export default function DeleteAccount() {
               ? 'Deleting...'
               : 'Delete my account'
           }
-          color={colors.red[700]}
+          color={color}
           onPress={() => deleteAccountMutation.mutate(password)}
         />
       </View>
