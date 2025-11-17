@@ -77,7 +77,6 @@ export default function Search() {
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
         <TextInput
-          autoFocus
           style={{ marginRight: 48 }}
           placeholderTextColorClassName="accent-gray-500"
           placeholder="Search text or enter URL"
