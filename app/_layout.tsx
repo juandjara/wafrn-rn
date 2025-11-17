@@ -1,6 +1,13 @@
 import '../styles.css'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { Platform, Pressable, ScrollView, Text, View } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  StyleSheet,
+} from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '@/lib/contexts/AuthContext'
 import { ErrorBoundaryProps, Slot } from 'expo-router'
@@ -17,7 +24,6 @@ import { Colors } from '@/constants/Colors'
 import { queryClient } from '@/lib/queryClient'
 import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 import { useToasts } from '@/lib/toasts'
-import { StyleSheet } from 'react-native'
 import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 
 // This is the default configuration

@@ -11,13 +11,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Pressable,
 } from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
-import { Pressable } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 

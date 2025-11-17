@@ -4,7 +4,7 @@ import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import { View, useColorScheme } from 'react-native'
+import { View, useColorScheme, useWindowDimensions } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import Animated, {
   Easing,
@@ -18,7 +18,6 @@ import Animated, {
 } from 'react-native-reanimated'
 import { Pressable, type GestureResponderEvent } from 'react-native'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
-import { useWindowDimensions } from 'react-native'
 
 export const unstable_settings = {
   initialRouteName: 'index',
