@@ -7,6 +7,10 @@ import { Tabs, usePathname } from 'expo-router'
 import { View, useColorScheme } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import Animated, {
+  Easing,
+  Extrapolate,
+  Extrapolation,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   WigglySpringConfig,
@@ -14,10 +18,13 @@ import Animated, {
 } from 'react-native-reanimated'
 import { Pressable, type GestureResponderEvent } from 'react-native'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
+import { useWindowDimensions } from 'react-native'
 
 export const unstable_settings = {
   initialRouteName: 'index',
 }
+
+const ICON_SIZE = 28
 
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
@@ -32,12 +39,13 @@ export default function TabsLayout() {
   // running this here to only register notifications after auth flow is complete
   usePushNotifications()
 
+  const { height } = useWindowDimensions()
+
   return (
     <Tabs
       screenOptions={{
         ...rootStyles,
         lazy: true,
-        animation: 'fade',
         headerShown: false,
         tabBarInactiveTintColor: indigo300,
         tabBarActiveTintColor: gray200,
@@ -49,6 +57,30 @@ export default function TabsLayout() {
         tabBarShowLabel: false,
         tabBarIconStyle: {
           height: 42,
+        },
+        transitionSpec: {
+          animation: 'spring',
+          config: {},
+        },
+        sceneStyleInterpolator: ({ current }) => {
+          return {
+            sceneStyle: {
+              transform: [
+                {
+                  translateY: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, height / 2],
+                    extrapolate: Extrapolation.CLAMP,
+                  }),
+                },
+              ],
+              opacity: current.progress.interpolate({
+                inputRange: [-1, 0, 1],
+                outputRange: [0, 1, 0],
+                extrapolate: Extrapolation.CLAMP,
+              }),
+            },
+          }
         },
       }}
     >
@@ -64,7 +96,7 @@ export default function TabsLayout() {
                 <MaterialCommunityIcons
                   name={focused ? 'home-variant' : 'home-variant-outline'}
                   color={color}
-                  size={24}
+                  size={ICON_SIZE}
                 />
               )}
             />
@@ -83,7 +115,7 @@ export default function TabsLayout() {
                 <MaterialCommunityIcons
                   name={focused ? 'magnify-expand' : 'magnify'}
                   color={color}
-                  size={24}
+                  size={ICON_SIZE}
                 />
               )}
             />
@@ -107,7 +139,7 @@ export default function TabsLayout() {
                 <MaterialCommunityIcons
                   name={focused ? 'bell' : 'bell-outline'}
                   color={color}
-                  size={24}
+                  size={ICON_SIZE}
                 />
               )}
             />
