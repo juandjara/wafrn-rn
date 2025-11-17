@@ -35,60 +35,64 @@ export default function UserMenu() {
 
   const gray600 = useCSSVariable('--color-gray-600') as string
   const blue900 = useCSSVariable('--color-blue-900') as string
-  const options = [
-    {
-      icon: 'dice-multiple' as const,
-      label: 'Try your luck',
-      action: () => router.navigate('/roll'),
-    },
-    {
-      icon: 'message-processing-outline' as const,
-      label: 'Messages',
-      action: () => router.navigate('/messages'),
-    },
-    {
-      icon: 'chat-question-outline' as const,
-      label: 'Asks',
-      action: () => router.navigate('/asks'),
-      badge: badges?.asks || 0,
-    },
-    {
-      icon: 'account-clock-outline' as const,
-      label: 'Follow requests',
-      action: () => router.navigate(`/user/followers/${me?.url}`),
-      badge: badges?.followsAwaitingApproval || 0,
-      hidden: me?.manuallyAcceptsFollows === false,
-    },
-    {
-      icon: 'bookmark-outline' as const,
-      label: 'Bookmarks',
-      action: () => router.navigate('/bookmarks'),
-    },
-    {
-      icon: <FontAwesome6 name="hashtag" size={20} color={gray600} />,
-      label: 'Followed hashtags',
-      action: () => router.navigate('/followed-hashtags'),
-    },
-    {
-      icon: 'shield-outline' as const,
-      label: 'Admin',
-      action: () => router.navigate('/admin'),
-      hidden: !isAdmin,
-      badge: (badges?.reports || 0) + (badges?.usersAwaitingApproval || 0),
-    },
-    {
-      icon: 'cog-outline' as const,
-      label: 'Settings',
-      action: () => router.navigate('/settings'),
-    },
-  ]
-  const anyBadge = options.some((option) => option.badge)
-  const filteredOptions = options.filter((option) => {
-    if ('hidden' in option) {
-      return option.hidden === false
-    }
-    return true
-  })
+  const { badge, menuOptions } = useMemo(() => {
+    const options = [
+      {
+        icon: 'dice-multiple' as const,
+        label: 'Try your luck',
+        action: () => router.navigate('/roll'),
+      },
+      {
+        icon: 'message-processing-outline' as const,
+        label: 'Messages',
+        action: () => router.navigate('/messages'),
+      },
+      {
+        icon: 'chat-question-outline' as const,
+        label: 'Asks',
+        action: () => router.navigate('/asks'),
+        badge: badges?.asks || 0,
+      },
+      {
+        icon: 'account-clock-outline' as const,
+        label: 'Follow requests',
+        action: () => router.navigate(`/user/followers/${me?.url}`),
+        badge: badges?.followsAwaitingApproval || 0,
+        hidden: me?.manuallyAcceptsFollows === false,
+      },
+      {
+        icon: 'bookmark-outline' as const,
+        label: 'Bookmarks',
+        action: () => router.navigate('/bookmarks'),
+      },
+      {
+        icon: <FontAwesome6 name="hashtag" size={20} color={gray600} />,
+        label: 'Followed hashtags',
+        action: () => router.navigate('/followed-hashtags'),
+      },
+      {
+        icon: 'shield-outline' as const,
+        label: 'Admin',
+        action: () => router.navigate('/admin'),
+        hidden: !isAdmin,
+        badge: (badges?.reports || 0) + (badges?.usersAwaitingApproval || 0),
+      },
+      {
+        icon: 'cog-outline' as const,
+        label: 'Settings',
+        action: () => router.navigate('/settings'),
+      },
+    ]
+    const badge = options.reduce((acc, option) => acc + (option.badge || 0), 0)
+    const filteredOptions = options.filter((option) => {
+      if ('hidden' in option) {
+        return option.hidden === false
+      }
+      return true
+    })
+
+    return { badge, menuOptions: filteredOptions }
+  }, [badges, gray600, me, isAdmin])
 
   function navAndClose(href: string) {
     router.navigate(href)
@@ -114,11 +118,11 @@ export default function UserMenu() {
             style={{ width: 42, height: 42, borderRadius: 100 }}
           />
         </View>
-        {anyBadge && (
+        {badge > 0 ? (
           <Text className="absolute -top-1.5 -right-1.5 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
-            {options.reduce((acc, option) => acc + (option.badge || 0), 0)}
+            {badge}
           </Text>
-        )}
+        ) : null}
         {me?.avatar ? null : (
           <Text className="text-white absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
             {me?.url.substring(0, 1)}
@@ -202,7 +206,7 @@ export default function UserMenu() {
             <Text className="text-sm grow">My profile</Text>
           </View>
         </MenuOption>
-        {filteredOptions.map((option, i) => (
+        {menuOptions.map((option, i) => (
           <MenuOption
             key={i}
             onSelect={option.action}
