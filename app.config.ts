@@ -76,6 +76,7 @@ export default {
     ],
     experiments: {
       typedRoutes: false,
+      reactCompiler: true,
     },
     extra: {
       router: {
