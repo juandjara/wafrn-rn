@@ -458,7 +458,7 @@ export default function InteractionRibbon({
               },
             }}
           >
-            <ScrollView fadingEdgeLength={300}>
+            <ScrollView fadingEdgeLength={50}>
               {secondaryOptions.map((option, i) => (
                 <MenuOption
                   key={i}

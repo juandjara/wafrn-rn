@@ -53,12 +53,12 @@ function HtmlEngineRendererInner({
     <>
       <RenderHTMLSource contentWidth={contentWidth} source={source} />
       <View id="link-cards">
-        {links.map((link) => (
+        {links.map((link, i) => (
           <LinkPreviewCard
+            key={i}
             url={link}
             width={contentWidth}
             className="my-1"
-            key={link}
           />
         ))}
       </View>

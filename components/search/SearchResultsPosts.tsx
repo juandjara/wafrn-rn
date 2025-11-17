@@ -125,7 +125,7 @@ export default function SearchResultsPosts({
         >
           <Pressable
             className={clsx(
-              'bg-white active:bg-blue-50 px-5 py-2 rounded-full shadow-lg shadow-blue-500',
+              'bg-white active:bg-blue-50 px-5 py-2 rounded-full shadow-md shadow-blue-600',
               mutation.isPending && 'opacity-50',
             )}
             onPress={() =>

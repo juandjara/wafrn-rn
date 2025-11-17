@@ -66,7 +66,7 @@ export default function DashboardModeMenu({
       <Image
         source={{ uri: logoUrl }}
         style={[
-          useResolveClassNames('ml-1 mr-3'),
+          useResolveClassNames('ml-2 mr-4'),
           { width: forceClassicLogo ? 64 : 32, height: 32 },
         ]}
       />

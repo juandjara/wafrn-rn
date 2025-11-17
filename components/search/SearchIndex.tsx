@@ -41,12 +41,15 @@ export default function SearchIndex({
       }}
     >
       <View id="search-tips" className="mb-4 p-3">
-        <View className="flex-row items-center mb-2">
-          <Text className="text-gray-300 font-medium text-sm grow">
-            Search tips
-          </Text>
-          <Pressable onPress={toggleTips} className="rounded-full">
-            <Text className={buttonCN}>{showTips ? 'Hide' : 'Show'}</Text>
+        <View className="flex-row items-center my-1 gap-1">
+          <Text className="text-gray-400 font-medium grow">Search tips</Text>
+          <Pressable
+            className="py-1 px-3 transform active:scale-95 rounded-full active:bg-blue-600/10"
+            onPress={toggleTips}
+          >
+            <Text className="text-indigo-500 text-sm">
+              {showTips ? 'Hide' : 'Show'}
+            </Text>
           </Pressable>
         </View>
         {showTips ? (
@@ -79,19 +82,16 @@ export default function SearchIndex({
         ) : null}
       </View>
       <View id="search-history" className="p-3">
-        <View className="mb-2 flex-row items-center">
-          <Text className="text-gray-300 font-medium text-sm grow">
+        <View className="mb-2 flex-row items-center gap-1">
+          <Text className="text-gray-400 font-medium text-sm grow">
             Search history
           </Text>
           {(recent?.length || 0) > 0 && (
             <Pressable
               onPress={() => setRecent([])}
-              className="shrink-0 rounded-full active:bg-white/10 px-3 py-1"
+              className="shrink-0 py-1 px-3 transform active:scale-95 rounded-full active:bg-blue-600/10"
             >
-              <Text
-                numberOfLines={1}
-                className="text-indigo-600 font-medium text-center text-sm"
-              >
+              <Text numberOfLines={1} className="text-indigo-500 text-sm">
                 Clear all
               </Text>
             </Pressable>

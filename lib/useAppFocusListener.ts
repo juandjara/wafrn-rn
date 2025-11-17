@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react"
-import { AppState } from "react-native"
+import { useEffect, useRef } from 'react'
+import { AppState } from 'react-native'
 
 export default function useAppFocusListener(
   onFocus: () => void,
-  runOnStartup: boolean | undefined = true
+  runOnStartup: boolean | undefined = true,
 ) {
   const previousAppState = useRef(AppState.currentState)
 

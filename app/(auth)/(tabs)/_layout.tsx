@@ -2,10 +2,9 @@ import UserMenu from '@/components/dashboard/UserMenu'
 import { Colors, getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
-import { View } from 'react-native'
-import { useColorScheme } from 'react-native'
+import { View, useColorScheme } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 
 export const unstable_settings = {
@@ -44,6 +43,11 @@ export default function TabsLayout() {
         },
         lazy: true,
         animation: 'fade',
+        tabBarHideOnKeyboard: true,
+        tabBarShowLabel: false,
+        tabBarIconStyle: {
+          height: 42,
+        },
       }}
     >
       <Tabs.Screen
@@ -92,8 +96,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: '',
-          tabBarLabel: '',
           tabBarButton: () => (
             <View className="flex-row justify-center mt-1">
               <UserMenu />

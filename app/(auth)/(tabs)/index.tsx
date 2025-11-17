@@ -33,6 +33,7 @@ export default function Index() {
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
   const gray300 = useCSSVariable('--color-gray-300') as string
+  const blue800 = useCSSVariable('--color-blue-800') as string
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
@@ -69,22 +70,11 @@ export default function Index() {
       <Header
         style={{ minHeight: 60, paddingLeft: 8 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
-        right={
-          <Link href="/settings" asChild>
-            <TouchableOpacity className="shrink-0">
-              <MaterialCommunityIcons
-                name="cog-outline"
-                size={28}
-                color={gray300}
-              />
-            </TouchableOpacity>
-          </Link>
-        }
       />
-      <View key="editor-link" className="absolute bottom-3 right-3 z-20">
+      <View key="editor-link" className="absolute bottom-4 right-3 z-20">
         <Link href="/editor" asChild>
-          <Pressable className="p-4 rounded-full bg-white">
-            <MaterialIcons name="mode-edit" size={24} />
+          <Pressable className="p-4 rounded-full bg-white shadow-md shadow-blue-800">
+            <MaterialIcons name="mode-edit" size={24} color={blue800} />
           </Pressable>
         </Link>
       </View>
