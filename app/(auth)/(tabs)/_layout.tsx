@@ -3,9 +3,17 @@ import { getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Tabs } from 'expo-router'
+import { Tabs, usePathname } from 'expo-router'
 import { View, useColorScheme } from 'react-native'
 import { useCSSVariable } from 'uniwind'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  WigglySpringConfig,
+  withSpring,
+} from 'react-native-reanimated'
+import { Pressable, type GestureResponderEvent } from 'react-native'
+import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -19,6 +27,7 @@ export default function TabsLayout() {
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
   const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const pathname = usePathname()
 
   // running this here to only register notifications after auth flow is complete
   usePushNotifications()
@@ -33,7 +42,6 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: indigo300,
         tabBarActiveTintColor: gray200,
         tabBarInactiveBackgroundColor: blue950,
-        tabBarActiveBackgroundColor: blue950,
         tabBarStyle: {
           backgroundColor: blue950,
         },
@@ -47,13 +55,18 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          href: '/',
           tabBarAccessibilityLabel: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="home-variant"
-              size={size}
-              color={color}
+          tabBarButton: (props) => (
+            <TabButton
+              {...props}
+              focused={pathname === '/'}
+              icon={({ color, focused }) => (
+                <MaterialCommunityIcons
+                  name={focused ? 'home-variant' : 'home-variant-outline'}
+                  color={color}
+                  size={24}
+                />
+              )}
             />
           ),
         }}
@@ -61,28 +74,42 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          href: '/search',
           tabBarAccessibilityLabel: 'Search',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="magnify" size={size} color={color} />
+          tabBarButton: (props) => (
+            <TabButton
+              {...props}
+              focused={pathname === '/search'}
+              icon={({ color, focused }) => (
+                <MaterialCommunityIcons
+                  name={focused ? 'magnify-expand' : 'magnify'}
+                  color={color}
+                  size={24}
+                />
+              )}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
-          href: '/notifications',
           tabBarAccessibilityLabel: 'Notifications',
           tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
             backgroundColor: cyan600,
             color: 'white',
           },
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={size}
-              color={color}
+          tabBarButton: (props) => (
+            <TabButton
+              {...props}
+              focused={pathname === '/notifications'}
+              icon={({ color, focused }) => (
+                <MaterialCommunityIcons
+                  name={focused ? 'bell' : 'bell-outline'}
+                  color={color}
+                  size={24}
+                />
+              )}
             />
           ),
         }}
@@ -99,5 +126,54 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+  )
+}
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
+function TabButton({
+  focused,
+  icon,
+  ref,
+  ...props
+}: BottomTabBarButtonProps & {
+  focused: boolean
+  icon: ({
+    color,
+    focused,
+  }: {
+    color: string
+    focused: boolean
+  }) => React.ReactNode
+}) {
+  const indigo300 = useCSSVariable('--color-indigo-300') as string
+  const gray200 = useCSSVariable('--color-gray-200') as string
+
+  const scale = useSharedValue(1)
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }))
+
+  return (
+    <AnimatedPressable
+      {...props}
+      ref={ref as React.Ref<View>}
+      onPressIn={() => {
+        scale.value = withSpring(0.9, WigglySpringConfig)
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, WigglySpringConfig)
+      }}
+      style={[
+        {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        animatedStyle,
+      ]}
+    >
+      {icon({ color: focused ? gray200 : indigo300, focused })}
+    </AnimatedPressable>
   )
 }
