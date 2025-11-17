@@ -42,7 +42,7 @@ export default function Search() {
       const next = [query, ...prev].slice(0, HISTORY_LIMIT)
       setRecent(next)
       Keyboard.dismiss()
-      router.push(`/search?q=${encodeURIComponent(query)}`)
+      router.navigate(`/search?q=${encodeURIComponent(query)}`)
     }
   }
 

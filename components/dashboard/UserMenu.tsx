@@ -134,7 +134,7 @@ export default function UserMenu() {
           },
         }}
       >
-        <MenuOption onSelect={() => router.push(`/user/${me?.url}`)}>
+        <MenuOption onSelect={() => router.navigate(`/user/${me?.url}`)}>
           <View className="flex-row px-2 mb-2 gap-2 items-start">
             <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image

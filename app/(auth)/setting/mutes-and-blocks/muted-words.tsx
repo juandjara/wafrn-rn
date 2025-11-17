@@ -192,7 +192,7 @@ export default function MutedWords() {
                   disabled={editMutation.isPending}
                   title={editMutation.isPending ? 'Loading...' : 'Add mute'}
                   onPress={() => {
-                    router.push(
+                    router.navigate(
                       `/setting/mutes-and-blocks/muted-words?edit=new`,
                     )
                   }}

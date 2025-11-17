@@ -66,7 +66,7 @@ export default function Followers() {
         renderItem={({ item }) => {
           return (
             <Pressable
-              onPress={() => router.push(`/user/${item.url}`)}
+              onPress={() => router.navigate(`/user/${item.url}`)}
               className="bg-indigo-950 active:bg-blue-950 border-t border-gray-600 px-2 relative"
             >
               <FollowCard follow={item} />

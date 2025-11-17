@@ -74,7 +74,7 @@ export default function Poll({
     }
 
     if (!interactable) {
-      router.push(`/post/${postId}`)
+      router.navigate(`/post/${postId}`)
       return
     }
 

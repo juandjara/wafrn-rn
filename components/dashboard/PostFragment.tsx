@@ -87,7 +87,7 @@ export default function PostFragment({
   const rootProps = clickable
     ? {
         android_ripple: { color: `${cyan700}40` },
-        onPress: () => router.push(`/post/${post.id}`),
+        onPress: () => router.navigate(`/post/${post.id}`),
       }
     : {}
 

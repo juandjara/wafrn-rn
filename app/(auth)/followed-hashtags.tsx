@@ -81,7 +81,9 @@ export default function FollowedHashtags() {
                 key={hashtag}
                 className="flex-row items-center gap-2"
                 onPress={() =>
-                  router.push(`/search?q=${encodeURIComponent(`#${hashtag}`)}`)
+                  router.navigate(
+                    `/search?q=${encodeURIComponent(`#${hashtag}`)}`,
+                  )
                 }
               >
                 <Text className="text-white text-xl py-2 grow shrink">

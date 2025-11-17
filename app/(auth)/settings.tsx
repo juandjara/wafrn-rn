@@ -128,7 +128,7 @@ export default function Settings() {
             className="active:bg-white/10"
             style={optionStyleDark(i)}
             onPress={() => {
-              router.push(option.link)
+              router.navigate(option.link)
             }}
           >
             <MaterialCommunityIcons
