@@ -4,42 +4,58 @@ import Reanimated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  withDecay,
+  withSequence,
   withTiming,
 } from 'react-native-reanimated'
 import { Pressable, ViewStyle } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useCSSVariable } from 'uniwind'
+
+const ANIMATION_DURATION = 200
 
 export function useCornerButtonAnimation() {
-  const lastContentOffset = useSharedValue(0)
-  const isScrolling = useSharedValue(false)
   const translateY = useSharedValue(0)
-
   const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (ev) => {
-      if (isScrolling.value) {
-        if (lastContentOffset.value > ev.contentOffset.y) {
-          translateY.value = 0 // scrolling up
-        } else if (lastContentOffset.value < ev.contentOffset.y) {
-          translateY.value = 100 // scrolling down
+    onScroll: (ev, ctx) => {
+      if (ctx.isScrolling) {
+        const lastScroll = Number(ctx.lastContentOffset ?? 0)
+        if (lastScroll > ev.contentOffset.y) {
+          // scrolling up
+          translateY.value = withSequence(
+            withTiming(0, { duration: ANIMATION_DURATION }),
+            withDecay({
+              velocity: (ev.velocity?.y ?? 0) * -1,
+              rubberBandEffect: true,
+              clamp: [-25, 25],
+            }),
+          )
+        } else if (lastScroll < ev.contentOffset.y) {
+          // scrolling down
+          translateY.value = withSequence(
+            withTiming(100, { duration: ANIMATION_DURATION }),
+            withDecay({
+              velocity: (ev.velocity?.y ?? 0) * -1,
+              rubberBandEffect: true,
+              clamp: [75, 125],
+            }),
+          )
         }
       }
-      lastContentOffset.value = ev.contentOffset.y
+      ctx.lastContentOffset = ev.contentOffset.y
     },
-    onBeginDrag: () => {
-      isScrolling.value = true
+    onBeginDrag: (ev, ctx) => {
+      ctx.isScrolling = true
     },
-    onEndDrag: () => {
-      isScrolling.value = false
+    onEndDrag: (ev, ctx) => {
+      ctx.isScrolling = false
     },
   })
 
   const buttonStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateY: withTiming(translateY.value, {
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-        }),
+        translateY: translateY.value,
       },
     ],
   }))
@@ -54,15 +70,16 @@ export function CornerButton({
   onClick: () => void
   buttonStyle: AnimatedStyle<ViewStyle>
 }) {
+  const blue800 = useCSSVariable('--color-blue-800') as string
   return (
     <Reanimated.View
       style={[buttonStyle, { position: 'absolute', bottom: 12, right: 12 }]}
     >
       <Pressable
-        className="p-3 rounded-full bg-white border border-gray-300"
+        className="p-3 rounded-full bg-white border border-gray-300 shadow-md shadow-blue-600"
         onPress={onClick}
       >
-        <MaterialIcons name="arrow-upward" size={24} />
+        <MaterialIcons name="arrow-upward" size={24} color={blue800} />
       </Pressable>
     </Reanimated.View>
   )

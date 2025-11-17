@@ -7,53 +7,11 @@ import { useMemo } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import Thread from '../posts/Thread'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
-import Animated, {
-  Easing,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { useFollowTagMutation } from '@/lib/interaction'
 import { clsx } from 'clsx'
-
-function useFollowButtonAnimation() {
-  const lastContentOffset = useSharedValue(0)
-  const isScrolling = useSharedValue(false)
-  const translateY = useSharedValue(0)
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (ev) => {
-      if (isScrolling.value) {
-        if (lastContentOffset.value > ev.contentOffset.y) {
-          translateY.value = 0 // scrolling up
-        } else if (lastContentOffset.value < ev.contentOffset.y) {
-          translateY.value = 100 // scrolling down
-        }
-      }
-      lastContentOffset.value = ev.contentOffset.y
-    },
-    onBeginDrag: () => {
-      isScrolling.value = true
-    },
-    onEndDrag: () => {
-      isScrolling.value = false
-    },
-  })
-
-  const buttonStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: withTiming(translateY.value, {
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-        }),
-      },
-    ],
-  }))
-
-  return { scrollHandler, buttonStyle }
-}
+import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
+import { useCornerButtonAnimation } from '../CornerButton'
 
 export default function SearchResultsPosts({
   query,
@@ -90,7 +48,7 @@ export default function SearchResultsPosts({
     query.replace('#', ''),
   )
   const showFollowButton = type !== SearchType.URL
-  const { scrollHandler, buttonStyle } = useFollowButtonAnimation()
+  const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
 
   return (
     <DashboardContextProvider data={context}>
@@ -116,6 +74,7 @@ export default function SearchResultsPosts({
               )}
             </View>
           }
+          {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
       {showFollowButton && (
