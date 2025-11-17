@@ -1,14 +1,6 @@
 import '../styles.css'
-import { ThemeProvider, DarkTheme } from '@react-navigation/native'
 import { QueryClientProvider } from '@tanstack/react-query'
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native'
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '@/lib/contexts/AuthContext'
 import { ErrorBoundaryProps, Slot } from 'expo-router'
@@ -25,6 +17,8 @@ import { Colors } from '@/constants/Colors'
 import { queryClient } from '@/lib/queryClient'
 import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 import { useToasts } from '@/lib/toasts'
+import { StyleSheet } from 'react-native'
+import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -32,33 +26,33 @@ configureReanimatedLogger({
   strict: false,
 })
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.dark.background,
+  },
+  backdrop: {
+    opacity: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+})
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme()
   return (
-    <GestureHandlerRootView
-      style={{ flex: 1, backgroundColor: Colors[colorScheme!]?.background }}
-    >
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemeProvider value={DarkTheme}>
-            <MenuProvider
-              backHandler
-              customStyles={{
-                backdrop: {
-                  opacity: 1,
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                },
-              }}
-            >
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider value={DarkTheme}>
+          <GestureHandlerRootView style={styles.root}>
+            <MenuProvider backHandler customStyles={styles}>
               <HtmlEngineProvider>
                 <Toasts />
                 <Slot />
               </HtmlEngineProvider>
             </MenuProvider>
-          </ThemeProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+          </GestureHandlerRootView>
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 
