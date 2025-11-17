@@ -1,5 +1,5 @@
 import UserMenu from '@/components/dashboard/UserMenu'
-import { Colors, getRootStyles } from '@/constants/Colors'
+import { getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -27,22 +27,16 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         ...rootStyles,
+        lazy: true,
+        animation: 'fade',
         headerShown: false,
-        headerStyle: {
-          backgroundColor: Colors.dark.background,
-        },
-        tabBarStyle: {
-          backgroundColor: blue950,
-        },
         tabBarInactiveTintColor: indigo300,
         tabBarActiveTintColor: gray200,
         tabBarInactiveBackgroundColor: blue950,
         tabBarActiveBackgroundColor: blue950,
-        tabBarLabelStyle: {
-          fontWeight: 'bold',
+        tabBarStyle: {
+          backgroundColor: blue950,
         },
-        lazy: true,
-        animation: 'fade',
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
         tabBarIconStyle: {
@@ -54,7 +48,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           href: '/',
-          title: 'Dashboard',
+          tabBarAccessibilityLabel: 'Dashboard',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="home-variant"
@@ -68,7 +62,7 @@ export default function TabsLayout() {
         name="search"
         options={{
           href: '/search',
-          title: 'Search',
+          tabBarAccessibilityLabel: 'Search',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="magnify" size={size} color={color} />
           ),
@@ -78,7 +72,7 @@ export default function TabsLayout() {
         name="notifications"
         options={{
           href: '/notifications',
-          title: 'Notifications',
+          tabBarAccessibilityLabel: 'Notifications',
           tabBarBadge: notificationCount || undefined,
           tabBarBadgeStyle: {
             backgroundColor: cyan600,
@@ -96,6 +90,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
+          tabBarAccessibilityLabel: 'Main menu',
           tabBarButton: () => (
             <View className="flex-row justify-center mt-1">
               <UserMenu />
