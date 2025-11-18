@@ -2,13 +2,13 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
 import {
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native'
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller'
 import {
   generateValueFromMentionStateAndChangedText,
   isTriggerConfig,

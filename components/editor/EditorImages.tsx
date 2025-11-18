@@ -26,6 +26,7 @@ import { useCSSVariable, useResolveClassNames } from 'uniwind'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { KeyboardAvoidingView } from 'react-native'
 import { Platform } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 const COMMON_MEDIA_LIMIT = 4
 
@@ -85,102 +86,94 @@ export default function ImageList({
         animationType="slide"
         visible={openIndex !== null}
         onRequestClose={() => setOpenIndex(null)}
-        style={{ flex: 1 }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <KeyboardAwareScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="px-3"
           style={{
-            ...sx,
-            flex: 1,
-            marginTop: 12,
             backgroundColor: Colors.dark.background,
+            paddingTop: sx.paddingTop + 8,
           }}
         >
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            contentContainerClassName="px-3"
-            style={{ flex: 1, backgroundColor: Colors.dark.background }}
-          >
-            <View className="flex-row items-center pb-3">
-              <Pressable
-                className="p-1 bg-white/10 rounded-full mr-3"
-                onPress={() => setOpenIndex(null)}
-              >
-                <MaterialIcons
-                  name="arrow-back"
-                  color={theme.colors.text}
-                  size={24}
-                />
-              </Pressable>
-              <Text className="text-white grow text-lg">Editing media</Text>
-              <Pressable
-                className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
-                onPress={() => {
-                  setOpenIndex(null)
-                  removeImage(openIndex!)
-                }}
-              >
-                <Text className="text-sm font-medium text-red-700">Delete</Text>
-                <MaterialIcons name="delete" color={red700} size={20} />
-              </Pressable>
-            </View>
-            <View className="border border-gray-600 rounded-lg">
-              {isVideo(selectedImage.mimeType, selectedImage.uri) ? (
-                <Video
-                  src={selectedImage.uri}
-                  width={size}
-                  height={size}
-                  title={`${formatUserUrl(me?.url)} video`}
-                />
-              ) : (
-                <Image
-                  source={selectedImage}
-                  style={{ width: size, height: size, resizeMode: 'contain' }}
-                />
-              )}
-            </View>
+          <View className="flex-row items-center pb-3">
             <Pressable
-              onPress={() => updateOpenImage({ NSFW: !selectedImage.NSFW })}
-              className="flex-row items-center gap-4 mt-3"
-            >
-              <Text className="text-white grow">Mark media as sensitive</Text>
-              <Switch
-                value={selectedImage.NSFW}
-                onValueChange={(NSFW) => updateOpenImage({ NSFW })}
-                trackColor={{ false: gray700, true: cyan900 }}
-                thumbColor={selectedImage.NSFW ? cyan600 : gray300}
-              />
-            </Pressable>
-            <View className="mt-3">
-              <Text className="text-gray-300">Description</Text>
-              <TextInput
-                multiline
-                numberOfLines={4}
-                value={selectedImage.description}
-                onChangeText={(description) => updateOpenImage({ description })}
-                placeholder="Please enter a brief description"
-                placeholderTextColorClassName={
-                  selectedImage.description || disableForceAltText
-                    ? 'accent-gray-500'
-                    : 'accent-red-300/50'
-                }
-                className={clsx(
-                  'text-white w-full border bg-white/5 p-2 mt-1 rounded-md',
-                  selectedImage.description || disableForceAltText
-                    ? 'border-transparent'
-                    : 'border-red-500',
-                )}
-              />
-            </View>
-            <Pressable
+              className="p-1 bg-white/10 rounded-full mr-3"
               onPress={() => setOpenIndex(null)}
-              className="bg-cyan-800 active:bg-cyan-700 flex-row gap-2 justify-center items-center p-2 mt-4 rounded-md"
             >
-              <MaterialIcons name="done" color="white" size={24} />
-              <Text className="text-white text-lg">Done</Text>
+              <MaterialIcons
+                name="arrow-back"
+                color={theme.colors.text}
+                size={24}
+              />
             </Pressable>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            <Text className="text-white grow text-lg">Editing media</Text>
+            <Pressable
+              className="flex-row items-center gap-2 bg-red-100 active:bg-red-200 px-2 py-1 m-1 rounded-lg"
+              onPress={() => {
+                setOpenIndex(null)
+                removeImage(openIndex!)
+              }}
+            >
+              <Text className="text-sm font-medium text-red-700">Delete</Text>
+              <MaterialIcons name="delete" color={red700} size={20} />
+            </Pressable>
+          </View>
+          <View className="border border-gray-600 rounded-lg">
+            {isVideo(selectedImage.mimeType, selectedImage.uri) ? (
+              <Video
+                src={selectedImage.uri}
+                width={size}
+                height={size}
+                title={`${formatUserUrl(me?.url)} video`}
+              />
+            ) : (
+              <Image
+                source={selectedImage}
+                style={{ width: size, height: size, resizeMode: 'contain' }}
+              />
+            )}
+          </View>
+          <Pressable
+            onPress={() => updateOpenImage({ NSFW: !selectedImage.NSFW })}
+            className="flex-row items-center gap-4 mt-3"
+          >
+            <Text className="text-white grow">Mark media as sensitive</Text>
+            <Switch
+              value={selectedImage.NSFW}
+              onValueChange={(NSFW) => updateOpenImage({ NSFW })}
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={selectedImage.NSFW ? cyan600 : gray300}
+            />
+          </Pressable>
+          <View className="mt-3">
+            <Text className="text-gray-300">Description</Text>
+            <TextInput
+              multiline
+              numberOfLines={4}
+              value={selectedImage.description}
+              onChangeText={(description) => updateOpenImage({ description })}
+              placeholder="Please enter a brief description"
+              placeholderTextColorClassName={
+                selectedImage.description || disableForceAltText
+                  ? 'accent-gray-500'
+                  : 'accent-red-300/50'
+              }
+              className={clsx(
+                'text-white w-full border bg-white/5 p-2 mt-1 rounded-md',
+                selectedImage.description || disableForceAltText
+                  ? 'border-transparent'
+                  : 'border-red-500',
+              )}
+            />
+          </View>
+          <Pressable
+            onPress={() => setOpenIndex(null)}
+            className="bg-cyan-800 active:bg-cyan-700 flex-row gap-2 justify-center items-center p-2 mt-4 rounded-md"
+          >
+            <MaterialIcons name="done" color="white" size={24} />
+            <Text className="text-white text-lg">Done</Text>
+          </Pressable>
+        </KeyboardAwareScrollView>
       </Modal>
       {images.length > COMMON_MEDIA_LIMIT && (
         <Text className="text-white text-sm p-3">
