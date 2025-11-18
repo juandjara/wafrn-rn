@@ -88,7 +88,7 @@ export default function DashboardModeMenu({
               ]}
             />
             {mode === m ? (
-              <Text className="text-white font-semibold text-lg pr-1">
+              <Text className="text-white font-semibold text-base pr-1">
                 {MODE_LABELS[m]}
               </Text>
             ) : null}

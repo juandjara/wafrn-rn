@@ -10,7 +10,7 @@ import {
   renderers,
 } from 'react-native-popup-menu'
 import { Image } from 'expo-image'
-import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
 import { optionStyle, optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
@@ -43,11 +43,6 @@ export default function UserMenu() {
         action: () => router.navigate('/roll'),
       },
       {
-        icon: 'message-processing-outline' as const,
-        label: 'Messages',
-        action: () => router.navigate('/messages'),
-      },
-      {
         icon: 'chat-question-outline' as const,
         label: 'Asks',
         action: () => router.navigate('/asks'),
@@ -66,7 +61,7 @@ export default function UserMenu() {
         action: () => router.navigate('/bookmarks'),
       },
       {
-        icon: <FontAwesome6 name="hashtag" size={20} color={gray600} />,
+        icon: <Octicons name="hash" size={20} color={gray600} />,
         label: 'Followed hashtags',
         action: () => router.navigate('/followed-hashtags'),
       },

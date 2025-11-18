@@ -1,24 +1,16 @@
 import Dashboard from '@/components/dashboard/Dashboard'
 import { DashboardMode } from '@/lib/api/dashboard'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import UserMenu from '@/components/dashboard/UserMenu'
 import DashboardModeMenu, {
   PublicDashboardMode,
 } from '@/components/dashboard/DashboardModeMenu'
 import PagerView from 'react-native-pager-view'
-import {
-  NativeSyntheticEvent,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Pressable,
-} from 'react-native'
+import { NativeSyntheticEvent, StyleSheet, View, Pressable } from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 
 const MODES = [
@@ -32,7 +24,6 @@ export default function Index() {
   const pagerRef = useRef<PagerView>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
-  const gray300 = useCSSVariable('--color-gray-300') as string
   const blue800 = useCSSVariable('--color-blue-800') as string
 
   function _setMode(mode: PublicDashboardMode) {
@@ -68,7 +59,7 @@ export default function Index() {
   return (
     <View style={styles.flex}>
       <Header
-        style={{ minHeight: 60, paddingLeft: 8 }}
+        style={{ minHeight: 60, paddingLeft: 8, gap: 0 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
       />
       <View key="editor-link" className="absolute bottom-4 right-3 z-20">

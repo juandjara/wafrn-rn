@@ -4,19 +4,20 @@ import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import { View, useColorScheme, useWindowDimensions } from 'react-native'
+import {
+  View,
+  Pressable,
+  useColorScheme,
+  useWindowDimensions,
+} from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import Animated, {
-  Easing,
-  Extrapolate,
   Extrapolation,
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   WigglySpringConfig,
   withSpring,
 } from 'react-native-reanimated'
-import { Pressable, type GestureResponderEvent } from 'react-native'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
 
 export const unstable_settings = {
@@ -68,7 +69,7 @@ export default function TabsLayout() {
                 {
                   translateY: current.progress.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0, height / 2],
+                    outputRange: [0, height],
                     extrapolate: Extrapolation.CLAMP,
                   }),
                 },
@@ -137,6 +138,29 @@ export default function TabsLayout() {
               icon={({ color, focused }) => (
                 <MaterialCommunityIcons
                   name={focused ? 'bell' : 'bell-outline'}
+                  color={color}
+                  size={ICON_SIZE}
+                />
+              )}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          tabBarAccessibilityLabel: 'Messages',
+          tabBarButton: (props) => (
+            <TabButton
+              {...props}
+              focused={pathname === '/messages'}
+              icon={({ color, focused }) => (
+                <MaterialCommunityIcons
+                  name={
+                    focused
+                      ? 'message-processing'
+                      : 'message-processing-outline'
+                  }
                   color={color}
                   size={ICON_SIZE}
                 />
