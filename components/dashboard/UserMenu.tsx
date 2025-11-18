@@ -38,7 +38,7 @@ export default function UserMenu() {
   const { badge, menuOptions } = useMemo(() => {
     const options = [
       {
-        icon: 'dice-multiple' as const,
+        icon: 'dice-multiple-outline' as const,
         label: 'Try your luck',
         action: () => router.navigate('/roll'),
       },
@@ -192,7 +192,7 @@ export default function UserMenu() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ ...optionStyle(0) }}>
+          <View style={{ ...optionStyle(0), gap: 16 }}>
             <MaterialCommunityIcons
               name="account-outline"
               color={gray600}
