@@ -27,12 +27,13 @@ import PostReaction from '../posts/PostReaction'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
 import { useEmojiReactMutation } from '@/lib/api/emojis'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
-import { showToastError, useLikeMutation } from '@/lib/interaction'
+import { useLikeMutation } from '@/lib/interaction'
 import { useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
+import { useToasts } from '@/lib/toasts'
 
 export default function PostFragment({
   post,
@@ -80,6 +81,7 @@ export default function PostFragment({
   const cyan700 = useCSSVariable('--color-cyan-700') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
   const yellow500 = useCSSVariable('--color-yellow-500') as string
+  const { showToastError } = useToasts()
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
@@ -253,7 +255,7 @@ export default function PostFragment({
                     />
                   )}
                 </View>
-                <View className="flex-shrink flex-grow gap-2">
+                <View className="shrink grow gap-2">
                   <Text className="text-yellow-100 leading-5">
                     {contentWarning}
                   </Text>
@@ -298,7 +300,7 @@ export default function PostFragment({
                 <ScrollView
                   horizontal
                   contentContainerClassName="gap-2"
-                  className="flex-shrink-0 flex-grow-0 mt-2"
+                  className="shrink-0 grow-0 mt-2"
                 >
                   {mentionedUsers.map((u) => (
                     <Link key={u.id} href={`/user/${u.url}`}>
