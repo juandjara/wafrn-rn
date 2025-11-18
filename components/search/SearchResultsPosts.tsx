@@ -12,6 +12,7 @@ import { useFollowTagMutation } from '@/lib/interaction'
 import { clsx } from 'clsx'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import { useCornerButtonAnimation } from '../CornerButton'
+import { KeyboardStickyView } from 'react-native-keyboard-controller'
 
 export default function SearchResultsPosts({
   query,
@@ -51,8 +52,8 @@ export default function SearchResultsPosts({
   const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
 
   return (
-    <DashboardContextProvider data={context}>
-      <View style={{ flex: 1 }}>
+    <>
+      <DashboardContextProvider data={context}>
         <Animated.FlatList
           onScroll={scrollHandler}
           scrollEventThrottle={16}
@@ -76,32 +77,34 @@ export default function SearchResultsPosts({
           }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
-      </View>
+      </DashboardContextProvider>
       {showFollowButton && (
-        <Animated.View
-          style={buttonStyle}
-          className="absolute z-20 bottom-4 right-4"
-        >
-          <Pressable
-            className={clsx(
-              'bg-white active:bg-blue-50 px-5 py-2 rounded-full shadow shadow-blue-600',
-              mutation.isPending && 'opacity-50',
-            )}
-            onPress={() =>
-              mutation.mutate({
-                tag: query,
-                isFollowing: followingTag,
-              })
-            }
-            disabled={mutation.isPending}
+        <KeyboardStickyView>
+          <Animated.View
+            style={buttonStyle}
+            className="absolute z-20 bottom-4 right-4"
           >
-            <Text className="text-blue-800">
-              {followingTag ? 'Unfollow' : 'Follow'}{' '}
-              <Text className="font-medium">{query}</Text>
-            </Text>
-          </Pressable>
-        </Animated.View>
+            <Pressable
+              className={clsx(
+                'bg-white active:bg-blue-50 px-5 py-2 rounded-full shadow shadow-blue-600',
+                mutation.isPending && 'opacity-50',
+              )}
+              onPress={() =>
+                mutation.mutate({
+                  tag: query,
+                  isFollowing: followingTag,
+                })
+              }
+              disabled={mutation.isPending}
+            >
+              <Text className="text-blue-800">
+                {followingTag ? 'Unfollow' : 'Follow'}{' '}
+                <Text className="font-medium">{query}</Text>
+              </Text>
+            </Pressable>
+          </Animated.View>
+        </KeyboardStickyView>
       )}
-    </DashboardContextProvider>
+    </>
   )
 }

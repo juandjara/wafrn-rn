@@ -3,8 +3,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   TextInput,
   TouchableOpacity,
@@ -17,6 +15,11 @@ import { detectSearchType, SearchType } from '@/lib/api/search'
 import SearchResultsUsers from '@/components/search/SearchResultsUsers'
 import SearchResultsPosts from '@/components/search/SearchResultsPosts'
 import { useCSSVariable } from 'uniwind'
+import {
+  KeyboardAvoidingView,
+  KeyboardAwareScrollView,
+} from 'react-native-keyboard-controller'
+import { HEADER_HEIGHT } from '@/components/Header'
 
 const HISTORY_LIMIT = 20
 
@@ -65,11 +68,11 @@ export default function Search() {
   const gray300 = useCSSVariable('--color-gray-300') as string
 
   return (
-    <KeyboardAvoidingView
-      style={{ marginTop: sx.paddingTop, flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View className="flex-row items-center border-b border-gray-600 h-16 pr-12">
+    <>
+      <View
+        style={{ marginTop: sx.paddingTop }}
+        className="flex-row items-center border-b border-gray-600 h-16 pr-12"
+      >
         <Pressable
           className="mx-2 bg-black/30 rounded-full p-2"
           onPress={() => router.back()}
@@ -98,6 +101,6 @@ export default function Search() {
         </TouchableOpacity>
       </View>
       <View className="flex-1">{renderResults()}</View>
-    </KeyboardAvoidingView>
+    </>
   )
 }

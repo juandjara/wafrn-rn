@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useCSSVariable } from 'uniwind'
 
 export default function SearchIndex({
@@ -34,7 +35,7 @@ export default function SearchIndex({
   }
 
   return (
-    <ScrollView
+    <KeyboardAwareScrollView
       keyboardShouldPersistTaps="always"
       contentContainerStyle={{
         paddingBottom: BOTTOM_BAR_HEIGHT,
@@ -122,6 +123,6 @@ export default function SearchIndex({
           ))
         )}
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   )
 }

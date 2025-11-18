@@ -2,10 +2,16 @@ import { dedupeById } from '@/lib/api/dashboard'
 import { useSearch } from '@/lib/api/search'
 import { FlashList } from '@shopify/flash-list'
 import { useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
-import { Text, View } from 'react-native'
+import { forwardRef, useMemo } from 'react'
+import { Text, View, ScrollViewProps, ScrollView } from 'react-native'
 import UserCard from '../user/UserCard'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
+
+const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
+  (props, ref) => <KeyboardAwareScrollView {...props} ref={ref} />,
+)
+RenderScrollComponent.displayName = 'RenderScrollComponent'
 
 export default function SearchResultsUsers({ query }: { query: string }) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
@@ -57,6 +63,7 @@ export default function SearchResultsUsers({ query }: { query: string }) {
           )}
         </View>
       }
+      renderScrollComponent={RenderScrollComponent}
     />
   )
 }
