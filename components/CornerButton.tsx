@@ -18,6 +18,7 @@ export function useCornerButtonAnimation() {
   const translateY = useSharedValue(0)
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (ev, ctx) => {
+      'worklet'
       if (ctx.isScrolling) {
         const lastScroll = Number(ctx.lastContentOffset ?? 0)
         if (lastScroll > ev.contentOffset.y) {
@@ -45,9 +46,11 @@ export function useCornerButtonAnimation() {
       ctx.lastContentOffset = ev.contentOffset.y
     },
     onBeginDrag: (ev, ctx) => {
+      'worklet'
       ctx.isScrolling = true
     },
     onEndDrag: (ev, ctx) => {
+      'worklet'
       ctx.isScrolling = false
     },
   })
