@@ -104,13 +104,14 @@ export default function UserMenu() {
           },
           triggerWrapper: {
             position: 'relative',
+            marginTop: 4,
           },
         }}
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
             source={{ uri: formatSmallAvatar(me?.avatar) }}
-            style={{ width: 42, height: 42, borderRadius: 100 }}
+            style={{ width: 40, height: 40, borderRadius: 100 }}
           />
         </View>
         {badge > 0 ? (
