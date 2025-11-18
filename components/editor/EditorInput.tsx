@@ -44,7 +44,6 @@ export default function EditorInput({
   disabled = false,
   onSelectionChange,
 }: EditorProps) {
-  const gray500 = useCSSVariable('--color-gray-500') as string
   const yellow500 = useCSSVariable('--color-yellow-500') as string
   const { env } = useAuth()
   const tagsLine = formState.tags
@@ -111,7 +110,7 @@ export default function EditorInput({
           />
           <TextInput
             numberOfLines={1}
-            placeholderTextColor={gray500}
+            placeholderTextColorClassName="accent-gray-500"
             className="text-white py-2 px-3"
             placeholder="Content warning"
             value={formState.contentWarning}
@@ -119,12 +118,12 @@ export default function EditorInput({
           />
         </View>
       )}
-      <View className="flex-1 flex-shrink-0">
+      <View className="flex-1 shrink-0">
         <TextInput
           readOnly={disabled}
           multiline
           textAlignVertical="top"
-          placeholderTextColor={gray500}
+          placeholderTextColorClassName="accent-gray-500"
           className="text-white py-2 px-3"
           style={{
             minHeight: EDITOR_MIN_HEIGHT,
@@ -144,10 +143,10 @@ export default function EditorInput({
       />
       <EditorSuggestions {...triggers.emoji} type="emoji" />
       {showTags && (
-        <View className="overflow-hidden border-t border-gray-600 flex-shrink-0">
+        <View className="overflow-hidden border-t border-gray-600 shrink-0">
           <TextInput
             numberOfLines={1}
-            placeholderTextColor={gray500}
+            placeholderTextColorClassName="accent-gray-500"
             className="text-white py-2 px-3"
             placeholder="Tags"
             value={tagsLine}

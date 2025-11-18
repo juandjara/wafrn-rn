@@ -36,6 +36,7 @@ import Loading from '@/components/Loading'
 import AskRibbon from '@/components/ribbons/AskRibbon'
 import { PostUser } from '@/lib/api/posts.types'
 import { useCSSVariable } from 'uniwind'
+import { Colors } from '@/constants/Colors'
 
 export default function EditorView() {
   const {
@@ -240,6 +241,7 @@ export default function EditorView() {
           flex: 1,
           marginTop: sx.paddingTop,
           marginBottom: sx.paddingBottom,
+          backgroundColor: Colors.dark.background,
         }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >

@@ -36,7 +36,7 @@ export default function EditorHeader({
         <MaterialIcons name="close" color="white" size={20} />
       </Link>
       <View
-        className={clsx({
+        className={clsx('shrink', {
           'pointer-events-none opacity-50': type === 'edit',
         })}
       >
@@ -47,7 +47,7 @@ export default function EditorHeader({
           disabled={privacySelectDisabled}
         />
       </View>
-      <View className="flex-grow"></View>
+      <View className="grow"></View>
       <PostingAsSelector
         selectedUserId={postingAs}
         setSelectedUserId={setPostingAs}
