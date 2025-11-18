@@ -143,9 +143,8 @@ export default function EmojiPicker({
       visible={open}
       animationType="slide"
       onRequestClose={() => setOpen(false)}
-      style={sx}
     >
-      <View className="bg-indigo-950 flex-1">
+      <View style={sx} className="bg-indigo-950 flex-1">
         <View
           style={{
             paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined,
@@ -166,7 +165,7 @@ export default function EmojiPicker({
             onChangeText={setSearch}
             placeholder="Search emoji"
             inputMode="search"
-            placeholderTextColor={gray400}
+            placeholderTextColorClassName="accent-gray-400"
             className="text-white p-2 flex-1"
           />
         </View>
@@ -176,7 +175,7 @@ export default function EmojiPicker({
           data={headers}
           horizontal
           keyExtractor={(item) => item.id}
-          fadingEdgeLength={100}
+          fadingEdgeLength={30}
           renderItem={({ item }) => (
             <Pressable
               className="p-3"
@@ -204,15 +203,13 @@ export default function EmojiPicker({
         <FlashList
           ref={listRef}
           data={emojiList}
-          getItemType={() => 'emoji'}
           keyExtractor={(item) => item.id}
-          estimatedItemSize={48}
           numColumns={columns}
           renderItem={({ item }) => {
             return (
               <Pressable
                 className={clsx(
-                  'active:bg-indigo-900 rounded-lg py-2 px-4 h-[48px]',
+                  'active:bg-indigo-900 rounded-lg py-2 px-4 h-12',
                   {
                     'bg-indigo-800': haveIReacted(item),
                   },
@@ -224,8 +221,10 @@ export default function EmojiPicker({
                   <Text className="text-2xl">{item.content}</Text>
                 ) : (
                   <Image
+                    enforceEarlyResizing
+                    contentFit="contain"
                     source={{ uri: formatCachedUrl(formatMediaUrl(item.url)) }}
-                    style={{ resizeMode: 'contain', width: 32, height: 32 }}
+                    style={{ width: 32, height: 32 }}
                   />
                 )}
               </Pressable>
