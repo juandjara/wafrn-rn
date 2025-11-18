@@ -25,6 +25,7 @@ import { queryClient } from '@/lib/queryClient'
 import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 import { useToasts } from '@/lib/toasts'
 import { DarkTheme, ThemeProvider } from '@react-navigation/native'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -45,20 +46,22 @@ const styles = StyleSheet.create({
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider value={DarkTheme}>
-          <GestureHandlerRootView style={styles.root}>
-            <MenuProvider backHandler customStyles={styles}>
-              <HtmlEngineProvider>
-                <Toasts />
-                <Slot />
-              </HtmlEngineProvider>
-            </MenuProvider>
-          </GestureHandlerRootView>
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <KeyboardProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ThemeProvider value={DarkTheme}>
+            <GestureHandlerRootView style={styles.root}>
+              <MenuProvider backHandler customStyles={styles}>
+                <HtmlEngineProvider>
+                  <Toasts />
+                  <Slot />
+                </HtmlEngineProvider>
+              </MenuProvider>
+            </GestureHandlerRootView>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </KeyboardProvider>
   )
 }
 
