@@ -135,25 +135,20 @@ export default function GifSearch({
   }
 
   return (
-    <Modal style={sx} visible={open} onRequestClose={onClose}>
+    <Modal visible={open} onRequestClose={onClose}>
       {downloadMutation.isPending && (
         <View className="bg-black/50 absolute inset-0 items-center justify-center">
           <Loading />
         </View>
       )}
-      <View
-        style={{
-          paddingTop: Platform.OS === 'ios' ? sx.paddingTop : undefined,
-        }}
-        className="flex-1 p-2 bg-gray-800"
-      >
-        <View className="flex-row items-center gap-2 mb-2 m-1">
+      <View style={sx} className="flex-1 p-2 bg-gray-800">
+        <View className="flex-row items-center px-2 gap-2 mb-2 m-1">
           <TextInput
             value={search}
             onChangeText={setSearch}
             placeholder="Search GIFs on Tenor..."
             placeholderTextColor={gray500}
-            className="flex-grow text-white bg-gray-700 p-2 rounded-md"
+            className="grow text-white bg-gray-700 p-2 rounded-md"
             numberOfLines={1}
             autoFocus
             onSubmitEditing={() => setQuery(search)}
@@ -200,6 +195,7 @@ export default function GifSearch({
           data={data}
           keyExtractor={(item) => item.id}
           numColumns={2}
+          style={{ paddingHorizontal: 8 }}
           renderItem={({ item }) => (
             <TouchableOpacity
               className="p-1 w-1/2 rounded-xl"
