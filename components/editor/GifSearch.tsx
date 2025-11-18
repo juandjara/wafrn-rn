@@ -112,14 +112,14 @@ export default function GifSearch({
     mutationKey: ['download-gif'],
     mutationFn: async (gif: GifResponse) => {
       const filename = `gif-${gif.id}.webp`
-      const file = await downloadFile(
+      const localUri = await downloadFile(
         gif.media_formats.webp.url,
         filename,
         false,
       )
-      if (file) {
+      if (localUri) {
         onSelect({
-          uri: file?.uri,
+          uri: localUri,
           width: gif.media_formats.webp.dims[0],
           height: gif.media_formats.webp.dims[1],
           mimeType: 'image/webp',

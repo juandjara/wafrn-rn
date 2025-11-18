@@ -1,4 +1,4 @@
-import { createUploadTask, FileSystemUploadOptions } from 'expo-file-system'
+import { fetch } from 'expo/fetch'
 import pkg from '../package.json'
 
 export type ErrorResponse = {
@@ -39,44 +39,4 @@ export function statusError(status: number, message: string) {
   const e = new Error(message)
   ;(e as StatusError).status = status
   return e as StatusError
-}
-
-export type UploadFilePayload = FileSystemUploadOptions & {
-  uploadUrl: string
-  fileUri: string
-}
-
-export async function uploadFile({
-  uploadUrl,
-  fileUri,
-  ...options
-}: UploadFilePayload) {
-  options.headers = options.headers || {}
-  options.headers['User-Agent'] = `${pkg.name}/${pkg.version}`
-  const task = createUploadTask(uploadUrl, fileUri, options)
-  const res = await task.uploadAsync()
-  const status = res?.status || 500
-
-  if (status >= 400) {
-    throw statusError(
-      status,
-      `HTTP Error Code ${status} \n${res?.body}\nURL: ${uploadUrl}`,
-    )
-  }
-
-  try {
-    const json = JSON.parse(res?.body || '{}')
-    if (isErrorResponse(json)) {
-      const msg = `API Error: ${res?.body}\nURL: ${uploadUrl}`
-      console.error(msg)
-      throw statusError(500, msg)
-    }
-    return json
-  } catch (err) {
-    console.error(err)
-    throw statusError(
-      500,
-      `Error decoding JSON "${res?.body}"\nURL: ${uploadUrl}`,
-    )
-  }
 }

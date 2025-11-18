@@ -21,9 +21,9 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import encodeQR from 'qr'
+import { encodeQR } from 'qr'
 import { saveFileToGallery } from '@/lib/downloads'
-import { cacheDirectory, writeAsStringAsync } from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
 import { setStringAsync } from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { useToasts } from '@/lib/toasts'
@@ -61,9 +61,9 @@ export default function MfaSettings() {
     if (qrCodeSvg) {
       try {
         const filename = `qr-${newMfa!.name}.svg`
-        const fileUri = `${cacheDirectory}${filename}`
-        await writeAsStringAsync(fileUri, qrCodeSvg)
-        await saveFileToGallery(fileUri)
+        const file = new File(Paths.cache, 'WAFRN', filename)
+        file.write(qrCodeSvg)
+        await saveFileToGallery(file.uri)
         showToastSuccess('QR code downloaded')
       } catch (error) {
         console.error('Error downloading QR code', error)

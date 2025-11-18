@@ -3,11 +3,11 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { isValidURL } from './content'
 import { Timestamps } from './types'
 import { useAuth } from '../contexts/AuthContext'
-import { getJSON, uploadFile } from '../http'
-import { FileSystemUploadType } from 'expo-file-system'
+import { getJSON } from '../http'
 import { getEnvironmentStatic } from './auth'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import { useToasts } from '../toasts'
+import { File } from 'expo-file-system'
 
 const AUDIO_EXTENSIONS = [
   '.aac',
@@ -99,19 +99,20 @@ export type MediaUploadPayload = {
 export async function uploadMedia(token: string, payload: MediaUploadPayload) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/uploadMedia`
-  const res = await uploadFile({
-    uploadUrl: url,
-    fileUri: payload.uri,
-    fieldName: 'image',
-    httpMethod: 'POST',
-    mimeType: payload.type,
-    uploadType: FileSystemUploadType.MULTIPART,
+  const fd = new FormData()
+  const file = new File(payload.uri)
+  fd.append('image', file)
+
+  const json = await getJSON(url, {
+    method: 'POST',
+    body: fd,
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
     },
   })
-  const data = res as MediaUploadResponse[]
+
+  const data = json as MediaUploadResponse[]
 
   return Array.isArray(data) ? data[0] : data
 }

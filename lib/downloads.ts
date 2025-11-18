@@ -1,10 +1,4 @@
-import {
-  cacheDirectory,
-  makeDirectoryAsync,
-  getInfoAsync,
-  downloadAsync,
-} from 'expo-file-system'
-import { showToastError, showToastSuccess } from './interaction'
+import { Paths, Directory, File } from 'expo-file-system'
 import {
   saveToLibraryAsync,
   getPermissionsAsync,
@@ -12,13 +6,13 @@ import {
 } from 'expo-media-library'
 import * as Device from 'expo-device'
 
-const CACHE_DIR = `${cacheDirectory}WAFRN/`
+const CACHE_DIR = Paths.join(Paths.cache, 'WAFRN')
 
-async function ensureDownloadDirectory() {
-  const dir = await getInfoAsync(CACHE_DIR)
+function ensureDownloadDirectory() {
+  const dir = new Directory(CACHE_DIR)
   if (!dir.exists) {
     console.log('WAFRN download directory does not exist, creating...')
-    await makeDirectoryAsync(CACHE_DIR, { intermediates: true })
+    dir.create({ intermediates: true })
   }
 }
 
@@ -46,13 +40,13 @@ export async function downloadFile(
   saveToGallery = true,
 ) {
   try {
-    await ensureDownloadDirectory()
-    const file = await downloadAsync(url, `${CACHE_DIR}${name}`)
+    ensureDownloadDirectory()
+    const result = await File.downloadFileAsync(url, new File(CACHE_DIR, name))
     if (saveToGallery) {
-      await saveFileToGallery(file.uri)
+      await saveFileToGallery(result.uri)
       showToastSuccess('Downloaded file')
     }
-    return file
+    return result.uri
   } catch (e) {
     console.error('Failed to download file', e)
     showToastError(`Failed to download file: ${e}`)

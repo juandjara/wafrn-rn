@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { getJSON, statusError, StatusError, uploadFile } from '../http'
+import { getJSON, statusError, StatusError } from '../http'
 import {
   getEnvironmentStatic,
   getInstanceEnvironment,
@@ -20,11 +20,11 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
-import { FileSystemUploadType } from 'expo-file-system'
 import { formatCachedUrl, formatUserUrl } from '../formatters'
 import { useNotificationTokensCleanup } from '../notifications'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
+import { File } from 'expo-file-system'
 
 export type User = {
   createdAt: string // iso date
@@ -471,13 +471,13 @@ type MastodonCSVParseResponse = {
 async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/loadFollowList`
-  const json = await uploadFile({
-    uploadUrl: url,
-    fileUri: localFileUri,
-    fieldName: 'follows',
-    httpMethod: 'POST',
-    mimeType: 'text/csv',
-    uploadType: FileSystemUploadType.MULTIPART,
+  const fd = new FormData()
+  const file = new File(localFileUri)
+  fd.append('follows', file)
+
+  const json = await getJSON(url, {
+    method: 'POST',
+    body: fd,
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',

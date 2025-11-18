@@ -27,7 +27,7 @@ import {
 } from 'react-native-gesture-handler'
 import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { cacheDirectory, writeAsStringAsync } from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
 import { EditorImage } from '@/lib/editor'
 
 type EditorCanvasProps = {
@@ -76,11 +76,11 @@ export default function EditorCanvas({
     if (image) {
       const base64Uri = image.encodeToBase64(ImageFormat.WEBP, 50)
       const filename = `drawing-${Date.now()}.webp`
-      const fileUri = `${cacheDirectory}${filename}`
-      console.log('Writing image to', fileUri)
-      await writeAsStringAsync(fileUri, base64Uri, { encoding: 'base64' })
+      const file = new File(Paths.cache, 'WAFRN', filename)
+      file.write(base64Uri, { encoding: 'base64' })
+      console.log('Writing image to', file.uri)
       addImage({
-        uri: fileUri,
+        uri: file.uri,
         mimeType: 'image/webp',
         fileName: filename,
         width: image.width(),
