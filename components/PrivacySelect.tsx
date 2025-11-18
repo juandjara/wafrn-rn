@@ -66,7 +66,10 @@ export default function PrivacySelect({
             color="white"
             size={20}
           />
-          <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+          <Text
+            numberOfLines={1}
+            className="text-white text-sm px-1 grow shrink"
+          >
             {PRIVACY_LABELS[privacy]}
           </Text>
           <MaterialCommunityIcons
