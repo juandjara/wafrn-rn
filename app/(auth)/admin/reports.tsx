@@ -96,7 +96,6 @@ export default function ReportList() {
         data={filteredData}
         onRefresh={refetch}
         refreshing={isFetching}
-        estimatedItemSize={500}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => <ReportListItem report={item} />}
       />

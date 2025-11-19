@@ -15,7 +15,7 @@ import { getUnicodeEmojiGroups } from '@/lib/emojis'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { FlashList } from '@shopify/flash-list'
+import { FlashList, FlashListRef } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { PostEmojiReaction } from '@/lib/api/posts.types'
@@ -45,7 +45,7 @@ export default function EmojiPicker({
 }) {
   const { width } = useWindowDimensions()
   const columns = Math.floor(width / 52)
-  const listRef = useRef<FlashList<Emoji>>(null)
+  const listRef = useRef<FlashListRef<Emoji>>(null)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
