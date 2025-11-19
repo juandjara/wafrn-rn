@@ -1,11 +1,4 @@
-import {
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
 import {
   Canvas,
   ImageFormat,
@@ -19,7 +12,10 @@ import { useMemo, useState } from 'react'
 import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
 import ColorPicker from './ColorPicker'
 import { clsx } from 'clsx'
-import Animated, { useSharedValue } from 'react-native-reanimated'
+import Animated, {
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated'
 import {
   Gesture,
   GestureDetector,
@@ -62,9 +58,11 @@ export default function EditorCanvas({
   const currentPath = useSharedValue<SkPath>(Skia.Path.Make().moveTo(0, 0))
   const sx = useSafeAreaPadding()
   const [background, setBackground] = useState<string | null>(null)
-  const [size, setSize] = useState<{ width: number; height: number }>({
-    width: 0,
-    height: 0,
+  // size will be updated as the canvas size changes
+  const size = useSharedValue({ width: 0, height: 0 })
+  const rect = useDerivedValue(() => {
+    const { width, height } = size.value
+    return { x: 0, y: 0, width, height }
   })
 
   function setBackgroundColor() {
@@ -136,33 +134,13 @@ export default function EditorCanvas({
     clearCurrentPath()
   }
 
-  const style = { flex: 1, backgroundColor: Colors.dark.background }
-  const rootStyle = Platform.OS === 'ios' ? { ...sx, ...style } : style
-
   return (
     <Modal animationType="slide" visible={open} onRequestClose={close}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={rootStyle}>
+        <View style={{ flex: 1, backgroundColor: Colors.dark.background }}>
           <View collapsable={false} className="rounded-md bg-white flex-1">
-            <Canvas
-              ref={canvasRef}
-              style={{ flex: 1 }}
-              onLayout={(ev) => {
-                setSize({
-                  width: ev.nativeEvent.layout.width,
-                  height: ev.nativeEvent.layout.height,
-                })
-              }}
-            >
-              {background && (
-                <Rect
-                  x={0}
-                  y={0}
-                  width={size.width}
-                  height={size.height}
-                  color={background}
-                />
-              )}
+            <Canvas ref={canvasRef} style={{ flex: 1 }} onSize={size}>
+              {background && <Rect rect={rect} color={background} />}
               {paths.map((p, index) => (
                 <Path
                   key={index}
@@ -187,7 +165,12 @@ export default function EditorCanvas({
           <GestureDetector gesture={gesture}>
             <Animated.View style={StyleSheet.absoluteFill} />
           </GestureDetector>
-          <View className="px-3 pt-2 pb-4 flex-row justify-end items-center gap-2">
+          <View
+            style={{
+              paddingBottom: sx.paddingBottom,
+            }}
+            className="px-3 pt-2 flex-row justify-end items-center gap-2"
+          >
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
