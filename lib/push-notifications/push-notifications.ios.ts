@@ -2,7 +2,6 @@ import * as Device from 'expo-device'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'
 import { useEffect } from 'react'
-import { showToastError } from '../interaction'
 import { useAuth } from '../contexts/AuthContext'
 import {
   type Notification,
@@ -12,6 +11,7 @@ import {
 } from '../notifications'
 import { router } from 'expo-router'
 import useAsyncStorage from '../useLocalStorage'
+import { useToasts } from '../toasts'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -74,6 +74,7 @@ export function usePushNotifications() {
     setValue: setExpoToken,
   } = useAsyncStorage<string>(PUSH_TOKEN_KEY)
   const lastNotification = Notifications.useLastNotificationResponse()
+  const { showToastError } = useToasts()
 
   useEffect(() => {
     if (authToken && !expoToken && !expoTokenLoading) {
