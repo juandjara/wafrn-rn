@@ -217,7 +217,7 @@ function TabButton({
     <>
       {badge > 0 ? (
         <Text className="absolute z-10 top-1 right-4 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
-          {badge}
+          {badge > 99 ? '99+' : badge}
         </Text>
       ) : null}
       <AnimatedPressable
