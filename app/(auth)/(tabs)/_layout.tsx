@@ -9,6 +9,7 @@ import {
   Pressable,
   useColorScheme,
   useWindowDimensions,
+  Text,
 } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import Animated, {
@@ -134,6 +135,7 @@ export default function TabsLayout() {
           tabBarButton: (props) => (
             <TabButton
               {...props}
+              badge={notificationCount}
               focused={pathname === '/notifications'}
               icon={({ color, focused }) => (
                 <MaterialCommunityIcons
@@ -189,10 +191,12 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 function TabButton({
   focused,
   icon,
+  badge = 0,
   ref,
   ...props
 }: BottomTabBarButtonProps & {
   focused: boolean
+  badge?: number
   icon: ({
     color,
     focused,
@@ -210,25 +214,32 @@ function TabButton({
   }))
 
   return (
-    <AnimatedPressable
-      {...props}
-      ref={ref as React.Ref<View>}
-      onPressIn={() => {
-        scale.value = withSpring(0.9, WigglySpringConfig)
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, WigglySpringConfig)
-      }}
-      style={[
-        {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        animatedStyle,
-      ]}
-    >
-      {icon({ color: focused ? gray200 : indigo300, focused })}
-    </AnimatedPressable>
+    <>
+      {badge > 0 ? (
+        <Text className="absolute z-10 top-1 right-4 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
+          {badge}
+        </Text>
+      ) : null}
+      <AnimatedPressable
+        {...props}
+        ref={ref as React.Ref<View>}
+        onPressIn={() => {
+          scale.value = withSpring(0.9, WigglySpringConfig)
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1, WigglySpringConfig)
+        }}
+        style={[
+          {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+          animatedStyle,
+        ]}
+      >
+        {icon({ color: focused ? gray200 : indigo300, focused })}
+      </AnimatedPressable>
+    </>
   )
 }
