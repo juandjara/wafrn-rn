@@ -34,21 +34,8 @@ export async function saveFileToGallery(localUrl: string) {
   await saveToLibraryAsync(localUrl)
 }
 
-export async function downloadFile(
-  url: string,
-  name: string,
-  saveToGallery = true,
-) {
-  try {
-    ensureDownloadDirectory()
-    const result = await File.downloadFileAsync(url, new File(CACHE_DIR, name))
-    if (saveToGallery) {
-      await saveFileToGallery(result.uri)
-      showToastSuccess('Downloaded file')
-    }
-    return result.uri
-  } catch (e) {
-    console.error('Failed to download file', e)
-    showToastError(`Failed to download file: ${e}`)
-  }
+export async function downloadFile(url: string, name: string) {
+  ensureDownloadDirectory()
+  const result = await File.downloadFileAsync(url, new File(CACHE_DIR, name))
+  return result.uri
 }

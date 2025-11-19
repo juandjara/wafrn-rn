@@ -111,21 +111,15 @@ export default function GifSearch({
     mutationKey: ['download-gif'],
     mutationFn: async (gif: GifResponse) => {
       const filename = `gif-${gif.id}.webp`
-      const localUri = await downloadFile(
-        gif.media_formats.webp.url,
-        filename,
-        false,
-      )
-      if (localUri) {
-        onSelect({
-          uri: localUri,
-          width: gif.media_formats.webp.dims[0],
-          height: gif.media_formats.webp.dims[1],
-          mimeType: 'image/webp',
-          description: gif.content_description,
-          fileName: filename,
-        })
-      }
+      const localUri = await downloadFile(gif.media_formats.webp.url, filename)
+      onSelect({
+        uri: localUri,
+        width: gif.media_formats.webp.dims[0],
+        height: gif.media_formats.webp.dims[1],
+        mimeType: 'image/webp',
+        description: gif.content_description,
+        fileName: filename,
+      })
     },
   })
 

@@ -14,11 +14,12 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { extensionFromMimeType } from '@/lib/api/media'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { downloadFile } from '@/lib/downloads'
+import { downloadFile, saveFileToGallery } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { unfurlCacheUrl } from '@/lib/formatters'
 import Loading from '../Loading'
 import { useResolveClassNames } from 'uniwind'
+import { useToasts } from '@/lib/toasts'
 
 const ImageRenderer = ({
   item,
@@ -76,12 +77,13 @@ export default function ZoomableImage({
   const sx = useSafeAreaPadding()
   const [modalOpen, setModalOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(true)
+  const { showToastSuccess, showToastError } = useToasts()
 
   const pt = Platform.select({
     ios: sx.paddingTop + 8,
   })
 
-  function download() {
+  async function download() {
     let name = unfurlCacheUrl(src).split('/').pop() || ''
     if (name?.startsWith('?cid=')) {
       name = name.replace('?cid=', '')
@@ -91,7 +93,14 @@ export default function ZoomableImage({
       }
     }
 
-    downloadFile(src, name)
+    try {
+      const localUri = await downloadFile(src, name)
+      await saveFileToGallery(localUri)
+      showToastSuccess('File downloaded to your gallery')
+    } catch (error) {
+      console.error('Error downloading file:', error)
+      showToastError('Failed to download file')
+    }
   }
 
   return (
