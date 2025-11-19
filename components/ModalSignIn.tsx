@@ -9,9 +9,9 @@ import { TextInput, Button, View, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { showToastError } from '@/lib/interaction'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useQuery } from '@tanstack/react-query'
+import { useToasts } from '@/lib/toasts'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -23,6 +23,7 @@ export default function ModalSignIn({
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
   const [instance, setInstance] = useState<string | null>(null)
+  const { showToastError } = useToasts()
 
   const { data: env } = useQuery({
     queryKey: ['modalSignIn-environment'],

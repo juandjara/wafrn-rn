@@ -20,10 +20,10 @@ import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Toasts } from '@backpackapp-io/react-native-toast'
-import { showToastError } from '@/lib/interaction'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useNotificationTokensCleanup } from '@/lib/notifications'
 import useAsyncStorage from '@/lib/useLocalStorage'
+import { useToasts } from '@/lib/toasts'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -35,6 +35,7 @@ export default function SignIn() {
   const { setToken, env } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
+  const { showToastError } = useToasts()
 
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
