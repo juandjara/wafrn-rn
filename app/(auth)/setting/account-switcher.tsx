@@ -13,7 +13,6 @@ import {
   Alert,
   Button,
   Modal,
-  Platform,
   Pressable,
   Text,
   TouchableOpacity,

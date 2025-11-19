@@ -1,6 +1,5 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { clsx } from 'clsx'
 import { router } from 'expo-router'
 import { View, Text, Pressable, ViewStyle } from 'react-native'
 import Animated from 'react-native-reanimated'

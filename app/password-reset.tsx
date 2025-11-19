@@ -86,8 +86,8 @@ export default function RecoverPassword() {
             onPress={() => mutation.mutate(email)}
           />
           <Text className="text-xs text-white mt-6 mb-12">
-            If you didn't have your password stored, you may consider using a
-            password manager next time.
+            If you {"didn't"} have your password stored, you may consider using
+            a password manager next time.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

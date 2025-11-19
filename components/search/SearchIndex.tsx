@@ -1,15 +1,9 @@
 import Loading from '@/components/Loading'
-import { BOTTOM_BAR_HEIGHT, buttonCN } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Pressable, Text, TouchableOpacity, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useCSSVariable } from 'uniwind'
 

@@ -1,6 +1,5 @@
 import Reanimated, {
   AnimatedStyle,
-  Easing,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,

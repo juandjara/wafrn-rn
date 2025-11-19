@@ -4,7 +4,6 @@ import { useState } from 'react'
 import {
   FlatList,
   Modal,
-  Platform,
   Pressable,
   Text,
   TextInput,

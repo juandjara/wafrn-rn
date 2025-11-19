@@ -39,8 +39,8 @@ export default function Privacy() {
           {'\n\n'}
           We need your birth date for legal reasons. Mostly to verify that you
           are older than 13 for the legal regulations here, and older than 18 to
-          see images marked as NSFW. If you're under 18 please ask your parents
-          or legal tutors.
+          see images marked as NSFW. If {"you're"} under 18 please ask your
+          parents or legal tutors.
           {'\n\n'}
           We will also store your registration IP, your last login ip and the ip
           that you use when you upload a media like pic or video, so if you post

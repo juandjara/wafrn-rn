@@ -101,9 +101,9 @@ export default function BlueskySettings() {
                   · Update your Bluesky password to match your Wafrn password.
                 </Text>
                 <Text className="text-white text-lg">
-                  · Create or replace a Bluesky "app password" with restricted
-                  access. This will be used as a token to link your Wafrn
-                  account with the Wafrn PDS.
+                  · Create or replace a Bluesky {'"app password"'} with
+                  restricted access. This will be used as a token to link your
+                  Wafrn account with the Wafrn PDS.
                 </Text>
               </View>
             </>
@@ -125,13 +125,14 @@ export default function BlueskySettings() {
                   wafrn dev team will do the best we can to protect you
                 </Text>
                 <Text className="text-white text-lg">
-                  · Bluesky does not have an "accept follows" feature like we
-                  do. All Bluesky follows are accepted by default.
+                  · Bluesky does not have an {'"accept follows"'} feature like
+                  we do. All Bluesky follows are accepted by default.
                 </Text>
                 <Text className="text-white text-lg">
-                  · Some Bluesky posts might be marked as "only people I follow
-                  can reply" and we still don't have a working integration for
-                  that, but work has started and it will come in the future.
+                  · Some Bluesky posts might be marked as{' '}
+                  {'"only people I follow can reply"'} and we still {"don't"}{' '}
+                  have a working integration for that, but work has started and
+                  it will come in the future.
                 </Text>
                 <Text className="text-white text-lg">
                   · Like with other profiles, we will not save every post of
@@ -164,9 +165,9 @@ export default function BlueskySettings() {
                   your Wafrn password.
                 </Text>
                 <Text className="text-white text-lg">
-                  · Create a Bluesky "app password" with restricted access. This
-                  will be used as a token to link your Wafrn account with the
-                  Wafrn PDS.
+                  · Create a Bluesky {'"app password"'} with restricted access.
+                  This will be used as a token to link your Wafrn account with
+                  the Wafrn PDS.
                 </Text>
               </View>
             </>

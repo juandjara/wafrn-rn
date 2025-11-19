@@ -17,9 +17,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
   Button,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
