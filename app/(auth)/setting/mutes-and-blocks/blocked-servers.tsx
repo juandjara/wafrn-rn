@@ -30,7 +30,7 @@ export default function BlockedServers() {
         renderItem={({ item }) => (
           <View className="flex-row items-center gap-3 p-3 bg-gray-800 active:bg-gray-700 rounded-lg m-2 mb-6">
             <MaterialCommunityIcons name="server" size={24} color="white" />
-            <Text className="text-white flex-shrink flex-grow">
+            <Text className="text-white shrink grow">
               {item.server.displayName}
             </Text>
             <Pressable

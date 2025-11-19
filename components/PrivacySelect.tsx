@@ -107,7 +107,7 @@ export default function PrivacySelect({
                 color="black"
                 size={24}
               />
-              <View className="flex-grow flex-shrink mr-2">
+              <View className="grow shrink mr-2">
                 <Text className="font-bold mb-1">{PRIVACY_LABELS[p]}</Text>
                 <Text>{PRIVACY_DESCRIPTIONS[p]}</Text>
               </View>

@@ -45,7 +45,7 @@ export default function NewUsers() {
                 height={80}
                 className="rounded-xl border border-gray-600 bg-black"
               />
-              <View className="flex-shrink">
+              <View className="shrink">
                 <Text className="text-white text-xl mb-2">
                   {formatUserUrl(user.url)}
                 </Text>

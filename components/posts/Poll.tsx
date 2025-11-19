@@ -112,9 +112,7 @@ export default function Poll({
         >
           <View className="p-2 flex-row gap-2 items-stretch">
             <MaterialIcons name={getIcon(q.id)} size={24} color="white" />
-            <Text className="text-white flex-grow flex-shrink">
-              {q.questionText}
-            </Text>
+            <Text className="text-white grow shrink">{q.questionText}</Text>
             <Text className="text-white">{`${(
               getQuestionPercentage(q.id) * 100
             ).toFixed()} %`}</Text>

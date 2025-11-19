@@ -232,10 +232,7 @@ export default function Options() {
         >
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
-        <Text
-          numberOfLines={1}
-          className="text-white text-lg flex-grow flex-shrink"
-        >
+        <Text numberOfLines={1} className="text-white text-lg grow shrink">
           Options & Customizations
         </Text>
         <Pressable
@@ -464,7 +461,7 @@ export default function Options() {
           onPress={() => update('forceClassicLogo', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+          <Text className="text-white text-base leading-6 grow shrink">
             Use Classic WAFRN Logo
           </Text>
           <Switch
@@ -478,7 +475,7 @@ export default function Options() {
           onPress={() => update('disableForceAltText', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+          <Text className="text-white text-base leading-6 grow shrink">
             Allow uploading media without alt text{' '}
             <Text className="text-red-100">
               (enable this only if {"you're"} evil)
@@ -496,7 +493,7 @@ export default function Options() {
             onPress={() => update('enableReplaceAIWord', (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 pb-2 active:bg-white/10"
           >
-            <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+            <Text className="text-white text-base leading-6 grow shrink">
               Enable replacing AI with this word:
             </Text>
             <Switch
@@ -523,7 +520,7 @@ export default function Options() {
           onPress={() => update('disableEmailNotifications', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+          <Text className="text-white text-base leading-6 grow shrink">
             Disable email campaign notifications
           </Text>
           <Switch
@@ -537,7 +534,7 @@ export default function Options() {
           onPress={() => update('hideFollows', (prev) => !prev)}
           className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
         >
-          <Text className="text-white text-base leading-6 flex-grow flex-shrink">
+          <Text className="text-white text-base leading-6 grow shrink">
             Hide follows and followers count in my profile
           </Text>
           <Switch

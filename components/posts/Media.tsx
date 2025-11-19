@@ -94,14 +94,11 @@ export default function Media({
       <View className="flex-row gap-2">
         <MaterialCommunityIcons
           name="link-variant"
-          className="flex-shrink-0 m-2"
+          className="shrink-0 m-2"
           color="white"
           size={32}
         />
-        <Link
-          href={media.url}
-          className="text-cyan-400 my-2 flex-grow flex-shrink"
-        >
+        <Link href={media.url} className="text-cyan-400 my-2 grow shrink">
           {media.url}
         </Link>
       </View>

@@ -163,7 +163,7 @@ export default function PostFragment({
         style={{ maxHeight: 300, maxWidth: width }}
       >
         <MaterialIcons name="block" color="white" size={24} />
-        <Text className="text-gray-300 text-center text-sm p-4 flex-shrink">
+        <Text className="text-gray-300 text-center text-sm p-4 shrink">
           This post has been hidden because it{' '}
           {hiddenUserMentioned ? 'mentions' : 'quotes'} a blocked or muted user
         </Text>

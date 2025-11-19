@@ -135,9 +135,7 @@ function SuggestionItem({
           source={{ uri: formatSmallAvatar(user.avatar) }}
           style={{ resizeMode: 'contain', width: 48, height: 48 }}
         />
-        <Text className="text-white text-lg font-medium flex-shrink">
-          {url}
-        </Text>
+        <Text className="text-white text-lg font-medium shrink">{url}</Text>
       </Pressable>
     )
   }

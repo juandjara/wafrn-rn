@@ -25,9 +25,7 @@ export default function BlockedUsers() {
                   source={{ uri: item.user.avatar }}
                   style={{ width: 52, height: 52, borderRadius: 10 }}
                 />
-                <Text className="text-white flex-grow flex-shrink">
-                  {item.user.url}
-                </Text>
+                <Text className="text-white grow shrink">{item.user.url}</Text>
               </View>
             </Pressable>
           </Link>

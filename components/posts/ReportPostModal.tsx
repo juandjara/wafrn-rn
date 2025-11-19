@@ -93,7 +93,7 @@ export default function ReportPostModal({
                   severity === key ? 'bg-cyan-500/25' : 'bg-gray-700',
                 )}
               >
-                <Text className="text-white text-sm px-1 flex-grow flex-shrink">
+                <Text className="text-white text-sm px-1 grow shrink">
                   {REPORT_SEVERITY_LABELS[key]}
                 </Text>
               </Pressable>

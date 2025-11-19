@@ -242,7 +242,7 @@ export default function EditorCanvas({
             >
               <MaterialCommunityIcons name="undo" color="white" size={20} />
             </Pressable>
-            <View className="flex-grow"></View>
+            <View className="grow"></View>
             <Pressable
               className="bg-red-800 active:bg-red-700 p-2 my-2 rounded-md flex-row items-center gap-2"
               onPress={() => setOpen(false)}

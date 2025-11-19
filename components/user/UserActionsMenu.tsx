@@ -125,7 +125,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
             ) : (
               action.icon
             )}
-            <Text className="text-sm flex-grow">{action.name}</Text>
+            <Text className="text-sm grow">{action.name}</Text>
           </MenuOption>
         ))}
       </MenuOptions>

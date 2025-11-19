@@ -173,7 +173,7 @@ function renderElement(node: ElementNode, index: number, color?: string) {
   }
   if (node.name === 'br') {
     return (
-      <View key={index} className="flex-grow">
+      <View key={index} className="grow">
         {/* <Text className='bg-white'>BR</Text> */}
       </View>
     )

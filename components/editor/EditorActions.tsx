@@ -78,7 +78,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
       />
       <ScrollView
         contentContainerClassName="gap-3 mx-auto"
-        className="p-3 flex-shrink-0 flex-grow-0"
+        className="p-3 shrink-0 grow-0"
         keyboardShouldPersistTaps="always"
         horizontal
       >

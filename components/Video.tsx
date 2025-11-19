@@ -144,7 +144,7 @@ export default function Video({
               </View>
             </View>
             <View className="flex-row justify-between items-center">
-              <Text className="text-white flex-shrink">
+              <Text className="text-white shrink">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </Text>
               <View className="flex-row gap-4">

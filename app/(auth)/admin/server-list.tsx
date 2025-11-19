@@ -25,9 +25,7 @@ export default function ServerList() {
 
   const headerTitle = (
     <>
-      <Text className="text-white text-lg flex-grow flex-shrink">
-        Server list
-      </Text>
+      <Text className="text-white text-lg grow shrink">Server list</Text>
       <Pressable
         className="shrink-0 bg-black/30 rounded-full p-2"
         onPress={() => setShowSearch(true)}

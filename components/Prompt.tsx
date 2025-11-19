@@ -69,13 +69,13 @@ export default function Prompt({
           }}
         >
           <View className="p-4 pb-0 flex-row items-center justify-between">
-            <View className="flex-row flex-wrap flex-grow flex-shrink">
+            <View className="flex-row flex-wrap grow shrink">
               <Text className="text-white">{title}</Text>
               {message && (
                 <Text className="text-gray-300 text-sm mt-1">{message}</Text>
               )}
             </View>
-            <Pressable className="flex-shrink-0" onPress={handleClose}>
+            <Pressable className="shrink-0" onPress={handleClose}>
               <MaterialCommunityIcons name="close" size={24} color="white" />
             </Pressable>
           </View>

@@ -83,7 +83,7 @@ function AskList({ answered }: { answered: boolean }) {
             <Link href={`/post/${ask.postId}`} asChild>
               <Pressable
                 disabled={deleteAskMutation.isPending}
-                className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
+                className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg grow flex-row items-center gap-3"
               >
                 <MaterialCommunityIcons name="link" size={20} color="white" />
                 <Text className="text-white">See answer</Text>
@@ -94,7 +94,7 @@ function AskList({ answered }: { answered: boolean }) {
               <Link href={`/editor?type=ask&askId=${ask.id}`} asChild>
                 <Pressable
                   disabled={deleteAskMutation.isPending}
-                  className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
+                  className="bg-cyan-700/50 active:bg-cyan-700/75 px-3 py-2 rounded-lg grow flex-row items-center gap-3"
                 >
                   <MaterialCommunityIcons
                     name="pencil"
@@ -107,7 +107,7 @@ function AskList({ answered }: { answered: boolean }) {
               <Pressable
                 disabled={deleteAskMutation.isPending}
                 onPress={() => deleteAskMutation.mutate(ask.id)}
-                className="bg-red-700/50 active:bg-red-700/75 px-3 py-2 rounded-lg flex-grow flex-row items-center gap-3"
+                className="bg-red-700/50 active:bg-red-700/75 px-3 py-2 rounded-lg grow flex-row items-center gap-3"
               >
                 <MaterialIcons name="delete" size={20} color="white" />
                 <Text className="text-white">Delete</Text>

@@ -12,11 +12,11 @@ export default function ExpoUpdateToast({ toast }: { toast: Toast }) {
       style={{ width, backgroundColor: blue900 }}
       className="p-3 rounded-lg flex-row items-center gap-2"
     >
-      <Text className="text-white flex-grow flex-shrink">
+      <Text className="text-white grow shrink">
         New app update ready! Restart to apply.
       </Text>
       <Pressable
-        className="bg-white active:bg-gray-200 p-2 rounded-lg flex-shrink-0"
+        className="bg-white active:bg-gray-200 p-2 rounded-lg shrink-0"
         onPress={async () => {
           try {
             await reloadAsync()

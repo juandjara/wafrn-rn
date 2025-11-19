@@ -306,7 +306,7 @@ export default function Register() {
                         >
                           <MenuTrigger>
                             <View className="flex-row items-center gap-1 rounded p-3 border border-gray-600">
-                              <Text className="text-white flex-grow flex-shrink">
+                              <Text className="text-white grow shrink">
                                 {value}
                                 {!value && (
                                   <Text className="text-gray-400">
@@ -341,12 +341,12 @@ export default function Register() {
                                     padding: 16,
                                   }}
                                 >
-                                  <Text className="font-semibold flex-shrink flex-grow">
+                                  <Text className="font-semibold shrink grow">
                                     {gender}
                                   </Text>
                                   {value === gender && (
                                     <Ionicons
-                                      className="flex-shrink-0"
+                                      className="shrink-0"
                                       name="checkmark-sharp"
                                       color="black"
                                       size={24}

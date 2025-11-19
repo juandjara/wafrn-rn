@@ -54,7 +54,7 @@ export default function ColorPicker({
     >
       <View className="flex-1">
         <Pressable
-          className="bg-black/50 flex-grow"
+          className="bg-black/50 grow"
           onPress={() => setOpen(false)}
         />
         <View className="bg-indigo-950 p-2">
@@ -63,7 +63,7 @@ export default function ColorPicker({
           </Text>
           <ScrollView
             contentContainerClassName="gap-3"
-            className="flex-shrink-0 flex-grow-0 pt-2 pb-4"
+            className="shrink-0 grow-0 pt-2 pb-4"
             keyboardShouldPersistTaps="always"
             horizontal
           >
@@ -87,7 +87,7 @@ export default function ColorPicker({
           <Text className="text-white text-sm font-medium">Color hue</Text>
           <ScrollView
             contentContainerClassName="gap-3"
-            className="flex-shrink-0 flex-grow-0 pt-2 pb-4"
+            className="shrink-0 grow-0 pt-2 pb-4"
             keyboardShouldPersistTaps="always"
             horizontal
           >
