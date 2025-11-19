@@ -1,13 +1,12 @@
 import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   Text,
   useWindowDimensions,
   View,
   ScrollView,
+  Keyboard,
 } from 'react-native'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
@@ -32,14 +31,16 @@ import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import Header from '@/components/Header'
 import { Link } from 'expo-router'
 import {
-  Extrapolation,
-  interpolate,
   interpolateColor,
   useAnimatedRef,
   useAnimatedStyle,
   useScrollOffset,
 } from 'react-native-reanimated'
 import { Colors } from '@/constants/Colors'
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller'
 
 type FormState = {
   name: string
@@ -263,148 +264,151 @@ export default function EditProfile() {
           </Pressable>
         }
       />
-      <KeyboardAvoidingView
-        style={{ marginTop: sx.paddingTop }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAwareScrollView
+        ref={animatedRef}
+        bottomOffset={sx.paddingBottom + 16}
+        style={{
+          marginTop: sx.paddingTop,
+          marginBottom: sx.paddingBottom,
+          flexGrow: 0,
+        }}
+        contentContainerClassName="pb-6"
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          ref={animatedRef}
-          className="flex-grow-0"
-          contentContainerClassName="pb-6"
-          keyboardShouldPersistTaps="handled"
+        <Pressable
+          onPress={pickHeaderImage}
+          className="w-full bg-gray-800 border-b border-gray-500"
+          style={{ minHeight: headerImageHeight }}
         >
+          {headerImage ? (
+            <Image
+              source={headerImage}
+              contentFit="cover"
+              style={{ width: '100%', height: headerImageHeight }}
+            />
+          ) : null}
+          <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-3">
+            <MaterialCommunityIcons name="camera" size={24} color="white" />
+          </View>
+        </Pressable>
+        <View className="items-center my-4 rounded-md -mt-12">
           <Pressable
-            onPress={pickHeaderImage}
-            className="w-full bg-gray-800"
-            style={{ minHeight: headerImageHeight }}
+            className="relative bg-black rounded-lg border border-gray-500"
+            onPress={pickAvatar}
           >
-            {headerImage ? (
-              <Image
-                source={headerImage}
-                contentFit="cover"
-                style={{ width: '100%', height: headerImageHeight }}
-              />
-            ) : null}
+            <Image
+              style={{ width: 150, height: 150 }}
+              source={avatar}
+              className="rounded-lg"
+            />
             <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-3">
               <MaterialCommunityIcons name="camera" size={24} color="white" />
             </View>
           </Pressable>
-          <View className="items-center my-4 rounded-md -mt-12">
-            <Pressable
-              className="relative bg-black rounded-lg border border-gray-500"
-              onPress={pickAvatar}
-            >
-              <Image
-                style={{ width: 150, height: 150 }}
-                source={avatar}
-                className="rounded-lg"
-              />
-              <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-3">
-                <MaterialCommunityIcons name="camera" size={24} color="white" />
-              </View>
-            </Pressable>
-          </View>
-          <View className="m-4">
-            <Text className="text-white text-sm mx-1 mb-1">
-              Display name (can contain emojis)
+        </View>
+        <View className="m-4">
+          <Text className="text-white text-sm mx-1 mb-1">
+            Display name (can contain emojis)
+          </Text>
+          <TextInput
+            placeholder="Display name"
+            placeholderTextColorClassName="accent-gray-500"
+            value={form.name}
+            autoCorrect={false}
+            onChangeText={(value) => update('name', value)}
+            numberOfLines={1}
+            className="text-lg text-white rounded-md p-2 border border-gray-600"
+          />
+        </View>
+        <View className="m-2 my-4">
+          <Text className="text-white text-sm mx-2 mb-1">
+            Your bio/description (can contain emojis too)
+          </Text>
+          <EditorInput
+            {...mentionApi}
+            formState={{
+              tags: '',
+              content: form.content,
+              contentWarning: '',
+              contentWarningOpen: false,
+              medias: [],
+              privacy: PrivacyLevel.PUBLIC,
+            }}
+            updateFormState={update as any}
+            selection={selection}
+            mentionState={mentionApi.mentionState}
+            showTags={false}
+          />
+        </View>
+        <View className="m-4">
+          <Text className="text-white text-sm mb-2">
+            Custom fields{' '}
+            <Text className="text-gray-300 text-xs">
+              (only for the fediverse)
             </Text>
-            <TextInput
-              placeholder="Display name"
-              placeholderTextColorClassName="accent-gray-500"
-              value={form.name}
-              autoCorrect={false}
-              onChangeText={(value) => update('name', value)}
-              numberOfLines={1}
-              className="text-lg text-white rounded-md p-2 border border-gray-600"
-            />
-          </View>
-          <View className="m-2 my-4">
-            <Text className="text-white text-sm mx-2 mb-1">
-              Your bio/description (can contain emojis too)
-            </Text>
-            <EditorInput
-              {...mentionApi}
-              formState={{
-                tags: '',
-                content: form.content,
-                contentWarning: '',
-                contentWarningOpen: false,
-                medias: [],
-                privacy: PrivacyLevel.PUBLIC,
-              }}
-              updateFormState={update as any}
-              selection={selection}
-              mentionState={mentionApi.mentionState}
-              showTags={false}
-            />
-          </View>
-          <View className="m-4">
-            <Text className="text-white text-sm mb-2">
-              Custom fields{' '}
-              <Text className="text-gray-300 text-xs">
-                (only for the fediverse)
-              </Text>
-            </Text>
-            {customFields.map((o, index) => (
-              <View key={index} className="mb-4 rounded-md">
-                <View className="flex-row items-center gap-2 mb-3">
-                  <TextInput
-                    placeholder="custom field name"
-                    placeholderTextColorClassName="accent-gray-500"
-                    value={o.name}
-                    onChangeText={(value) =>
-                      updateCustomField(index, 'name', value)
-                    }
-                    numberOfLines={1}
-                    className="grow text-lg text-white rounded-md p-2 border border-gray-600"
-                  />
-                  <Pressable
-                    onPress={() =>
-                      setCustomFields((prev) =>
-                        prev.filter((_, i) => i !== index),
-                      )
-                    }
-                    className="bg-red-700/30 active:bg-red-700/50 rounded-md p-2"
-                  >
-                    <MaterialCommunityIcons
-                      name="close"
-                      size={24}
-                      color="white"
-                    />
-                  </Pressable>
-                </View>
+          </Text>
+          {customFields.map((o, index) => (
+            <View key={index} className="mb-6 rounded-md">
+              <View className="relative mb-2">
                 <TextInput
-                  placeholder="custom field value"
+                  placeholder="custom field name"
                   placeholderTextColorClassName="accent-gray-500"
-                  value={o.value}
+                  value={o.name}
                   onChangeText={(value) =>
-                    updateCustomField(index, 'value', value)
+                    updateCustomField(index, 'name', value)
                   }
                   numberOfLines={1}
-                  className="text-lg text-white rounded-md p-2 border border-gray-600"
+                  className="grow text-lg text-white rounded-md p-2 pr-12 border border-gray-600"
                 />
+                <Pressable
+                  onPress={() =>
+                    setCustomFields((prev) =>
+                      prev.filter((_, i) => i !== index),
+                    )
+                  }
+                  className="bg-red-700/30 active:bg-red-700/50 rounded-sm p-2 absolute top-1 right-1"
+                >
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={22}
+                    color="white"
+                  />
+                </Pressable>
               </View>
-            ))}
-            <View>
-              <Pressable
-                onPress={() =>
-                  setCustomFields((prev) => [...prev, { name: '', value: '' }])
+              <TextInput
+                placeholder="custom field value"
+                placeholderTextColorClassName="accent-gray-500"
+                value={o.value}
+                onChangeText={(value) =>
+                  updateCustomField(index, 'value', value)
                 }
-                className="w-48 flex-row items-center gap-3 py-1 px-2 bg-cyan-700/50 active:bg-cyan-700/75 rounded-xl"
-              >
-                <MaterialCommunityIcons name="plus" size={24} color="white" />
-                <Text className="text-white text-sm">Add custom field</Text>
-              </Pressable>
+                numberOfLines={1}
+                className="text-lg text-white rounded-md p-2 border border-gray-600"
+              />
             </View>
-          </View>
-          <Link href="/setting/options" asChild>
-            <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
-              <MaterialCommunityIcons name="cog" size={24} color="white" />
-              <Text className="text-white">More customization options</Text>
-            </Pressable>
-          </Link>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          ))}
+          <Pressable
+            onPress={() =>
+              setCustomFields((prev) => [...prev, { name: '', value: '' }])
+            }
+            className="flex-row items-center gap-3 mt-3 py-2 px-3 bg-cyan-700/50 active:bg-cyan-700/75 rounded-xl"
+          >
+            <MaterialCommunityIcons name="plus" size={24} color="white" />
+            <Text className="text-white text-sm">Add field</Text>
+          </Pressable>
+        </View>
+        <Link href="/setting/options" asChild>
+          <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
+            <MaterialCommunityIcons name="cog" size={24} color="white" />
+            <Text className="text-white">More customization options</Text>
+          </Pressable>
+        </Link>
+      </KeyboardAwareScrollView>
+      <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done text="OK" onPress={() => Keyboard.dismiss()} />
+      </KeyboardToolbar>
     </>
   )
 }
