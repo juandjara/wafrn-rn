@@ -95,7 +95,11 @@ export default function ZoomableImage({
 
   return (
     <View>
-      <Modal visible={modalOpen} onRequestClose={() => setModalOpen(false)}>
+      <Modal
+        transparent
+        visible={modalOpen}
+        onRequestClose={() => setModalOpen(false)}
+      >
         <Toasts />
         <Gallery
           initialIndex={0}
@@ -105,14 +109,13 @@ export default function ZoomableImage({
           onTap={() => setShowOverlay(!showOverlay)}
         />
         {showOverlay && (
-          <View
-            className="relative"
-            style={{
-              marginTop: sx.paddingTop,
-              marginBottom: sx.paddingBottom,
-            }}
-          >
-            <View className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end">
+          <>
+            <View
+              className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
+              style={{
+                marginTop: sx.paddingTop,
+              }}
+            >
               <Pressable
                 className="p-2 rounded-full active:bg-white/20"
                 onPress={download}
@@ -142,7 +145,7 @@ export default function ZoomableImage({
                 <Text className="text-white text-center">{alt}</Text>
               </ScrollView>
             </View>
-          </View>
+          </>
         )}
       </Modal>
       <Pressable className={className} onPress={() => setModalOpen(true)}>

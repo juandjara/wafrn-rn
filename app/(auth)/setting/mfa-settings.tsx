@@ -61,7 +61,7 @@ export default function MfaSettings() {
     mutationFn: async () => {
       if (qrCodeSvg && newMfa?.name) {
         const filename = `qr-${newMfa.name}.svg`
-        const file = new File(Paths.cache, 'WAFRN', filename)
+        const file = new File(Paths.cache, filename)
         file.write(qrCodeSvg)
         await saveFileToGallery(file.uri)
       }

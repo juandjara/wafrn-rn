@@ -74,7 +74,7 @@ export default function EditorCanvas({
     if (image) {
       const base64Uri = image.encodeToBase64(ImageFormat.WEBP, 50)
       const filename = `drawing-${Date.now()}.webp`
-      const file = new File(Paths.cache, 'WAFRN', filename)
+      const file = new File(Paths.cache, filename)
       file.write(base64Uri, { encoding: 'base64' })
       console.log('Writing image to', file.uri)
       addImage({
