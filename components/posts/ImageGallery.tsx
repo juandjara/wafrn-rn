@@ -2,18 +2,18 @@ import { useMemo, useState } from 'react'
 import { Image } from 'expo-image'
 import {
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  ActivityIndicator,
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { extensionFromMimeType } from '@/lib/api/media'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { downloadFile, saveFileToGallery } from '@/lib/downloads'
+import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import {
   formatCachedUrl,
@@ -23,7 +23,6 @@ import {
 import Loading from '../Loading'
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
-import { useToasts } from '@/lib/toasts'
 
 const ImageRenderer = ({
   item,
@@ -65,10 +64,10 @@ export default function ImageGallery({
   index: number
 }) {
   const sx = useSafeAreaPadding()
-  const { showToastSuccess, showToastError } = useToasts()
   const [showOverlay, setShowOverlay] = useState(true)
   const [_index, setIndex] = useState(index)
   const media = medias[_index]
+  const downloadMutation = useDownloadToGalleryMutation()
 
   function getImageMime(media: PostMedia) {
     const isExternalGIF = isTenorLink(media.url) || isGiphyLink(media.url)
@@ -79,7 +78,7 @@ export default function ImageGallery({
     return formatCachedUrl(formatMediaUrl(media.url))
   }
 
-  async function download(media: PostMedia) {
+  function download(media: PostMedia) {
     const src = getImageSrc(media)
     const mimeType = getImageMime(media)
     let name = unfurlCacheUrl(src).split('/').pop() || ''
@@ -90,21 +89,11 @@ export default function ImageGallery({
         name = `${name}.${ext}`
       }
     }
-
-    try {
-      const localUri = await downloadFile(src, name)
-      await saveFileToGallery(localUri)
-      showToastSuccess('File downloaded to your gallery')
-    } catch (error) {
-      console.error('Error downloading file:', error)
-      showToastError('Failed to download file')
-    }
+    downloadMutation.mutate({
+      url: src,
+      filename: name,
+    })
   }
-
-  const pt = Platform.select({
-    ios: sx.paddingTop + 8,
-    android: 8,
-  })
 
   const data = useMemo(() => {
     return medias.map((media) => ({
@@ -115,18 +104,22 @@ export default function ImageGallery({
   }, [medias])
 
   return (
-    <Modal style={sx} visible={open} onRequestClose={() => setOpen(false)}>
+    <Modal visible={open} onRequestClose={() => setOpen(false)}>
       <Toasts />
       {showOverlay && (
         <View
-          style={{ paddingTop: pt, backgroundColor: 'rgba(0,0,0,0.5)' }}
-          className="absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
+          style={{ paddingTop: sx.paddingTop }}
+          className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
         >
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
             onPress={() => download(media)}
           >
-            <MaterialIcons name="download" size={24} color="white" />
+            {downloadMutation.isPending ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <MaterialIcons name="download" size={24} color="white" />
+            )}
           </Pressable>
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
@@ -155,7 +148,9 @@ export default function ImageGallery({
           className="absolute z-10 bottom-0 left-0 right-0 pt-2 px-3"
         >
           <ScrollView>
-            <Text className="text-white text-center">{media.description}</Text>
+            <Text className="text-white text-center">
+              {media.description || 'No alt text'}
+            </Text>
           </ScrollView>
         </View>
       )}

@@ -25,6 +25,7 @@ import { setStringAsync } from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { useToasts } from '@/lib/toasts'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
+import { useMutation } from '@tanstack/react-query'
 
 export default function MfaSettings() {
   const sx = useSafeAreaPadding()
@@ -35,7 +36,7 @@ export default function MfaSettings() {
   const createMutation = useCreateMfaMutation()
   const verifyMutation = useVerifyMfaMutation()
   const deleteMutation = useDeleteMfaMutation()
-  const { showToastSuccess } = useToasts()
+  const { showToastSuccess, showToastError } = useToasts()
 
   const newMfa = createMutation.data
   const canCreate = createMutation.status === 'idle' && !!name
@@ -55,21 +56,22 @@ export default function MfaSettings() {
     return null
   }, [qrCodeSvg])
 
-  async function downloadQrCode() {
-    if (qrCodeSvg) {
-      try {
-        const filename = `qr-${newMfa!.name}.svg`
+  const downloadMutation = useMutation({
+    mutationKey: ['download-qr'],
+    mutationFn: async () => {
+      if (qrCodeSvg && newMfa?.name) {
+        const filename = `qr-${newMfa.name}.svg`
         const file = new File(Paths.cache, 'WAFRN', filename)
         file.write(qrCodeSvg)
         await saveFileToGallery(file.uri)
-        showToastSuccess('QR code downloaded')
-      } catch (error) {
-        console.error('Error downloading QR code', error)
       }
-    } else {
-      console.error('No QR code found')
-    }
-  }
+    },
+    onSuccess: () => showToastSuccess('QR code downloaded to your gallery'),
+    onError: (error) => {
+      console.error('Error downloading QR code', error)
+      showToastError('Failed to download QR code')
+    },
+  })
 
   function createMfa() {
     createMutation.mutate({ type: 'totp', name })
@@ -170,14 +172,22 @@ export default function MfaSettings() {
               )}
               <Pressable
                 className="bg-cyan-800 active:bg-cyan-700 px-4 py-2 rounded-lg flex-row justify-center items-center gap-2 my-2"
-                onPress={downloadQrCode}
+                onPress={() => downloadMutation.mutate()}
               >
-                <MaterialCommunityIcons
-                  name="download"
-                  size={20}
-                  color="white"
-                />
-                <Text className="text-white">Download QR code</Text>
+                {downloadMutation.isPending ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <MaterialCommunityIcons
+                    name="download"
+                    size={20}
+                    color="white"
+                  />
+                )}
+                <Text className="text-white">
+                  {downloadMutation.isPending
+                    ? 'Downloading...'
+                    : 'Download QR code'}
+                </Text>
               </Pressable>
               <Pressable
                 className="bg-cyan-800 active:bg-cyan-700 px-4 py-2 rounded-lg flex-row justify-center items-center gap-2 my-2"
@@ -211,7 +221,7 @@ export default function MfaSettings() {
                 disabled={!canVerify}
                 onPress={verifyMfa}
                 className={clsx(
-                  'absolute top-0.5 right-0.5 mt-px px-4 py-2 rounded-md flex-row items-center gap-2',
+                  'absolute top-0.5 right-0.5 mt-[3px] mr-[3px] px-4 py-2 rounded-md flex-row items-center gap-2',
                   {
                     'bg-gray-400/25 opacity-50': !canVerify,
                     'bg-cyan-800 active:bg-cyan-700': canVerify,
@@ -253,7 +263,7 @@ export default function MfaSettings() {
                 disabled={!canCreate}
                 onPress={createMfa}
                 className={clsx(
-                  'absolute top-1 right-1 px-4 py-2 mt-px rounded-md flex-row items-center gap-2',
+                  'absolute top-1 right-1 mr-px px-4 py-2 mt-px rounded-md flex-row items-center gap-2',
                   {
                     'bg-gray-400/25 opacity-50': !canCreate,
                     'bg-cyan-800 active:bg-cyan-700': canCreate,

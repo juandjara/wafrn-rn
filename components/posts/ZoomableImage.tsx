@@ -2,24 +2,23 @@ import { useState } from 'react'
 import { Image, ImageStyle } from 'expo-image'
 import {
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
   ViewStyle,
+  ActivityIndicator,
 } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { extensionFromMimeType } from '@/lib/api/media'
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { downloadFile, saveFileToGallery } from '@/lib/downloads'
+import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { unfurlCacheUrl } from '@/lib/formatters'
 import Loading from '../Loading'
 import { useResolveClassNames } from 'uniwind'
-import { useToasts } from '@/lib/toasts'
 
 const ImageRenderer = ({
   item,
@@ -77,13 +76,9 @@ export default function ZoomableImage({
   const sx = useSafeAreaPadding()
   const [modalOpen, setModalOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(true)
-  const { showToastSuccess, showToastError } = useToasts()
+  const downloadMutation = useDownloadToGalleryMutation()
 
-  const pt = Platform.select({
-    ios: sx.paddingTop + 8,
-  })
-
-  async function download() {
+  function download() {
     let name = unfurlCacheUrl(src).split('/').pop() || ''
     if (name?.startsWith('?cid=')) {
       name = name.replace('?cid=', '')
@@ -92,40 +87,16 @@ export default function ZoomableImage({
         name = `${name}.${ext}`
       }
     }
-
-    try {
-      const localUri = await downloadFile(src, name)
-      await saveFileToGallery(localUri)
-      showToastSuccess('File downloaded to your gallery')
-    } catch (error) {
-      console.error('Error downloading file:', error)
-      showToastError('Failed to download file')
-    }
+    downloadMutation.mutate({
+      url: src,
+      filename: name,
+    })
   }
 
   return (
     <View>
       <Modal visible={modalOpen} onRequestClose={() => setModalOpen(false)}>
         <Toasts />
-        {showOverlay && (
-          <View
-            style={{ paddingTop: pt || 8, backgroundColor: 'rgba(0,0,0,0.5)' }}
-            className="absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
-          >
-            <Pressable
-              className="p-2 rounded-full active:bg-white/20"
-              onPress={download}
-            >
-              <MaterialIcons name="download" size={24} color="white" />
-            </Pressable>
-            <Pressable
-              className="p-2 rounded-full active:bg-white/20"
-              onPress={() => setModalOpen(false)}
-            >
-              <MaterialIcons name="close" size={24} color="white" />
-            </Pressable>
-          </View>
-        )}
         <Gallery
           initialIndex={0}
           data={[{ src, blurHash }]}
@@ -135,16 +106,42 @@ export default function ZoomableImage({
         />
         {showOverlay && (
           <View
+            className="relative"
             style={{
-              maxHeight: '50%',
-              paddingBottom: sx.paddingBottom + 4,
-              backgroundColor: 'rgba(0,0,0,0.5)',
+              marginTop: sx.paddingTop,
+              marginBottom: sx.paddingBottom,
             }}
-            className="absolute z-10 bottom-0 left-0 right-0 pt-2 px-3"
           >
-            <ScrollView>
-              <Text className="text-white text-center">{alt}</Text>
-            </ScrollView>
+            <View className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end">
+              <Pressable
+                className="p-2 rounded-full active:bg-white/20"
+                onPress={download}
+              >
+                {downloadMutation.isPending ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <MaterialIcons name="download" size={24} color="white" />
+                )}
+              </Pressable>
+              <Pressable
+                className="p-2 rounded-full active:bg-white/20"
+                onPress={() => setModalOpen(false)}
+              >
+                <MaterialIcons name="close" size={24} color="white" />
+              </Pressable>
+            </View>
+            <View
+              style={{
+                maxHeight: '50%',
+                paddingBottom: sx.paddingBottom + 4,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+              }}
+              className="absolute z-10 bottom-0 left-0 right-0 pt-2 px-3"
+            >
+              <ScrollView>
+                <Text className="text-white text-center">{alt}</Text>
+              </ScrollView>
+            </View>
           </View>
         )}
       </Modal>
