@@ -23,6 +23,7 @@ import {
 } from '@/lib/api/settings'
 import { Link } from 'expo-router'
 import { useCSSVariable } from 'uniwind'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 type GifMediaFormat = {
   dims: number[]
@@ -199,6 +200,9 @@ export default function GifSearch({
                 style={{ width: '100%', aspectRatio: 1, borderRadius: 12 }}
               />
             </TouchableOpacity>
+          )}
+          renderScrollComponent={(props) => (
+            <KeyboardAwareScrollView {...props} />
           )}
         />
       </View>
