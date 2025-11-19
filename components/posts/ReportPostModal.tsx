@@ -13,9 +13,7 @@ import { clsx } from 'clsx'
 import { useState } from 'react'
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   Text,

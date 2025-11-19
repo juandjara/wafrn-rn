@@ -2,9 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   Switch,

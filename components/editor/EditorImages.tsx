@@ -24,8 +24,6 @@ import { formatUserUrl } from '@/lib/formatters'
 import { EditorImage } from '@/lib/editor'
 import { useCSSVariable, useResolveClassNames } from 'uniwind'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { KeyboardAvoidingView } from 'react-native'
-import { Platform } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 const COMMON_MEDIA_LIMIT = 4
