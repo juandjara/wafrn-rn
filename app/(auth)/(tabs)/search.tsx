@@ -15,11 +15,6 @@ import { detectSearchType, SearchType } from '@/lib/api/search'
 import SearchResultsUsers from '@/components/search/SearchResultsUsers'
 import SearchResultsPosts from '@/components/search/SearchResultsPosts'
 import { useCSSVariable } from 'uniwind'
-import {
-  KeyboardAvoidingView,
-  KeyboardAwareScrollView,
-} from 'react-native-keyboard-controller'
-import { HEADER_HEIGHT } from '@/components/Header'
 
 const HISTORY_LIMIT = 20
 
