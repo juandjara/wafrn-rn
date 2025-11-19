@@ -593,13 +593,14 @@ export default function Options() {
             onPress={() => update('hideProfileNotLoggedIn', (prev) => !prev)}
             className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
           >
-            <View className="flex-grow flex-shrink">
+            <View className="grow shrink">
               <Text className="text-white text-base leading-6 flex-1">
                 Hide my profile in search and to not logged in users in web
               </Text>
               <Text className="text-gray-300 text-sm mt-2 flex-1">
                 This will only affect this wafrn server, people can still see
-                your profile from other servers or from bluesky
+                your profile from other servers or from bluesky, but link
+                previews will be hidden.
               </Text>
             </View>
             <Switch

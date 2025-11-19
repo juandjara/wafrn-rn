@@ -54,11 +54,11 @@ export default function PrivacySelect({
       >
         <View
           className={clsx(
-            className,
             'flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600',
             {
               'opacity-50 pointer-events-none': disabled,
             },
+            className,
           )}
         >
           <MaterialCommunityIcons
