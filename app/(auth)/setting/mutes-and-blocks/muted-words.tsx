@@ -17,7 +17,6 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
   Button,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -26,6 +25,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useCSSVariable } from 'uniwind'
 
 const DEFAULT_BLOCK = {
@@ -145,63 +145,59 @@ export default function MutedWords() {
         title={title}
         right={isEditMode ? renderSaveButton() : undefined}
       />
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingBottom: sx.paddingBottom + 20,
+        }}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            paddingTop: 12,
-            paddingBottom: sx.paddingBottom + 20,
-          }}
-        >
-          {isEditMode ? (
-            <MutedWordForm form={form} setForm={setForm} />
-          ) : (
-            <View className="p-4">
-              <View className="flex-row justify-between items-center gap-2 mb-2">
-                <Text className="text-white text-sm px-1">
-                  {blocks.length} mute {pluralize(blocks.length, 'block')}
-                </Text>
-                <Pressable
-                  onPress={handleDeleteAll}
-                  className="flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2"
-                >
-                  <Text className="text-indigo-300 text-sm">Delete all</Text>
-                  <MaterialCommunityIcons
-                    name="delete-outline"
-                    size={20}
-                    color={indigo400}
-                  />
-                </Pressable>
-              </View>
-              <View className="gap-4">
-                {blocks.map((b, index) => (
-                  <MutedWordListItem
-                    key={b.words}
-                    index={index}
-                    block={b}
-                    onDelete={() => handleDelete(b)}
-                    isLoading={editMutation.isPending}
-                  />
-                ))}
-              </View>
-              <View className="mt-6">
-                <Button
-                  disabled={editMutation.isPending}
-                  title={editMutation.isPending ? 'Loading...' : 'Add mute'}
-                  onPress={() => {
-                    router.navigate(
-                      `/setting/mutes-and-blocks/muted-words?edit=new`,
-                    )
-                  }}
+        {isEditMode ? (
+          <MutedWordForm form={form} setForm={setForm} />
+        ) : (
+          <View className="p-4">
+            <View className="flex-row justify-between items-center gap-2 mb-2">
+              <Text className="text-white text-sm px-1">
+                {blocks.length} mute {pluralize(blocks.length, 'block')}
+              </Text>
+              <Pressable
+                onPress={handleDeleteAll}
+                className="flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2"
+              >
+                <Text className="text-indigo-300 text-sm">Delete all</Text>
+                <MaterialCommunityIcons
+                  name="delete-outline"
+                  size={20}
+                  color={indigo400}
                 />
-              </View>
+              </Pressable>
             </View>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+            <View className="gap-4">
+              {blocks.map((b, index) => (
+                <MutedWordListItem
+                  key={b.words}
+                  index={index}
+                  block={b}
+                  onDelete={() => handleDelete(b)}
+                  isLoading={editMutation.isPending}
+                />
+              ))}
+            </View>
+            <View className="mt-6">
+              <Button
+                disabled={editMutation.isPending}
+                title={editMutation.isPending ? 'Loading...' : 'Add mute'}
+                onPress={() => {
+                  router.navigate(
+                    `/setting/mutes-and-blocks/muted-words?edit=new`,
+                  )
+                }}
+              />
+            </View>
+          </View>
+        )}
+      </KeyboardAwareScrollView>
     </View>
   )
 }
