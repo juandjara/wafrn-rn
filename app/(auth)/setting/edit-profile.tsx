@@ -31,6 +31,15 @@ import { clsx } from 'clsx'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import Header from '@/components/Header'
 import { Link } from 'expo-router'
+import {
+  Extrapolation,
+  interpolate,
+  interpolateColor,
+  useAnimatedRef,
+  useAnimatedStyle,
+  useScrollOffset,
+} from 'react-native-reanimated'
+import { Colors } from '@/constants/Colors'
 
 type FormState = {
   name: string
@@ -38,10 +47,22 @@ type FormState = {
 }
 
 export default function EditProfile() {
+  const sx = useSafeAreaPadding()
   const { data: me } = useCurrentUser()
   const { data: settings } = useSettings()
   const { width } = useWindowDimensions()
-  const sx = useSafeAreaPadding()
+  const headerImageHeight = width / 2
+
+  const animatedRef = useAnimatedRef<ScrollView>()
+  const offset = useScrollOffset(animatedRef)
+  const headerStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      offset.value,
+      [0, headerImageHeight * 1.5],
+      ['transparent', Colors.dark.background],
+    ),
+  }))
+
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [form, setForm] = useState<FormState>({
     name: me?.name || '',
@@ -216,8 +237,8 @@ export default function EditProfile() {
   return (
     <>
       <Header
-        transparent
         title="Edit Profile"
+        style={headerStyle}
         right={
           <Pressable
             onPress={onSubmit}
@@ -247,6 +268,7 @@ export default function EditProfile() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
+          ref={animatedRef}
           className="flex-grow-0"
           contentContainerClassName="pb-6"
           keyboardShouldPersistTaps="handled"
@@ -254,13 +276,13 @@ export default function EditProfile() {
           <Pressable
             onPress={pickHeaderImage}
             className="w-full bg-gray-800"
-            style={{ minHeight: width * 0.5 }}
+            style={{ minHeight: headerImageHeight }}
           >
             {headerImage ? (
               <Image
                 source={headerImage}
                 contentFit="cover"
-                style={{ width: '100%', height: width * 0.5 }}
+                style={{ width: '100%', height: headerImageHeight }}
               />
             ) : null}
             <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-3">

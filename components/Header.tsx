@@ -1,9 +1,9 @@
-import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { router } from 'expo-router'
 import { View, Text, Pressable, ViewStyle } from 'react-native'
+import Animated from 'react-native-reanimated'
 
 export const HEADER_HEIGHT = 64
 
@@ -23,16 +23,13 @@ export default function Header({
   const sx = useSafeAreaPadding()
 
   return (
-    <View
-      className={clsx(
-        'absolute right-0 left-0 z-10 px-3 py-2 flex-row gap-3 items-center',
-        // !transparent && 'border-b border-gray-700',
-      )}
+    <Animated.View
+      className="absolute right-0 left-0 z-10 px-3 py-2 flex-row gap-3 items-center"
       style={[
         {
           minHeight: HEADER_HEIGHT,
           marginTop: sx.paddingTop,
-          backgroundColor: transparent ? 'transparent' : Colors.dark.background,
+          // backgroundColor: transparent ? 'transparent' : Colors.dark.background,
         },
         style,
       ]}
@@ -55,6 +52,6 @@ export default function Header({
         )}
       </View>
       {right}
-    </View>
+    </Animated.View>
   )
 }
