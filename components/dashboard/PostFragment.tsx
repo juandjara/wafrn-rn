@@ -188,7 +188,7 @@ export default function PostFragment({
   return (
     <Pressable
       className={clsx('px-3 bg-indigo-950 relative', {
-        'rounded-lg': isQuote,
+        'rounded-xl': isQuote,
       })}
       onLongPress={collapsePost}
       {...rootProps}
