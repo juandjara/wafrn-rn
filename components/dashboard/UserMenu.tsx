@@ -1,31 +1,24 @@
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
 import { router } from 'expo-router'
-import { Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import { Text, TouchableOpacity, View, Pressable } from 'react-native'
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
-import { optionStyle, optionStyleBig } from '@/lib/styles'
+import { optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useRef } from 'react'
 import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
+import { TrueSheet } from '@lodev09/react-native-true-sheet'
+import ScrollingBottomShhet from '../ScrollingBottomSheet'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
-  const sx = useSafeAreaPadding()
-  const menuRef = useRef<Menu>(null)
+  const sheetRef = useRef<TrueSheet>(null)
 
   // TODO: remove this, find a way in backend to get avatars only without fetching the full user
   const { accounts, loading, selectAccount } = useAccounts()
@@ -91,22 +84,15 @@ export default function UserMenu() {
 
   function navAndClose(href: string) {
     router.navigate(href)
-    menuRef.current?.close()
+    sheetRef.current?.dismiss()
   }
 
   return (
-    <Menu ref={menuRef} renderer={renderers.SlideInMenu}>
-      <MenuTrigger
-        customStyles={{
-          TriggerTouchableComponent: TouchableOpacity,
-          triggerTouchable: {
-            accessibilityLabel: 'Main menu',
-          },
-          triggerWrapper: {
-            position: 'relative',
-            marginTop: 4,
-          },
-        }}
+    <>
+      <TouchableOpacity
+        className="relative mt-1"
+        accessibilityLabel="Main Menu"
+        onPress={() => sheetRef.current?.present()}
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
@@ -124,17 +110,12 @@ export default function UserMenu() {
             {me?.url.substring(0, 1)}
           </Text>
         )}
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          OptionTouchableComponent: TouchableHighlight,
-          optionsContainer: {
-            paddingBottom: sx.paddingBottom,
-            borderRadius: 16,
-          },
-        }}
-      >
-        <MenuOption onSelect={() => router.navigate(`/user/${me?.url}`)}>
+      </TouchableOpacity>
+      <ScrollingBottomShhet sheetRef={sheetRef}>
+        <Pressable
+          className="active:bg-gray-300/75 transition-colors"
+          onPress={() => navAndClose(`/user/${me?.url}`)}
+        >
           <View className="flex-row px-2 mb-2 gap-2 items-start">
             <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
@@ -193,7 +174,7 @@ export default function UserMenu() {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ ...optionStyle(0), gap: 16 }}>
+          <View style={{ ...optionStyleBig(0) }}>
             <MaterialCommunityIcons
               name="account-outline"
               color={gray600}
@@ -201,12 +182,16 @@ export default function UserMenu() {
             />
             <Text className="text-sm grow">My profile</Text>
           </View>
-        </MenuOption>
+        </Pressable>
         {menuOptions.map((option, i) => (
-          <MenuOption
+          <Pressable
             key={i}
-            onSelect={option.action}
-            style={{ ...optionStyleBig(i + 1) }}
+            onPress={() => {
+              sheetRef.current?.dismiss()
+              option.action()
+            }}
+            className="active:bg-gray-300/75 transition-colors"
+            style={optionStyleBig(i + 1)}
           >
             {typeof option.icon === 'string' ? (
               <MaterialCommunityIcons
@@ -223,9 +208,9 @@ export default function UserMenu() {
                 {option.badge}
               </Text>
             ) : null}
-          </MenuOption>
+          </Pressable>
         ))}
-      </MenuOptions>
-    </Menu>
+      </ScrollingBottomShhet>
+    </>
   )
 }

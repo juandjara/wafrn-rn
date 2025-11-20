@@ -8,24 +8,15 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Pressable,
-  ScrollView,
   Share,
   Text,
-  TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
 import EmojiPicker, { Emoji } from '../EmojiPicker'
 import { optionStyleBig } from '@/lib/styles'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
@@ -49,9 +40,10 @@ import { toggleCollapsed, usePostLayout } from '@/lib/store'
 import { BSKY_URL } from '@/lib/api/html'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useCSSVariable } from 'uniwind'
 import { useToasts } from '@/lib/toasts'
+import { TrueSheet } from '@lodev09/react-native-true-sheet'
+import ScrollingBottomShhet from '../ScrollingBottomSheet'
 
 export default function InteractionRibbon({
   post,
@@ -64,7 +56,6 @@ export default function InteractionRibbon({
   const red500 = useCSSVariable('--color-red-500') as string
   const gray300 = useCSSVariable('--color-gray-300') as string
 
-  const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
   const me = useParsedToken()
   const { env } = useAuth()
@@ -396,6 +387,8 @@ export default function InteractionRibbon({
     silenceMutation,
   ])
 
+  const sheetRef = useRef<TrueSheet>(null)
+
   function onPickEmoji(emoji: Emoji) {
     setEmojiPickerOpen(false)
 
@@ -431,51 +424,37 @@ export default function InteractionRibbon({
             />
           </View>
         )}
-        <Menu renderer={renderers.SlideInMenu}>
-          <MenuTrigger
-            customStyles={{
-              TriggerTouchableComponent: TouchableOpacity,
-              triggerWrapper: {
-                paddingHorizontal: 8,
-                paddingVertical: 12,
-              },
-            }}
-          >
-            <MaterialCommunityIcons
-              size={20}
-              name={`dots-${orientation}`}
-              color={gray300}
-              style={{ opacity: 0.75 }}
-            />
-          </MenuTrigger>
-          <MenuOptions
-            customStyles={{
-              OptionTouchableComponent: TouchableHighlight,
-              optionsContainer: {
-                paddingBottom: sx.paddingBottom,
-                borderRadius: 16,
-                maxHeight: '50%',
-              },
-            }}
-          >
-            <ScrollView fadingEdgeLength={50}>
-              {secondaryOptions.map((option, i) => (
-                <MenuOption
-                  key={i}
-                  value={option.label}
-                  style={{
-                    ...optionStyleBig(i),
-                    opacity: option.disabled ? 0.75 : 1,
-                  }}
-                  onSelect={option.action}
-                >
-                  {option.icon}
-                  <Text className="text-sm grow">{option.label}</Text>
-                </MenuOption>
-              ))}
-            </ScrollView>
-          </MenuOptions>
-        </Menu>
+        <TouchableOpacity
+          onPress={() => sheetRef.current?.present()}
+          className="py-3 px-2 rounded-lg"
+        >
+          <MaterialCommunityIcons
+            size={20}
+            name={`dots-vertical`}
+            color={gray300}
+            style={{ opacity: 0.75 }}
+          />
+        </TouchableOpacity>
+        <ScrollingBottomShhet sheetRef={sheetRef}>
+          {secondaryOptions.map((option, i) => (
+            <Pressable
+              key={i}
+              disabled={option.disabled}
+              onPress={() => {
+                sheetRef.current?.dismiss()
+                option.action()
+              }}
+              className="active:bg-gray-300/75 transition-colors"
+              style={{
+                ...optionStyleBig(i),
+                opacity: option.disabled ? 0.75 : 1,
+              }}
+            >
+              {option.icon}
+              <Text className="text-sm grow">{option.label}</Text>
+            </Pressable>
+          ))}
+        </ScrollingBottomShhet>
       </>
     )
   }

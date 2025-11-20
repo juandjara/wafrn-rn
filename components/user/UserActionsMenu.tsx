@@ -6,33 +6,30 @@ import {
 import { User } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { useBiteUserMutation } from '@/lib/interaction'
-import { optionStyle } from '@/lib/styles'
+import { optionStyleBig } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
-import { useMemo } from 'react'
-import { Text, Share, TouchableHighlight } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import { TrueSheet } from '@lodev09/react-native-true-sheet'
+import { useMemo, useRef } from 'react'
+import { Text, Share, TouchableOpacity, Pressable } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSVariable('--color-gray-400') as string
   const gray500 = useCSSVariable('--color-gray-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
-  const sx = useSafeAreaPadding()
+
   const { env } = useAuth()
+  const sx = useSafeAreaPadding()
+  const sheetRef = useRef<TrueSheet>(null)
+
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const muteMutation = useMuteMutation(user)
   const blockMutation = useBlockMutation(user)
   const serverBlockMutation = useServerBlockMutation(user)
   const biteMutation = useBiteUserMutation()
-  const actions = useMemo(
+  const options = useMemo(
     () => [
       {
         name: 'Share user',
@@ -81,8 +78,9 @@ export default function UserActionsMenu({ user }: { user: User }) {
   )
 
   return (
-    <Menu renderer={renderers.SlideInMenu}>
-      <MenuTrigger
+    <>
+      <TouchableOpacity
+        onPress={() => sheetRef.current?.present()}
         style={{
           padding: 6,
           backgroundColor: `${gray500}20`,
@@ -90,45 +88,49 @@ export default function UserActionsMenu({ user }: { user: User }) {
         }}
       >
         <MaterialCommunityIcons
-          size={24}
+          size={20}
           name={`dots-vertical`}
           color={gray400}
+          style={{ opacity: 0.75 }}
         />
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          OptionTouchableComponent: TouchableHighlight,
-          optionsContainer: {
-            paddingBottom: sx.paddingBottom,
-            borderRadius: 16,
-          },
+      </TouchableOpacity>
+      <TrueSheet
+        ref={sheetRef}
+        edgeToEdge
+        cornerRadius={16}
+        sizes={['auto']}
+        contentContainerStyle={{
+          paddingTop: 16,
+          paddingBottom: sx.paddingBottom,
         }}
       >
-        {actions.map((action, i) => (
-          <MenuOption
+        {options.map((option, i) => (
+          <Pressable
             key={i}
-            disabled={action.disabled}
-            style={{
-              ...optionStyle(i),
-              padding: 16,
-              gap: 16,
-              opacity: action.disabled ? 0.5 : 1,
+            disabled={option.disabled}
+            onPress={() => {
+              sheetRef.current?.dismiss()
+              option.action()
             }}
-            onSelect={action.action}
+            className="active:bg-gray-300/75 transition-colors"
+            style={{
+              ...optionStyleBig(i),
+              opacity: option.disabled ? 0.5 : 1,
+            }}
           >
-            {typeof action.icon === 'string' ? (
+            {typeof option.icon === 'string' ? (
               <MaterialCommunityIcons
-                name={action.icon}
+                name={option.icon}
                 size={20}
                 color={gray600}
               />
             ) : (
-              action.icon
+              option.icon
             )}
-            <Text className="text-sm grow">{action.name}</Text>
-          </MenuOption>
+            <Text className="text-sm grow">{option.name}</Text>
+          </Pressable>
         ))}
-      </MenuOptions>
-    </Menu>
+      </TrueSheet>
+    </>
   )
 }
