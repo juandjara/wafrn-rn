@@ -44,6 +44,7 @@ import { useCSSVariable } from 'uniwind'
 import { useToasts } from '@/lib/toasts'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import ScrollingBottomShhet from '../ScrollingBottomSheet'
+import MenuItem from '../MenuItem'
 
 export default function InteractionRibbon({
   post,
@@ -437,22 +438,15 @@ export default function InteractionRibbon({
         </TouchableOpacity>
         <ScrollingBottomShhet sheetRef={sheetRef}>
           {secondaryOptions.map((option, i) => (
-            <Pressable
+            <MenuItem
               key={i}
+              label={option.label}
+              action={option.action}
+              icon={option.icon}
+              sheetRef={sheetRef}
               disabled={option.disabled}
-              onPress={() => {
-                sheetRef.current?.dismiss()
-                option.action()
-              }}
-              className="active:bg-gray-300/75 transition-colors"
-              style={{
-                ...optionStyleBig(i),
-                opacity: option.disabled ? 0.75 : 1,
-              }}
-            >
-              {option.icon}
-              <Text className="text-sm grow">{option.label}</Text>
-            </Pressable>
+              style={optionStyleBig(i)}
+            />
           ))}
         </ScrollingBottomShhet>
       </>

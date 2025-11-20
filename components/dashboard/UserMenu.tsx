@@ -13,6 +13,7 @@ import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import ScrollingBottomShhet from '../ScrollingBottomSheet'
+import MenuItem from '../MenuItem'
 
 export default function UserMenu() {
   const { data: me } = useCurrentUser()
@@ -184,31 +185,15 @@ export default function UserMenu() {
           </View>
         </Pressable>
         {menuOptions.map((option, i) => (
-          <Pressable
+          <MenuItem
             key={i}
-            onPress={() => {
-              sheetRef.current?.dismiss()
-              option.action()
-            }}
-            className="active:bg-gray-300/75 transition-colors"
+            label={option.label}
+            action={option.action}
+            icon={option.icon}
+            sheetRef={sheetRef}
+            badge={option.badge}
             style={optionStyleBig(i + 1)}
-          >
-            {typeof option.icon === 'string' ? (
-              <MaterialCommunityIcons
-                name={option.icon}
-                color={gray600}
-                size={20}
-              />
-            ) : (
-              option.icon
-            )}
-            <Text className="text-sm grow">{option.label}</Text>
-            {option.badge ? (
-              <Text className="text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
-                {option.badge}
-              </Text>
-            ) : null}
-          </Pressable>
+          />
         ))}
       </ScrollingBottomShhet>
     </>

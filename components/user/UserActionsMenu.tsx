@@ -11,8 +11,9 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { useMemo, useRef } from 'react'
-import { Text, Share, TouchableOpacity, Pressable } from 'react-native'
+import { Share, TouchableOpacity } from 'react-native'
 import { useCSSVariable } from 'uniwind'
+import MenuItem from '../MenuItem'
 
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSVariable('--color-gray-400') as string
@@ -105,30 +106,15 @@ export default function UserActionsMenu({ user }: { user: User }) {
         }}
       >
         {options.map((option, i) => (
-          <Pressable
+          <MenuItem
             key={i}
+            label={option.name}
+            action={option.action}
+            icon={option.icon}
             disabled={option.disabled}
-            onPress={() => {
-              sheetRef.current?.dismiss()
-              option.action()
-            }}
-            className="active:bg-gray-300/75 transition-colors"
-            style={{
-              ...optionStyleBig(i),
-              opacity: option.disabled ? 0.5 : 1,
-            }}
-          >
-            {typeof option.icon === 'string' ? (
-              <MaterialCommunityIcons
-                name={option.icon}
-                size={20}
-                color={gray600}
-              />
-            ) : (
-              option.icon
-            )}
-            <Text className="text-sm grow">{option.name}</Text>
-          </Pressable>
+            sheetRef={sheetRef}
+            style={optionStyleBig(i)}
+          />
         ))}
       </TrueSheet>
     </>
