@@ -22,7 +22,6 @@ import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
 import { clsx } from 'clsx'
-import InteractionRibbon from '../posts/InteractionRibbon'
 import PostReaction from '../posts/PostReaction'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
 import { useEmojiReactMutation } from '@/lib/api/emojis'
@@ -34,6 +33,7 @@ import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
 import { useToasts } from '@/lib/toasts'
+import InteractionMenu from '../interactions/InteractionMenu'
 
 export default function PostFragment({
   post,
@@ -195,7 +195,7 @@ export default function PostFragment({
     >
       {hasCornerMenu && (
         <View className="absolute z-20 top-0 right-0">
-          <InteractionRibbon post={post} orientation="vertical" />
+          <InteractionMenu post={post} />
         </View>
       )}
       {user && <UserCard user={user} emojis={userEmojis} />}

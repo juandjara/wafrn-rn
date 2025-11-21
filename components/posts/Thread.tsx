@@ -57,7 +57,7 @@ function ThreadInner({ thread }: { thread: PostThread }) {
       ) : null}
       {firstPost && <PostFragment post={firstPost} />}
       {morePostsCount > 0 && (
-        <View className="mb-[1px] border-b border-t border-cyan-700 bg-blue-900/25">
+        <View className="mb-px border-b border-t border-cyan-700 bg-blue-900/25">
           <Link
             href={`/post/${interactionPost.id}`}
             className="text-sm text-white p-2"

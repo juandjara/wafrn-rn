@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type TrueSheet } from '@lodev09/react-native-true-sheet'
+import { type ReactElement } from 'react'
 import { ViewStyle, Pressable, Text } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 
@@ -8,11 +9,11 @@ type MaterialIconName = keyof (typeof MaterialCommunityIcons)['glyphMap']
 type MenuItemProps = {
   disabled?: boolean
   badge?: number
-  icon: MaterialIconName | React.ReactNode
+  icon: MaterialIconName | ReactElement
   label: string
   action: () => void
   sheetRef?: React.RefObject<TrueSheet | null>
-  style: ViewStyle
+  style?: ViewStyle
 }
 
 export default function MenuItem({

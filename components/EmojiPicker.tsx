@@ -18,10 +18,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FlashList, FlashListRef } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { PostEmojiReaction } from '@/lib/api/posts.types'
+import { Post } from '@/lib/api/posts.types'
 import { clsx } from 'clsx'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { useCSSVariable } from 'uniwind'
+import { useDashboardContext } from '@/lib/contexts/DashboardContext'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
 
 export type Emoji = EmojiBase & {
   emojiCollectionId?: string
@@ -29,19 +31,18 @@ export type Emoji = EmojiBase & {
 }
 
 const ucGroups = getUnicodeEmojiGroups()
-const emptyReactions: PostEmojiReaction[] = []
 const RECENT_EMOJI_LIMIT = 7
 
 export default function EmojiPicker({
   open,
   setOpen,
   onPick,
-  reactions = emptyReactions,
+  post,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   onPick: (emoji: Emoji) => void
-  reactions?: PostEmojiReaction[]
+  post?: Post
 }) {
   const { width } = useWindowDimensions()
   const columns = Math.floor(width / 52)
@@ -49,6 +50,8 @@ export default function EmojiPicker({
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
+  const me = useParsedToken()
+  const context = useDashboardContext()
   const gray400 = useCSSVariable('--color-gray-400') as string
 
   const { value: recentEmojis, setValue: setRecentEmojis } = useAsyncStorage<
@@ -56,6 +59,7 @@ export default function EmojiPicker({
   >('recentEmojis', [])
 
   const { data: settings } = useSettings()
+
   const emojiList = useMemo(() => {
     if (!settings?.emojis) {
       return []
@@ -119,13 +123,17 @@ export default function EmojiPicker({
     })
   }, [settings, emojiList])
 
-  function haveIReacted(emoji: Emoji) {
-    if (emoji.id.endsWith('-recent')) {
-      emoji.id = emoji.id.replace('-recent', '')
+  function haveIReacted({ content, id }: Emoji) {
+    if (!post) {
+      return false
     }
-    return reactions.some(
-      (r) => r.emojiId === emoji.id || r.content === emoji.content,
+    if (id.endsWith('-recent')) {
+      id = id.replace('-recent', '')
+    }
+    const reactions = context.emojiRelations.postEmojiReactions.filter(
+      (p) => p.userId === me?.userId && p.postId === post.id,
     )
+    return reactions.some((r) => r.emojiId === id || r.content === content)
   }
 
   function handlePick(emoji: Emoji) {

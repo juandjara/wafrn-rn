@@ -28,3 +28,6 @@ export const optionStyleDark = (i: number) => ({
   flexDirection: 'row' as const,
   gap: 16,
 })
+
+export const interactionIconCn =
+  'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'
