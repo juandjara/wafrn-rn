@@ -21,7 +21,7 @@ export default function Video({
   className?: string
 }) {
   const [showControls, setShowControls] = useState(true)
-  const [volume, setVolume] = useState(1)
+  const [muted, setMuted] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -57,6 +57,7 @@ export default function Video({
   useEventListener(player, 'playingChange', (ev) => setIsPlaying(ev.isPlaying))
   useEventListener(player, 'timeUpdate', (ev) => setCurrentTime(ev.currentTime))
   useEventListener(player, 'sourceLoad', (ev) => setDuration(ev.duration))
+  useEventListener(player, 'mutedChange', (ev) => setMuted(ev.muted))
 
   function togglePlay() {
     if (isPlaying) {
@@ -67,13 +68,7 @@ export default function Video({
   }
 
   function toggleMute() {
-    if (volume > 0) {
-      setVolume(0)
-      player.volume = 0
-    } else {
-      setVolume(1)
-      player.volume = 1
-    }
+    player.emit('mutedChange', { muted: !player.muted, oldMuted: player.muted })
   }
 
   function skipForward() {
@@ -150,7 +145,7 @@ export default function Video({
               <View className="flex-row gap-4">
                 <TouchableOpacity onPress={toggleMute}>
                   <Ionicons
-                    name={volume > 0 ? 'volume-high' : 'volume-mute'}
+                    name={muted ? 'volume-mute' : 'volume-high'}
                     size={20}
                     color="white"
                   />
