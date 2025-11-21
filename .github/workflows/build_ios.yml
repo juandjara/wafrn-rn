@@ -21,18 +21,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
-      - name: 🏗 Setup npm cache
+      - name: 🏗 Install PNPM
+        shell: bash
+        run: npm install -g pnpm
+
+      - name: 🏗 Cache pnpm modules
+        id: cache-pnpm
         uses: actions/cache@v4
-        id: npm-cache
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.pnpm-store
+          key: pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: 📦 Install npm dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm ci && npm rebuild lightningcss
+      - name: 📦 Install pnpm dependencies
+        shell: bash
+        run: |
+          echo "::group::Install dependencies"
+          pnpm install --frozen-lockfile
+          echo "::endgroup::"
+          pnpm rebuild lightningcss
 
       - name: 🏗 Setup Ruby
         uses: ruby/setup-ruby@v1

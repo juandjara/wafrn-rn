@@ -73,8 +73,15 @@ jobs:
           echo PATH=$PATH >> $FORGEJO_ENV
           echo GRADLE_USER_HOME=$GRADLE_USER_HOME >> $FORGEJO_ENV
 
-      - name: '📦 Install npm dependencies'
-        run: npm ci && npm rebuild lightningcss
+      - name: 🏗 Install pnpm
+        run: npm install -g pnpm
+
+      - name: 📦 Install pnpm dependencies
+        run: |
+          echo "::group::Install dependencies"
+          pnpm install --frozen-lockfile
+          echo "::endgroup::"
+          pnpm rebuild lightningcss
 
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
