@@ -39,6 +39,7 @@
     "@xstate/store": "^2.6.2",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "colorizr": "^3.0.8",
     "dayjs": "^1.11.13",
     "emoji-datasource": "^15.1.2",
     "expo": "^54.0.23",

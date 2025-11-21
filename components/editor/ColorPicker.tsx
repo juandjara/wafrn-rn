@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import { useState } from 'react'
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
 import colors from 'tailwindcss/colors'
+import { parseCSS, oklch2hex, LCH } from 'colorizr'
 
 const COLORS = [
   'slate',
@@ -44,6 +45,14 @@ export default function ColorPicker({
   selectColor: (color: string) => void
 }) {
   const [intensity, setIntensity] = useState<(typeof INTENSITIES)[number]>(500)
+
+  function getColor(
+    name: (typeof COLORS)[number],
+    intensity: (typeof INTENSITIES)[number],
+  ) {
+    const color = colors[name][intensity]
+    return oklch2hex(parseCSS(color) as LCH)
+  }
 
   return (
     <Modal
@@ -112,10 +121,10 @@ export default function ColorPicker({
               <Pressable
                 key={color}
                 onPress={() => {
-                  selectColor(colors[color][intensity])
+                  selectColor(getColor(color, intensity))
                   setOpen(false)
                 }}
-                style={{ backgroundColor: colors[color][intensity] }}
+                style={{ backgroundColor: getColor(color, intensity) }}
                 className={`p-2 rounded-full`}
               >
                 <MaterialCommunityIcons
