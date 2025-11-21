@@ -47,6 +47,9 @@ importers:
       '@xstate/store':
         specifier: ^2.6.2
         version: 2.6.2(react@19.1.0)
+      babel-preset-expo:
+        specifier: ~54.0.7
+        version: 54.0.7(@babel/core@7.28.5)(@babel/runtime@7.28.4)(expo@54.0.23)(react-refresh@0.14.2)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
