@@ -1,12 +1,6 @@
 import useAsyncStorage from '../useLocalStorage'
-import {
-  createContext,
-  PropsWithChildren,
-  use,
-  useCallback,
-  useMemo,
-} from 'react'
-import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query'
+import { createContext, PropsWithChildren, use, useMemo } from 'react'
+import { UseMutateAsyncFunction } from '@tanstack/react-query'
 import {
   AUTH_TOKEN_KEY,
   Environment,
@@ -71,13 +65,4 @@ export function useAuth() {
 export function useParsedToken() {
   const { token } = useAuth()
   return useMemo(() => parseToken(token), [token])
-}
-
-export function useLogout() {
-  const qc = useQueryClient()
-  const { setToken } = useAuth()
-  return useCallback(() => {
-    setToken(null)
-    qc.clear()
-  }, [setToken, qc])
 }

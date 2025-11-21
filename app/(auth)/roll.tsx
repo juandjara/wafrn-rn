@@ -9,8 +9,6 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useRef, useState } from 'react'
-import { useLogout } from '@/lib/contexts/AuthContext'
-import { useNotificationTokensCleanup } from '@/lib/notifications'
 import { useToasts } from '@/lib/toasts'
 
 const FAIL_MESSAGES = [
@@ -41,15 +39,7 @@ export default function RollScreen() {
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   })
-
-  const logout = useLogout()
-  const notificationCleanup = useNotificationTokensCleanup()
   const { showToastDarkSouls, showToastInfo, showToastSuccess } = useToasts()
-
-  function handleLogout() {
-    logout()
-    notificationCleanup({ deleteExpo: true, deleteUP: true })
-  }
 
   const animation = useRef(
     Animated.loop(
@@ -73,7 +63,6 @@ export default function RollScreen() {
       showToastDarkSouls(getFailMessage())
       setIsDead(true)
       setTimeout(() => {
-        handleLogout()
         BackHandler.exitApp()
       }, 3000)
     }

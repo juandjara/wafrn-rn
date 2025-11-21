@@ -3,8 +3,8 @@ import {
   useLoginMfaMutation,
   SAVED_INSTANCE_KEY,
 } from '@/lib/api/auth'
-import { useAuth, useLogout } from '@/lib/contexts/AuthContext'
-import { Link, router } from 'expo-router'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { Link, router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
   TextInput,
@@ -24,6 +24,7 @@ import InstanceProvider from '@/components/InstanceProvider'
 import { useNotificationTokensCleanup } from '@/lib/notifications'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { useToasts } from '@/lib/toasts'
+import { useQueryClient } from '@tanstack/react-query'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -36,19 +37,24 @@ export default function SignIn() {
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
-
+  const searchParams = useLocalSearchParams<{ clear: string }>()
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
-  const logout = useLogout()
+  const qc = useQueryClient()
   const notificationCleanup = useNotificationTokensCleanup()
   const { value: savedInstance, setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   useEffect(() => {
-    // reset local storage when entering sign in screen
-    logout()
-    notificationCleanup({ deleteExpo: true, deleteUP: true })
-  }, [logout, notificationCleanup])
+    if (searchParams.clear === 'true') {
+      // reset local storage when entering sign in screen with special URL param
+      qc.clear()
+      setToken(null)
+      notificationCleanup({ deleteExpo: true, deleteUP: true })
+      // make sure the operation is not repeated
+      router.setParams({ clear: '' })
+    }
+  }, [qc, setToken, notificationCleanup, searchParams.clear])
 
   async function completeLogin(token: string) {
     await setToken(token)

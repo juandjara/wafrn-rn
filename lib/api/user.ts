@@ -14,17 +14,17 @@ import {
 } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
-import { useAuth, useLogout, useParsedToken } from '../contexts/AuthContext'
+import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { PostUser } from './posts.types'
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
 import { formatCachedUrl, formatUserUrl } from '../formatters'
-import { useNotificationTokensCleanup } from '../notifications'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { File } from 'expo-file-system'
+import { router } from 'expo-router'
 
 export type User = {
   createdAt: string // iso date
@@ -833,8 +833,6 @@ export async function deleteAccount(token: string, password: string) {
 
 export function useDeleteAccountMutation() {
   const { token } = useAuth()
-  const logout = useLogout()
-  const notificationCleanup = useNotificationTokensCleanup()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
@@ -842,8 +840,7 @@ export function useDeleteAccountMutation() {
     mutationFn: (password: string) => deleteAccount(token!, password),
     onSuccess: () => {
       showToastSuccess('Account deleted')
-      logout()
-      notificationCleanup({ deleteExpo: true, deleteUP: true })
+      router.navigate('/sign-in?clear=true')
     },
     onError: () => {
       showToastError('Failed deleting account')

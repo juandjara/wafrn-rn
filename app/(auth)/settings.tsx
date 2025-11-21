@@ -1,26 +1,18 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import { useAdminCheck, useLogout } from '@/lib/contexts/AuthContext'
+import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View } from 'react-native'
-import { useNotificationTokensCleanup } from '@/lib/notifications'
 import { useCSSVariable } from 'uniwind'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
   const isAdmin = useAdminCheck()
-  const logout = useLogout()
-  const notificationCleanup = useNotificationTokensCleanup()
   const red400 = useCSSVariable('--color-red-400') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
-
-  function handleLogout() {
-    logout()
-    notificationCleanup({ deleteExpo: true, deleteUP: true })
-  }
 
   const options = useMemo(() => {
     const opts = [
@@ -115,7 +107,7 @@ export default function Settings() {
       <Header title="Settings" />
       <ScrollView>
         <Pressable
-          onPress={handleLogout}
+          onPress={() => router.navigate('/sign-in?clear=true')}
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >
