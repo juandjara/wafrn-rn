@@ -1,8 +1,15 @@
 import { toast } from '@backpackapp-io/react-native-toast'
-import { QueryCache, QueryClient } from '@tanstack/react-query'
+import { QueryCache, QueryClient, onlineManager } from '@tanstack/react-query'
 import ErrorCopyToast from '@/components/errors/ErrorCopyToast'
 import { StatusError } from './http'
 import { router } from 'expo-router'
+import NetInfo from '@react-native-community/netinfo'
+
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected)
+  })
+})
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -11,6 +18,11 @@ export const queryClient = new QueryClient({
       throwOnError: false,
       // TODO: consider if we should control retry logic here or in the caller
       retry: (failureCount, error) => {
+        // dont retry without internet connection
+        if (!onlineManager.isOnline()) {
+          return false
+        }
+
         // default react query logic, only retry 3 times max
         if (failureCount >= 3) {
           return false
@@ -24,7 +36,7 @@ export const queryClient = new QueryClient({
         }
 
         if (statusCode === 401) {
-          router.navigate('/sign-in')
+          router.navigate('/sign-in?clear=true')
           return false
         }
 
