@@ -27,8 +27,15 @@ jobs:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Install npm dependencies
-        run: npm ci && npm rebuild lightningcss
+      - name: 🏗 Install pnpm
+        run: npm install -g pnpm
+
+      - name: 📦 Install pnpm dependencies
+        run: |
+          echo "::group::Install dependencies"
+          pnpm install --frozen-lockfile
+          echo "::endgroup::"
+          pnpm rebuild lightningcss
 
       - name: 🧪 Run TypeScript check
         run: npm run tsc
