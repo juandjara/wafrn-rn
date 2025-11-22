@@ -10,6 +10,11 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
+if ! [ -x "$(command -v pnpm)" ]; then
+  echo "> pnpm not found. installing pnpm with npm"
+  npm install -g pnpm
+fi
+
 if ! [ -d './node_modules' ]; then
   echo '> node_modules not found, running npm install'
   pnpm install
