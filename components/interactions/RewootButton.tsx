@@ -2,11 +2,12 @@ import { type Post } from '@/lib/api/posts.types'
 import MenuItem from '../MenuItem'
 import { useRewootMutation } from '@/lib/api/posts'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
-import { ViewStyle, Pressable } from 'react-native'
+import { ViewStyle } from 'react-native'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 import { interactionIconCn } from '@/lib/styles'
+import WigglyPressable from '../WigglyPressable'
 
 export default function RewootButton({
   post,
@@ -21,9 +22,13 @@ export default function RewootButton({
 }) {
   const context = useDashboardContext()
   const rewootMutation = useRewootMutation(post)
-  const isRewooted = (context.rewootIds || []).includes(post.id)
   const green500 = useCSSVariable('--color-green-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
+
+  const _isRewooted = (context.rewootIds || []).includes(post.id)
+  const isRewooted = rewootMutation.isPending
+    ? !rewootMutation.variables
+    : _isRewooted
 
   return long ? (
     <MenuItem
@@ -45,7 +50,7 @@ export default function RewootButton({
       sheetRef={sheetRef}
     />
   ) : (
-    <Pressable
+    <WigglyPressable
       className={interactionIconCn}
       onPress={() => {
         if (!rewootMutation.isPending) {
@@ -61,6 +66,6 @@ export default function RewootButton({
         size={20}
         color={isRewooted ? green500 : 'white'}
       />
-    </Pressable>
+    </WigglyPressable>
   )
 }

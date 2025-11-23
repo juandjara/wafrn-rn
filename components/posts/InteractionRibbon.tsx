@@ -11,6 +11,7 @@ import LikeButton from '../interactions/LikeButton'
 import BookmarkButton from '../interactions/BookmarkButton'
 import DeleteButton from '../interactions/DeleteButton'
 import { interactionIconCn } from '@/lib/styles'
+import WigglyPressable from '../WigglyPressable'
 
 export default function InteractionRibbon({ post }: { post: Post }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
@@ -43,37 +44,39 @@ export default function InteractionRibbon({ post }: { post: Post }) {
           </Link>
         ) : null}
         <View id="interactions" className="flex-row gap-3 shrink">
-          <Link
-            href={`/editor?type=reply&replyId=${post.id}`}
-            accessibilityLabel="Reply"
-            className="flex p-1.5 active:bg-gray-300/30 rounded-full"
-          >
-            <MaterialCommunityIcons name="reply" size={20} color="white" />
-          </Link>
-          {canQuote ? (
-            <Link
-              href={`/editor?type=quote&quoteId=${post.id}`}
-              accessibilityLabel="Quote"
+          <Link href={`/editor?type=reply&replyId=${post.id}`} asChild>
+            <WigglyPressable
+              accessibilityLabel="Reply"
               className="flex p-1.5 active:bg-gray-300/30 rounded-full"
             >
-              <MaterialCommunityIcons
-                name="format-quote-close"
-                size={20}
-                color="white"
-              />
+              <MaterialCommunityIcons name="reply" size={20} color="white" />
+            </WigglyPressable>
+          </Link>
+          {canQuote ? (
+            <Link href={`/editor?type=quote&quoteId=${post.id}`} asChild>
+              <WigglyPressable
+                accessibilityLabel="Quote"
+                className="flex p-1.5 active:bg-gray-300/30 rounded-full"
+              >
+                <MaterialCommunityIcons
+                  name="format-quote-close"
+                  size={20}
+                  color="white"
+                />
+              </WigglyPressable>
             </Link>
           ) : null}
           {canRewoot ? <RewootButton post={post} /> : null}
           {!createdByMe ? <LikeButton post={post} /> : null}
           <BookmarkButton post={post} />
           {!createdByMe ? (
-            <Pressable
+            <WigglyPressable
               onPress={() => setEmojiPickerOpen(true)}
               accessibilityLabel="Add emoji reaction"
               className={interactionIconCn}
             >
               <MaterialIcons name="emoji-emotions" size={20} color="white" />
-            </Pressable>
+            </WigglyPressable>
           ) : null}
           {createdByMe ? <DeleteButton post={post} /> : null}
         </View>

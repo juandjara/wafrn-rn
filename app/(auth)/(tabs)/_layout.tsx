@@ -4,22 +4,11 @@ import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import {
-  View,
-  Pressable,
-  useColorScheme,
-  useWindowDimensions,
-  Text,
-} from 'react-native'
+import { View, useColorScheme, useWindowDimensions, Text } from 'react-native'
 import { useCSSVariable } from 'uniwind'
-import Animated, {
-  Extrapolation,
-  useAnimatedStyle,
-  useSharedValue,
-  WigglySpringConfig,
-  withSpring,
-} from 'react-native-reanimated'
+import { Extrapolation } from 'react-native-reanimated'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
+import WigglyPressable from '@/components/WigglyPressable'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -186,8 +175,6 @@ export default function TabsLayout() {
   )
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
 function TabButton({
   focused,
   icon,
@@ -208,11 +195,6 @@ function TabButton({
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
 
-  const scale = useSharedValue(1)
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }))
-
   return (
     <>
       {badge > 0 ? (
@@ -220,26 +202,17 @@ function TabButton({
           {badge > 99 ? '99+' : badge}
         </Text>
       ) : null}
-      <AnimatedPressable
+      <WigglyPressable
         {...props}
         ref={ref as React.Ref<View>}
-        onPressIn={() => {
-          scale.value = withSpring(0.9, WigglySpringConfig)
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
-        onPressOut={() => {
-          scale.value = withSpring(1, WigglySpringConfig)
-        }}
-        style={[
-          {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          },
-          animatedStyle,
-        ]}
       >
         {icon({ color: focused ? gray200 : indigo300, focused })}
-      </AnimatedPressable>
+      </WigglyPressable>
     </>
   )
 }

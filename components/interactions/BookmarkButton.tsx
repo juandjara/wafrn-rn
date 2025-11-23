@@ -2,11 +2,12 @@ import { type Post } from '@/lib/api/posts.types'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useBookmarkMutation } from '@/lib/interaction'
-import { ViewStyle, Pressable } from 'react-native'
+import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { interactionIconCn } from '@/lib/styles'
+import WigglyPressable from '../WigglyPressable'
 
 export default function BookmarkButton({
   post,
@@ -22,9 +23,12 @@ export default function BookmarkButton({
   const me = useParsedToken()
   const context = useDashboardContext()
   const bookmarkMutation = useBookmarkMutation(post)
-  const isBookmarked = (context.bookmarks || []).some(
+  const _isBookmarked = (context.bookmarks || []).some(
     (b) => b.postId === post.id && b.userId === me?.userId,
   )
+  const isBookmarked = bookmarkMutation.isPending
+    ? !bookmarkMutation.variables
+    : _isBookmarked
 
   return long ? (
     <MenuItem
@@ -40,7 +44,7 @@ export default function BookmarkButton({
       sheetRef={sheetRef}
     />
   ) : (
-    <Pressable
+    <WigglyPressable
       className={interactionIconCn}
       onPress={() => {
         if (!bookmarkMutation.isPending) {
@@ -56,6 +60,6 @@ export default function BookmarkButton({
         name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
         color="white"
       />
-    </Pressable>
+    </WigglyPressable>
   )
 }

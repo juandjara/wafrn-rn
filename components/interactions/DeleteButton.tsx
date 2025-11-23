@@ -1,11 +1,12 @@
 import { Post } from '@/lib/api/posts.types'
-import { ViewStyle, Alert, Pressable } from 'react-native'
+import { ViewStyle, Alert } from 'react-native'
 import MenuItem from '../MenuItem'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useDeleteMutation } from '@/lib/api/posts'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { interactionIconCn } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import WigglyPressable from '../WigglyPressable'
 
 export default function DeleteButton({
   post,
@@ -58,7 +59,7 @@ export default function DeleteButton({
       sheetRef={sheetRef}
     />
   ) : (
-    <Pressable
+    <WigglyPressable
       className={interactionIconCn}
       onPress={deleteAction}
       disabled={deleteMutation.isPending}
@@ -66,6 +67,6 @@ export default function DeleteButton({
       style={[style, { opacity: deleteMutation.isPending ? 0.5 : 1 }]}
     >
       <MaterialCommunityIcons size={20} name="delete-outline" color="white" />
-    </Pressable>
+    </WigglyPressable>
   )
 }

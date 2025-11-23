@@ -2,12 +2,13 @@ import { type Post } from '@/lib/api/posts.types'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useLikeMutation } from '@/lib/interaction'
-import { ViewStyle, Pressable } from 'react-native'
+import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
 import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { useCSSVariable } from 'uniwind'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { interactionIconCn } from '@/lib/styles'
+import WigglyPressable from '../WigglyPressable'
 
 export default function LikeButton({
   post,
@@ -25,9 +26,17 @@ export default function LikeButton({
   const likeMutation = useLikeMutation(post)
   const red500 = useCSSVariable('--color-red-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
-  const isLiked = context.likes.some(
+
+  const _isLiked = context.likes.some(
     (like) => like.postId === post.id && like.userId === me?.userId,
   )
+  const isLiked = likeMutation.isPending ? !likeMutation.variables : _isLiked
+
+  function likeAction() {
+    if (!likeMutation.isPending) {
+      likeMutation.mutate(isLiked)
+    }
+  }
 
   return long ? (
     <MenuItem
@@ -38,24 +47,16 @@ export default function LikeButton({
           color={isLiked ? red500 : gray600}
         />
       }
-      action={() => {
-        if (!likeMutation.isPending) {
-          likeMutation.mutate(isLiked)
-        }
-      }}
+      action={likeAction}
       label={isLiked ? 'Undo Like' : 'Like'}
       disabled={likeMutation.isPending}
       style={style}
       sheetRef={sheetRef}
     />
   ) : (
-    <Pressable
+    <WigglyPressable
       className={interactionIconCn}
-      onPress={() => {
-        if (!likeMutation.isPending) {
-          likeMutation.mutate(isLiked)
-        }
-      }}
+      onPress={likeAction}
       disabled={likeMutation.isPending}
       accessibilityLabel={isLiked ? 'Undo Like' : 'Like'}
       style={[style, { opacity: likeMutation.isPending ? 0.5 : 1 }]}
@@ -65,6 +66,6 @@ export default function LikeButton({
         name={isLiked ? 'heart' : 'heart-outline'}
         color={isLiked ? red500 : 'white'}
       />
-    </Pressable>
+    </WigglyPressable>
   )
 }
