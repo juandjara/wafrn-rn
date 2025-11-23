@@ -1,5 +1,4 @@
-import { Platform, TextStyle } from 'react-native'
-import { ChildNode } from 'domhandler'
+import { Platform } from 'react-native'
 import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
 import { getEnvironmentStatic } from './auth'
@@ -132,53 +131,6 @@ export const htmlInlineStyles = ({ cyan400 }: { cyan400: string }) =>
       lineHeight: 24,
     },
   }) as const
-
-const BLOCK_TAGS = [
-  'blockquote',
-  'div',
-  'p',
-  'pre',
-  'table',
-  'ul',
-  'ol',
-  'li',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'hr',
-  'figure',
-  'figcaption',
-  'section',
-  'article',
-  'aside',
-  'header',
-  'footer',
-  'nav',
-  'address',
-  'main',
-  'details',
-  'summary',
-  'dialog',
-  'fieldset',
-  'legend',
-]
-
-export function isDisplayBlock(node: ChildNode) {
-  if (node.type !== 'tag') {
-    return false
-  }
-  if (BLOCK_TAGS.includes(node.name!)) {
-    return true
-  }
-  if (!node.attribs) {
-    return false
-  }
-  const style = (node.attribs.style as string) || ''
-  return style.includes('display: block')
-}
 
 export function normalizeTagName(tagName: string) {
   return tagName
