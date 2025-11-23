@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🏗 Install pnpm
-        run: npm install -g pnpm
+        run: corepack enable
 
       - name: 📦 Install pnpm dependencies
         run: |
@@ -81,7 +81,7 @@ jobs:
           echo GRADLE_USER_HOME=$GRADLE_USER_HOME >> $FORGEJO_ENV
 
       - name: 🏗 Install pnpm
-        run: npm install -g pnpm
+        run: corepack enable
 
       - name: 📦 Install pnpm dependencies
         run: |
