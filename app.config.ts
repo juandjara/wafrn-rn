@@ -12,6 +12,28 @@ const icon = isDev
   ? './assets/images/logo_w_dev.png'
   : './assets/images/logo_w.png'
 
+const plugins = [
+  'expo-router',
+  'expo-secure-store',
+  'expo-font',
+  [
+    'expo-video',
+    {
+      supportsBackgroundPlayback: true,
+      supportsPictureInPicture: true,
+    },
+  ],
+] as ExpoConfig['plugins']
+
+if (isDev) {
+  plugins!.push([
+    'expo-dev-client',
+    {
+      launchMode: 'launcher',
+    },
+  ])
+}
+
 export default {
   expo: {
     newArchEnabled: true,
@@ -56,26 +78,7 @@ export default {
       ],
       edgeToEdgeEnabled: true,
     },
-    plugins: [
-      'expo-router',
-      'expo-secure-store',
-      'expo-font',
-      isDev
-        ? [
-            'expo-dev-client',
-            {
-              launchMode: 'launcher',
-            },
-          ]
-        : [],
-      [
-        'expo-video',
-        {
-          supportsBackgroundPlayback: true,
-          supportsPictureInPicture: true,
-        },
-      ],
-    ],
+    plugins,
     experiments: {
       typedRoutes: false,
       reactCompiler: true,
