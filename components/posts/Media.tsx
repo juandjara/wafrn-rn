@@ -130,7 +130,8 @@ export default function Media({
         </Link>
       </View>
       {showAlt && (
-        <View
+        <Pressable
+          onPress={onPress}
           style={{
             maxHeight: '50%',
             paddingBottom: 4,
@@ -138,12 +139,10 @@ export default function Media({
           }}
           className="absolute z-10 bottom-0 left-0 right-0 py-2 px-3"
         >
-          <ScrollView>
-            <Text className="text-white text-center">
-              {media.description || 'no alt text'}
-            </Text>
-          </ScrollView>
-        </View>
+          <Text className="text-white text-center">
+            {media.description || 'no alt text'}
+          </Text>
+        </Pressable>
       )}
     </View>
   )
