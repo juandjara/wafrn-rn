@@ -24,7 +24,7 @@ jobs:
 
       - name: 🏗 Install PNPM
         shell: bash
-        run: npm install -g pnpm
+        run: corepack enable
 
       - name: 📦 Install pnpm dependencies
         shell: bash
