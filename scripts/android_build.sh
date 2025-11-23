@@ -57,8 +57,8 @@ if [ "$env" == "dev" ]; then
   pushd android
   echo '> creating development debug build in .apk format'
   ./gradlew clean
-  ./gradlew buildDebug
-  ./gradlew app:assembleDebug
+  ./gradlew buildDebugOptimized
+  ./gradlew assembleDebugOptimized
 elif [ "$env" == "prod-google" ]; then
   export NODE_ENV=production
   echo '> setting up production environment'
@@ -72,11 +72,6 @@ elif [ "$env" == "prod-foss" ]; then
   echo '> setting up production environment'
   pnpm run setup:prod
   echo '> disabling auto-updates in AndroidManifest.xml'
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
-  else
-    sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
-  fi
   pushd android
   echo '> creating production release build in .apk format with auto-updates disabled'
   export REWRITE_EXPO_MANIFEST=1
@@ -103,15 +98,6 @@ if [ "$env" != "dev" ]; then
   if [ "$EXD_PREV_VERSION" != "undefined" ]; then
     echo '> installing expo-dev-client again to not break dev builds'
     pnpm i --save-exact expo-dev-client@$EXD_PREV_VERSION
-  fi
-fi
-
-if [ "$env" == "prod-foss" ]; then
-  echo '> restoring auto-updates to AndroidManifest.xml'
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="false"/\1android:value="true"/' android/app/src/main/AndroidManifest.xml
-  else
-    sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="false"/\1android:value="true"/' android/app/src/main/AndroidManifest.xml
   fi
 fi
 
