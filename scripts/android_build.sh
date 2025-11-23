@@ -30,6 +30,15 @@ if [ "$EXN_PREV_VERSION" != "undefined" ]; then
   pnpm remove expo-notifications
 fi
 
+# uninstall expo-dev-client if it exists
+export EXD_PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-dev-client']")
+if [ "$env" != "dev" ]; then
+  if [ "$EXD_PREV_VERSION" != "undefined" ]; then
+    echo "> uninstalling previous version of expo-dev-client: $EXD_PREV_VERSION"
+    pnpm remove expo-dev-client
+  fi
+fi
+
 # exit if no android/gradlew exists
 if ! [ -f 'android/gradlew' ]; then
   echo 'android/gradlew not found'
@@ -45,7 +54,7 @@ if [ "$env" == "dev" ]; then
   export NODE_ENV=development
   echo '> setting up development environment'
   pnpm run setup:dev
-  cd android
+  pushd android
   echo '> creating development debug build in .apk format'
   ./gradlew clean
   ./gradlew buildDebug
@@ -54,7 +63,7 @@ elif [ "$env" == "prod-google" ]; then
   export NODE_ENV=production
   echo '> setting up production environment'
   pnpm run setup:prod
-  cd android
+  pushd android
   echo '> creating production release in .aab format'
   ./gradlew buildRelease
   ./gradlew app:bundleRelease
@@ -68,7 +77,7 @@ elif [ "$env" == "prod-foss" ]; then
   else
     sed -i -e 's/\(.*expo.modules.updates.ENABLED.*\)android:value="true"/\1android:value="false"/' android/app/src/main/AndroidManifest.xml
   fi
-  cd android
+  pushd android
   echo '> creating production release build in .apk format with auto-updates disabled'
   export REWRITE_EXPO_MANIFEST=1
   ./gradlew buildRelease
@@ -77,17 +86,24 @@ else
   export NODE_ENV=production
   echo '> setting up production environment'
   pnpm run setup:prod
-  cd android
+  pushd android
   echo '> creating production release build in .apk format'
   ./gradlew buildRelease
   ./gradlew app:assembleRelease
 fi
 
-echo '> installing expo-notifications again to not break the iOS build'
-cd ..
+popd
 
 if [ "$EXN_PREV_VERSION" != "undefined" ]; then
+  echo '> installing expo-notifications again to not break the iOS build'
   pnpm i --save-exact expo-notifications@$EXN_PREV_VERSION
+fi
+
+if [ "$env" != "dev" ]; then
+  if [ "$EXD_PREV_VERSION" != "undefined" ]; then
+    echo '> installing expo-dev-client again to not break dev builds'
+    pnpm i --save-exact expo-dev-client@$EXD_PREV_VERSION
+  fi
 fi
 
 if [ "$env" == "prod-foss" ]; then
