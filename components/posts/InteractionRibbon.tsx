@@ -42,11 +42,11 @@ export default function InteractionRibbon({ post }: { post: Post }) {
             </Text>
           </Link>
         ) : null}
-        <View id="interactions" className="flex-row gap-3">
+        <View id="interactions" className="flex-row gap-3 shrink">
           <Link
             href={`/editor?type=reply&replyId=${post.id}`}
             accessibilityLabel="Reply"
-            className="p-1.5 active:bg-gray-300/30 rounded-full"
+            className="flex p-1.5 active:bg-gray-300/30 rounded-full"
           >
             <MaterialCommunityIcons name="reply" size={20} color="white" />
           </Link>
@@ -54,7 +54,7 @@ export default function InteractionRibbon({ post }: { post: Post }) {
             <Link
               href={`/editor?type=quote&quoteId=${post.id}`}
               accessibilityLabel="Quote"
-              className="p-1.5 active:bg-gray-300/30 rounded-full"
+              className="flex p-1.5 active:bg-gray-300/30 rounded-full"
             >
               <MaterialCommunityIcons
                 name="format-quote-close"
