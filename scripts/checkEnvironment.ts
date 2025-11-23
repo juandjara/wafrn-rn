@@ -3,13 +3,8 @@
 const fs = require('fs')
 const path = require('path')
 
-let baseDir = ''
-if (typeof __dirname !== 'undefined') {
-  baseDir = __dirname
-} else {
-  baseDir = process.cwd()
-}
-const ROOT = path.resolve(baseDir, '..')
+// @ts-ignore
+const ROOT = path.resolve(__dirname, '..')
 
 const GRADLE_FILE = path.resolve(ROOT, 'android/app/build.gradle')
 
