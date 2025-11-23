@@ -31,9 +31,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.pnpm-store
-          key: pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: pnpm-${{ hashFiles('./pnpm-lock.yaml') }}
           restore-keys: |
-            pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+            pnpm-${{ hashFiles('./pnpm-lock.yaml') }}
 
       - name: 📦 Install pnpm dependencies
         shell: bash
