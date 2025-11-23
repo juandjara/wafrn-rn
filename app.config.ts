@@ -60,12 +60,14 @@ export default {
       'expo-router',
       'expo-secure-store',
       'expo-font',
-      [
-        'expo-dev-client',
-        {
-          launchMode: 'launcher',
-        },
-      ],
+      isDev
+        ? [
+            'expo-dev-client',
+            {
+              launchMode: 'launcher',
+            },
+          ]
+        : [],
       [
         'expo-video',
         {
