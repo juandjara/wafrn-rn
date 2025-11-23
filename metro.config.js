@@ -1,5 +1,4 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
-const MetroSymlinksResolver = require('@rnx-kit/metro-resolver-symlinks')
 const { getDefaultConfig } = require('expo/metro-config')
 const { withUniwindConfig } = require('uniwind/metro')
 const {
