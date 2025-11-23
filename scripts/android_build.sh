@@ -11,6 +11,11 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
+# default is to run this script pretending to sign, but this is configured further in the build.gradle file
+# if sign keys are not configured, this script will produce an unsigned APK
+UNSIGNED_APK=${UNSIGNED_APK:"0"}
+env=${1:-prod}
+
 # make sure we have pnpm installed
 if ! [ -x "$(command -v pnpm)" ]; then
   echo "> pnpm not found. installing pnpm with npm"
@@ -44,11 +49,6 @@ if ! [ -f 'android/gradlew' ]; then
   echo 'android/gradlew not found'
   exit 1
 fi
-
-# default is to run this script pretending to sign, but this is configured further in the build.gradle file
-# if sign keys are not configured, this script will produce an unsigned APK
-UNSIGNED_APK=${UNSIGNED_APK:"0"}
-env=${1:-prod}
 
 if [ "$env" == "dev" ]; then
   export NODE_ENV=development
