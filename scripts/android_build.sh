@@ -7,34 +7,39 @@
 
 set -euxo pipefail
 
+# make sure we are in the root directory of the project
 cd "$(dirname "$0")"
 cd ..
 
+# make sure we have pnpm installed
 if ! [ -x "$(command -v pnpm)" ]; then
   echo "> pnpm not found. installing pnpm with npm"
   npm install -g pnpm
 fi
 
+# make sure node_modules exist
 if ! [ -d './node_modules' ]; then
   echo '> node_modules not found, running npm install'
   pnpm install
 fi
 
-export PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-notifications']")
-
-echo "> uninstalling previous version of expo-notifications: $PREV_VERSION"
-
-if [ "$PREV_VERSION" != "undefined" ]; then
+# uninstall expo-notifications if it exists
+export EXN_PREV_VERSION=$(node -p "require('./package.json').dependencies['expo-notifications']")
+if [ "$EXN_PREV_VERSION" != "undefined" ]; then
+  echo "> uninstalling previous version of expo-notifications: $EXN_PREV_VERSION"
   pnpm remove expo-notifications
 fi
 
+# exit if no android/gradlew exists
 if ! [ -f 'android/gradlew' ]; then
   echo 'android/gradlew not found'
   exit 1
 fi
 
+# default is to run this script pretending to sign, but this is configured further in the build.gradle file
+# if sign keys are not configured, this script will produce an unsigned APK
+UNSIGNED_APK=${UNSIGNED_APK:"0"}
 env=${1:-prod}
-UNSIGNED_APK=${UNSIGNED_APK:"0"} # default is to run this script pretending to sign
 
 if [ "$env" == "dev" ]; then
   export NODE_ENV=development
@@ -68,11 +73,6 @@ elif [ "$env" == "prod-foss" ]; then
   export REWRITE_EXPO_MANIFEST=1
   ./gradlew buildRelease
   ./gradlew app:assembleRelease
-  if [ "$UNSIGNED_APK" == "0" ]; then
-    mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
-    mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
-    mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
-  fi
 else
   export NODE_ENV=production
   echo '> setting up production environment'
@@ -86,8 +86,8 @@ fi
 echo '> installing expo-notifications again to not break the iOS build'
 cd ..
 
-if [ "$PREV_VERSION" != "undefined" ]; then
-  pnpm i --save-exact expo-notifications@$PREV_VERSION
+if [ "$EXN_PREV_VERSION" != "undefined" ]; then
+  pnpm i --save-exact expo-notifications@$EXN_PREV_VERSION
 fi
 
 if [ "$env" == "prod-foss" ]; then
@@ -107,6 +107,9 @@ elif [ "$env" == "prod-google" ]; then
   echo '> AABs created in ./android/app/build/outputs/bundle/release'
 elif [ "$env" == "prod-foss" ]; then
   if [ "$UNSIGNED_APK" == "0" ]; then
+    mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
+    mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
+    mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
     echo '> APKs created in ./android/app/build/outputs/apk/foss'
   else
     echo '> APKs created in ./android/app/build/outputs/apk/release'
