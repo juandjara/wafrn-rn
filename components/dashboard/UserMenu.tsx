@@ -11,7 +11,7 @@ import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
-import ScrollingBottomShhet from '../ScrollingBottomSheet'
+import BottomShhet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 
 export default function UserMenu() {
@@ -111,7 +111,7 @@ export default function UserMenu() {
           </Text>
         )}
       </TouchableOpacity>
-      <ScrollingBottomShhet open={menuOpen} setOpen={setMenuOpen}>
+      <BottomShhet open={menuOpen} setOpen={setMenuOpen}>
         <Pressable
           className="active:bg-gray-300/75 transition-colors"
           onPress={() => navAndClose(`/user/${me?.url}`)}
@@ -196,7 +196,7 @@ export default function UserMenu() {
             style={optionStyleBig(i + 1)}
           />
         ))}
-      </ScrollingBottomShhet>
+      </BottomShhet>
     </>
   )
 }

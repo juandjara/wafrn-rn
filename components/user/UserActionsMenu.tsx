@@ -7,20 +7,12 @@ import { User } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { useBiteUserMutation } from '@/lib/interaction'
 import { optionStyleBig } from '@/lib/styles'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
-import {
-  Modal,
-  Pressable,
-  Share,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Share, TouchableOpacity } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import MenuItem from '../MenuItem'
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
+import BottomSheet from '../BottomSheet'
 
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSVariable('--color-gray-400') as string
@@ -28,7 +20,6 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const gray600 = useCSSVariable('--color-gray-600') as string
 
   const { env } = useAuth()
-  const sx = useSafeAreaPadding()
   const me = useParsedToken()
   const isMe = me?.userId === user.id
 
@@ -104,52 +95,21 @@ export default function UserActionsMenu({ user }: { user: User }) {
           style={{ opacity: 0.75 }}
         />
       </TouchableOpacity>
-      <Modal
-        animationType="fade"
-        transparent
-        visible={open}
-        onRequestClose={() => setOpen(false)}
-      >
-        <View className="flex-1 relative">
-          <Pressable
-            className="bg-black/50"
-            style={StyleSheet.absoluteFill}
-            onPress={() => setOpen(false)}
-          />
-          <View className="grow" />
-          <Animated.View
-            entering={SlideInDown}
-            exiting={SlideOutDown}
-            className="absolute right-0 left-0 bg-white"
-            style={{
-              height: sx.paddingBottom * 2,
-              bottom: sx.paddingBottom * -2,
+      <BottomSheet open={open} setOpen={setOpen}>
+        {options.map((option, i) => (
+          <MenuItem
+            key={i}
+            label={option.name}
+            action={() => {
+              option.action()
+              setOpen(false)
             }}
+            icon={option.icon}
+            disabled={option.disabled}
+            style={optionStyleBig(i)}
           />
-          <Animated.View
-            entering={SlideInDown}
-            exiting={SlideOutDown}
-            className="bg-white rounded-t-xl"
-          >
-            <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
-            <View>
-              {options.map((option, i) => (
-                <MenuItem
-                  key={i}
-                  label={option.name}
-                  action={() => {
-                    option.action()
-                    setOpen(false)
-                  }}
-                  icon={option.icon}
-                  disabled={option.disabled}
-                  style={optionStyleBig(i)}
-                />
-              ))}
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
+        ))}
+      </BottomSheet>
     </>
   )
 }

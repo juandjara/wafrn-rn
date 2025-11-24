@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, TouchableOpacity, Share } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
-import ScrollingBottomShhet from '../ScrollingBottomSheet'
+import BottomShhet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 import { router } from 'expo-router'
 import { type Post } from '@/lib/api/posts.types'
@@ -85,7 +85,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
           />
         ) : null}
       </View>
-      <ScrollingBottomShhet open={menuOpen} setOpen={setMenuOpen}>
+      <BottomShhet open={menuOpen} setOpen={setMenuOpen}>
         <MenuItem
           label="Reply"
           action={() => {
@@ -233,7 +233,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
             />
           </>
         ) : null}
-      </ScrollingBottomShhet>
+      </BottomShhet>
     </>
   )
 }
