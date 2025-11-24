@@ -36,8 +36,8 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
       allowsEditing: false,
       allowsMultipleSelection: true,
       orderedSelection: true,
-      selectionLimit: 4,
       quality: 0.5,
+      exif: false,
     })
     if (!result.canceled) {
       actions.addImages(result.assets)
