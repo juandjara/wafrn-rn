@@ -8,10 +8,9 @@ import { optionStyleBig } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import TextWithEmojis from '../TextWithEmojis'
-import { useMemo, useRef } from 'react'
+import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import ScrollingBottomShhet from '../ScrollingBottomSheet'
 import MenuItem from '../MenuItem'
 
@@ -19,7 +18,7 @@ export default function UserMenu() {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
-  const sheetRef = useRef<TrueSheet>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   // TODO: remove this, find a way in backend to get avatars only without fetching the full user
   const { accounts, loading, selectAccount } = useAccounts()
@@ -85,7 +84,7 @@ export default function UserMenu() {
 
   function navAndClose(href: string) {
     router.navigate(href)
-    sheetRef.current?.dismiss()
+    setMenuOpen(false)
   }
 
   return (
@@ -93,7 +92,7 @@ export default function UserMenu() {
       <TouchableOpacity
         className="relative mt-1"
         accessibilityLabel="Main Menu"
-        onPress={() => sheetRef.current?.present()}
+        onPress={() => setMenuOpen(true)}
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
@@ -112,7 +111,7 @@ export default function UserMenu() {
           </Text>
         )}
       </TouchableOpacity>
-      <ScrollingBottomShhet sheetRef={sheetRef}>
+      <ScrollingBottomShhet open={menuOpen} setOpen={setMenuOpen}>
         <Pressable
           className="active:bg-gray-300/75 transition-colors"
           onPress={() => navAndClose(`/user/${me?.url}`)}
@@ -188,9 +187,11 @@ export default function UserMenu() {
           <MenuItem
             key={i}
             label={option.label}
-            action={option.action}
+            action={() => {
+              option.action()
+              setMenuOpen(false)
+            }}
             icon={option.icon}
-            sheetRef={sheetRef}
             badge={option.badge}
             style={optionStyleBig(i + 1)}
           />

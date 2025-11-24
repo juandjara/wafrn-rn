@@ -1,39 +1,68 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
-import { useRef } from 'react'
-import { ScrollView, useWindowDimensions } from 'react-native'
+import {
+  Modal,
+  Pressable,
+  useWindowDimensions,
+  View,
+  StyleSheet,
+  ScrollView,
+} from 'react-native'
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
 
-export default function ScrollingBottomShhet({
-  sheetRef,
+function ScrollingBottomSheetContent({
   children,
+  onClose,
 }: {
-  sheetRef: React.Ref<TrueSheet>
   children: React.ReactNode
+  onClose: () => void
 }) {
   const sx = useSafeAreaPadding()
-  const scrollRef = useRef<ScrollView>(null) as React.RefObject<ScrollView>
   const { height } = useWindowDimensions()
+  const maxHeight = height * 0.55
+  const initialPos = height - maxHeight
 
   return (
-    <TrueSheet
-      ref={sheetRef}
-      scrollRef={scrollRef}
-      edgeToEdge
-      cornerRadius={16}
-      sizes={['auto']}
-      maxHeight={height * 0.55}
-    >
-      <ScrollView
-        ref={scrollRef}
-        fadingEdgeLength={50}
-        nestedScrollEnabled
-        contentContainerStyle={{
-          paddingTop: 12,
-          paddingBottom: sx.paddingBottom,
-        }}
+    <View className="flex-1">
+      <Pressable
+        className="bg-black/50"
+        style={StyleSheet.absoluteFill}
+        onPress={onClose}
+      />
+      <Animated.View
+        entering={SlideInDown}
+        exiting={SlideOutDown}
+        style={{ transform: [{ translateY: initialPos }] }}
+        className="bg-white rounded-t-xl"
       >
+        <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
+        <ScrollView
+          fadingEdgeLength={32}
+          style={{ maxHeight }}
+          contentContainerStyle={{
+            paddingBottom: sx.paddingBottom + 16,
+          }}
+        >
+          {children}
+        </ScrollView>
+      </Animated.View>
+    </View>
+  )
+}
+
+export default function ScrollingBottomSheet({
+  open,
+  setOpen,
+  children,
+}: {
+  open: boolean
+  setOpen: (open: boolean) => void
+  children: React.ReactNode
+}) {
+  return (
+    <Modal transparent visible={open} onRequestClose={() => setOpen(false)}>
+      <ScrollingBottomSheetContent onClose={() => setOpen(false)}>
         {children}
-      </ScrollView>
-    </TrueSheet>
+      </ScrollingBottomSheetContent>
+    </Modal>
   )
 }

@@ -9,11 +9,18 @@ import { useBiteUserMutation } from '@/lib/interaction'
 import { optionStyleBig } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
-import { useMemo, useRef } from 'react'
-import { Share, TouchableOpacity } from 'react-native'
+import { useMemo, useState } from 'react'
+import {
+  Modal,
+  Pressable,
+  Share,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import MenuItem from '../MenuItem'
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
 
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSVariable('--color-gray-400') as string
@@ -22,14 +29,16 @@ export default function UserActionsMenu({ user }: { user: User }) {
 
   const { env } = useAuth()
   const sx = useSafeAreaPadding()
-  const sheetRef = useRef<TrueSheet>(null)
-
   const me = useParsedToken()
   const isMe = me?.userId === user.id
+
   const muteMutation = useMuteMutation(user)
   const blockMutation = useBlockMutation(user)
   const serverBlockMutation = useServerBlockMutation(user)
   const biteMutation = useBiteUserMutation()
+
+  const [open, setOpen] = useState(false)
+
   const options = useMemo(
     () => [
       {
@@ -81,7 +90,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
   return (
     <>
       <TouchableOpacity
-        onPress={() => sheetRef.current?.present()}
+        onPress={() => setOpen(true)}
         style={{
           padding: 6,
           backgroundColor: `${gray500}20`,
@@ -95,28 +104,52 @@ export default function UserActionsMenu({ user }: { user: User }) {
           style={{ opacity: 0.75 }}
         />
       </TouchableOpacity>
-      <TrueSheet
-        ref={sheetRef}
-        edgeToEdge
-        cornerRadius={16}
-        sizes={['auto']}
-        contentContainerStyle={{
-          paddingTop: 16,
-          paddingBottom: sx.paddingBottom,
-        }}
+      <Modal
+        animationType="fade"
+        transparent
+        visible={open}
+        onRequestClose={() => setOpen(false)}
       >
-        {options.map((option, i) => (
-          <MenuItem
-            key={i}
-            label={option.name}
-            action={option.action}
-            icon={option.icon}
-            disabled={option.disabled}
-            sheetRef={sheetRef}
-            style={optionStyleBig(i)}
+        <View className="flex-1 relative">
+          <Pressable
+            className="bg-black/50"
+            style={StyleSheet.absoluteFill}
+            onPress={() => setOpen(false)}
           />
-        ))}
-      </TrueSheet>
+          <View className="grow" />
+          <Animated.View
+            entering={SlideInDown}
+            exiting={SlideOutDown}
+            className="absolute right-0 left-0 bg-white"
+            style={{
+              height: sx.paddingBottom * 2,
+              bottom: sx.paddingBottom * -2,
+            }}
+          />
+          <Animated.View
+            entering={SlideInDown}
+            exiting={SlideOutDown}
+            className="bg-white rounded-t-xl"
+          >
+            <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
+            <View>
+              {options.map((option, i) => (
+                <MenuItem
+                  key={i}
+                  label={option.name}
+                  action={() => {
+                    option.action()
+                    setOpen(false)
+                  }}
+                  icon={option.icon}
+                  disabled={option.disabled}
+                  style={optionStyleBig(i)}
+                />
+              ))}
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
     </>
   )
 }

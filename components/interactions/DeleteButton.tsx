@@ -3,7 +3,6 @@ import { ViewStyle, Alert } from 'react-native'
 import MenuItem from '../MenuItem'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useDeleteMutation } from '@/lib/api/posts'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { interactionIconCn } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import WigglyPressable from '../WigglyPressable'
@@ -12,12 +11,12 @@ export default function DeleteButton({
   post,
   long,
   style,
-  sheetRef,
+  onPress,
 }: {
   post: Post
   long?: boolean
   style?: ViewStyle
-  sheetRef?: React.RefObject<TrueSheet | null>
+  onPress?: () => void
 }) {
   const routeParams = useLocalSearchParams<{ postid: string }>()
   const deleteMutation = useDeleteMutation(post)
@@ -47,6 +46,7 @@ export default function DeleteButton({
       ],
       { cancelable: true },
     )
+    onPress?.()
   }
 
   return long ? (
@@ -56,7 +56,6 @@ export default function DeleteButton({
       label="Delete woot"
       disabled={deleteMutation.isPending}
       style={style}
-      sheetRef={sheetRef}
     />
   ) : (
     <WigglyPressable

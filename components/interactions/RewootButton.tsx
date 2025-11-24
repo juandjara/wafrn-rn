@@ -3,7 +3,6 @@ import MenuItem from '../MenuItem'
 import { useRewootMutation } from '@/lib/api/posts'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { ViewStyle } from 'react-native'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 import { interactionIconCn } from '@/lib/styles'
@@ -13,12 +12,12 @@ export default function RewootButton({
   post,
   long,
   style,
-  sheetRef,
+  onPress,
 }: {
   post: Post
   long?: boolean
   style?: ViewStyle
-  sheetRef?: React.RefObject<TrueSheet | null>
+  onPress?: () => void
 }) {
   const context = useDashboardContext()
   const rewootMutation = useRewootMutation(post)
@@ -43,11 +42,11 @@ export default function RewootButton({
         if (!rewootMutation.isPending) {
           rewootMutation.mutate(isRewooted)
         }
+        onPress?.()
       }}
       label={isRewooted ? 'Undo Rewoot' : 'Rewoot'}
       disabled={rewootMutation.isPending}
       style={style}
-      sheetRef={sheetRef}
     />
   ) : (
     <WigglyPressable

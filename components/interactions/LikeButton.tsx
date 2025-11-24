@@ -4,7 +4,6 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useLikeMutation } from '@/lib/interaction'
 import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { useCSSVariable } from 'uniwind'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { interactionIconCn } from '@/lib/styles'
@@ -14,12 +13,12 @@ export default function LikeButton({
   post,
   long,
   style,
-  sheetRef,
+  onPress,
 }: {
   post: Post
   long?: boolean
   style?: ViewStyle
-  sheetRef?: React.RefObject<TrueSheet | null>
+  onPress?: () => void
 }) {
   const me = useParsedToken()
   const context = useDashboardContext()
@@ -36,6 +35,7 @@ export default function LikeButton({
     if (!likeMutation.isPending) {
       likeMutation.mutate(isLiked)
     }
+    onPress?.()
   }
 
   return long ? (
@@ -51,7 +51,6 @@ export default function LikeButton({
       label={isLiked ? 'Undo Like' : 'Like'}
       disabled={likeMutation.isPending}
       style={style}
-      sheetRef={sheetRef}
     />
   ) : (
     <WigglyPressable

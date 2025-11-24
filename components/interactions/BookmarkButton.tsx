@@ -4,7 +4,6 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useBookmarkMutation } from '@/lib/interaction'
 import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { interactionIconCn } from '@/lib/styles'
 import WigglyPressable from '../WigglyPressable'
@@ -13,12 +12,12 @@ export default function BookmarkButton({
   post,
   long,
   style,
-  sheetRef,
+  onPress,
 }: {
   post: Post
   long?: boolean
   style?: ViewStyle
-  sheetRef?: React.RefObject<TrueSheet | null>
+  onPress?: () => void
 }) {
   const me = useParsedToken()
   const context = useDashboardContext()
@@ -37,11 +36,11 @@ export default function BookmarkButton({
         if (!bookmarkMutation.isPending) {
           bookmarkMutation.mutate(isBookmarked)
         }
+        onPress?.()
       }}
       label={isBookmarked ? 'Unbookmark' : 'Bookmark'}
       disabled={bookmarkMutation.isPending}
       style={style}
-      sheetRef={sheetRef}
     />
   ) : (
     <WigglyPressable

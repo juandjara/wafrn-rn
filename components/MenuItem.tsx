@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { type TrueSheet } from '@lodev09/react-native-true-sheet'
 import { type ReactElement } from 'react'
 import { ViewStyle, Pressable, Text } from 'react-native'
 import { useCSSVariable } from 'uniwind'
@@ -12,7 +11,6 @@ type MenuItemProps = {
   icon: MaterialIconName | ReactElement
   label: string
   action: () => void
-  sheetRef?: React.RefObject<TrueSheet | null>
   style?: ViewStyle
 }
 
@@ -22,19 +20,13 @@ export default function MenuItem({
   icon,
   label,
   action,
-  sheetRef,
   style,
 }: MenuItemProps) {
   const gray600 = useCSSVariable('--color-gray-600') as string
   return (
     <Pressable
       disabled={disabled}
-      onPress={() => {
-        action()
-        if (sheetRef) {
-          sheetRef.current?.dismiss()
-        }
-      }}
+      onPress={action}
       className="active:bg-gray-300/75 transition-colors"
       style={[style, { opacity: disabled ? 0.5 : 1 }]}
     >

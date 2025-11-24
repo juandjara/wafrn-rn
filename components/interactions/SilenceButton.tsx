@@ -3,16 +3,15 @@ import { ViewStyle, Alert } from 'react-native'
 import MenuItem from '../MenuItem'
 import { useSilenceMutation } from '@/lib/api/mutes-and-blocks'
 import { useSettings } from '@/lib/api/settings'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 
 export default function SilenceButton({
   post,
   style,
-  sheetRef,
+  onPress,
 }: {
   post: Post
   style: ViewStyle
-  sheetRef?: React.RefObject<TrueSheet | null>
+  onPress?: () => void
 }) {
   const { data: settings } = useSettings()
   const isSilenced = !!settings?.silencedPosts.includes(post.id)
@@ -34,6 +33,7 @@ export default function SilenceButton({
       ],
       { cancelable: true },
     )
+    onPress?.()
   }
 
   return (
@@ -43,7 +43,6 @@ export default function SilenceButton({
       label={`${isSilenced ? 'Uns' : 'S'}ilence post`}
       disabled={silenceMutation.isPending}
       style={style}
-      sheetRef={sheetRef}
     />
   )
 }

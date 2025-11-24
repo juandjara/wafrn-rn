@@ -1,6 +1,5 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { View, TouchableOpacity, Share } from 'react-native'
-import { TrueSheet } from '@lodev09/react-native-true-sheet'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 import ScrollingBottomShhet from '../ScrollingBottomSheet'
@@ -26,10 +25,10 @@ import SilenceButton from './SilenceButton'
 import ReportPostModal from '../posts/ReportPostModal'
 
 export default function InteractionMenu({ post }: { post: Post }) {
-  const sheetRef = useRef<TrueSheet>(null)
   const gray300 = useCSSVariable('--color-gray-300') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
   const [modalOpen, setModalOpen] = useState<'emojis' | 'report' | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const { env } = useAuth()
   const remoteUrl = getRemotePostUrl(post)
@@ -64,7 +63,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
   return (
     <>
       <TouchableOpacity
-        onPress={() => sheetRef.current?.present()}
+        onPress={() => setMenuOpen(true)}
         className="py-3 px-2 rounded-lg"
       >
         <MaterialCommunityIcons
@@ -86,25 +85,25 @@ export default function InteractionMenu({ post }: { post: Post }) {
           />
         ) : null}
       </View>
-      <ScrollingBottomShhet sheetRef={sheetRef}>
+      <ScrollingBottomShhet open={menuOpen} setOpen={setMenuOpen}>
         <MenuItem
           label="Reply"
-          action={() =>
+          action={() => {
             router.navigate(`/editor?type=reply&replyId=${post.id}`)
-          }
+            setMenuOpen(false)
+          }}
           icon={'reply'}
           style={optionStyleBig(0)}
-          sheetRef={sheetRef}
         />
         {canQuote ? (
           <MenuItem
             label="Quote"
-            action={() =>
+            action={() => {
               router.navigate(`/editor?type=quote&quoteId=${post.id}`)
-            }
+              setMenuOpen(false)
+            }}
             icon={'format-quote-close'}
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
           />
         ) : null}
         {canRewoot ? (
@@ -112,7 +111,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
             post={post}
             long
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
+            onPress={() => setMenuOpen(false)}
           />
         ) : null}
         {!createdByMe ? (
@@ -120,19 +119,26 @@ export default function InteractionMenu({ post }: { post: Post }) {
             post={post}
             long
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
+            onPress={() => setMenuOpen(false)}
           />
         ) : null}
-        <BookmarkButton post={post} long style={optionStyleBig(1)} />
+        <BookmarkButton
+          post={post}
+          long
+          style={optionStyleBig(1)}
+          onPress={() => setMenuOpen(false)}
+        />
         {!createdByMe ? (
           <MenuItem
             label="Add emoji reaction"
-            action={() => setModalOpen('emojis')}
+            action={() => {
+              setModalOpen('emojis')
+              setMenuOpen(false)
+            }}
             icon={
               <MaterialIcons name="emoji-emotions" size={20} color={gray600} />
             }
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
           />
         ) : null}
         {createdByMe ? (
@@ -140,7 +146,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
             post={post}
             long
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
+            onPress={() => setMenuOpen(false)}
           />
         ) : null}
         {/* --- SECONDARY --- */}
@@ -148,72 +154,82 @@ export default function InteractionMenu({ post }: { post: Post }) {
           <BiteButton
             post={post}
             style={optionStyleBig(1)}
-            sheetRef={sheetRef}
+            onPress={() => setMenuOpen(false)}
           />
         ) : null}
         <CollapseButton
           post={post}
           style={optionStyleBig(1)}
-          sheetRef={sheetRef}
+          onPress={() => setMenuOpen(false)}
         />
         <MenuItem
           icon="share-variant"
-          action={() => Share.share({ message: wafrnUrl })}
+          action={() => {
+            Share.share({ message: wafrnUrl })
+            setMenuOpen(false)
+          }}
           label="Share wafrn link"
           style={optionStyleBig(1)}
-          sheetRef={sheetRef}
         />
         {remoteUrl ? (
           <>
             <MenuItem
               icon="share-variant-outline"
-              action={() => Share.share({ message: remoteUrl })}
+              action={() => {
+                Share.share({ message: remoteUrl })
+                setMenuOpen(false)
+              }}
               label="Share remote link"
               style={optionStyleBig(1)}
-              sheetRef={sheetRef}
             />
             <MenuItem
               icon="open-in-new"
-              action={() => router.navigate(remoteUrl)}
+              action={() => {
+                router.navigate(remoteUrl)
+                setMenuOpen(false)
+              }}
               label={
                 remoteUrl?.startsWith(BSKY_URL)
                   ? 'Open in Bluesky'
                   : 'Open remote post'
               }
               style={optionStyleBig(1)}
-              sheetRef={sheetRef}
             />
           </>
         ) : null}
         <MenuItem
           icon="content-copy"
-          action={copyPostText}
+          action={() => {
+            copyPostText()
+            setMenuOpen(false)
+          }}
           label="Copy post text"
           style={optionStyleBig(1)}
-          sheetRef={sheetRef}
         />
         <MenuItem
           icon="alert-box-outline"
-          action={() => setModalOpen('report')}
+          action={() => {
+            setModalOpen('report')
+            setMenuOpen(false)
+          }}
           label="Report"
           style={optionStyleBig(1)}
-          sheetRef={sheetRef}
         />
         {createdByMe ? (
           <>
             <SilenceButton
               post={post}
               style={optionStyleBig(1)}
-              sheetRef={sheetRef}
+              onPress={() => setMenuOpen(false)}
             />
             <MenuItem
               icon={'pencil'}
-              action={() =>
+              action={() => {
                 router.navigate(`/editor?type=edit&editId=${post.id}`)
-              }
+                setMenuOpen(false)
+              }}
               label="Edit"
               style={optionStyleBig(1)}
-              sheetRef={sheetRef}
             />
           </>
         ) : null}
