@@ -142,7 +142,7 @@ export default function EditorView() {
       askId: params.type === 'ask' ? params.askId : undefined,
       quotedPostId: params.type === 'quote' ? params.quoteId : undefined,
       editingPostId: params.type === 'edit' ? params.editId : undefined,
-      contentWarning: form.contentWarning,
+      contentWarning: form.contentWarningOpen ? form.contentWarning : undefined,
       privacy: form.privacy,
       joinedTags: form.tags,
       medias: form.medias.map((m) => ({
