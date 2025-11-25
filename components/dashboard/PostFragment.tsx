@@ -239,7 +239,15 @@ export default function PostFragment({
                 className="flex-row items-start gap-3 p-2"
               >
                 <View className="ml-1 gap-1">
-                  <Ionicons name="warning" size={24} color={yellow500} />
+                  {contentWarning.toLowerCase().includes('fedi meta') ? (
+                    <MaterialCommunityIcons
+                      name="skull"
+                      size={24}
+                      color={yellow500}
+                    />
+                  ) : (
+                    <Ionicons name="warning" size={24} color={yellow500} />
+                  )}
                   {medias.length > 0 && (
                     <MaterialCommunityIcons
                       name="image"

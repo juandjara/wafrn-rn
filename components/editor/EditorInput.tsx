@@ -1,6 +1,10 @@
 import { PostUser } from '@/lib/api/posts.types'
 import useDebounce from '@/lib/useDebounce'
-import { MaterialIcons } from '@expo/vector-icons'
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { Text, TextInput, View } from 'react-native'
@@ -102,12 +106,21 @@ export default function EditorInput({
     <View id="editor" className="border border-gray-600 rounded-lg mx-2">
       {formState.contentWarningOpen && (
         <View className="border border-yellow-500 pl-8 rounded-md m-0.5">
-          <MaterialIcons
-            className="absolute left-2 top-2"
-            name="warning-amber"
-            color={yellow500}
-            size={24}
-          />
+          {formState.contentWarning?.toLowerCase().includes('fedi meta') ? (
+            <MaterialCommunityIcons
+              className="absolute left-2 top-2"
+              name="skull-outline"
+              color={yellow500}
+              size={24}
+            />
+          ) : (
+            <Ionicons
+              className="absolute left-2 top-2"
+              name="warning"
+              color={yellow500}
+              size={24}
+            />
+          )}
           <TextInput
             numberOfLines={1}
             placeholderTextColorClassName="accent-gray-500"

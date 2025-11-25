@@ -1,4 +1,8 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
 import { useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import ColorPicker from './ColorPicker'
@@ -98,8 +102,8 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           onPress={actions.toggleCW}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
         >
-          <MaterialCommunityIcons
-            name="message-alert"
+          <Ionicons
+            name="warning"
             size={24}
             color={cwOpen ? yellow500 : 'white'}
           />
