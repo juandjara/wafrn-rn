@@ -45,8 +45,10 @@ function PRERenderer({
           maxWidth: '100%',
           ...style,
         }}
-        contentContainerStyle={{ flex: 0 }}
-        fadingEdgeLength={64}
+        persistentScrollbar
+        className="bg-slate-900 rounded-lg"
+        contentContainerClassName="flex-none p-3"
+        fadingEdgeLength={20}
       >
         <TDefaultRenderer style={{ paddingRight: 16 }} {...props} />
       </ScrollView>
