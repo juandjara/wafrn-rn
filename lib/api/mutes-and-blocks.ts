@@ -53,9 +53,10 @@ export function useBlockMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === 'settings' ||
-          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
+        predicate: ({ queryKey }) =>
+          queryKey[0] === 'blocks' ||
+          queryKey[0] === 'settings' ||
+          (queryKey[0] === 'user' && queryKey[1] === user.url),
       })
     },
   })
@@ -139,9 +140,10 @@ export function useMuteMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === 'settings' ||
-          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
+        predicate: ({ queryKey }) =>
+          queryKey[0] === 'mutes' ||
+          queryKey[0] === 'settings' ||
+          (queryKey[0] === 'user' && queryKey[1] === user.url),
       })
     },
   })
@@ -282,9 +284,10 @@ export function useServerBlockMutation(user: PostUser) {
     },
     onSettled: async () => {
       await qc.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === 'settings' ||
-          (query.queryKey[0] === 'user' && query.queryKey[1] === user.url),
+        predicate: ({ queryKey }) =>
+          queryKey[0] === 'serverBlocks' ||
+          queryKey[0] === 'settings' ||
+          (queryKey[0] === 'user' && queryKey[1] === user.url),
       })
     },
   })
