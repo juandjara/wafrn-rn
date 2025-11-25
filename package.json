@@ -1,7 +1,7 @@
 {
   "name": "wafrn-rn",
   "main": "expo-router/entry",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "scripts": {
     "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive --environment preview",
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
