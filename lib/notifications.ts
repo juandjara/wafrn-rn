@@ -132,7 +132,7 @@ export async function getNotifications({
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v3/notificationsScroll?page=${page}&date=${date}`,
+    `${env?.API_URL}/v3/notificationsScroll?page=${page}&date=${date || Date.now()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -159,7 +159,7 @@ export function useNotifications() {
       return list
     },
     initialPageParam: {
-      date: Date.now(),
+      date: 0,
       page: 0,
     },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {

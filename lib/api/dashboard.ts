@@ -31,7 +31,7 @@ export async function getDashboard({
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v2/dashboard?level=${mode}&startScroll=${startTime}`,
+    `${env?.API_URL}/v2/dashboard?level=${mode}&startScroll=${startTime || Date.now()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -60,7 +60,7 @@ export function useDashboard(mode: DashboardMode) {
       await refetchBadge()
       return list
     },
-    initialPageParam: Date.now(),
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
     enabled: !!token && !!settings,
     staleTime: 1000 * 60 * 60, // 1 hour
@@ -267,7 +267,7 @@ export async function getUserFeed({
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime}`,
+    `${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -285,7 +285,7 @@ export function useUserFeed(userId: string) {
     queryKey: ['dashboard', 'userFeed', userId],
     queryFn: ({ pageParam, signal }) =>
       getUserFeed({ userId, startTime: pageParam, token: token!, signal }),
-    initialPageParam: Date.now(),
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => getLastDate(lastPage.posts),
     enabled: !!token,
   })

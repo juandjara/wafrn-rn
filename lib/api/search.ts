@@ -12,7 +12,7 @@ export enum SearchType {
   UserAndTag = 'userAndTag', // user:@username #tag
   URL = 'url', // https://example.com
 }
- 
+
 export enum SearchView {
   Users = 'users',
   Posts = 'posts',
@@ -55,7 +55,7 @@ export async function search({
     term = tagPart
     user = userPart.replace('user:@', '')
   }
-  
+
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/v2/search?startScroll=${time}&term=${term}&page=${page}&user=${user}`,
@@ -99,7 +99,11 @@ export function useSearch(query: string) {
   })
 }
 
-export async function searchUser(token: string, signal: AbortSignal, handlePart: string) {
+export async function searchUser(
+  token: string,
+  signal: AbortSignal,
+  handlePart: string,
+) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
     `${env?.API_URL}/userSearch/${encodeURIComponent(handlePart)}`,
