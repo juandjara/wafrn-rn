@@ -24,7 +24,7 @@ export default function ActivateScreen() {
   const mutation = useAccountActivateMutation()
 
   useEffect(() => {
-    if (savedInstance && !mutation.isPending && !mutation.isError) {
+    if (savedInstance && mutation.isIdle) {
       mutation.mutate({ code, email })
     }
   }, [savedInstance, mutation, code, email])

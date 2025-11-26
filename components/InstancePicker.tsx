@@ -1,7 +1,6 @@
 import { Colors } from '@/constants/Colors'
 import { DEFAULT_INSTANCE, useEnvCheckMutation } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
-import { useToasts } from '@/lib/toasts'
 import { useState } from 'react'
 import { Button, Text, TextInput, View } from 'react-native'
 
@@ -15,18 +14,12 @@ export default function InstancePicker({
   const [url, setUrl] = useState('')
   const color = Colors.dark.text
   const envMutation = useEnvCheckMutation()
-  const { showToastError, showToastSuccess } = useToasts()
 
   function connect(url: string) {
     envMutation.mutate(url, {
-      onSuccess: async () => {
+      onSuccess: () => {
         // the instance environment is valid, save the url to local storage
-        showToastSuccess('Instance is good')
         setSavedInstance(url)
-      },
-      onError: (error) => {
-        console.error('Error fetching environment', error)
-        showToastError(error.message)
       },
     })
   }

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import useAsyncStorage from '../useLocalStorage'
 import { queryClient } from '../queryClient'
+import { useToasts } from '../toasts'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
@@ -132,12 +133,20 @@ export function useEnvironment() {
 }
 
 export function useEnvCheckMutation() {
+  const { showToastError, showToastSuccess } = useToasts()
   return useMutation<void, Error, string>({
     mutationKey: ['environment'],
     // this mutation returns nothing, it is just used to check if the environment is valid
     // if the function does not throw an error, this instance environment is marked valid
     mutationFn: async (instance) => {
       await getInstanceEnvironment(instance || DEFAULT_INSTANCE)
+    },
+    onSuccess: () => {
+      showToastSuccess('Instance is good')
+    },
+    onError: (error) => {
+      console.error('Error fetching environment', error)
+      showToastError(error.message)
     },
   })
 }
