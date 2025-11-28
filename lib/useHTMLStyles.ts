@@ -1,5 +1,6 @@
 import { useCSSVariable } from 'uniwind'
 import { htmlBlockStyles, htmlInlineStyles } from './api/html'
+import { useMemo } from 'react'
 
 export default function useHTMLStyles() {
   const gray400 = useCSSVariable('--color-gray-300') as string
@@ -9,11 +10,14 @@ export default function useHTMLStyles() {
   const blockStyles = htmlBlockStyles({ blue950, gray400 })
   const { text, ...inlineStyles } = htmlInlineStyles({ cyan400 })
 
-  return {
-    textStyle: text,
-    tagStyles: {
-      ...blockStyles,
-      ...inlineStyles,
-    },
-  }
+  return useMemo(
+    () => ({
+      textStyle: text,
+      tagStyles: {
+        ...blockStyles,
+        ...inlineStyles,
+      },
+    }),
+    [text, blockStyles, inlineStyles],
+  )
 }
