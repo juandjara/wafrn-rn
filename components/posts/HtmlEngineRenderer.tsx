@@ -55,7 +55,7 @@ function HtmlEngineRendererInner({
       <View id="link-cards">
         {links.map((link, i) => (
           <LinkPreviewCard
-            key={i}
+            key={link}
             url={link}
             width={contentWidth}
             className="my-1"
