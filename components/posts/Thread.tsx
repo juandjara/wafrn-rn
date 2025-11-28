@@ -7,13 +7,10 @@ import RewootRibbon from '../ribbons/RewootRibbon'
 import InteractionRibbon from './InteractionRibbon'
 import { Link } from 'expo-router'
 import ReplyRibbon from '../ribbons/ReplyRibbon'
-import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { memo } from 'react'
 
 function ThreadInner({ thread }: { thread: PostThread }) {
   const context = useDashboardContext()
-  const hiddenUserIds = useHiddenUserIds()
-
   const {
     isRewoot,
     isReply,
@@ -24,11 +21,8 @@ function ThreadInner({ thread }: { thread: PostThread }) {
     threadPosts,
     morePostsCount,
     postHidden,
+    userHidden,
   } = context.threadData[thread.id]
-
-  const userHidden =
-    (firstPost ? hiddenUserIds.includes(firstPost.userId) : false) ||
-    threadPosts.some((a) => hiddenUserIds.includes(a.userId))
 
   if (postHidden || userHidden) {
     return null

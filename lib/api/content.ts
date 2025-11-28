@@ -575,6 +575,12 @@ export function sortPosts(a: Timestamps, b: Timestamps) {
   return aTime - bTime
 }
 
+function getHiddenUserIds(settings?: Settings) {
+  const mutedIds = settings?.mutedUsers || []
+  const blockedIds = settings?.blockedUsers || []
+  return [...new Set([...mutedIds, ...blockedIds])]
+}
+
 export type DerivedPostData = ReturnType<typeof getDerivedPostState>
 
 export function getDerivedPostState(
@@ -715,12 +721,13 @@ export function getDerivedThreadState(
     if (threadAncestorLimit === 1) {
       posts = [interactionPost]
     } else if (threadAncestorLimit === 2) {
+      // writing null here so that is what will be extracted as `firstPost` later
       posts = [null, ancestors[ancestors.length - 1], interactionPost]
       morePostsCount = ancestors.length - 1
     } else {
-      // the `-1` cuts from the tail of ancestors and
-      // thread ancestor limit is a minimum of 3 here, and we are already showing 2 other posts,
-      // so `tail` will at least have one element
+      // the `-1` modifier makes the slice starting from the tail of ancestors
+      // the `-2` subtraction accounts for the fact that we are already showing 2 other posts
+      // `threadAncestorLimit` is a minimum of 3 in this part of the code, so `tail` will at least have one element
       const tail = ancestors.slice(-1 * (threadAncestorLimit - 2))
       posts = [ancestors[0], ...tail, interactionPost].filter(Boolean)
       morePostsCount = ancestors.length - 2
@@ -739,6 +746,11 @@ export function getDerivedThreadState(
     isFollowersOnly(thread) ||
     ancestors.some(isFollowersOnly)
 
+  const hiddenUserIds = getHiddenUserIds(settings)
+  const userHidden =
+    (firstPost ? hiddenUserIds.includes(firstPost.userId) : false) ||
+    threadPosts.some((a) => a && hiddenUserIds.includes(a.userId))
+
   return {
     isRewoot,
     isReply,
@@ -746,6 +758,7 @@ export function getDerivedThreadState(
     postUserEmojis,
     interactionPost,
     postHidden,
+    userHidden,
     firstPost,
     threadPosts: threadPosts.filter((t) => !!t),
     morePostsCount,
