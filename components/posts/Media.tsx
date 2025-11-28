@@ -16,6 +16,39 @@ import { useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import { Image } from 'expo-image'
+import Loading from '../Loading'
+
+function ImageWithLoader({
+  src,
+  width,
+  height,
+  blurhash,
+}: {
+  src: string
+  width: number
+  height: number
+  blurhash: string
+}) {
+  const [loading, setLoading] = useState(true)
+  return (
+    <View className="relative">
+      {loading && (
+        <View className="z-20 absolute inset-0 bg-black/20 items-center justify-center">
+          <Loading />
+        </View>
+      )}
+      <Image
+        source={src}
+        cachePolicy={'memory'}
+        contentFit="cover"
+        placeholderContentFit="cover"
+        placeholder={{ height, width, blurhash }}
+        style={{ height, width }}
+        onLoad={() => setLoading(false)}
+      />
+    </View>
+  )
+}
 
 export default function Media({
   media,
@@ -72,20 +105,11 @@ export default function Media({
   } else if (isImage(mime, src)) {
     content = (
       <Pressable className="max-w-full" onPress={onPress}>
-        <Image
-          cachePolicy={'memory'}
-          source={src}
-          placeholderContentFit="cover"
-          placeholder={{
-            blurhash: media.blurhash || '',
-            width: contentWidth,
-            height,
-          }}
-          style={{
-            resizeMode: 'cover',
-            width: contentWidth,
-            height,
-          }}
+        <ImageWithLoader
+          src={src}
+          width={contentWidth}
+          height={height}
+          blurhash={media.blurhash ?? ''}
         />
       </Pressable>
     )
