@@ -72,7 +72,7 @@ export function getLastDate(posts: Timestamps[]) {
     return undefined
   }
   const dates = posts.map((post) => new Date(post.createdAt).getTime())
-  return Math.min(...dates)
+  return Math.min(...dates) - 1
 }
 
 // assume everything here could be duplicated data
