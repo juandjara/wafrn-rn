@@ -90,7 +90,7 @@ export default function UserMenu() {
   return (
     <>
       <TouchableOpacity
-        className="relative mt-1"
+        className="relative"
         accessibilityLabel="Main Menu"
         onPress={() => setMenuOpen(true)}
       >
