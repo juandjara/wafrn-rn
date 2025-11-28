@@ -40,7 +40,7 @@ export default function PostFragment({
   isQuote,
   hasCornerMenu = true,
   collapsible = true,
-  clickable: _clickable = true,
+  clickable = true,
 }: {
   post: Post
   isQuote?: boolean
@@ -69,7 +69,7 @@ export default function PostFragment({
     isHidden,
   } = derivedState
 
-  const showQuotedPost = quotedPost && !isQuote
+  const showQuotedPost = !!quotedPost && !isQuote
 
   const { width } = useWindowDimensions()
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
@@ -85,13 +85,6 @@ export default function PostFragment({
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
-  const clickable = _clickable && !isDetailView
-  const rootProps = clickable
-    ? {
-        android_ripple: { color: `${cyan700}40` },
-        onPress: () => router.navigate(`/post/${post.id}`),
-      }
-    : {}
 
   const [imageGalleryOpen, setImageGalleryOpen] = useState<number | null>(null)
   const emojiReactMutation = useEmojiReactMutation(post)
@@ -131,7 +124,7 @@ export default function PostFragment({
     hiddenUserIds.includes(user.id),
   )
   const hiddenUserQuoted =
-    quotedPost && hiddenUserIds.includes(quotedPost.userId)
+    !!quotedPost && hiddenUserIds.includes(quotedPost.userId)
 
   const voteMutation = useVoteMutation(poll?.id || null, post)
 
@@ -150,6 +143,12 @@ export default function PostFragment({
 
   function toggleCW() {
     toggleCwOpen(post.id, !cwOpen)
+  }
+
+  function onPress() {
+    if (clickable && !isDetailView) {
+      router.navigate(`/post/${post.id}`)
+    }
   }
 
   if (isHidden) {
@@ -191,7 +190,7 @@ export default function PostFragment({
         'rounded-xl': isQuote,
       })}
       onLongPress={collapsePost}
-      {...rootProps}
+      onPress={onPress}
     >
       {hasCornerMenu && (
         <View className="absolute z-20 top-0 right-0">
