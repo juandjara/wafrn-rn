@@ -150,7 +150,7 @@ export default function ZoomableImage({
       </Modal>
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <Image
-          cachePolicy={'memory'}
+          cachePolicy={'memory-disk'}
           source={src}
           placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}

@@ -39,7 +39,7 @@ function ImageWithLoader({
       )}
       <Image
         source={src}
-        cachePolicy={'memory'}
+        cachePolicy={'memory-disk'}
         contentFit="cover"
         placeholderContentFit="cover"
         placeholder={{ height, width, blurhash }}
