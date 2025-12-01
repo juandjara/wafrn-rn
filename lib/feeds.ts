@@ -1,40 +1,54 @@
-import { DerivedThreadData } from './api/content'
+import { getDerivedThreadState } from './api/content'
 import { PostThread } from './api/posts.types'
+import { Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 
-function threadDataToLisItems({
-  isRewoot,
-  isReply,
-  postUser,
-  interactionPost,
-  firstPost,
-  threadPosts,
-  morePostsCount,
-  postHidden,
-  userHidden,
-}: DerivedThreadData) {
-  if (postHidden || userHidden) {
+function threadToListItems(
+  thread: PostThread,
+  context: DashboardContextData,
+  settings?: Settings,
+) {
+  const {
+    isRewoot,
+    isReply,
+    interactionPost,
+    firstPost,
+    threadPosts,
+    morePostsCount,
+    postHidden,
+  } = getDerivedThreadState(thread, context, settings)
+  const { user, userEmojis } = context.postsData[thread.id]
+
+  if (postHidden) {
     return []
   }
+
   const elements = []
-  if (postUser) {
+  if (user) {
     if (isRewoot) {
       elements.push({
+        threadId: thread.id,
         type: 'rewoot-ribbon' as const,
         postId: interactionPost.id,
         height: 42,
+        user,
+        emojis: userEmojis,
       })
     }
     if (isReply) {
       elements.push({
+        threadId: thread.id,
         type: 'reply-ribbon' as const,
         postId: interactionPost.id,
         height: 42,
+        user,
+        emojis: userEmojis,
       })
     }
   }
   if (firstPost) {
     elements.push({
+      threadId: thread.id,
       type: 'post' as const,
       post: firstPost,
       postId: firstPost.id,
@@ -44,6 +58,7 @@ function threadDataToLisItems({
   }
   if (morePostsCount > 0) {
     elements.push({
+      threadId: thread.id,
       type: 'more-posts' as const,
       count: morePostsCount,
       postId: interactionPost.id,
@@ -52,6 +67,7 @@ function threadDataToLisItems({
   }
   elements.push(
     ...threadPosts.map((post, index) => ({
+      threadId: thread.id,
       type: 'post' as const,
       post,
       postId: post.id,
@@ -60,6 +76,7 @@ function threadDataToLisItems({
     })),
   )
   elements.push({
+    threadId: thread.id,
     type: 'interaction-ribbon' as const,
     post: interactionPost,
     postId: interactionPost.id,
@@ -69,9 +86,8 @@ function threadDataToLisItems({
   return elements
 }
 
-export type FeedItem = ReturnType<typeof threadDataToLisItems>[number] & {
+export type FeedItem = ReturnType<typeof threadToListItems>[number] & {
   threadId: string
-  threadContext: DerivedThreadData
 }
 
 export function feedKeyExtractor(item: FeedItem) {
@@ -81,13 +97,8 @@ export function feedKeyExtractor(item: FeedItem) {
 export function getFeedData(
   context: DashboardContextData,
   posts: PostThread[],
+  settings?: Settings,
 ) {
-  const feedData = posts.flatMap((p) =>
-    threadDataToLisItems(context.threadData[p.id]).map((item) => ({
-      ...item,
-      threadId: p.id,
-      threadContext: context.threadData[p.id],
-    })),
-  )
+  const feedData = posts.flatMap((p) => threadToListItems(p, context, settings))
   return feedData
 }

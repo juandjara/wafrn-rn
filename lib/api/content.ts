@@ -688,8 +688,6 @@ export function getDerivedThreadState(
 ) {
   const isRewoot = isEmptyRewoot(thread, context)
   const isReply = !!thread.parentId && !isRewoot
-  const postUser = context.users.find((u) => u.id === thread.userId)
-  const postUserEmojis = postUser ? getUserEmojis(postUser, context) : []
 
   const threadAncestorLimit = getPrivateOptionValue(
     settings?.options || [],
@@ -748,14 +746,10 @@ export function getDerivedThreadState(
   return {
     isRewoot,
     isReply,
-    postUser,
-    postUserEmojis,
     interactionPost,
-    postHidden,
-    userHidden,
+    postHidden: postHidden || userHidden,
     firstPost,
     threadPosts: threadPosts.filter((t) => !!t),
     morePostsCount,
-    ancestorLimitReached,
   }
 }

@@ -101,7 +101,6 @@ export function getDashboardContext(
     rewootIds: [],
     bookmarks: [],
     postsData: {},
-    threadData: {},
   } as DashboardContextData
 
   for (const page of data) {
@@ -191,11 +190,6 @@ export function getDashboardContext(
   // this does not dedupe posts, it creates the derived state for each post and its ancestors if present
   for (const page of data) {
     for (const thread of page.posts) {
-      context.threadData[thread.id] = getDerivedThreadState(
-        thread,
-        context,
-        settings,
-      )
       context.postsData[thread.id] = getDerivedPostState(
         thread,
         context,

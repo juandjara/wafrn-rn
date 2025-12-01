@@ -42,7 +42,7 @@ export default function Dashboard({
     }
     const context = getDashboardContext(data.pages || [], settings)
     const posts = dedupePosts(data.pages || [])
-    const feed = getFeedData(context, posts)
+    const feed = getFeedData(context, posts, settings)
     return { context, feed }
   }, [data, settings])
 

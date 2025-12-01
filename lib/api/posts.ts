@@ -13,7 +13,7 @@ import { router } from 'expo-router'
 import { useToasts } from '../toasts'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
-  minIndexForVisible: 0,
+  minIndexForVisible: 1,
 }
 
 export const VIEWABILITY_CONFIG = {

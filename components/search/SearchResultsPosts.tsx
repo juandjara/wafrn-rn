@@ -47,7 +47,7 @@ export default function SearchResultsPosts({
     const pages = (data?.pages || []).map((page) => page.posts)
     const context = getDashboardContext(pages, settings)
     const posts = dedupePosts(pages)
-    const feedData = getFeedData(context, posts)
+    const feedData = getFeedData(context, posts, settings)
     return { context, feedData }
   }, [data?.pages, settings])
 

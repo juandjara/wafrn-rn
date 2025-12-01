@@ -74,7 +74,7 @@ export default function UserFeed() {
   const { context, feedData } = useMemo(() => {
     const context = getDashboardContext(feed?.pages || [], settings)
     const posts = dedupePosts(feed?.pages || [])
-    const feedData = getFeedData(context, posts)
+    const feedData = getFeedData(context, posts, settings)
     return { context, feedData }
   }, [settings, feed?.pages])
 

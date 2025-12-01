@@ -8,12 +8,11 @@ import PostFragment from './PostFragment'
 import InteractionRibbon from '../posts/InteractionRibbon'
 
 function _FeedItemRenderer({ item }: { item: FeedItem }) {
-  const { postUser, postUserEmojis } = item.threadContext
   if (item.type === 'rewoot-ribbon') {
     return (
       <RewootRibbon
-        user={postUser!}
-        emojis={postUserEmojis}
+        user={item.user}
+        emojis={item.emojis}
         className="border-b border-slate-600"
       />
     )
@@ -22,8 +21,8 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
     return (
       <ReplyRibbon
         postId={item.threadId}
-        user={postUser!}
-        emojis={postUserEmojis}
+        user={item.user}
+        emojis={item.emojis}
         className="border-b border-slate-600"
       />
     )

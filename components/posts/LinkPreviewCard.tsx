@@ -64,7 +64,7 @@ export default function LinkPreviewCard({
         onLongPress={copyLink}
         className={clsx(
           className,
-          'bg-black/20 flex-row items-start rounded-lg',
+          'bg-black/20 flex-row items-start rounded-lg min-h-[60px]',
         )}
       >
         <View className="p-4 shrink-0">
