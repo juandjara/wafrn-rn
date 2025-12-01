@@ -1,16 +1,11 @@
-import {
-  useMutation,
-  useMutationState,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useMutationState } from '@tanstack/react-query'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { getJSON } from '../http'
-import { Post, PostUser } from './posts.types'
+import { PostUser } from './posts.types'
 import { getEnvironmentStatic } from './auth'
 import { useToasts } from '../toasts'
 import { useDashboardContext } from '../contexts/DashboardContext'
 import { useMemo } from 'react'
-import { useLikeMutation } from '../interaction'
 
 export type EmojiBase = {
   external: boolean
@@ -48,17 +43,6 @@ export function isSameEmojiReaction(a: EmojiReaction, b: EmojiReaction) {
   return false
 }
 
-export function optimisticReaction(
-  nextEmoji: EmojiReaction,
-  prevEmojis: EmojiReaction[],
-) {
-  const undo = prevEmojis.some((prev) => isSameEmojiReaction(prev, nextEmoji))
-  if (undo) {
-    return prevEmojis.filter((emoji) => !isSameEmojiReaction(emoji, nextEmoji))
-  }
-  return prevEmojis.concat(nextEmoji)
-}
-
 export type EmojiReactPayload = {
   postId: string
   nextEmoji: EmojiReaction
@@ -81,13 +65,12 @@ export async function emojiReact(
   })
 }
 
-export function useEmojiReactMutation(post: Post) {
+export function useEmojiReactMutation({ id }: { id: string }) {
   const { token } = useAuth()
-  const qc = useQueryClient()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, EmojiReactPayload>({
-    mutationKey: ['emojiReact', post.id],
+    mutationKey: ['emojiReact', id],
     mutationFn: (payload) => emojiReact(token!, payload),
     onError: (err) => {
       console.error(err)
@@ -96,8 +79,6 @@ export function useEmojiReactMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(variables.undo ? `Reaction removed` : `Reaction sent`)
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
