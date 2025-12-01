@@ -10,14 +10,17 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
 import { useScrollToTop } from '@react-navigation/native'
-import Thread from '../posts/Thread'
-import { PostThread } from '@/lib/api/posts.types'
 import { useLayoutData } from '@/lib/store'
-import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
+import {
+  FLATLIST_PERFORMANCE_CONFIG,
+  MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
+} from '@/lib/api/posts'
 import { useSettings } from '@/lib/api/settings'
+import { FeedItem, feedKeyExtractor, getFeedData } from '@/lib/feeds'
+import FeedItemRenderer from './FeedItemRenderer'
 
-function renderItem({ item }: { item: PostThread }) {
-  return <Thread thread={item} />
+function itemRenderer({ item }: { item: FeedItem }) {
+  return <FeedItemRenderer item={item} />
 }
 
 export default function Dashboard({
@@ -29,27 +32,36 @@ export default function Dashboard({
   header?: React.ReactElement
   bottomPadding?: number
 }) {
-  const listRef = useRef<FlatList<PostThread>>(null)
+  const layoutData = useLayoutData()
+  const listRef = useRef<FlatList<FeedItem>>(null)
   const { data, isFetching, fetchNextPage, hasNextPage } = useDashboard(mode)
-
   const { data: settings } = useSettings()
-  const { context, posts } = useMemo(() => {
-    if (!data || !settings) return { context: null, posts: [] }
+  const { context, feed } = useMemo(() => {
+    if (!data || !settings) {
+      return { context: null, feed: [] }
+    }
     const context = getDashboardContext(data.pages || [], settings)
-    const posts = dedupePosts(data?.pages || [])
-    return { context, posts }
+    const posts = dedupePosts(data.pages || [])
+    const feed = getFeedData(context, posts)
+    return { context, feed }
   }, [data, settings])
+
+  const contentInset = { bottom: bottomPadding }
 
   useScrollToTop(listRef)
 
   const qc = useQueryClient()
-  const refresh = async () => {
+  async function refresh() {
     await qc.resetQueries({
       queryKey: ['dashboard', mode],
     })
   }
 
-  const layoutData = useLayoutData()
+  function onEndReached() {
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  }
 
   if (!context) {
     return <Loading />
@@ -61,18 +73,18 @@ export default function Dashboard({
         ref={listRef}
         refreshing={isFetching}
         onRefresh={refresh}
-        data={posts}
         extraData={layoutData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
+        data={feed}
+        keyExtractor={feedKeyExtractor}
+        renderItem={itemRenderer}
+        onEndReached={onEndReached}
         ListFooterComponent={isFetching ? <Loading /> : null}
         ListHeaderComponent={header}
-        contentInset={{ bottom: bottomPadding }}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-        }}
+        contentInset={contentInset}
         progressViewOffset={isFetching ? bottomPadding : 0}
+        maintainVisibleContentPosition={
+          isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+        }
         {...FLATLIST_PERFORMANCE_CONFIG}
       />
     </DashboardContextProvider>

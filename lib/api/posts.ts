@@ -18,16 +18,16 @@ export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
 
 export const VIEWABILITY_CONFIG = {
   minimumViewTime: 500,
-  itemVisiblePercentThreshold: 50,
+  itemVisiblePercentThreshold: 40,
 }
 
 export const FLATLIST_PERFORMANCE_CONFIG = {
   viewabilityConfig: VIEWABILITY_CONFIG,
-  initialNumToRender: 5,
-  windowSize: 9,
+  initialNumToRender: 6,
+  windowSize: 12,
   removeClippedSubviews: true,
-  updateCellsBatchingPeriod: 100,
-  maxToRenderPerBatch: 5,
+  updateCellsBatchingPeriod: 200,
+  maxToRenderPerBatch: 6,
 }
 
 const LAYOUT_MARGIN = 24
@@ -215,14 +215,14 @@ export function useCreatePostMutation() {
       }
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: async (data, error, variables) => {
-      await qc.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
-          (query.queryKey[0] === 'post' &&
-            query.queryKey[1] === variables.parentId),
-      })
-    },
+    // onSettled: async (data, error, variables) => {
+    //   await qc.invalidateQueries({
+    //     predicate: (query) =>
+    //       query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
+    //       (query.queryKey[0] === 'post' &&
+    //         query.queryKey[1] === variables.parentId),
+    //   })
+    // },
   })
 }
 
@@ -272,7 +272,7 @@ export function useRewootMutation(post: Post) {
       showToastSuccess(`Woot ${variables ? 'un' : ''}rewooted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post),
+    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
@@ -303,13 +303,14 @@ export function useDeleteMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot deleted`)
     },
-    // NOTE: not reutlizing the common function to avoid refetching a just-deleted post
     onSettled: async () => {
+      // refetch the thread where this post was a reply
       await qc.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
-          query.queryKey[0] === 'search' ||
-          (query.queryKey[0] === 'post' && query.queryKey[1] === post.parentId),
+        queryKey: ['post', post.parentId],
+      })
+      // remove post detail from cache
+      qc.removeQueries({
+        queryKey: ['post', post.id],
       })
     },
   })
@@ -331,7 +332,7 @@ export async function voteOnPoll(
   })
 }
 
-export function useVoteMutation(pollId: number | null, post: Post) {
+export function useVoteMutation(pollId: number | null) {
   const { token } = useAuth()
   const qc = useQueryClient()
   const { showToastError, showToastSuccess } = useToasts()
@@ -351,7 +352,7 @@ export function useVoteMutation(pollId: number | null, post: Post) {
       showToastSuccess(`Poll voted`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post),
+    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 

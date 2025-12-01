@@ -1,8 +1,12 @@
 import { type Post } from '@/lib/api/posts.types'
-import EmojiPicker, { type Emoji } from '../EmojiPicker'
+import EmojiPicker from '../EmojiPicker'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
-import { useDashboardContext } from '@/lib/contexts/DashboardContext'
-import { useEmojiReactMutation } from '@/lib/api/emojis'
+import {
+  type Emoji,
+  isSameEmojiReaction,
+  useEmojiReactMutation,
+  useExtendedReactions,
+} from '@/lib/api/emojis'
 
 export default function ReactionEmojiPicker({
   post,
@@ -12,30 +16,34 @@ export default function ReactionEmojiPicker({
   onClose: (open: boolean) => void
 }) {
   const me = useParsedToken()
-  const context = useDashboardContext()
+  const extendedReactions = useExtendedReactions(post.id)
   const emojiReactMutation = useEmojiReactMutation(post)
 
-  function haveIReacted({ content, id }: Emoji) {
-    if (!post) {
-      return false
-    }
-    if (id.endsWith('-recent')) {
-      id = id.replace('-recent', '')
-    }
-    const reactions = context.emojiRelations.postEmojiReactions.filter(
-      (p) => p.userId === me?.userId && p.postId === post.id,
-    )
-    return reactions.some((r) => r.emojiId === id || r.content === content)
-  }
-
   function onPickEmoji(emoji: Emoji) {
+    const nextReaction = emoji.content ? emoji.content : emoji
+    const haveIReacted = extendedReactions.some(
+      (r) =>
+        isSameEmojiReaction(r.emoji, nextReaction) &&
+        r.users.some((r) => r.id === me?.userId),
+    )
     emojiReactMutation.mutate({
-      post,
-      emojiName: emoji.content || emoji.name,
-      undo: haveIReacted(emoji),
+      postId: post.id,
+      nextEmoji: nextReaction,
+      undo: haveIReacted,
     })
     onClose(false)
   }
 
-  return <EmojiPicker open setOpen={onClose} onPick={onPickEmoji} post={post} />
+  if (!me) {
+    return null
+  }
+
+  return (
+    <EmojiPicker
+      open
+      setOpen={onClose}
+      onPick={onPickEmoji}
+      reactions={extendedReactions}
+    />
+  )
 }

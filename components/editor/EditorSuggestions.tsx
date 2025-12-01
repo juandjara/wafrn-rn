@@ -1,6 +1,6 @@
 import { useUserSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
-import { getUnicodeEmojiGroups } from '@/lib/emojis'
+import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import useDebounce from '@/lib/useDebounce'
 import { useMemo } from 'react'
 import { Emoji } from '../EmojiPicker'

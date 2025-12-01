@@ -1,3 +1,4 @@
+import { useVoteMutation } from '@/lib/api/posts'
 import { PostPoll } from '@/lib/api/posts.types'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -9,19 +10,16 @@ import { useCSSVariable } from 'uniwind'
 
 export default function Poll({
   poll,
-  isLoading,
   interactable,
   postId,
-  onVote,
 }: {
   poll: PostPoll
-  isLoading?: boolean
   interactable?: boolean
   postId: string
-  onVote: (votes: number[]) => void
 }) {
-  const blue500 = useCSSVariable('--color-blue-500') as string
   const me = useParsedToken()
+  const blue500 = useCSSVariable('--color-blue-500') as string
+  const voteMutation = useVoteMutation(poll.id)
 
   const { totalVotes, haveIVoted, questionMap, sortedQuestions } =
     useMemo(() => {
@@ -42,10 +40,12 @@ export default function Poll({
     }, [poll, me])
 
   // localVote contains the ids of the questions that the user is voting for
-  const [localVote, setLocalVote] = useState<number[]>([])
+  const [localVote, setLocalVote] = useState<number[]>(
+    voteMutation.variables ?? [],
+  )
 
   const isEnded = new Date(poll.endDate) < new Date()
-  const canIVote = !haveIVoted && !isLoading && !isEnded
+  const canIVote = voteMutation.isIdle && !haveIVoted && !isEnded
 
   let buttonLabel = 'Vote'
   if (haveIVoted) {
@@ -97,7 +97,7 @@ export default function Poll({
   }
 
   function sendVotes() {
-    onVote(localVote)
+    voteMutation.mutate(localVote)
   }
 
   return (

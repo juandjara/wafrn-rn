@@ -3,9 +3,8 @@ import { SearchType, useSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
 import { useLayoutData } from '@/lib/store'
 import { useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
-import { Pressable, Text, View } from 'react-native'
-import Thread from '../posts/Thread'
+import { useMemo, useRef } from 'react'
+import { type FlatList, Pressable, Text, View } from 'react-native'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import Animated from 'react-native-reanimated'
 import { useFollowTagMutation } from '@/lib/interaction'
@@ -13,6 +12,17 @@ import { clsx } from 'clsx'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import { useCornerButtonAnimation } from '../CornerButton'
 import { KeyboardStickyView } from 'react-native-keyboard-controller'
+import { type FeedItem, feedKeyExtractor, getFeedData } from '@/lib/feeds'
+import FeedItemRenderer from '../dashboard/FeedItemRenderer'
+import { useScrollToTop } from '@react-navigation/native'
+
+function renderItem({ item }: { item: any }) {
+  return <FeedItemRenderer item={item} />
+}
+
+const styles = {
+  flex: { flex: 1 },
+}
 
 export default function SearchResultsPosts({
   query,
@@ -21,7 +31,10 @@ export default function SearchResultsPosts({
   query: string
   type: SearchType
 }) {
+  const layoutData = useLayoutData()
+  const listRef = useRef<FlatList<FeedItem> | null>(null)
   const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
+
   const qc = useQueryClient()
   const refresh = async () => {
     await qc.resetQueries({
@@ -30,19 +43,13 @@ export default function SearchResultsPosts({
   }
 
   const { data: settings } = useSettings()
-  const context = useMemo(
-    () =>
-      getDashboardContext(
-        (data?.pages || []).map((page) => page.posts),
-        settings,
-      ),
-    [data?.pages, settings],
-  )
-  const dedupedPosts = useMemo(
-    () => dedupePosts((data?.pages || []).map((page) => page.posts)),
-    [data?.pages],
-  )
-  const layoutData = useLayoutData()
+  const { context, feedData } = useMemo(() => {
+    const pages = (data?.pages || []).map((page) => page.posts)
+    const context = getDashboardContext(pages, settings)
+    const posts = dedupePosts(pages)
+    const feedData = getFeedData(context, posts)
+    return { context, feedData }
+  }, [data?.pages, settings])
 
   const mutation = useFollowTagMutation()
   const followingTag = !!settings?.followedHashtags.includes(
@@ -51,24 +58,33 @@ export default function SearchResultsPosts({
   const showFollowButton = type !== SearchType.URL
   const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
 
+  useScrollToTop(listRef)
+
+  function onEndReached() {
+    if (hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  }
+
   return (
     <>
       <DashboardContextProvider data={context}>
         <Animated.FlatList
+          ref={listRef}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           refreshing={isFetching}
           onRefresh={refresh}
-          data={dedupedPosts}
+          data={feedData}
           extraData={layoutData}
-          style={{ flex: 1 }}
+          style={styles.flex}
           onEndReachedThreshold={2}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <Thread thread={item} />}
-          onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
+          keyExtractor={feedKeyExtractor}
+          renderItem={renderItem}
+          onEndReached={onEndReached}
           ListFooterComponent={
             <View>
-              {!isFetching && dedupedPosts.length === 0 && (
+              {!isFetching && feedData.length === 0 && (
                 <Text className="text-white text-center py-4">
                   No posts found
                 </Text>

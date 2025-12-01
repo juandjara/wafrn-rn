@@ -1,5 +1,4 @@
 import Loading from '@/components/Loading'
-import Thread from '@/components/posts/Thread'
 import {
   CornerButton,
   useCornerButtonAnimation,
@@ -10,30 +9,51 @@ import {
   getDashboardContext,
   useUserFeed,
 } from '@/lib/api/dashboard'
-import { PostThread } from '@/lib/api/posts.types'
 import { useSettings } from '@/lib/api/settings'
 import { User, useUser } from '@/lib/api/user'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useLayoutData } from '@/lib/store'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useQueryClient } from '@tanstack/react-query'
 import { Link, useLocalSearchParams } from 'expo-router'
-import { useCallback, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import ErrorView from '@/components/errors/ErrorView'
+import { FeedItem, feedKeyExtractor, getFeedData } from '@/lib/feeds'
+import FeedItemRenderer from '@/components/dashboard/FeedItemRenderer'
 
 type UserListItem =
   | { type: 'user'; user: User }
   | { type: 'error'; error: Error; refetch: () => void }
-  | { type: 'post'; post: PostThread }
+  | FeedItem
+
+function renderListItem({ item }: { item: UserListItem }) {
+  if (item.type === 'user') {
+    return item.user ? <UserDetail user={item.user} /> : null
+  }
+  if (item.type === 'error') {
+    return item.error ? (
+      <ErrorView onRetry={item.refetch} message={item.error.message} />
+    ) : null
+  }
+  return <FeedItemRenderer item={item} />
+}
+
+function keyExtractor(item: UserListItem) {
+  if (item.type === 'user' || item.type === 'error') {
+    return item.type
+  }
+  return feedKeyExtractor(item)
+}
 
 export default function UserFeed() {
   const sx = useSafeAreaPadding()
   const layoutData = useLayoutData()
+  const listRef = useRef<FlatList<UserListItem>>(null)
   const { userid } = useLocalSearchParams()
+
   const {
     data: feed,
     isFetching: feedFetching,
@@ -42,6 +62,7 @@ export default function UserFeed() {
     error: feedError,
     refetch: refetchFeed,
   } = useUserFeed(userid as string)
+
   const {
     data: user,
     isFetching: userFetching,
@@ -49,73 +70,62 @@ export default function UserFeed() {
     refetch: refetchUser,
   } = useUser(userid as string)
 
-  const qc = useQueryClient()
-  const refresh = async () => {
-    await qc.resetQueries({
-      queryKey: ['userFeed', userid],
-    })
-  }
-
   const { data: settings } = useSettings()
-  const { context, listData } = useMemo(() => {
+  const { context, feedData } = useMemo(() => {
     const context = getDashboardContext(feed?.pages || [], settings)
     const posts = dedupePosts(feed?.pages || [])
+    const feedData = getFeedData(context, posts)
+    return { context, feedData }
+  }, [settings, feed?.pages])
 
-    const listData = [
-      userError && {
-        type: 'error' as const,
-        error: userError,
-        refetch: refetchUser,
-      },
-      user && { type: 'user' as const, user },
-      feedError && {
+  const feedItems = useMemo(() => {
+    const feedItems = []
+    if (user) {
+      feedItems.push({
+        type: 'user' as const,
+        user,
+      })
+    }
+    if (feedError) {
+      feedItems.push({
         type: 'error' as const,
         error: feedError,
         refetch: refetchFeed,
-      },
-      ...posts.map((post) => ({ type: 'post' as const, post })),
-    ].filter((d) => !!d)
-
-    return { context, listData }
-  }, [
-    settings,
-    feed?.pages,
-    feedError,
-    refetchFeed,
-    user,
-    userError,
-    refetchUser,
-  ])
-
-  const renderListItem = useCallback(({ item }: { item: UserListItem }) => {
-    if (item.type === 'post') {
-      return <Thread thread={item.post} />
+      })
     }
-    if (item.type === 'user' && item.user) {
-      return <UserDetail user={item.user} />
-    }
-    if (item.type === 'error' && item.error) {
-      return <ErrorView onRetry={item.refetch} message={item.error.message} />
-    }
-    return null
-  }, [])
+    feedItems.push(...feedData)
+    return feedItems
+  }, [user, feedError, refetchFeed, feedData])
 
-  const listRef = useRef<FlatList<UserListItem>>(null)
+  const styles = {
+    flex: { flex: 1 },
+    flexPt: { flex: 1, paddingTop: sx.paddingTop },
+    mt: { marginTop: sx.paddingTop },
+    contentContainerStyle: {
+      paddingBottom: sx.paddingBottom + (feedFetching ? 8 : 32),
+    },
+  }
 
-  const scrollToTop = useCallback(() => {
+  const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
+
+  function scrollToTop() {
     requestAnimationFrame(() => {
       listRef.current?.scrollToIndex({ index: 0, animated: false })
     })
-  }, [])
+  }
 
-  const { scrollHandler, buttonStyle } = useCornerButtonAnimation()
+  function onEndReached() {
+    if (hasNextPage && !feedFetching) {
+      fetchNextPage()
+    }
+  }
 
   if (userError) {
     return (
       <ErrorView
         style={{ marginTop: sx.paddingTop + 72 }}
         message={userError.message}
-        onRetry={refresh}
+        onRetry={refetchUser}
       />
     )
   }
@@ -124,33 +134,27 @@ export default function UserFeed() {
     <DashboardContextProvider data={context}>
       <Link href="../" asChild>
         <Pressable
-          style={{
-            marginTop: sx.paddingTop,
-          }}
+          style={styles.mt}
           className="bg-black/30 rounded-full absolute top-2 left-2 z-10 p-2"
         >
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
         </Pressable>
       </Link>
-      <View style={{ flex: 1, paddingTop: sx.paddingTop }}>
+      <View style={styles.flexPt}>
         <Animated.FlatList
           ref={listRef}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            paddingBottom: sx.paddingBottom + (feedFetching ? 8 : 32),
-          }}
-          data={listData}
+          style={styles.flex}
+          contentContainerStyle={styles.contentContainerStyle}
+          data={feedItems}
           extraData={layoutData}
           refreshing={feedFetching || userFetching}
-          onRefresh={refresh}
-          keyExtractor={(item) =>
-            item.type === 'post' ? item.post.id : item.type
-          }
+          onRefresh={refetchFeed}
+          keyExtractor={keyExtractor}
           renderItem={renderListItem}
           onEndReachedThreshold={2}
-          onEndReached={() => hasNextPage && !feedFetching && fetchNextPage()}
+          onEndReached={onEndReached}
           ListEmptyComponent={
             <View className="py-4">
               {!feedFetching && !userFetching && (

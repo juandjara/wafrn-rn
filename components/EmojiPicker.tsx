@@ -8,41 +8,36 @@ import {
   TextInput,
   Platform,
 } from 'react-native'
-import { EmojiBase } from '@/lib/api/emojis'
+import { EmojiGroup, isSameEmojiReaction, type Emoji } from '@/lib/api/emojis'
 import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
-import { getUnicodeEmojiGroups } from '@/lib/emojis'
+import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FlashList, FlashListRef } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { Post } from '@/lib/api/posts.types'
 import { clsx } from 'clsx'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { useCSSVariable } from 'uniwind'
-import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
-
-export type Emoji = EmojiBase & {
-  emojiCollectionId?: string
-  content?: string
-}
 
 const ucGroups = getUnicodeEmojiGroups()
 const RECENT_EMOJI_LIMIT = 7
+
+const EMPTY_ARRAY = [] as never[]
 
 export default function EmojiPicker({
   open,
   setOpen,
   onPick,
-  post,
+  reactions = EMPTY_ARRAY,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   onPick: (emoji: Emoji) => void
-  post?: Post
+  reactions?: EmojiGroup[]
 }) {
   const { width } = useWindowDimensions()
   const columns = Math.floor(width / 52)
@@ -51,7 +46,6 @@ export default function EmojiPicker({
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
   const me = useParsedToken()
-  const context = useDashboardContext()
   const gray400 = useCSSVariable('--color-gray-400') as string
 
   const { value: recentEmojis, setValue: setRecentEmojis } = useAsyncStorage<
@@ -123,17 +117,13 @@ export default function EmojiPicker({
     })
   }, [settings, emojiList])
 
-  function haveIReacted({ content, id }: Emoji) {
-    if (!post) {
-      return false
-    }
-    if (id.endsWith('-recent')) {
-      id = id.replace('-recent', '')
-    }
-    const reactions = context.emojiRelations.postEmojiReactions.filter(
-      (p) => p.userId === me?.userId && p.postId === post.id,
+  function haveIReacted(emoji: Emoji) {
+    const reaction = emoji.content ? emoji.content : emoji
+    return reactions.some(
+      (r) =>
+        isSameEmojiReaction(r.emoji, reaction) &&
+        r.users.some((r) => r.id === me?.userId),
     )
-    return reactions.some((r) => r.emojiId === id || r.content === content)
   }
 
   function handlePick(emoji: Emoji) {

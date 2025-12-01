@@ -8,10 +8,9 @@ import {
 } from 'react-native'
 import { formatUserUrl, formatDate } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
-import { POST_MARGIN, useVoteMutation } from '@/lib/api/posts'
+import { POST_MARGIN } from '@/lib/api/posts'
 import Media from '../posts/Media'
 import { Link, router, useLocalSearchParams } from 'expo-router'
-import { EmojiGroup, isUnicodeHeart } from '@/lib/api/content'
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -22,18 +21,14 @@ import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
 import { clsx } from 'clsx'
-import PostReaction from '../posts/PostReaction'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/store'
-import { useEmojiReactMutation } from '@/lib/api/emojis'
-import { useParsedToken } from '@/lib/contexts/AuthContext'
-import { useLikeMutation } from '@/lib/interaction'
 import { useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
-import { useToasts } from '@/lib/toasts'
 import InteractionMenu from '../interactions/InteractionMenu'
+import PostReactionList from '../posts/PostReactionList'
 
 export default function PostFragment({
   post,
@@ -48,7 +43,6 @@ export default function PostFragment({
   collapsible?: boolean
   clickable?: boolean
 }) {
-  const me = useParsedToken()
   const context = useDashboardContext()
   const derivedState = context.postsData[post.id]
   const {
@@ -60,7 +54,6 @@ export default function PostFragment({
     quotedPost,
     ask,
     poll,
-    reactions,
     isEdited,
     contentWarning,
     initialCWOpen,
@@ -78,46 +71,13 @@ export default function PostFragment({
   const cwOpen = layout.cwOpen ?? initialCWOpen
   const collapsed = layout.collapsed ?? false
 
-  const cyan700 = useCSSVariable('--color-cyan-700') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
   const yellow500 = useCSSVariable('--color-yellow-500') as string
-  const { showToastError } = useToasts()
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
 
   const [imageGalleryOpen, setImageGalleryOpen] = useState<number | null>(null)
-  const emojiReactMutation = useEmojiReactMutation(post)
-  const likeMutation = useLikeMutation(post)
-
-  function onLongPressReaction(reaction: EmojiGroup) {
-    if (typeof reaction.emoji !== 'string' && reaction.emoji.external) {
-      showToastError('WAFRN does not have this emoji')
-      return // cannot react with external emojis
-    }
-
-    const emojiName =
-      typeof reaction.emoji === 'string' ? reaction.emoji : reaction.emoji.name
-
-    const haveIReacted = reactions.some((r) => {
-      const userCheck = r.users.some((u) => u.id === me?.userId)
-      const rEmojiName = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
-      return userCheck && rEmojiName === emojiName
-    })
-
-    if (isUnicodeHeart(emojiName)) {
-      const isLiked = context.likes.some(
-        (like) => like.postId === post.id && like.userId === me?.userId,
-      )
-      likeMutation.mutate(isLiked)
-    } else {
-      emojiReactMutation.mutate({
-        post,
-        undo: haveIReacted,
-        emojiName,
-      })
-    }
-  }
 
   const hiddenUserIds = useHiddenUserIds()
   const hiddenUserMentioned = mentionedUsers.some((user) =>
@@ -125,15 +85,6 @@ export default function PostFragment({
   )
   const hiddenUserQuoted =
     !!quotedPost && hiddenUserIds.includes(quotedPost.userId)
-
-  const voteMutation = useVoteMutation(poll?.id || null, post)
-
-  function onPollVote(votes: number[]) {
-    if (!poll) {
-      return
-    }
-    voteMutation.mutate(votes)
-  }
 
   function collapsePost() {
     if (collapsible) {
@@ -145,7 +96,7 @@ export default function PostFragment({
     toggleCwOpen(post.id, !cwOpen)
   }
 
-  function onPress() {
+  function goToDetail() {
     if (clickable && !isDetailView) {
       router.navigate(`/post/${post.id}`)
     }
@@ -190,7 +141,7 @@ export default function PostFragment({
         'rounded-xl': isQuote,
       })}
       onLongPress={collapsePost}
-      onPress={onPress}
+      onPress={goToDetail}
     >
       {hasCornerMenu && (
         <View className="absolute z-20 top-0 right-0">
@@ -346,11 +297,10 @@ export default function PostFragment({
               )}
               {poll && (
                 <Poll
-                  poll={poll}
+                  key={post.id}
                   postId={post.id}
+                  poll={poll}
                   interactable={isDetailView}
-                  isLoading={voteMutation.isPending}
-                  onVote={onPollVote}
                 />
               )}
               {tags.length > 0 && (
@@ -379,20 +329,7 @@ export default function PostFragment({
               )}
             </View>
           </View>
-          {reactions.length > 0 && (
-            <View
-              id="reactions"
-              className="my-2 flex-row flex-wrap items-center gap-2"
-            >
-              {reactions.map((r) => (
-                <PostReaction
-                  key={r.id}
-                  reaction={r}
-                  onLongPress={() => onLongPressReaction(r)}
-                />
-              ))}
-            </View>
-          )}
+          <PostReactionList post={post} />
         </>
       )}
     </Pressable>

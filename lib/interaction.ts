@@ -26,17 +26,17 @@ export async function toggleLikePost({
   })
 }
 
-export function useLikeMutation(post: Post) {
+export function useLikeMutation({ id }: { id: string }) {
   const qc = useQueryClient()
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
-    mutationKey: ['like', post.id],
+    mutationKey: ['like', id],
     mutationFn: (variables) =>
       toggleLikePost({
         token: token!,
-        postId: post.id,
+        postId: id,
         isLiked: variables,
       }),
     onError: (err, variables, context) => {
@@ -47,7 +47,7 @@ export function useLikeMutation(post: Post) {
       showToastSuccess(`Woot ${variables ? 'un' : ''}liked`)
     },
     // after either error or success, refetch the queries to make sure cache and server are in sync
-    onSettled: () => invalidatePostQueries(qc, post),
+    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
@@ -155,7 +155,7 @@ export function useBookmarkMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot ${variables ? 'un' : ''}bookmarked`)
     },
-    onSettled: () => invalidatePostQueries(qc, post),
+    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 

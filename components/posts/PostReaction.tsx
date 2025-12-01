@@ -1,15 +1,18 @@
-import { EmojiGroup } from '@/lib/api/content'
 import ReactionDetailsMenu from './ReactionDetailsMenu'
 import { Text, View } from 'react-native'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { type EmojiGroup } from '@/lib/api/emojis'
+import clsx from 'clsx'
 
 export default function PostReaction({
   reaction,
   onLongPress,
+  className,
 }: {
   reaction: EmojiGroup
   onLongPress?: () => void
+  className?: string
 }) {
   if (typeof reaction.emoji === 'string') {
     return (
@@ -19,7 +22,12 @@ export default function PostReaction({
         reaction={reaction.emoji}
         onLongPress={onLongPress}
       >
-        <View className="flex-row items-center py-1 px-2 rounded-md border border-gray-500">
+        <View
+          className={clsx(
+            className,
+            'flex-row items-center py-1 px-2 rounded-md',
+          )}
+        >
           <Text className="text-gray-200">
             {reaction.emoji} {reaction.users.length}
           </Text>
@@ -42,7 +50,12 @@ export default function PostReaction({
           />
         }
       >
-        <View className="flex-row items-center gap-2 py-1 px-2 rounded-md border border-gray-500">
+        <View
+          className={clsx(
+            className,
+            'flex-row items-center gap-2 py-1 px-2 rounded-md',
+          )}
+        >
           <Image
             source={{
               uri: formatCachedUrl(formatMediaUrl(reaction.emoji.url)),

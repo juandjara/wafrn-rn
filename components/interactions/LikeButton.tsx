@@ -26,10 +26,12 @@ export default function LikeButton({
   const red500 = useCSSVariable('--color-red-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
 
-  const _isLiked = context.likes.some(
+  const initialIsLiked = context.likes.some(
     (like) => like.postId === post.id && like.userId === me?.userId,
   )
-  const isLiked = likeMutation.isPending ? !likeMutation.variables : _isLiked
+  const isLiked = likeMutation.isSuccess
+    ? !likeMutation.variables
+    : initialIsLiked
 
   function likeAction() {
     if (!likeMutation.isPending) {

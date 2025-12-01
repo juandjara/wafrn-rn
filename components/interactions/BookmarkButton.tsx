@@ -22,12 +22,12 @@ export default function BookmarkButton({
   const me = useParsedToken()
   const context = useDashboardContext()
   const bookmarkMutation = useBookmarkMutation(post)
-  const _isBookmarked = (context.bookmarks || []).some(
+  const initialIsBookmarked = (context.bookmarks || []).some(
     (b) => b.postId === post.id && b.userId === me?.userId,
   )
-  const isBookmarked = bookmarkMutation.isPending
+  const isBookmarked = bookmarkMutation.isSuccess
     ? !bookmarkMutation.variables
-    : _isBookmarked
+    : initialIsBookmarked
 
   return long ? (
     <MenuItem

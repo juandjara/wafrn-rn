@@ -1,7 +1,7 @@
 import { DashboardContextData } from '../contexts/DashboardContext'
 import { Post, PostThread, PostUser } from './posts.types'
 import { formatCachedUrl, formatMediaUrl } from '../formatters'
-import { EmojiBase } from './emojis'
+import { EmojiGroup, type EmojiBase, type EmojiReaction } from './emojis'
 import {
   isTriggerConfig,
   TriggersConfig,
@@ -118,12 +118,6 @@ export function getUserEmojis(user: PostUser, context: DashboardContextData) {
   return context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
 }
 
-export type EmojiGroup = {
-  emoji: string | EmojiBase
-  users: PostUser[]
-  id: string
-}
-
 export function isUnicodeHeart(emoji: unknown) {
   if (!emoji || typeof emoji !== 'string') {
     return false
@@ -138,7 +132,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
   type Reaction = {
     id: string
     user: PostUser
-    emoji: EmojiBase | string
+    emoji: EmojiReaction
   }
   const users = Object.fromEntries(context.users.map((u) => [u.id, u]))
 
@@ -484,7 +478,7 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
     return [
       {
         id: `${post.id}-likes`,
-        emoji: '❤️' as string | EmojiBase,
+        emoji: '❤️' as EmojiReaction,
         users: likeUsers,
       },
     ].concat(fullReactions)
