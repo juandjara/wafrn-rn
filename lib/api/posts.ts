@@ -4,7 +4,6 @@ import { getJSON, statusError, StatusError } from '../http'
 import { DashboardData, Post, PostUser } from './posts.types'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
-import { invalidatePostQueries } from '../interaction'
 import { BSKY_URL } from './html'
 import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
 import { EditorImage } from '../editor'
@@ -184,7 +183,6 @@ export async function createPost(
 }
 
 export function useCreatePostMutation() {
-  const qc = useQueryClient()
   const { env } = useAuth()
   const { getAccountData } = useAccounts()
   const { showToastError, showToastSuccess } = useToasts()
@@ -214,15 +212,6 @@ export function useCreatePostMutation() {
         router.back()
       }
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    // onSettled: async (data, error, variables) => {
-    //   await qc.invalidateQueries({
-    //     predicate: (query) =>
-    //       query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
-    //       (query.queryKey[0] === 'post' &&
-    //         query.queryKey[1] === variables.parentId),
-    //   })
-    // },
   })
 }
 
@@ -252,7 +241,6 @@ export async function deleteRewoot(token: string, postId: string) {
 
 export function useRewootMutation(post: Post) {
   const { token } = useAuth()
-  const qc = useQueryClient()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
@@ -271,8 +259,6 @@ export function useRewootMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot ${variables ? 'un' : ''}rewooted`)
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
@@ -334,7 +320,6 @@ export async function voteOnPoll(
 
 export function useVoteMutation(pollId: number | null) {
   const { token } = useAuth()
-  const qc = useQueryClient()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation({
@@ -351,8 +336,6 @@ export function useVoteMutation(pollId: number | null) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Poll voted`)
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 

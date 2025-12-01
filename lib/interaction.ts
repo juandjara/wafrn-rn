@@ -27,7 +27,6 @@ export async function toggleLikePost({
 }
 
 export function useLikeMutation({ id }: { id: string }) {
-  const qc = useQueryClient()
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
 
@@ -46,8 +45,6 @@ export function useLikeMutation({ id }: { id: string }) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot ${variables ? 'un' : ''}liked`)
     },
-    // after either error or success, refetch the queries to make sure cache and server are in sync
-    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
@@ -102,16 +99,6 @@ export function useFollowMutation(user: {
   })
 }
 
-export async function invalidatePostQueries(qc: QueryClient, post: Post) {
-  await qc.invalidateQueries({
-    predicate: (query) =>
-      query.queryKey[0] === 'dashboard' || // this catches both dashboard and user feeds
-      query.queryKey[0] === 'search' ||
-      (query.queryKey[0] === 'post' &&
-        (query.queryKey[1] === post.id || query.queryKey[1] === post.parentId)),
-  })
-}
-
 export async function toggleBookmarkPost({
   token,
   postId,
@@ -135,17 +122,16 @@ export async function toggleBookmarkPost({
   )
 }
 
-export function useBookmarkMutation(post: Post) {
-  const qc = useQueryClient()
+export function useBookmarkMutation({ id }: { id: string }) {
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
 
   return useMutation<void, Error, boolean>({
-    mutationKey: ['bookmark', post.id],
+    mutationKey: ['bookmark', id],
     mutationFn: (variables) =>
       toggleBookmarkPost({
         token: token!,
-        postId: post.id,
+        postId: id,
         undo: variables,
       }),
     onError: (err, variables, context) => {
@@ -155,7 +141,6 @@ export function useBookmarkMutation(post: Post) {
     onSuccess: (data, variables) => {
       showToastSuccess(`Woot ${variables ? 'un' : ''}bookmarked`)
     },
-    // onSettled: () => invalidatePostQueries(qc, post),
   })
 }
 
