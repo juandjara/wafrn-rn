@@ -1,6 +1,6 @@
 import { PostMedia } from '@/lib/api/posts.types'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import {
   getAspectRatio,
   getGIFAspectRatio,

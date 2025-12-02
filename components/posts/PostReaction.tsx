@@ -3,7 +3,7 @@ import { Text, View } from 'react-native'
 import { Image } from 'expo-image'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { type EmojiGroup } from '@/lib/api/emojis'
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 export default function PostReaction({
   reaction,

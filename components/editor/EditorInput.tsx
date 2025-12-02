@@ -1,10 +1,6 @@
 import { PostUser } from '@/lib/api/posts.types'
 import useDebounce from '@/lib/useDebounce'
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from '@expo/vector-icons'
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { Text, TextInput, View } from 'react-native'
