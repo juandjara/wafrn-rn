@@ -38,10 +38,10 @@ jobs:
           pnpm rebuild lightningcss
 
       - name: 🧪 Run TypeScript check
-        run: npm run tsc
+        run: pnpm tsc
 
       - name: 🧹 Run ESLint
-        run: npm run lint
+        run: pnpm lint
 
   build:
     needs: test

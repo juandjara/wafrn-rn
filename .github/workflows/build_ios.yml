@@ -34,6 +34,12 @@ jobs:
           echo "::endgroup::"
           pnpm rebuild lightningcss
 
+      - name: 🧪 Run TypeScript check
+        run: pnpm tsc
+
+      - name: 🧹 Run ESLint
+        run: pnpm lint
+
       - name: 🏗 Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
