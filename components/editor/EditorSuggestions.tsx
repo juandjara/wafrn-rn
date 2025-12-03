@@ -27,11 +27,13 @@ export default function EditorSuggestions({
 }: SuggestionsProvidedProps & {
   type: 'mention' | 'emoji'
 }) {
-  if (type === 'mention') {
-    return <MentionSuggestions onSelect={onSelect} keyword={keyword} />
-  }
-  if (type === 'emoji') {
-    return <EmojiSuggestions onSelect={onSelect} keyword={keyword} />
+  if (keyword) {
+    if (type === 'mention') {
+      return <MentionSuggestions onSelect={onSelect} keyword={keyword} />
+    }
+    if (type === 'emoji') {
+      return <EmojiSuggestions onSelect={onSelect} keyword={keyword} />
+    }
   }
   return null
 }
@@ -61,7 +63,7 @@ function EmojiSuggestions({ keyword, onSelect }: SuggestionsProvidedProps) {
   }
 
   if (!emojis.length) {
-    return <Text className="text-white p-2">No suggestions found</Text>
+    return <Text className="text-white p-2">No emoji suggestions found</Text>
   }
 
   return (
@@ -116,7 +118,7 @@ function MentionSuggestions({ keyword, onSelect }: SuggestionsProvidedProps) {
   if (!data) return null
 
   if (!data.length) {
-    return <Text className="text-white p-2">No suggestions found</Text>
+    return <Text className="text-white p-2">No mention suggestions found</Text>
   }
 
   return (
