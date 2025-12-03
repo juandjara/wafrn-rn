@@ -245,11 +245,13 @@ export default function UserDetail({ user }: { user: User }) {
         </View>
         <View style={{ maxWidth: width - 40 }}>
           <View style={{ paddingVertical: 8 }}>
-            <HtmlEngineRenderer
-              html={description}
-              contentWidth={width - 48}
-              disableLinkCards
-            />
+            <Text>
+              <HtmlEngineRenderer
+                html={description}
+                contentWidth={width - 48}
+                disableLinkCards
+              />
+            </Text>
           </View>
           <View id="custom-fields">
             {customFields.map((field, i) => (
