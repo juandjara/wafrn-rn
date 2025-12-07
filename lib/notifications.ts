@@ -301,11 +301,11 @@ export async function unregisterUnifiedPush(
 
 export const PUSH_TOKEN_KEY = 'pushNotificationToken'
 
-export function useNotificationTokensCleanup() {
+export function useNotificationCleanupMutation() {
   const { token } = useAuth()
   const tokenData = useParsedToken()
 
-  const mutation = useMutation({
+  return useMutation({
     mutationKey: ['notificationCleanup', token],
     mutationFn: async ({
       deleteExpo = true,
@@ -326,6 +326,4 @@ export function useNotificationTokensCleanup() {
       }
     },
   })
-
-  return mutation.mutateAsync
 }

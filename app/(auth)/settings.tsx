@@ -107,7 +107,7 @@ export default function Settings() {
       <Header title="Settings" />
       <ScrollView>
         <Pressable
-          onPress={() => router.navigate('/sign-in?clear=true')}
+          onPress={() => router.navigate('/sign-out')}
           className="active:bg-white/10"
           style={optionStyleDark(0)}
         >
@@ -119,9 +119,7 @@ export default function Settings() {
             key={i}
             className="active:bg-white/10"
             style={optionStyleDark(i)}
-            onPress={() => {
-              router.navigate(option.link)
-            }}
+            onPress={() => router.navigate(option.link)}
           >
             <MaterialCommunityIcons
               name={option.icon}

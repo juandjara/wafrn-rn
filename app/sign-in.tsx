@@ -2,9 +2,10 @@ import {
   useLoginMutation,
   useLoginMfaMutation,
   SAVED_INSTANCE_KEY,
+  parseToken,
 } from '@/lib/api/auth'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { Link, router, useLocalSearchParams } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
   TextInput,
@@ -21,10 +22,8 @@ import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import InstanceProvider from '@/components/InstanceProvider'
-import { useNotificationTokensCleanup } from '@/lib/notifications'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { useToasts } from '@/lib/toasts'
-import { useQueryClient } from '@tanstack/react-query'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -33,72 +32,59 @@ export default function SignIn() {
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const { setToken, env } = useAuth()
+  const { token, setToken, env } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
-  const searchParams = useLocalSearchParams<{ clear: string }>()
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
-  const qc = useQueryClient()
-  const notificationCleanup = useNotificationTokensCleanup()
   const { value: savedInstance, setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   useEffect(() => {
-    if (searchParams.clear === 'true') {
-      // reset local storage when entering sign in screen with special URL param
-      qc.clear()
-      setToken(null)
-      notificationCleanup({ deleteExpo: true, deleteUP: true })
-      // make sure the operation is not repeated
-      router.setParams({ clear: '' })
-    }
-  }, [qc, setToken, notificationCleanup, searchParams.clear])
-
-  async function completeLogin(token: string) {
-    await setToken(token)
-    setImmediate(() => {
+    if (env && parseToken(token)) {
       router.replace('/')
-    })
-  }
+    }
+  }, [env, token])
 
   function login() {
-    if (env) {
-      loginMutation.mutate(
-        { email, password },
-        {
-          onSuccess: async (firstPassResponse) => {
-            if (firstPassResponse.mfaRequired) {
-              setFirstPassToken(firstPassResponse.token)
-            } else {
-              await completeLogin(firstPassResponse.token)
-            }
-          },
-          onError: (error) => {
-            console.error(error)
-            showToastError('Invalid credentials')
-          },
-        },
-      )
+    if (loginMutation.isPending || !env || !email || !password) {
+      return
     }
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: async (firstPassResponse) => {
+          if (firstPassResponse.mfaRequired) {
+            setFirstPassToken(firstPassResponse.token)
+          } else {
+            await setToken(firstPassResponse.token)
+          }
+        },
+        onError: (error) => {
+          console.error(error)
+          showToastError('Invalid credentials')
+        },
+      },
+    )
   }
 
   function loginMfa() {
-    if (env) {
-      loginMfaMutation.mutate(
-        { firstPassToken, mfaToken },
-        {
-          onSuccess: (token) => completeLogin(token),
-          onError: (error) => {
-            console.error(error)
-            showToastError('Invalid credentials')
-            setMfaToken('')
-            setFirstPassToken('')
-          },
-        },
-      )
+    if (loginMfaMutation.isPending || !env || !mfaToken) {
+      return
     }
+    loginMfaMutation.mutate(
+      { firstPassToken, mfaToken },
+      {
+        onSuccess: (token) => setToken(token),
+        onError: (error) => {
+          console.error(error)
+          showToastError('Invalid credentials')
+          setMfaToken('')
+          setFirstPassToken('')
+        },
+      },
+    )
   }
 
   return (
@@ -159,9 +145,6 @@ export default function SignIn() {
                 </View>
                 <View className="py-3">
                   <Button
-                    disabled={
-                      loginMutation.isPending || !env || !email || !password
-                    }
                     title={loginMutation.isPending ? 'Loading...' : 'Sign in'}
                     onPress={login}
                   />
@@ -196,7 +179,6 @@ export default function SignIn() {
                 </View>
                 <View className="py-3">
                   <Button
-                    disabled={loginMfaMutation.isPending || !env || !mfaToken}
                     title={
                       loginMfaMutation.isPending ? 'Loading...' : 'Sign in'
                     }

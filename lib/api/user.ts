@@ -1,5 +1,4 @@
 import {
-  QueryFunctionContext,
   useMutation,
   useQueries,
   useQuery,
@@ -116,21 +115,24 @@ export function useUser(handle: string) {
   })
 }
 
-type Signal = QueryFunctionContext['signal']
-
 // all of this just to get the fucking avatars and names for the account switcher
 function useAccountsQueries(data: SavedAccount[], currentInstance: string) {
   return useQueries({
     queries: data.map((account) => ({
       queryKey: ['user', account.token, account.instance],
-      queryFn: ({ signal }: { signal: Signal }) => {
+      queryFn: ({ signal }) => {
         const user = parseToken(account.token)
         let handle = user?.url || ''
         if (account.instance !== currentInstance && !handle.includes('@')) {
           const host = new URL(account.instance).hostname
           handle = `@${handle}@${host}`
         }
-        return getUser(account.token, signal, handle)
+        try {
+          return getUser(account.token, signal, handle)
+        } catch (error) {
+          console.error('Error fetching user:', error)
+          return null
+        }
       },
     })),
   })
@@ -164,7 +166,6 @@ export function useAccounts() {
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
 
   const accounts = accountQueries.map((query) => query.data).filter((a) => !!a)
-  const error = accountQueries.find((query) => query.error)?.error ?? null
 
   function addAccount(token: string, instance: string) {
     setAccountsData([...(accountsData ?? []), { token, instance }])
@@ -201,7 +202,6 @@ export function useAccounts() {
   return {
     accounts,
     loading,
-    error,
     addAccount,
     removeAccount,
     selectAccount,
@@ -834,13 +834,19 @@ export async function deleteAccount(token: string, password: string) {
 export function useDeleteAccountMutation() {
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
+  const { accounts, removeAccount } = useAccounts()
 
   return useMutation({
     mutationKey: ['deleteAccount'],
     mutationFn: (password: string) => deleteAccount(token!, password),
     onSuccess: () => {
       showToastSuccess('Account deleted')
-      router.navigate('/sign-in?clear=true')
+      const account = parseToken(token)
+      const index = accounts.findIndex((a) => a.id === account?.userId)
+      if (index > -1) {
+        removeAccount(index)
+      }
+      router.navigate('/sign-out')
     },
     onError: () => {
       showToastError('Failed deleting account')

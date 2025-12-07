@@ -36,7 +36,7 @@ export const queryClient = new QueryClient({
         }
 
         if (statusCode === 401) {
-          router.navigate('/sign-in?clear=true')
+          router.navigate('/sign-out')
           return false
         }
 
