@@ -165,8 +165,8 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: 'Main menu',
           tabBarButton: () => (
-            <View className="flex-row justify-center mt-1">
-              <UserMenu />
+            <View className="flex-1 flex-row justify-center items-center">
+              <UserMenu size={ICON_SIZE} />
             </View>
           ),
         }}
