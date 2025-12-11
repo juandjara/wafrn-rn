@@ -1,7 +1,6 @@
 import { Colors } from '@/constants/Colors'
 import { usePasswordChangeRequestMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { Toasts } from '@backpackapp-io/react-native-toast'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { router, useLocalSearchParams } from 'expo-router'

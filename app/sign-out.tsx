@@ -1,6 +1,5 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Colors } from '@/constants/Colors'
-import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Text, View } from 'react-native'
 import { useNotificationCleanupMutation } from '@/lib/notifications'
 import { useQueryClient } from '@tanstack/react-query'
