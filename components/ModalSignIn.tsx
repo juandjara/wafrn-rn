@@ -10,12 +10,12 @@ import { useState } from 'react'
 import { TextInput, View, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
-import { ScrollView } from 'react-native-gesture-handler'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useQuery } from '@tanstack/react-query'
 import { useToasts } from '@/lib/toasts'
 import Button from './Button'
 import useAsyncStorage from '@/lib/useLocalStorage'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -91,13 +91,10 @@ export default function ModalSignIn({
 
   return (
     <View
-      className="flex-1 px-4"
-      style={{
-        paddingTop: 16,
-        backgroundColor: Colors.dark.background,
-      }}
+      className="flex-1 px-4 pt-5"
+      style={{ backgroundColor: Colors.dark.background }}
     >
-      <ScrollView>
+      <KeyboardAwareScrollView>
         <InstanceProvider
           savedInstance={instance}
           setSavedInstance={setInstance}
@@ -176,7 +173,7 @@ export default function ModalSignIn({
             </>
           )}
         </InstanceProvider>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   )
 }
