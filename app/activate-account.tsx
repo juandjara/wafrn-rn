@@ -33,7 +33,6 @@ export default function ActivateScreen() {
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
       <ScrollView>
         <Image
           source={require('@/assets/images/logo_w.png')}

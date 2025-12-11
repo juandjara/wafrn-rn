@@ -42,7 +42,6 @@ export default function SignOut() {
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
       <Text className="text-white text-lg">Logging out... 👋</Text>
     </View>
   )

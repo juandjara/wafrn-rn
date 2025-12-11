@@ -35,7 +35,6 @@ export default function RecoverPassword() {
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
