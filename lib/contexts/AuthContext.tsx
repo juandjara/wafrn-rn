@@ -23,6 +23,7 @@ type AuthContextData = {
   setToken: UseMutateAsyncFunction<void, Error, string | null, unknown>
   isLoading: boolean
   env: Environment | null
+  envStatus: 'pending' | 'error' | 'success'
 }
 
 const AuthContext = createContext<AuthContextData>({
@@ -30,10 +31,11 @@ const AuthContext = createContext<AuthContextData>({
   setToken: async () => {},
   isLoading: true,
   env: null,
+  envStatus: 'pending',
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const { data: env, isLoading: envLoading } = useEnvironment()
+  const { data: env, status, isLoading: envLoading } = useEnvironment()
   const {
     value: token,
     setValue: setToken,
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       token: parsed ? token : null,
       setToken,
       env: env || null,
+      envStatus: envLoading ? 'pending' : status,
       isLoading: tokenLoading || envLoading,
     }
   }, [token, setToken, env, tokenLoading, envLoading])

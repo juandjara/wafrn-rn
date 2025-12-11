@@ -1,10 +1,10 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 import InstancePicker from './InstancePicker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { type PropsWithChildren, useState } from 'react'
 import { Image } from 'expo-image'
 import { useCSSVariable } from 'uniwind'
-import { DEFAULT_INSTANCE, useEnvironment } from '@/lib/api/auth'
+import { DEFAULT_INSTANCE } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
 import { useToasts } from '@/lib/toasts'
 
@@ -12,21 +12,24 @@ export default function InstanceProvider({
   children,
   savedInstance,
   setSavedInstance,
-}: React.PropsWithChildren & {
+  envStatus,
+}: PropsWithChildren & {
   savedInstance: string | null
   setSavedInstance: (url: string | null) => void | Promise<void>
+  envStatus: 'pending' | 'error' | 'success'
 }) {
   const gray600 = useCSSVariable('--color-gray-600') as string
   const red700 = useCSSVariable('--color-red-700') as string
   const [modalOpen, setModalOpen] = useState(false)
-  const { refetch, isFetching, isError } = useEnvironment()
   const { showToastError } = useToasts()
+  const isFetching = envStatus === 'pending'
+  const isError = envStatus === 'error'
+  const isSuccess = envStatus === 'success'
 
-  async function connect(url: string) {
+  function connect(url: string) {
     setModalOpen(false)
     if (isValidURL(url)) {
-      await setSavedInstance(url)
-      await refetch()
+      setSavedInstance(url)
     } else {
       showToastError('Invalid URL')
     }
@@ -75,11 +78,7 @@ export default function InstanceProvider({
           />
         )}
       </TouchableOpacity>
-      <View
-        className={
-          isFetching || isError ? 'opacity-50 pointer-events-none' : ''
-        }
-      >
+      <View className={isSuccess ? '' : 'opacity-50 pointer-events-none'}>
         {children}
       </View>
     </View>

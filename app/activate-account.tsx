@@ -3,6 +3,7 @@ import InstanceProvider from '@/components/InstanceProvider'
 import { Colors } from '@/constants/Colors'
 import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
 import { useAccountActivateMutation } from '@/lib/api/user'
+import { useAuth } from '@/lib/contexts/AuthContext'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Toasts } from '@backpackapp-io/react-native-toast'
@@ -12,6 +13,7 @@ import { Text, View, ScrollView } from 'react-native'
 
 export default function ActivateScreen() {
   const sx = useSafeAreaPadding()
+  const { envStatus } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
@@ -49,6 +51,7 @@ export default function ActivateScreen() {
         <InstanceProvider
           savedInstance={savedInstance}
           setSavedInstance={setSavedInstance}
+          envStatus={envStatus}
         >
           <View className="pt-12 pb-6">
             {mutation.isError ? (

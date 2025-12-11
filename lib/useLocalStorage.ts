@@ -1,6 +1,6 @@
 import { Platform } from 'react-native'
 import { getItemAsync, deleteItemAsync, setItemAsync } from 'expo-secure-store'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 
 async function setStorageItemAsync(key: string, value: string | null) {
   if (Platform.OS === 'web') {
@@ -51,6 +51,7 @@ export default function useAsyncStorage<T = unknown>(
       const value = await getStorageItemAsync(key)
       return value ? (JSON.parse(value) as T) : defaultValue || null
     },
+    placeholderData: keepPreviousData,
   })
   const mutation = useMutation<void, Error, T | null>({
     mutationKey: ['setAsyncStorage', key],

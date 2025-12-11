@@ -2,16 +2,20 @@ import {
   useLoginMutation,
   useLoginMfaMutation,
   getInstanceEnvironment,
+  DEFAULT_INSTANCE,
+  SAVED_INSTANCE_KEY,
 } from '@/lib/api/auth'
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { TextInput, Button, View, Text } from 'react-native'
+import { TextInput, View, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useQuery } from '@tanstack/react-query'
 import { useToasts } from '@/lib/toasts'
+import Button from './Button'
+import useAsyncStorage from '@/lib/useLocalStorage'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -22,14 +26,22 @@ export default function ModalSignIn({
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const [instance, setInstance] = useState<string | null>(null)
-  const { showToastError } = useToasts()
 
-  const { data: env } = useQuery({
-    queryKey: ['modalSignIn-environment'],
-    queryFn: () => getInstanceEnvironment(instance!),
-    enabled: !!instance,
+  const [_instance, setInstance] = useState<string | null>(null)
+  const { value } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const instance = _instance ?? value ?? DEFAULT_INSTANCE
+
+  const {
+    data: env,
+    status,
+    isLoading,
+  } = useQuery({
+    queryKey: ['modalSignIn-environment', instance],
+    queryFn: () => getInstanceEnvironment(instance),
   })
+  const envStatus = isLoading ? 'pending' : status
+
+  const { showToastError } = useToasts()
 
   const color = useThemeColor({}, 'text')
   const loginMfaMutation = useLoginMfaMutation(env)
@@ -89,6 +101,7 @@ export default function ModalSignIn({
         <InstanceProvider
           savedInstance={instance}
           setSavedInstance={setInstance}
+          envStatus={envStatus}
         >
           {!firstPassToken && (
             <>
@@ -121,7 +134,7 @@ export default function ModalSignIn({
                   disabled={
                     loginMutation.isPending || !env || !email || !password
                   }
-                  title={loginMutation.isPending ? 'Loading...' : 'Sign in'}
+                  text={loginMutation.isPending ? 'Loading...' : 'Sign in'}
                   onPress={login}
                 />
               </View>
@@ -156,7 +169,7 @@ export default function ModalSignIn({
               <View className="py-3">
                 <Button
                   disabled={loginMfaMutation.isPending || !env || !mfaToken}
-                  title={loginMfaMutation.isPending ? 'Loading...' : 'Sign in'}
+                  text={loginMfaMutation.isPending ? 'Loading...' : 'Sign in'}
                   onPress={loginMfa}
                 />
               </View>

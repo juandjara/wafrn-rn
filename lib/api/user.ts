@@ -147,14 +147,13 @@ export type SavedAccount = {
 
 export function useAccounts() {
   const qc = useQueryClient()
-  const { token, setToken, env } = useAuth()
-  const currentInstance = env?.BASE_URL
+  const { token, setToken } = useAuth()
   const {
     loading: accountsDataLoading,
     value: _accountsData,
     setValue: setAccountsData,
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
-  const { setValue: setSavedInstance } =
+  const { value: currentInstance, setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   const accountsData = _accountsData?.length
@@ -190,8 +189,8 @@ export function useAccounts() {
   async function selectAccount(index: number) {
     const newValues = accountsData?.[index] ?? null
     const { token, instance } = newValues ?? {}
-    const env = await getInstanceEnvironment(instance)
-    qc.setQueryData(['environment'], env)
+    // const env = await getInstanceEnvironment(instance)
+    // qc.setQueryData(['environment', instance], env)
     await setToken(token)
     await nextTick()
     await setSavedInstance(instance)

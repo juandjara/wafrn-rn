@@ -29,7 +29,7 @@ export default function SignIn() {
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const { token, setToken, env } = useAuth()
+  const { token, setToken, env, envStatus } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
@@ -112,6 +112,7 @@ export default function SignIn() {
           <InstanceProvider
             savedInstance={savedInstance}
             setSavedInstance={setSavedInstance}
+            envStatus={envStatus}
           >
             {!firstPassToken && (
               <>

@@ -17,15 +17,19 @@ import InstanceProvider from '@/components/InstanceProvider'
 import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import Button from '@/components/Button'
+import { useAuth } from '@/lib/contexts/AuthContext'
 
 export default function CompletePasswordReset() {
   const sx = useSafeAreaPadding()
   const color = Colors.dark.text
   const [password, setPassword] = useState('')
+
+  const { envStatus } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
   }>()
+
   const { value: savedInstance, setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
@@ -77,6 +81,7 @@ export default function CompletePasswordReset() {
           <InstanceProvider
             savedInstance={savedInstance}
             setSavedInstance={setSavedInstance}
+            envStatus={envStatus}
           >
             <TextInput
               secureTextEntry
