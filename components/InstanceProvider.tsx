@@ -44,7 +44,7 @@ export default function InstanceProvider({
       <InstancePicker
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        selected={savedInstance}
+        selected={instanceHost}
         onSelect={connect}
       />
       <Text className="text-gray-300 font-medium text-xs mb-1">

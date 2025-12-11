@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import {
-  Button,
   LayoutChangeEvent,
   Modal,
   Pressable,
@@ -26,6 +25,8 @@ import PagerView from 'react-native-pager-view'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { InstanceListItem, useInstanceList } from '@/lib/api/instances'
 import { DEFAULT_INSTANCE } from '@/lib/api/auth'
+import { isValidURL } from '@/lib/api/content'
+import Button from './Button'
 
 const DEFAULT_LIST = [
   {
@@ -63,9 +64,6 @@ export default function InstancePicker({
 
   const [url, setUrl] = useState('')
   const [mode, setMode] = useState<'list' | 'write'>('list')
-  const [_selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const initialIndex = instances.findIndex((item) => item.url === selected)
-  const selectedIndex = _selectedIndex ?? (initialIndex > -1 ? initialIndex : 0)
 
   const pagerRef = useRef<PagerView>(null)
   const tabBarWidth = useSharedValue(0)
@@ -85,9 +83,9 @@ export default function InstancePicker({
     tabBarWidth.value = ev.nativeEvent.layout.width
   }
 
-  function connect() {
-    const targetUrl = mode === 'write' ? url : instances[selectedIndex]?.url
-    onSelect(targetUrl)
+  function isSelected(item: InstanceListItem) {
+    const itemHost = isValidURL(item.url) ? new URL(item.url).host : item.url
+    return itemHost === selected
   }
 
   return (
@@ -101,7 +99,7 @@ export default function InstancePicker({
       >
         <View className="grow-0">
           <Text className="text-sm text-gray-200 mb-2 p-3">
-            Select your WAFRN server
+            Connect to WAFRN with...
           </Text>
           <View
             className="relative flex-row gap-2 shrink-0 rounded-2xl border border-gray-600 justify-center mx-3 mb-2"
@@ -123,7 +121,7 @@ export default function InstancePicker({
                   'text-center',
                 )}
               >
-                Pick from list
+                Known servers
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -138,7 +136,7 @@ export default function InstancePicker({
                   'text-center',
                 )}
               >
-                Use custom URL
+                Custom server
               </Text>
             </TouchableOpacity>
           </View>
@@ -160,58 +158,59 @@ export default function InstancePicker({
                 <RefreshControl refreshing={isFetching} onRefresh={refetch} />
               }
             >
-              {instances.map((item, index) => (
+              {instances.map((instance) => (
                 <Pressable
-                  key={item.url}
-                  onPress={() => setSelectedIndex(index)}
+                  key={instance.url}
+                  onPress={() => onSelect(instance.url)}
                   className={clsx(
                     'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
-                    { 'bg-slate-700': index === selectedIndex },
+                    { 'bg-slate-700': isSelected(instance) },
                   )}
                 >
                   <View className="bg-blue-900 mr-3 rounded p-1">
                     <Image
-                      source={{ uri: item.icon }}
+                      source={{ uri: instance.icon }}
                       style={{ width: 42, height: 42 }}
                     />
                   </View>
                   <View className="flex-1 relative">
-                    {index === selectedIndex ? (
+                    {isSelected(instance) ? (
                       <View className="absolute z-10 -top-1 -right-1">
                         <Ionicons name="checkmark" color="white" size={24} />
                       </View>
                     ) : null}
-                    {item.name ? (
+                    {instance.name ? (
                       <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
-                        {item.name}
+                        {instance.name}
                       </Text>
                     ) : null}
-                    {item.name.toLowerCase() !== new URL(item.url).host ? (
+                    {instance.name.toLowerCase() !==
+                    new URL(instance.url).host ? (
                       <Text className="text-white mb-4 text-sm">
-                        {new URL(item.url).host}
+                        {new URL(instance.url).host}
                       </Text>
                     ) : null}
-                    {item.description ? (
+                    {instance.description ? (
                       <Text className="text-white mb-2 text-sm">
-                        {item.description}
+                        {instance.description}
                       </Text>
                     ) : null}
                     <Text className="text-white text-xs">
                       Registrations:{' '}
-                      {item.registrationUrl ? (
+                      {instance.registrationUrl ? (
                         <Link
                           className="text-blue-500"
-                          href={item.registrationUrl}
+                          href={instance.registrationUrl}
                         >
-                          {item.registrationType}
+                          {instance.registrationType}
                         </Link>
                       ) : (
-                        item.registrationType
+                        instance.registrationType
                       )}
                     </Text>
-                    {item.registrationCondition ? (
+                    {instance.registrationCondition ? (
                       <Text className="text-white text-xs">
-                        {item.registrationCondition}
+                        {instance.registrationCondition}
                       </Text>
                     ) : null}
                   </View>
@@ -224,21 +223,22 @@ export default function InstancePicker({
                 </Text>
               )}
             </ScrollView>
-            <View className="mt-4 px-3">
-              <Button title="Connect" onPress={connect} />
-            </View>
           </View>
           <View key="write" className="px-3">
             <KeyboardAwareScrollView>
               <TextInput
                 autoCapitalize="none"
-                placeholder="Server URL (without https://)"
+                placeholder="Your server domain (e.g. app.wafrn.net)"
                 className="p-3 my-3 border border-gray-500 rounded text-white"
                 value={url}
                 onChangeText={setUrl}
               />
               <View className="mt-2">
-                <Button title="Connect" onPress={connect} />
+                <Button
+                  text="Connect"
+                  disabled={!isValidURL(`https://${url}`)}
+                  onPress={() => onSelect(`https://${url}`)}
+                />
               </View>
             </KeyboardAwareScrollView>
           </View>
