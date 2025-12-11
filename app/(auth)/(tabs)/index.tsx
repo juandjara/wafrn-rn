@@ -12,6 +12,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
+import WigglyPressable from '@/components/WigglyPressable'
 
 const MODES = [
   DashboardMode.FEED,
@@ -64,9 +65,9 @@ export default function Index() {
       />
       <View key="editor-link" className="absolute bottom-4 right-3 z-20">
         <Link href="/editor" asChild>
-          <Pressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
+          <WigglyPressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
             <MaterialIcons name="mode-edit" size={24} color={blue800} />
-          </Pressable>
+          </WigglyPressable>
         </Link>
       </View>
       <PagerView

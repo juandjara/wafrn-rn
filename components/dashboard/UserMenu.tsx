@@ -13,8 +13,9 @@ import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
 import BottomShhet from '../BottomSheet'
 import MenuItem from '../MenuItem'
+import WigglyPressable from '../WigglyPressable'
 
-export default function UserMenu() {
+export default function UserMenu({ size }: { size?: number }) {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
@@ -89,7 +90,7 @@ export default function UserMenu() {
 
   return (
     <>
-      <TouchableOpacity
+      <WigglyPressable
         className="relative"
         accessibilityLabel="Main Menu"
         onPress={() => setMenuOpen(true)}
@@ -97,7 +98,7 @@ export default function UserMenu() {
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
             source={{ uri: formatSmallAvatar(me?.avatar) }}
-            style={{ width: 40, height: 40, borderRadius: 100 }}
+            style={{ width: size ?? 40, height: size ?? 40, borderRadius: 100 }}
           />
         </View>
         {badge > 0 ? (
@@ -110,7 +111,7 @@ export default function UserMenu() {
             {me?.url.substring(0, 1)}
           </Text>
         )}
-      </TouchableOpacity>
+      </WigglyPressable>
       <BottomShhet open={menuOpen} setOpen={setMenuOpen}>
         <Pressable
           className="active:bg-gray-300/75 transition-colors"
