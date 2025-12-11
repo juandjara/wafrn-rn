@@ -328,10 +328,10 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
   )
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
-    formData.append('avatar', payload.avatar as any)
+    formData.append('avatar', new File(payload.avatar.uri))
   }
   if (payload.headerImage) {
-    formData.append('headerImage', payload.headerImage as any)
+    formData.append('headerImage', new File(payload.headerImage.uri))
   }
 
   const env = getEnvironmentStatic()
@@ -600,7 +600,7 @@ export async function register(token: string, payload: RegisterPayload) {
   formData.append('birthDate', payload.birthDate)
   formData.append('description', payload.description)
   if (payload.avatar) {
-    formData.append('avatar', payload.avatar as any)
+    formData.append('avatar', new File(payload.avatar.uri))
   }
 
   const env = getEnvironmentStatic()
