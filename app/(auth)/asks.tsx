@@ -18,7 +18,7 @@ export default function Asks() {
   return (
     <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT, flex: 1 }}>
       <Header title="Asks" />
-      <View className="flex-row">
+      <View className="flex-row" accessibilityRole="tabbar">
         <TouchableOpacity
           onPress={() => pagerRef.current?.setPage(0)}
           className={clsx('basis-1/2 p-3 border-b', {

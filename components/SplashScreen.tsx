@@ -1,6 +1,5 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { Image, View } from 'react-native'
-import { ThemedText } from './ThemedText'
+import { Image, Text, View } from 'react-native'
 import { Colors } from '@/constants/Colors'
 
 export default function SplashScreen() {
@@ -18,7 +17,7 @@ export default function SplashScreen() {
           resizeMode: 'contain',
         }}
       />
-      <ThemedText className="mt-8 text-xl font-medium">Loading...</ThemedText>
+      <Text className="text-white mt-8 text-xl font-medium">Loading...</Text>
     </View>
   )
 }

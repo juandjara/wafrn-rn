@@ -40,7 +40,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     loading: tokenLoading,
   } = useAsyncStorage<string>(AUTH_TOKEN_KEY)
   const context = useMemo(() => {
-    const parsed = parseToken(token)
+    const parsed = parseToken(token) // used to validate the token expiration
     return {
       token: parsed ? token : null,
       setToken,

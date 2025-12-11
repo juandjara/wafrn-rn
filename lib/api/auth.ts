@@ -1,8 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
-import useAsyncStorage from '../useLocalStorage'
 import { queryClient } from '../queryClient'
-import { useToasts } from '../toasts'
+import { getItemAsync } from 'expo-secure-store'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
@@ -108,46 +107,18 @@ export async function getInstanceEnvironment(instanceURL: string) {
 }
 
 export function useEnvironment() {
-  const { value, loading, setValue } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-  const { data, isLoading } = useQuery({
+  return useQuery({
     queryKey: ['environment'],
     queryFn: async () => {
-      try {
-        const env = await getInstanceEnvironment(value! || DEFAULT_INSTANCE)
-        return env
-      } catch (error) {
-        console.error('Error getting instance environment', error)
-        setValue(null)
-        return null
-      }
+      const savedInstance = await getItemAsync(SAVED_INSTANCE_KEY)
+      const instanceHost = savedInstance
+        ? (JSON.parse(savedInstance) as string)
+        : DEFAULT_INSTANCE
+      const env = await getInstanceEnvironment(instanceHost)
+      return env
     },
-    // it is important that this query is never garbage collected
-    // but it can marked as 'stale' so it can be refetched automatically
-    gcTime: Infinity,
-    enabled: !!value,
-    throwOnError: false,
-  })
-
-  return { data, isLoading: isLoading || loading }
-}
-
-export function useEnvCheckMutation() {
-  const { showToastError, showToastSuccess } = useToasts()
-  return useMutation<void, Error, string>({
-    mutationKey: ['environment'],
-    // this mutation returns nothing, it is just used to check if the environment is valid
-    // if the function does not throw an error, this instance environment is marked valid
-    mutationFn: async (instance) => {
-      await getInstanceEnvironment(instance || DEFAULT_INSTANCE)
-    },
-    onSuccess: () => {
-      showToastSuccess('Instance is good')
-    },
-    onError: (error) => {
-      console.error('Error fetching environment', error)
-      showToastError(error.message)
-    },
+    staleTime: Infinity,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -225,7 +196,7 @@ export function useLoginMfaMutation(env?: Environment) {
 export function getEnvironmentStatic() {
   const env = queryClient.getQueryData<Environment>(['environment'])
   if (!env) {
-    throw new Error('FATAL: environment data is empty')
+    throw new Error('Cannot access environment. Is the server running?')
   }
   return env
 }

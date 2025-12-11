@@ -9,7 +9,6 @@ import { Link, router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
   TextInput,
-  Button,
   View,
   Text,
   Platform,
@@ -20,12 +19,10 @@ import { useThemeColor } from '@/hooks/useThemeColor'
 import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
-import { Toasts } from '@backpackapp-io/react-native-toast'
 import InstanceProvider from '@/components/InstanceProvider'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { useToasts } from '@/lib/toasts'
-
-const bigW = require('@/assets/images/logo_w.png')
+import Button from '@/components/Button'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -95,14 +92,13 @@ export default function SignIn() {
         backgroundColor: Colors.dark.background,
       }}
     >
-      <Toasts />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView>
           <Image
-            source={bigW}
+            source={require('@/assets/images/logo_w.png')}
             style={{
               marginTop: 48,
               width: 120,
@@ -145,8 +141,11 @@ export default function SignIn() {
                 </View>
                 <View className="py-3">
                   <Button
-                    title={loginMutation.isPending ? 'Loading...' : 'Sign in'}
                     onPress={login}
+                    text={loginMutation.isPending ? 'Loading...' : 'Sign in'}
+                    disabled={
+                      loginMutation.isPending || !env || !email || !password
+                    }
                   />
                 </View>
                 <Text className="py-3 text-white">
@@ -179,9 +178,8 @@ export default function SignIn() {
                 </View>
                 <View className="py-3">
                   <Button
-                    title={
-                      loginMfaMutation.isPending ? 'Loading...' : 'Sign in'
-                    }
+                    disabled={loginMfaMutation.isPending || !env || !mfaToken}
+                    text={loginMfaMutation.isPending ? 'Loading...' : 'Sign in'}
                     onPress={loginMfa}
                   />
                 </View>

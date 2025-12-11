@@ -7,7 +7,7 @@ import NetInfo from '@react-native-community/netinfo'
 
 onlineManager.setEventListener((setOnline) => {
   return NetInfo.addEventListener((state) => {
-    setOnline(!!state.isConnected)
+    setOnline(!!state.isInternetReachable)
   })
 })
 

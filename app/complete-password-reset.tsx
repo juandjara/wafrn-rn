@@ -1,5 +1,4 @@
 import {
-  Button,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -17,8 +16,7 @@ import { usePasswordChangeCompleteMutation } from '@/lib/api/user'
 import InstanceProvider from '@/components/InstanceProvider'
 import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
 import useAsyncStorage from '@/lib/useLocalStorage'
-
-const bigW = require('@/assets/images/logo_w.png')
+import Button from '@/components/Button'
 
 export default function CompletePasswordReset() {
   const sx = useSafeAreaPadding()
@@ -63,7 +61,7 @@ export default function CompletePasswordReset() {
       >
         <ScrollView>
           <Image
-            source={bigW}
+            source={require('@/assets/images/logo_w.png')}
             style={{
               marginTop: 48,
               width: 120,
@@ -92,7 +90,7 @@ export default function CompletePasswordReset() {
             />
             <Button
               disabled={!password || mutation.isPending}
-              title="Change password"
+              text="Change password"
               onPress={submit}
             />
           </InstanceProvider>

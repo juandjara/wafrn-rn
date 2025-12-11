@@ -26,6 +26,7 @@ import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 import { useToasts } from '@/lib/toasts'
 import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import NetInfoRibbon from '@/components/NetInfoRibbon'
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -51,10 +52,12 @@ export default function RootLayout() {
         <AuthProvider>
           <ThemeProvider value={DarkTheme}>
             <GestureHandlerRootView style={styles.root}>
+              <Toasts />
               <MenuProvider backHandler customStyles={styles}>
                 <HtmlEngineProvider>
-                  <Toasts />
-                  <Slot />
+                  <NetInfoRibbon>
+                    <Slot />
+                  </NetInfoRibbon>
                 </HtmlEngineProvider>
               </MenuProvider>
             </GestureHandlerRootView>

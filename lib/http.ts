@@ -19,9 +19,19 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('User-Agent', `${pkg.name}/${pkg.version}`)
   const res = await fetch(...params)
   if (!res.ok) {
+    let text = await res.text()
+    const type = res.headers.get('Content-Type')
+    const isHTML = type?.includes('text/html')
+    if (isHTML) {
+      if (text.includes('</title>')) {
+        text = text.slice(0, text.indexOf('</title>') + 8)
+      } else {
+        text = text.slice(0, 200)
+      }
+    }
     throw statusError(
       res.status,
-      `HTTP Error Code ${res.status} \n${await res.text()}\nURL: ${params[0]}\n`,
+      `HTTP Error Code ${res.status} \n${text}\nURL: ${params[0]}\n`,
     )
   }
   const json = await res.json()

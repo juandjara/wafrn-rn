@@ -337,7 +337,7 @@ export function useServerList(query: string) {
   })
 }
 
-type WellKnownNodeInfo = {
+export type WellKnownNodeInfo = {
   version: string
   software: {
     name: string
@@ -357,12 +357,27 @@ type WellKnownNodeInfo = {
     localPosts: number
   }
   openRegistrations: boolean
-  metadata: unknown
+  metadata: {
+    nodeName: string | null
+    nodeDescription: string | null
+    nodeAdmins: {
+      name: string
+      email: string
+    }[]
+    maintainer: {
+      name: string
+      email: string
+    }
+    inquiryUrl: string
+    adminAccount: string
+    themeColor: string
+    emailRequiredForSignup: boolean
+    disableRegistration: boolean
+  }
 }
 
-async function getWellKnownNodeInfo() {
-  const env = getEnvironmentStatic()
-  const url = `${env?.BASE_URL}/.well-known/nodeinfo/2.0`
+export async function getWellKnownNodeInfo(baseUrl: string) {
+  const url = `${baseUrl}/.well-known/nodeinfo/2.0`
   const json = await getJSON(url)
   return json as WellKnownNodeInfo
 }
@@ -390,14 +405,14 @@ async function getQueueStats(token: string) {
 }
 
 export function useServerStats() {
-  const { token } = useAuth()
+  const { env, token } = useAuth()
   return useQuery({
     queryKey: ['server-stats'],
     queryFn: async () => {
       const queueStats = await getQueueStats(token!)
-      const nodeInfo = await getWellKnownNodeInfo()
+      const nodeInfo = await getWellKnownNodeInfo(env!.BASE_URL)
       return { queueStats, nodeInfo }
     },
-    enabled: !!token,
+    enabled: !!token && !!env,
   })
 }

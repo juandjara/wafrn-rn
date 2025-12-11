@@ -1,3 +1,4 @@
+import Button from '@/components/Button'
 import InstanceProvider from '@/components/InstanceProvider'
 import { Colors } from '@/constants/Colors'
 import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
@@ -7,10 +8,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { Image } from 'expo-image'
 import { useLocalSearchParams } from 'expo-router'
-import { useEffect } from 'react'
 import { Text, View, ScrollView } from 'react-native'
-
-const bigW = require('@/assets/images/logo_w.png')
 
 export default function ActivateScreen() {
   const sx = useSafeAreaPadding()
@@ -23,11 +21,9 @@ export default function ActivateScreen() {
 
   const mutation = useAccountActivateMutation()
 
-  useEffect(() => {
-    if (savedInstance && mutation.isIdle) {
-      mutation.mutate({ code, email })
-    }
-  }, [savedInstance, mutation, code, email])
+  function activateAccount() {
+    mutation.mutate({ code, email })
+  }
 
   return (
     <View
@@ -40,7 +36,7 @@ export default function ActivateScreen() {
       <Toasts />
       <ScrollView>
         <Image
-          source={bigW}
+          source={require('@/assets/images/logo_w.png')}
           style={{
             marginTop: 48,
             width: 120,
@@ -69,9 +65,11 @@ export default function ActivateScreen() {
                 will receive another email when your account is approved.
               </Text>
             ) : (
-              <Text className="text-white text-center">
-                Activating your account...
-              </Text>
+              <Button
+                text="Activate Account"
+                onPress={activateAccount}
+                disabled={!savedInstance || mutation.isPending}
+              />
             )}
           </View>
         </InstanceProvider>
