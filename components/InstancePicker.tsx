@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { FontAwesome6, Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { clsx } from 'clsx'
@@ -195,7 +195,7 @@ export default function InstancePicker({
                         {instance.description}
                       </Text>
                     ) : null}
-                    <Text className="text-white text-xs">
+                    <Text className="text-white text-xs mb-2">
                       Registrations:{' '}
                       {instance.registrationUrl ? (
                         <Link
@@ -209,10 +209,23 @@ export default function InstancePicker({
                       )}
                     </Text>
                     {instance.registrationCondition ? (
-                      <Text className="text-white text-xs">
+                      <Text className="text-white text-xs mb-2">
                         {instance.registrationCondition}
                       </Text>
                     ) : null}
+                    {instance.version ? (
+                      <Text className="text-gray-400 mb-2 text-xs">
+                        v{instance.version}
+                      </Text>
+                    ) : null}
+                    {instance.bskyEnabled ? (
+                      <Text className="text-gray-400 text-xs">
+                        <FontAwesome6 name="bluesky" />
+                        {' Bluesky enabled'}
+                      </Text>
+                    ) : (
+                      ''
+                    )}
                   </View>
                 </Pressable>
               ))}
