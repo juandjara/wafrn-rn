@@ -32,7 +32,7 @@ export default function EditorHeader({
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
-      <Link href="../" className="rounded-full active:bg-white/10 p-1">
+      <Link href="../" className="rounded-full p-1">
         <MaterialIcons name="close" color="white" size={20} />
       </Link>
       <View
@@ -58,7 +58,7 @@ export default function EditorHeader({
         className={clsx(
           'px-4 py-2 my-2 rounded-full flex-row items-center gap-2',
           {
-            'bg-cyan-800 active:bg-cyan-700': canPublish,
+            'bg-cyan-800': canPublish,
             'bg-gray-400/25 opacity-50': !canPublish,
           },
         )}
