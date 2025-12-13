@@ -71,6 +71,8 @@
     </array>
     <key>RCTNewArchEnabled</key>
     <true/>
+    <key>ReactNativeReleaseLevel</key>
+    <string>experimental</string>
     <key>UIBackgroundModes</key>
     <array>
       <string>audio</string>
