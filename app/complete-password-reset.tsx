@@ -23,7 +23,7 @@ export default function CompletePasswordReset() {
   const color = Colors.dark.text
   const [password, setPassword] = useState('')
 
-  const { envStatus } = useAuth()
+  const { status } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
@@ -80,7 +80,7 @@ export default function CompletePasswordReset() {
           <InstanceProvider
             savedInstance={savedInstance}
             setSavedInstance={setSavedInstance}
-            envStatus={envStatus}
+            envStatus={status}
           >
             <TextInput
               secureTextEntry
