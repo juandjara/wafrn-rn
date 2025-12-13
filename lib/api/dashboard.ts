@@ -7,7 +7,7 @@ import { Timestamps } from './types'
 import { useNotificationBadges } from '../notifications'
 import { getEnvironmentStatic } from './auth'
 import { Settings, useSettings } from './settings'
-import { getDerivedPostState, getDerivedThreadState } from './content'
+import { getDerivedPostState } from './content'
 
 export enum DashboardMode {
   LOCAL = 2,
