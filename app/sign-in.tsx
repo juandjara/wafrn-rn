@@ -5,8 +5,8 @@ import {
   parseToken,
 } from '@/lib/api/auth'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { Link, router } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { Link, Redirect } from 'expo-router'
+import { useState } from 'react'
 import {
   TextInput,
   View,
@@ -29,7 +29,7 @@ export default function SignIn() {
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const { token, setToken, env, envStatus } = useAuth()
+  const { token, setToken, env, status } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
@@ -37,12 +37,6 @@ export default function SignIn() {
   const loginMutation = useLoginMutation(env!)
   const { value: savedInstance, setValue: setSavedInstance } =
     useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-
-  useEffect(() => {
-    if (env && parseToken(token)) {
-      router.replace('/')
-    }
-  }, [env, token])
 
   function login() {
     if (loginMutation.isPending || !env || !email || !password) {
@@ -84,6 +78,10 @@ export default function SignIn() {
     )
   }
 
+  if (env && parseToken(token)) {
+    return <Redirect href="/" />
+  }
+
   return (
     <View
       className="flex-1 mx-4"
@@ -112,7 +110,7 @@ export default function SignIn() {
           <InstanceProvider
             savedInstance={savedInstance}
             setSavedInstance={setSavedInstance}
-            envStatus={envStatus}
+            envStatus={status}
           >
             {!firstPassToken && (
               <>
