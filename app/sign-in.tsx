@@ -1,7 +1,6 @@
 import {
   useLoginMutation,
   useLoginMfaMutation,
-  SAVED_INSTANCE_KEY,
   parseToken,
 } from '@/lib/api/auth'
 import { useAuth } from '@/lib/contexts/AuthContext'
@@ -20,7 +19,6 @@ import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
 import InstanceProvider from '@/components/InstanceProvider'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import { useToasts } from '@/lib/toasts'
 import Button from '@/components/Button'
 
@@ -29,14 +27,12 @@ export default function SignIn() {
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
-  const { token, setToken, env, status } = useAuth()
+  const { token, setToken, env, status, instance, setInstance } = useAuth()
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   function login() {
     if (loginMutation.isPending || !env || !email || !password) {
@@ -108,8 +104,8 @@ export default function SignIn() {
             Hi! Welcome to WAFRN!
           </Text>
           <InstanceProvider
-            savedInstance={savedInstance}
-            setSavedInstance={setSavedInstance}
+            savedInstance={instance}
+            setSavedInstance={setInstance}
             envStatus={status}
           >
             {!firstPassToken && (

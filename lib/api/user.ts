@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
-import { getEnvironmentStatic, parseToken, SAVED_INSTANCE_KEY } from './auth'
+import { getEnvironmentStatic, parseToken } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
@@ -142,20 +142,18 @@ export type SavedAccount = {
 
 export function useAccounts() {
   const qc = useQueryClient()
-  const { token, setToken } = useAuth()
+  const { token, setToken, instance, setInstance } = useAuth()
   const {
     loading: accountsDataLoading,
     value: _accountsData,
     setValue: setAccountsData,
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
-  const { value: currentInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   const accountsData = _accountsData?.length
     ? _accountsData
-    : [{ token: token!, instance: currentInstance! }]
+    : [{ token: token!, instance: instance! }]
 
-  const accountQueries = useAccountsQueries(accountsData, currentInstance!)
+  const accountQueries = useAccountsQueries(accountsData, instance!)
   const loading =
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
 
@@ -184,11 +182,9 @@ export function useAccounts() {
   async function selectAccount(index: number) {
     const newValues = accountsData?.[index] ?? null
     const { token, instance } = newValues ?? {}
-    // const env = await getInstanceEnvironment(instance)
-    // qc.setQueryData(['environment', instance], env)
     await setToken(token)
     await nextTick()
-    await setSavedInstance(instance)
+    await setInstance(instance)
     await qc.invalidateQueries({
       predicate: ({ queryKey }) => queryKey[0] !== 'environment',
     })

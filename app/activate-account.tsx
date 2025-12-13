@@ -1,29 +1,27 @@
 import Button from '@/components/Button'
 import InstanceProvider from '@/components/InstanceProvider'
 import { Colors } from '@/constants/Colors'
-import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
 import { useAccountActivateMutation } from '@/lib/api/user'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
-import { useLocalSearchParams } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { Text, View, ScrollView } from 'react-native'
 
 export default function ActivateScreen() {
   const sx = useSafeAreaPadding()
-  const { status } = useAuth()
+  const { status, instance, setInstance } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
   }>()
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
 
   const mutation = useAccountActivateMutation()
 
   function activateAccount() {
-    mutation.mutate({ code, email })
+    if (!mutation.isPending) {
+      mutation.mutate({ code, email })
+    }
   }
 
   return (
@@ -48,8 +46,8 @@ export default function ActivateScreen() {
           Hi! We are glad to have you here 😄
         </Text>
         <InstanceProvider
-          savedInstance={savedInstance}
-          setSavedInstance={setSavedInstance}
+          savedInstance={instance}
+          setSavedInstance={setInstance}
           envStatus={status}
         >
           <View className="pt-12 pb-6">
@@ -59,17 +57,22 @@ export default function ActivateScreen() {
                 not work please send an email to the administrator of the server
               </Text>
             ) : mutation.isSuccess ? (
-              <Text className="text-green-100 leading-relaxed">
-                Your account was activated! Now, for the last step, an admin
-                must approve your registration manually. This can take some time
-                depending on timezone differences, so please be patient. You
-                will receive another email when your account is approved.
-              </Text>
+              <View>
+                <Text className="text-green-100 leading-relaxed">
+                  Your account was activated! Now, for the last step, an admin
+                  must approve your registration manually. This can take some
+                  time depending on timezone differences, so please be patient.
+                  You will receive another email when your account is approved.
+                </Text>
+                <Link href="/sign-in" className="text-blue-500 my-2">
+                  Back to login
+                </Link>
+              </View>
             ) : (
               <Button
                 text="Activate Account"
                 onPress={activateAccount}
-                disabled={!savedInstance || mutation.isPending}
+                disabled={mutation.isPending}
               />
             )}
           </View>

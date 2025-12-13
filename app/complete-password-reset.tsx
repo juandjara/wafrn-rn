@@ -13,8 +13,6 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Image } from 'expo-image'
 import { usePasswordChangeCompleteMutation } from '@/lib/api/user'
 import InstanceProvider from '@/components/InstanceProvider'
-import { SAVED_INSTANCE_KEY } from '@/lib/api/auth'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import Button from '@/components/Button'
 import { useAuth } from '@/lib/contexts/AuthContext'
 
@@ -23,30 +21,29 @@ export default function CompletePasswordReset() {
   const color = Colors.dark.text
   const [password, setPassword] = useState('')
 
-  const { status } = useAuth()
+  const { status, instance, setInstance } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
   }>()
 
-  const { value: savedInstance, setValue: setSavedInstance } =
-    useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-
   const mutation = usePasswordChangeCompleteMutation()
 
   function submit() {
-    mutation.mutate(
-      {
-        email,
-        password,
-        code,
-      },
-      {
-        onSuccess: () => {
-          router.navigate('/sign-in')
+    if (!mutation.isPending) {
+      mutation.mutate(
+        {
+          email,
+          password,
+          code,
         },
-      },
-    )
+        {
+          onSuccess: () => {
+            router.navigate('/sign-in')
+          },
+        },
+      )
+    }
   }
 
   return (
@@ -78,8 +75,8 @@ export default function CompletePasswordReset() {
             And just log in after that!
           </Text>
           <InstanceProvider
-            savedInstance={savedInstance}
-            setSavedInstance={setSavedInstance}
+            savedInstance={instance}
+            setSavedInstance={setInstance}
             envStatus={status}
           >
             <TextInput

@@ -15,7 +15,7 @@ export default function InstanceProvider({
   envStatus,
 }: PropsWithChildren & {
   savedInstance: string | null
-  setSavedInstance: (url: string | null) => void | Promise<void>
+  setSavedInstance: (url: string | null) => void
   envStatus: 'pending' | 'error' | 'success'
 }) {
   const gray600 = useCSSVariable('--color-gray-600') as string
