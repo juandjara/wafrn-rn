@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   Keyboard,
   Platform,
@@ -78,7 +78,7 @@ export default function EditorView() {
   const uploadMutation = useMediaUploadMutation()
   const createMutation = useCreatePostMutation()
 
-  const canPublish = useMemo(() => {
+  function canPublish() {
     if (createMutation.isPending || uploadMutation.isPending) {
       return false
     }
@@ -94,7 +94,7 @@ export default function EditorView() {
       form.medias.length > 0 ||
       form.contentWarning.length > 0
     )
-  }, [form, disableForceAltText, createMutation, uploadMutation])
+  }
 
   const mentionApi = useMentions({
     value: form.content,
@@ -106,7 +106,7 @@ export default function EditorView() {
   const maxPrivacy = reply?.posts[0].privacy
 
   function onPublish() {
-    if (!canPublish) {
+    if (!canPublish()) {
       return
     }
 
@@ -251,7 +251,7 @@ export default function EditorView() {
           postingAs={form.postingAs}
           setPostingAs={(userId) => update('postingAs', userId)}
           isLoading={createMutation.isPending}
-          canPublish={canPublish}
+          canPublish={canPublish()}
           onPublish={onPublish}
           maxPrivacy={maxPrivacy}
           privacySelectDisabled={privacySelectDisabled}
