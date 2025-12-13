@@ -5,12 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
-import {
-  getEnvironmentStatic,
-  getInstanceEnvironment,
-  parseToken,
-  SAVED_INSTANCE_KEY,
-} from './auth'
+import { getEnvironmentStatic, parseToken, SAVED_INSTANCE_KEY } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
