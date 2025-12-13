@@ -10,10 +10,10 @@ export const unstable_settings = {
 }
 
 export default function ProtectedLayout() {
-  const { token, env, isLoading } = useAuth()
+  const { token, env, status } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
 
-  if (isLoading) {
+  if (status === 'pending') {
     return <SplashScreen />
   }
 

@@ -1,9 +1,9 @@
 import {
   useLoginMutation,
   useLoginMfaMutation,
-  getInstanceEnvironment,
   DEFAULT_INSTANCE,
   SAVED_INSTANCE_KEY,
+  useEnvironment,
 } from '@/lib/api/auth'
 import { Link } from 'expo-router'
 import { useState } from 'react'
@@ -11,7 +11,6 @@ import { TextInput, View, Text } from 'react-native'
 import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
 import InstanceProvider from '@/components/InstanceProvider'
-import { useQuery } from '@tanstack/react-query'
 import { useToasts } from '@/lib/toasts'
 import Button from './Button'
 import useAsyncStorage from '@/lib/useLocalStorage'
@@ -28,17 +27,10 @@ export default function ModalSignIn({
   const [firstPassToken, setFirstPassToken] = useState('')
 
   const [_instance, setInstance] = useState<string | null>(null)
-  const { value } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
+  const { value, loading } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
   const instance = _instance ?? value ?? DEFAULT_INSTANCE
 
-  const {
-    data: env,
-    status,
-    isLoading,
-  } = useQuery({
-    queryKey: ['modalSignIn-environment', instance],
-    queryFn: () => getInstanceEnvironment(instance),
-  })
+  const { data: env, status, isLoading } = useEnvironment(instance, !loading)
   const envStatus = isLoading ? 'pending' : status
 
   const { showToastError } = useToasts()

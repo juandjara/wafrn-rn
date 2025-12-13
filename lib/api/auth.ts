@@ -1,12 +1,16 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
-import { queryClient } from '../queryClient'
-import useAsyncStorage from '../useLocalStorage'
-import { getItem } from 'expo-secure-store'
+import { createAtom } from '@xstate/store'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
 export const AUTH_TOKEN_KEY = 'wafrn_token'
+
+type EnvStatus = 'pending' | 'error' | 'success'
+
+export const tokenAtom = createAtom<string | null>(null)
+export const envAtom = createAtom<Environment | undefined>(undefined)
+export const statusAtom = createAtom<EnvStatus>('pending')
 
 export type ParsedToken = {
   birthDate: string // ISO date
@@ -107,15 +111,13 @@ export async function getInstanceEnvironment(instanceURL: string) {
   }
 }
 
-export function useEnvironment() {
-  const { value, loading } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-  const instance = value ?? DEFAULT_INSTANCE
+export function useEnvironment(instance: string, enabled = true) {
   return useQuery({
     queryKey: ['environment', instance],
     queryFn: () => getInstanceEnvironment(instance),
     staleTime: Infinity,
     placeholderData: keepPreviousData,
-    enabled: !loading
+    enabled,
   })
 }
 
@@ -188,17 +190,8 @@ export function useLoginMfaMutation(env?: Environment) {
   })
 }
 
-function getInstanceStatic() {
-  const encoded = getItem(SAVED_INSTANCE_KEY)
-  const value = encoded ? JSON.parse(encoded) : DEFAULT_INSTANCE
-  return value
-}
-
-// NOTE: using static access to query client here to get the environment outside of a React component
-// this can be undefined and is not reactive so be careful
 export function getEnvironmentStatic() {
-  const instance = getInstanceStatic()
-  const env = queryClient.getQueryData<Environment>(['environment', instance])
+  const env = envAtom.get()
   if (!env) {
     throw new Error('Cannot access environment. Is the server running?')
   }

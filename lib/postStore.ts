@@ -6,34 +6,36 @@ type PostLayoutState = {
   collapsed?: boolean
 }
 
+type PostState = {
+  layout: Record<string, PostLayoutState | undefined>
+}
+
 const postStore = createStore({
   context: {
-    layout: {} as Record<string, PostLayoutState | undefined>,
-  },
+    layout: {},
+  } as PostState,
   on: {
-    toggleCollapsed: {
-      layout: (context, payload: { id: string; flag: boolean }) => {
-        const layout = context.layout[payload.id] || ({} as PostLayoutState)
-        return {
-          ...context.layout,
-          [payload.id]: {
-            ...layout,
-            collapsed: payload.flag,
-          },
-        }
-      },
+    toggleCollapsed: (context, payload: { id: string; flag: boolean }) => {
+      const layout = context.layout[payload.id] || ({} as PostLayoutState)
+      const newLayout = {
+        ...context.layout,
+        [payload.id]: {
+          ...layout,
+          collapsed: payload.flag,
+        },
+      }
+      return { layout: newLayout }
     },
-    toggleCwOpen: {
-      layout: (context, payload: { id: string; flag: boolean }) => {
-        const layout = context.layout[payload.id] || ({} as PostLayoutState)
-        return {
-          ...context.layout,
-          [payload.id]: {
-            ...layout,
-            cwOpen: payload.flag,
-          },
-        }
-      },
+    toggleCwOpen: (context, payload: { id: string; flag: boolean }) => {
+      const layout = context.layout[payload.id] || ({} as PostLayoutState)
+      const newLayout = {
+        ...context.layout,
+        [payload.id]: {
+          ...layout,
+          cwOpen: payload.flag,
+        },
+      }
+      return { layout: newLayout }
     },
   },
 })

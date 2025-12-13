@@ -47,8 +47,8 @@ importers:
         specifier: ^2.0.6
         version: 2.0.6
       '@xstate/store':
-        specifier: ^2.6.2
-        version: 2.6.2(react@19.1.0)
+        specifier: ^3.13.0
+        version: 3.13.0(react@19.1.0)
       babel-preset-expo:
         specifier: ~54.0.7
         version: 54.0.7(@babel/core@7.28.5)(@babel/runtime@7.28.4)(expo@54.0.29)(react-refresh@0.14.2)
@@ -1808,10 +1808,10 @@ packages:
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
     engines: {node: '>=10.0.0'}
 
-  '@xstate/store@2.6.2':
-    resolution: {integrity: sha512-zznGTWU+tmhbD0UUxPLy5FmxvceBNyMsN1Tuy7UMJAH9NuaQWj4/B2L+EcO6FxI2b2CNyzk1PL5mZ8cDpBFpMw==}
+  '@xstate/store@3.13.0':
+    resolution: {integrity: sha512-uZqacmcn1L4wZFeqSuQvUH2r18Vw31W+Ow0K1xz5CdbIZ9122o1BegaTLqUKHSk6YAYMs2zkcN6REeMAQLkKIA==}
     peerDependencies:
-      react: ^18.2.0 || ^19.0.0-0
+      react: ^18.2.0 || ^19.0.0
       solid-js: ^1.7.6
     peerDependenciesMeta:
       react:
@@ -6965,7 +6965,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.11': {}
 
-  '@xstate/store@2.6.2(react@19.1.0)':
+  '@xstate/store@3.13.0(react@19.1.0)':
     optionalDependencies:
       react: 19.1.0
 
