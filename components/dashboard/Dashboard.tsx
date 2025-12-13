@@ -1,11 +1,6 @@
-import {
-  DashboardMode,
-  dedupePosts,
-  getDashboardContext,
-  useDashboard,
-} from '@/lib/api/dashboard'
+import { DashboardMode, useDashboard } from '@/lib/api/dashboard'
 import { FlatList } from 'react-native'
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
@@ -16,8 +11,9 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import { useSettings } from '@/lib/api/settings'
-import { FeedItem, feedKeyExtractor, getFeedData } from '@/lib/feeds'
+import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from './FeedItemRenderer'
+import useContextProcessor from '@/lib/useContextProcessor'
 
 function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />
@@ -36,15 +32,10 @@ export default function Dashboard({
   const listRef = useRef<FlatList<FeedItem>>(null)
   const { data, isFetching, fetchNextPage, hasNextPage } = useDashboard(mode)
   const { data: settings } = useSettings()
-  const { context, feed } = useMemo(() => {
-    if (!data || !settings) {
-      return { context: null, feed: [] }
-    }
-    const context = getDashboardContext(data.pages || [], settings)
-    const posts = dedupePosts(data.pages || [])
-    const feed = getFeedData(context, posts, settings)
-    return { context, feed }
-  }, [data, settings])
+  const { context, feed } = useContextProcessor({
+    pages: data?.pages,
+    settings,
+  })
 
   const contentInset = { bottom: bottomPadding }
 
@@ -63,8 +54,12 @@ export default function Dashboard({
     }
   }
 
-  if (!context) {
+  if (isFetching) {
     return <Loading />
+  }
+
+  if (!context) {
+    return null
   }
 
   return (
