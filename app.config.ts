@@ -23,6 +23,17 @@ const plugins = [
       supportsPictureInPicture: true,
     },
   ],
+  [
+    'expo-build-properties',
+    {
+      android: {
+        reactNativeReleaseLevel: 'experimental',
+      },
+      ios: {
+        reactNativeReleaseLevel: 'experimental',
+      },
+    },
+  ],
 ] as ExpoConfig['plugins']
 
 if (isDev) {
