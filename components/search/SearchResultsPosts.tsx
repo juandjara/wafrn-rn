@@ -1,7 +1,7 @@
 import { dedupePosts, getDashboardContext } from '@/lib/api/dashboard'
 import { SearchType, useSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
-import { useLayoutData } from '@/lib/store'
+import { useLayoutData } from '@/lib/postStore'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 import { type FlatList, Pressable, Text, View } from 'react-native'

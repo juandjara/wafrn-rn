@@ -1,7 +1,7 @@
 import { Post } from '@/lib/api/posts.types'
 import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
-import { toggleCollapsed, usePostLayout } from '@/lib/store'
+import { toggleCollapsed, usePostLayout } from '@/lib/postStore'
 
 export default function CollapseButton({
   post,

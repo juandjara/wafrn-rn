@@ -6,7 +6,7 @@ type PostLayoutState = {
   collapsed?: boolean
 }
 
-export const postStore = createStore({
+const postStore = createStore({
   context: {
     layout: {} as Record<string, PostLayoutState | undefined>,
   },

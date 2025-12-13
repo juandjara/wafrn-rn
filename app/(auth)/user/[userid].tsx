@@ -12,7 +12,7 @@ import {
 import { useSettings } from '@/lib/api/settings'
 import { User, useUser } from '@/lib/api/user'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
-import { useLayoutData } from '@/lib/store'
+import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams } from 'expo-router'

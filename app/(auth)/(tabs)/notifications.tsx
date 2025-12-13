@@ -18,7 +18,7 @@ import {
   notificationPageToDashboardPage,
   useNotifications,
 } from '@/lib/notifications'
-import { useLayoutData } from '@/lib/store'
+import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { useQueryClient } from '@tanstack/react-query'

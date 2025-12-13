@@ -5,7 +5,7 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
 import { useScrollToTop } from '@react-navigation/native'
-import { useLayoutData } from '@/lib/store'
+import { useLayoutData } from '@/lib/postStore'
 import {
   FLATLIST_PERFORMANCE_CONFIG,
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
