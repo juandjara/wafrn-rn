@@ -86,9 +86,7 @@ function threadToListItems(
   return elements
 }
 
-export type FeedItem = ReturnType<typeof threadToListItems>[number] & {
-  threadId: string
-}
+export type FeedItem = ReturnType<typeof threadToListItems>[number]
 
 export function feedKeyExtractor(item: FeedItem) {
   return `${item.threadId}--${item.type}--${item.postId}`
