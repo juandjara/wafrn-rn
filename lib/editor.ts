@@ -1,28 +1,39 @@
-import { useQuery } from "@tanstack/react-query"
-import { useAuth, useParsedToken } from "./contexts/AuthContext"
-import { getPostDetail } from "./api/posts"
-import { useLocalSearchParams } from "expo-router"
-import { getPrivateOptionValue, PrivateOptionNames, useSettings } from "./api/settings"
-import { useMemo } from "react"
-import { isLessPrivateThan, PrivacyLevel } from "./api/privacy"
-import { formatUserUrl, formatMediaUrl } from "./formatters"
-import { getDashboardContext } from "./api/dashboard"
-import { useAsks } from "./asks"
-import { PostUser } from "./api/posts.types"
+import { useQuery } from '@tanstack/react-query'
+import { useAuth, useParsedToken } from './contexts/AuthContext'
+import { getPostDetail } from './api/posts'
+import { useLocalSearchParams } from 'expo-router'
+import {
+  getPrivateOptionValue,
+  PrivateOptionNames,
+  useSettings,
+} from './api/settings'
+import { useMemo } from 'react'
+import { isLessPrivateThan, PrivacyLevel } from './api/privacy'
+import { formatUserUrl, formatMediaUrl } from './formatters'
+import {
+  getDashboardContextPage,
+  combineDashboardContextPages,
+} from './api/dashboard'
+import { useAsks } from './asks'
+import { PostUser } from './api/posts.types'
 
-export type EditorSearchParams = {
-  type: 'reply'
-  replyId: string
-} | {
-  type: 'ask'
-  askId: string
-} | {
-  type: 'quote'
-  quoteId: string
-} | {
-  type: 'edit'
-  editId: string
-}
+export type EditorSearchParams =
+  | {
+      type: 'reply'
+      replyId: string
+    }
+  | {
+      type: 'ask'
+      askId: string
+    }
+  | {
+      type: 'quote'
+      quoteId: string
+    }
+  | {
+      type: 'edit'
+      editId: string
+    }
 
 export type EditorFormState = {
   content: string
@@ -61,15 +72,19 @@ export function useEditorReplyContext(params: EditorSearchParams) {
       }
       return null
     },
-    enabled: !!token && !!params.type
+    enabled: !!token && !!params.type,
   })
 }
 
 export function useEditorData() {
   const params = useLocalSearchParams<EditorSearchParams>()
   const { data: settings } = useSettings()
-  const { data: reply, isLoading: isReplyLoading } = useEditorReplyContext(params)
-  const { data: asks, isLoading: isAsksLoading } = useAsks({ answered: false, enabled: params.type === 'ask' })
+  const { data: reply, isLoading: isReplyLoading } =
+    useEditorReplyContext(params)
+  const { data: asks, isLoading: isAsksLoading } = useAsks({
+    answered: false,
+    enabled: params.type === 'ask',
+  })
   const { env } = useAuth()
   const me = useParsedToken()
 
@@ -96,7 +111,9 @@ export function useEditorData() {
     let ask = null
     let replyLabel = ''
     let mentionedUsers = [] as PostUser[]
-    const context = getDashboardContext(reply ? [reply] : [], settings)
+    const context = reply
+      ? getDashboardContextPage(reply, settings)
+      : combineDashboardContextPages([])
     const formState: EditorFormState = {
       content: '',
       contentWarning: '',
@@ -104,7 +121,7 @@ export function useEditorData() {
       tags: '',
       privacy: defaultPrivacy,
       medias: [] as EditorImage[],
-      postingAs: me?.userId || ''
+      postingAs: me?.userId || '',
     }
 
     if (params.type === 'ask') {
@@ -145,7 +162,9 @@ export function useEditorData() {
           reply.users.map((user) => [user.id, user]),
         )
 
-        privacySelectDisabled = !!replyPost.bskyUri && !!userMap[replyPost.userId]?.url.startsWith('@')
+        privacySelectDisabled =
+          !!replyPost.bskyUri &&
+          !!userMap[replyPost.userId]?.url.startsWith('@')
         if (privacySelectDisabled) {
           formState.privacy = PrivacyLevel.PUBLIC
         }
@@ -162,16 +181,22 @@ export function useEditorData() {
         // TODO: review if we still need this, logic complexity could be reduced
         // because right now we are only picking mentions from the reply post
         if (topPost) {
-          const quotedPostRelation = reply.quotes.find((q) => q.quoterPostId === topPost.id)
+          const quotedPostRelation = reply.quotes.find(
+            (q) => q.quoterPostId === topPost.id,
+          )
           if (quotedPostRelation) {
-            const quotedPost = reply.quotedPosts.find((p) => p.id === quotedPostRelation.quotedPostId)
+            const quotedPost = reply.quotedPosts.find(
+              (p) => p.id === quotedPostRelation.quotedPostId,
+            )
             if (quotedPost) {
               // ignore the mention from the top post to the quoted post user
               mentionsToIgnore.push([topPost.id, quotedPost.userId].join('/'))
               // ignore all the mentions inside the quoted post
               for (const mention of reply.mentions) {
                 if (mention.post === quotedPost.id) {
-                  mentionsToIgnore.push([mention.post, mention.userMentioned].join('/'))
+                  mentionsToIgnore.push(
+                    [mention.post, mention.userMentioned].join('/'),
+                  )
                 }
               }
             }
@@ -184,7 +209,9 @@ export function useEditorData() {
           mentionIds.add(userId)
         }
 
-        const replyPostMentions = reply.mentions.filter((m) => m.post === replyPost.id)
+        const replyPostMentions = reply.mentions.filter(
+          (m) => m.post === replyPost.id,
+        )
         for (const mention of replyPostMentions) {
           const isMe = mention.userMentioned === me?.userId
           const entry = [mention.post, mention.userMentioned].join('/')
@@ -212,24 +239,23 @@ export function useEditorData() {
         }))
 
       let content = post.markdownContent || ''
-      const mentions = reply.mentions.filter(
-        (m) => m.post === post.id,
-      )
-      const userMap = Object.fromEntries(
-        reply.users.map((u) => [u.id, u]),
-      )
+      const mentions = reply.mentions.filter((m) => m.post === post.id)
+      const userMap = Object.fromEntries(reply.users.map((u) => [u.id, u]))
       for (const mention of mentions) {
         const user = userMap[mention.userMentioned]
         if (!user) {
           continue
         }
         const remoteId = user.remoteId || `${env?.BASE_URL}/blog/${user.url}`
-        const mentionText = `[${formatUserUrl(user.url)}](${remoteId}?id=${user.id
-          })`
+        const mentionText = `[${formatUserUrl(user.url)}](${remoteId}?id=${
+          user.id
+        })`
         content = content.replace(formatUserUrl(user.url), mentionText)
       }
 
-      mentionedUsers = Array.from(new Set(mentions.map((m) => userMap[m.userMentioned])))
+      mentionedUsers = Array.from(
+        new Set(mentions.map((m) => userMap[m.userMentioned])),
+      )
 
       formState.content = content
       formState.tags = tags.join(', ')
@@ -252,6 +278,5 @@ export function useEditorData() {
       privacySelectDisabled,
     }
     // NOTE: explicitly ignoring dependency on other props in `params` like `params.askId`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [me, env?.BASE_URL, asks, reply, settings, params.type, isLoading])
+  }, [me, env?.BASE_URL, asks, reply, settings, params, isLoading])
 }

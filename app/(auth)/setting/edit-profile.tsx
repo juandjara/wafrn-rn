@@ -265,7 +265,7 @@ export default function EditProfile() {
         }
       />
       <KeyboardAwareScrollView
-        ref={animatedRef}
+        ref={animatedRef as any}
         bottomOffset={sx.paddingBottom + 16}
         style={{
           marginTop: sx.paddingTop,
@@ -404,11 +404,10 @@ export default function EditProfile() {
           </Pressable>
         </Link>
       </KeyboardAwareScrollView>
-      <KeyboardToolbar>
-        <KeyboardToolbar.Prev />
-        <KeyboardToolbar.Next />
-        <KeyboardToolbar.Done text="OK" onPress={() => Keyboard.dismiss()} />
-      </KeyboardToolbar>
+      <KeyboardToolbar
+        doneText="OK"
+        onDoneCallback={() => Keyboard.dismiss()}
+      />
     </>
   )
 }

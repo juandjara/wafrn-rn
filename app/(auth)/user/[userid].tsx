@@ -4,12 +4,7 @@ import {
   useCornerButtonAnimation,
 } from '@/components/CornerButton'
 import UserDetail from '@/components/user/UserDetail'
-import {
-  dedupePosts,
-  getDashboardContext,
-  useUserFeed,
-} from '@/lib/api/dashboard'
-import { useSettings } from '@/lib/api/settings'
+import { combineDashboardContextPages, useUserFeed } from '@/lib/api/dashboard'
 import { User, useUser } from '@/lib/api/user'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useLayoutData } from '@/lib/postStore'
@@ -21,7 +16,7 @@ import { FlatList, Pressable, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import ErrorView from '@/components/errors/ErrorView'
-import { FeedItem, feedKeyExtractor, getFeedData } from '@/lib/feeds'
+import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from '@/components/dashboard/FeedItemRenderer'
 
 type UserListItem =
@@ -55,7 +50,7 @@ export default function UserFeed() {
   const { userid } = useLocalSearchParams()
 
   const {
-    data: feed,
+    data,
     isFetching: feedFetching,
     fetchNextPage,
     hasNextPage,
@@ -63,20 +58,17 @@ export default function UserFeed() {
     refetch: refetchFeed,
   } = useUserFeed(userid as string)
 
+  const context = combineDashboardContextPages(
+    data?.pages.map((p) => p.context) ?? [],
+  )
+  const feedData = data?.pages.flatMap((p) => p.feed)
+
   const {
     data: user,
     isFetching: userFetching,
     error: userError,
     refetch: refetchUser,
   } = useUser(userid as string)
-
-  const { data: settings } = useSettings()
-  const { context, feedData } = useMemo(() => {
-    const context = getDashboardContext(feed?.pages || [], settings)
-    const posts = dedupePosts(feed?.pages || [])
-    const feedData = getFeedData(context, posts, settings)
-    return { context, feedData }
-  }, [settings, feed?.pages])
 
   const feedItems = useMemo(() => {
     const feedItems = []
@@ -93,7 +85,9 @@ export default function UserFeed() {
         refetch: refetchFeed,
       })
     }
-    feedItems.push(...feedData)
+    if (feedData) {
+      feedItems.push(...feedData)
+    }
     return feedItems
   }, [user, feedError, refetchFeed, feedData])
 

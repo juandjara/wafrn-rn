@@ -5,6 +5,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { useMemo } from 'react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getEnvironmentStatic } from './auth'
+import { useSettings } from './settings'
+import { getDashboardContextPage } from './dashboard'
+import { getFeedData } from '../feeds'
 
 export enum SearchType {
   User = 'user', // @username
@@ -81,21 +84,45 @@ export function useSearch(query: string) {
   const { token } = useAuth()
   const time = useMemo(() => Date.now(), [])
   const type = detectSearchType(query)
+  const { data: settings } = useSettings()
 
   return useInfiniteQuery({
     queryKey: ['search', query, time],
-    queryFn: ({ pageParam, signal }) =>
-      search({ page: pageParam, term: query, time, token: token!, signal }),
+    queryFn: async ({ pageParam, signal }) => {
+      const time1 = performance.now()
+      const list = await search({
+        page: pageParam,
+        term: query,
+        time,
+        token: token!,
+        signal,
+      })
+      const time2 = performance.now()
+      console.log(`search page fetch took ${time2 - time1}ms`)
+
+      if (type === SearchType.User) {
+        return { users: list.users }
+      } else {
+        const data = list.posts
+        const time3 = performance.now()
+        const context = getDashboardContextPage(data, settings)
+        const feed = getFeedData(context, data.posts, settings)
+        const time4 = performance.now()
+        console.log(`search page processing took ${time4 - time3}ms`)
+        return { context, feed }
+      }
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      if (type === SearchType.User && lastPage.users.foundUsers.length === 0) {
+      if (type === SearchType.User && lastPage.users?.foundUsers.length === 0) {
         return undefined
       }
-      if (type !== SearchType.User && lastPage.posts.posts.length === 0) {
+      if (type !== SearchType.User && lastPage.feed?.length === 0) {
         return undefined
       }
       return lastPageParam + 1
     },
+    enabled: !!token && !!settings,
   })
 }
 

@@ -7,6 +7,7 @@ import {
   Post,
   PostAsk,
   PostEmojiContext,
+  PostEmojiReaction,
   PostMedia,
   PostQuote,
   PostTag,
@@ -15,6 +16,8 @@ import {
 import { Timestamps } from './api/types'
 import { getEnvironmentStatic } from './api/auth'
 import { deleteItemAsync, getItemAsync } from 'expo-secure-store'
+import { getDashboardContextPage } from './api/dashboard'
+import { useSettings } from './api/settings'
 
 type NotificationsBadges = {
   asks: number
@@ -144,6 +147,7 @@ export async function getNotifications({
 }
 
 export function useNotifications() {
+  const { data: settings } = useSettings()
   const { refetch: refetchBadge } = useNotificationBadges()
   const { token } = useAuth()
   return useInfiniteQuery({
@@ -155,24 +159,28 @@ export function useNotifications() {
         date: pageParam.date,
         signal,
       })
+      const dashboardData = notificationPageToDashboardPage(list)
+      const context = getDashboardContextPage(dashboardData, settings)
+      const feed = parseNotificationPage(list)
+      const dates = list.notifications.map((n) =>
+        new Date(n.updatedAt).getTime(),
+      )
+      const endDate = Math.min(...dates)
+
       await refetchBadge()
-      return list
+      return { context, feed, endDate }
     },
     initialPageParam: {
       date: 0,
       page: 0,
     },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      const dates = lastPage.notifications.map((n) =>
-        new Date(n.updatedAt).getTime(),
-      )
-      const endDate = Math.min(...dates)
       return {
-        date: endDate,
+        date: lastPage.endDate,
         page: lastPageParam.page + 1,
       }
     },
-    enabled: !!token,
+    enabled: !!token && !!settings,
   })
 }
 
@@ -191,38 +199,39 @@ export function notificationPageToDashboardPage(page: NotificationsPage) {
   } satisfies DashboardData
 }
 
-export type FullNotification = ReturnType<typeof getNotificationList>[number]
+export type FullNotification = Notification & {
+  user: Omit<PostUser, 'remoteId'>
+  post?: Post
+  emoji?: PostEmojiReaction | { content: string }
+}
 
-export function getNotificationList(pages: NotificationsPage[]) {
-  const list = pages.flatMap((page) => {
-    return page.notifications
-      .filter((n) => n?.notificationType)
-      .map((n) => {
-        const user = page.users.find((u) => u.id === n.userId)!
-        if (
-          n.notificationType === 'FOLLOW' ||
-          n.notificationType === 'USERBITE'
-        ) {
-          return { ...n, user }
-        }
+export function parseNotificationPage(page: NotificationsPage) {
+  return page.notifications
+    .filter((n) => n?.notificationType)
+    .map((n) => {
+      const user = page.users.find((u) => u.id === n.userId)!
+      if (
+        n.notificationType === 'FOLLOW' ||
+        n.notificationType === 'USERBITE'
+      ) {
+        return { ...n, user }
+      }
 
-        const post = page.posts.find((p) => p.id === n.postId)
-        if (!post) {
-          return null
-        }
+      const post = page.posts.find((p) => p.id === n.postId)
+      if (!post) {
+        return null
+      }
 
-        if (n.notificationType === 'EMOJIREACT') {
-          const emoji = page.emojiRelations.postEmojiReactions.find(
-            (e) => e.id === n.emojiReactionId,
-          ) || { content: '∅' }
-          return { ...n, user, post, emoji }
-        }
+      if (n.notificationType === 'EMOJIREACT') {
+        const emoji = page.emojiRelations.postEmojiReactions.find(
+          (e) => e.id === n.emojiReactionId,
+        ) || { content: '∅' }
+        return { ...n, user, post, emoji }
+      }
 
-        return { ...n, user, post }
-      })
-      .filter((n) => !!n)
-  })
-  return list
+      return { ...n, user, post }
+    })
+    .filter((n) => !!n)
 }
 
 export async function registerPushNotificationToken(

@@ -5,7 +5,7 @@ import DashboardModeMenu, {
   PublicDashboardMode,
 } from '@/components/dashboard/DashboardModeMenu'
 import PagerView from 'react-native-pager-view'
-import { NativeSyntheticEvent, StyleSheet, View, Pressable } from 'react-native'
+import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'

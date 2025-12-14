@@ -6,7 +6,10 @@ import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserEmojis, isEmptyRewoot, sortPosts } from '@/lib/api/content'
-import { getDashboardContext } from '@/lib/api/dashboard'
+import {
+  combineDashboardContextPages,
+  getDashboardContextPage,
+} from '@/lib/api/dashboard'
 import {
   FLATLIST_PERFORMANCE_CONFIG,
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
@@ -94,9 +97,11 @@ export default function PostDetail() {
       const postData = data?.post
       const repliesData = data?.replies
 
-      const context = getDashboardContext(
-        [postData, repliesData].filter((d) => !!d),
-        settings,
+      const page1 = postData && getDashboardContextPage(postData, settings)
+      const page2 =
+        repliesData && getDashboardContextPage(repliesData, settings)
+      const context = combineDashboardContextPages(
+        [page1, page2].filter((x) => !!x),
       )
 
       const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))

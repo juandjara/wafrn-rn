@@ -5,25 +5,19 @@ import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import UserCard from '@/components/user/UserCard'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserEmojis } from '@/lib/api/content'
-import { getDashboardContext } from '@/lib/api/dashboard'
-import { useSettings } from '@/lib/api/settings'
+import { combineDashboardContextPages } from '@/lib/api/dashboard'
 import {
   DashboardContextProvider,
   useDashboardContext,
 } from '@/lib/contexts/DashboardContext'
 import { formatTimeAgo } from '@/lib/formatters'
-import {
-  FullNotification,
-  getNotificationList,
-  notificationPageToDashboardPage,
-  useNotifications,
-} from '@/lib/notifications'
+import { FullNotification, useNotifications } from '@/lib/notifications'
 import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from 'expo-router'
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { Text, useWindowDimensions, View, FlatList } from 'react-native'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
@@ -39,25 +33,16 @@ export default function NotificationList() {
   const sx = useSafeAreaPadding()
   const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
   const { data, fetchNextPage, hasNextPage, isFetching } = useNotifications()
+  const notifications = data ? data.pages.flatMap((p) => p.feed) : []
+  const context = combineDashboardContextPages(
+    data?.pages.map((p) => p.context) ?? [],
+  )
 
   const layoutData = useLayoutData()
-  const { data: settings } = useSettings()
-  const context = useMemo(() => {
-    const pages =
-      data?.pages.map((page) => notificationPageToDashboardPage(page)) || []
-    return getDashboardContext(pages, settings)
-  }, [data, settings])
-
-  const notifications = useMemo(() => {
-    if (!data) {
-      return []
-    }
-    return getNotificationList(data.pages)
-  }, [data])
 
   const listRef = useRef<FlatList<FullNotification>>(null)
 
-  useScrollToTop(listRef as any)
+  useScrollToTop(listRef)
 
   const qc = useQueryClient()
   const refresh = async () => {
@@ -129,11 +114,11 @@ function NotificationItem({
   }
   if (notification.notificationType === 'EMOJIREACT') {
     const id =
-      'emojiId' in notification.emoji ? notification.emoji.emojiId : null
+      'emojiId' in notification.emoji! ? notification.emoji.emojiId : null
     const emojis = Object.fromEntries(
       context.emojiRelations.emojis.map((e) => [e.id, e]),
     )
-    const emoji = id ? emojis[id] : notification.emoji.content
+    const emoji = id ? emojis[id] : notification.emoji!.content
     ribbon = (
       <EmojiReactRibbon
         user={user}
@@ -156,8 +141,8 @@ function NotificationItem({
       <ReplyRibbon
         user={user}
         emojis={userEmojis}
-        postId={notification.post.id}
-        isReply={!!notification.post.parentId}
+        postId={notification.post!.id}
+        isReply={!!notification.post!.parentId}
       />
     )
   }
