@@ -89,7 +89,6 @@ export function useSearch(query: string) {
   return useInfiniteQuery({
     queryKey: ['search', query, time],
     queryFn: async ({ pageParam, signal }) => {
-      const time1 = performance.now()
       const list = await search({
         page: pageParam,
         term: query,
@@ -97,18 +96,13 @@ export function useSearch(query: string) {
         token: token!,
         signal,
       })
-      const time2 = performance.now()
-      console.log(`search page fetch took ${time2 - time1}ms`)
 
       if (type === SearchType.User) {
         return { users: list.users }
       } else {
         const data = list.posts
-        const time3 = performance.now()
         const context = getDashboardContextPage(data, settings)
         const feed = getFeedData(context, data.posts, settings)
-        const time4 = performance.now()
-        console.log(`search page processing took ${time4 - time3}ms`)
         return { context, feed }
       }
     },

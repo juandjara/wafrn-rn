@@ -52,21 +52,15 @@ export function useDashboard(mode: DashboardMode) {
   return useInfiniteQuery({
     queryKey: ['dashboard', mode],
     queryFn: async ({ pageParam, signal }) => {
-      const time1 = performance.now()
       const list = await getDashboard({
         mode,
         startTime: pageParam,
         token: token!,
         signal,
       })
-      const time2 = performance.now()
-      console.log(`dashboard page fetch took ${time2 - time1}ms`)
-      const time3 = performance.now()
       const context = getDashboardContextPage(list, settings)
       const feed = getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
-      const time4 = performance.now()
-      console.log(`dashboard page processing took ${time4 - time3}ms`)
 
       await refetchBadge()
       return { context, feed, lastDate }
@@ -123,7 +117,6 @@ export function getDashboardContextPage(
 // merge objects from many dashboard context pages into a single one
 export function combineDashboardContextPages(pages: DashboardContextData[]) {
   // const seen = new Set<string>()
-  const startTime = performance.now()
   const combined: DashboardContextData = {
     users: dedupeById(pages.flatMap((p) => p.users)),
     emojiRelations: {
@@ -163,10 +156,6 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     bookmarks: pages.flatMap((p) => p.bookmarks || []),
     postsData: Object.assign({}, ...pages.map((p) => p.postsData)),
   }
-  const endTime = performance.now()
-  console.log(
-    `for ${pages.length} pages, combineDashboardContextPages took ${endTime - startTime}ms`,
-  )
   return combined
 }
 
@@ -225,21 +214,15 @@ export function useUserFeed(userId: string) {
   return useInfiniteQuery({
     queryKey: ['dashboard', 'userFeed', userId],
     queryFn: async ({ pageParam, signal }) => {
-      const time1 = performance.now()
       const list = await getUserFeed({
         userId,
         startTime: pageParam,
         token: token!,
         signal,
       })
-      const time2 = performance.now()
-      console.log(`user blog page fetch took ${time2 - time1}ms`)
-      const time3 = performance.now()
       const context = getDashboardContextPage(list, settings)
       const feed = getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
-      const time4 = performance.now()
-      console.log(`user blog page processing took ${time4 - time3}ms`)
       return { context, feed, lastDate }
     },
     initialPageParam: 0,
