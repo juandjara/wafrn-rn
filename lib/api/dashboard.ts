@@ -93,7 +93,7 @@ export function getDashboardContextPage(
   const context = {
     ...data,
     postsData: {} as Record<string, DerivedPostData>,
-  }
+  } satisfies DashboardContextData
   for (const thread of data.posts) {
     context.postsData[thread.id] = getDerivedPostState(
       thread,

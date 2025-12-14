@@ -439,7 +439,7 @@ export function separateInlineMedias(
 }
 
 export function getAskData(post: Post, context: DashboardContextData) {
-  const ask = context.asks.find((a) => a.postId === post.id)
+  const ask = context.asks?.find((a) => a.postId === post.id)
   if (!ask) {
     return null
   }

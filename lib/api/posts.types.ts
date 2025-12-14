@@ -115,7 +115,7 @@ export type DashboardData = {
   quotes: PostQuote[]
   users: PostUser[]
   tags: PostTag[]
-  asks: PostAsk[]
+  asks?: PostAsk[]
   rewootIds?: string[] // ids of posts rewooted by me
   bookmarks?: PostUserRelation[] // posts bookmarked by me
 }
