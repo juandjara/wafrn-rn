@@ -1,6 +1,6 @@
 import { PostMedia } from '@/lib/api/posts.types'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import {
   getAspectRatio,
   getGIFAspectRatio,
@@ -12,24 +12,31 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import MediaCloak from './MediaCloak'
 import Video from '../Video'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import { Image } from 'expo-image'
 import Loading from '../Loading'
 
 function ImageWithLoader({
+  id,
   src,
   width,
   height,
   blurhash,
 }: {
+  id: string
   src: string
   width: number
   height: number
   blurhash: string
 }) {
   const [loading, setLoading] = useState(true)
+  const style = useMemo(
+    () => StyleSheet.create({ img: { width, height } }).img,
+    [width, height],
+  )
+
   return (
     <View className="relative">
       {loading && (
@@ -38,12 +45,13 @@ function ImageWithLoader({
         </View>
       )}
       <Image
+        recyclingKey={id}
         source={src}
         cachePolicy={'memory-disk'}
         contentFit="cover"
         placeholderContentFit="cover"
-        placeholder={{ height, width, blurhash }}
-        style={{ height, width }}
+        placeholder={{ blurhash }}
+        style={style}
         onLoad={() => setLoading(false)}
       />
     </View>
@@ -106,6 +114,7 @@ export default function Media({
     content = (
       <Pressable className="max-w-full" onPress={onPress}>
         <ImageWithLoader
+          id={String(media.id) || 'media-no-id'}
           src={src}
           width={contentWidth}
           height={height}

@@ -97,6 +97,7 @@ export default function UserDetail({ user }: { user: User }) {
       {user.headerImage ? (
         <ZoomableImage
           id="header"
+          key={user.headerImage}
           src={formatCachedUrl(formatMediaUrl(user.headerImage))}
           width={width}
           height={height}
