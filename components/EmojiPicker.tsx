@@ -1,5 +1,4 @@
 import {
-  Modal,
   Text,
   View,
   Pressable,
@@ -29,14 +28,12 @@ const RECENT_EMOJI_LIMIT = 7
 const EMPTY_ARRAY = [] as never[]
 
 export default function EmojiPicker({
-  open,
-  setOpen,
   onPick,
+  onClose,
   reactions = EMPTY_ARRAY,
 }: {
-  open: boolean
-  setOpen: (open: boolean) => void
   onPick: (emoji: Emoji) => void
+  onClose: () => void
   reactions?: EmojiGroup[]
 }) {
   const { width } = useWindowDimensions()
@@ -137,99 +134,93 @@ export default function EmojiPicker({
   }
 
   return (
-    <Modal
-      visible={open}
-      animationType="slide"
-      onRequestClose={() => setOpen(false)}
-    >
-      <View style={sx} className="bg-indigo-950 flex-1">
-        <View
-          style={{
-            paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined,
-          }}
-          className="p-4 flex-row items-center justify-between"
-        >
-          <Text className="text-white text-lg font-medium">
-            React with an emoji
-          </Text>
-          <Pressable onPress={() => setOpen(false)}>
-            <MaterialCommunityIcons name="close" size={24} color={'white'} />
-          </Pressable>
-        </View>
-        <View className="m-3 mt-0 pl-2 bg-indigo-900 rounded-lg flex-row items-center justify-between">
-          <MaterialCommunityIcons name="magnify" size={24} color={gray400} />
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search emoji"
-            inputMode="search"
-            placeholderTextColorClassName="accent-gray-400"
-            className="text-white p-2 flex-1"
-          />
-        </View>
-        <FlatList
-          className="border-b border-t border-gray-600"
-          style={{ maxHeight: 48 }}
-          data={headers}
-          horizontal
-          keyExtractor={(item) => item.id}
-          fadingEdgeLength={30}
-          renderItem={({ item }) => (
-            <Pressable
-              className="p-3"
-              accessibilityLabel={item.name}
-              onPress={() => {
-                listRef.current?.scrollToIndex({
-                  index: item.index,
-                  animated: true,
-                })
-              }}
-            >
-              {item.emoji.content ? (
-                <Text className="text-lg">{item.emoji.content}</Text>
-              ) : item.emoji.url ? (
-                <Image
-                  source={{
-                    uri: formatCachedUrl(formatMediaUrl(item.emoji.url)),
-                  }}
-                  style={{ resizeMode: 'contain', width: 24, height: 24 }}
-                />
-              ) : null}
-            </Pressable>
-          )}
-        />
-        <FlashList
-          ref={listRef}
-          data={emojiList}
-          keyExtractor={(item) => item.id}
-          numColumns={columns}
-          renderItem={({ item }) => {
-            return (
-              <Pressable
-                className={clsx(
-                  'active:bg-indigo-900 rounded-lg py-2 px-4 h-12',
-                  {
-                    'bg-indigo-800': haveIReacted(item),
-                  },
-                )}
-                accessibilityLabel={item.name}
-                onPress={() => handlePick(item)}
-              >
-                {item.content ? (
-                  <Text className="text-2xl">{item.content}</Text>
-                ) : (
-                  <Image
-                    enforceEarlyResizing
-                    contentFit="contain"
-                    source={{ uri: formatCachedUrl(formatMediaUrl(item.url)) }}
-                    style={{ width: 32, height: 32 }}
-                  />
-                )}
-              </Pressable>
-            )
-          }}
+    <View style={sx} className="bg-indigo-950 flex-1">
+      <View
+        style={{
+          paddingTop: Platform.OS === 'ios' ? sx.paddingTop + 8 : undefined,
+        }}
+        className="p-4 flex-row items-center justify-between"
+      >
+        <Text className="text-white text-lg font-medium">
+          React with an emoji
+        </Text>
+        <Pressable onPress={onClose}>
+          <MaterialCommunityIcons name="close" size={24} color={'white'} />
+        </Pressable>
+      </View>
+      <View className="m-3 mt-0 pl-2 bg-indigo-900 rounded-lg flex-row items-center justify-between">
+        <MaterialCommunityIcons name="magnify" size={24} color={gray400} />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Search emoji"
+          inputMode="search"
+          placeholderTextColorClassName="accent-gray-400"
+          className="text-white p-2 flex-1"
         />
       </View>
-    </Modal>
+      <FlatList
+        className="border-b border-t border-gray-600"
+        style={{ maxHeight: 48 }}
+        data={headers}
+        horizontal
+        keyExtractor={(item) => item.id}
+        fadingEdgeLength={30}
+        renderItem={({ item }) => (
+          <Pressable
+            className="p-3"
+            accessibilityLabel={item.name}
+            onPress={() => {
+              listRef.current?.scrollToIndex({
+                index: item.index,
+                animated: true,
+              })
+            }}
+          >
+            {item.emoji.content ? (
+              <Text className="text-lg">{item.emoji.content}</Text>
+            ) : item.emoji.url ? (
+              <Image
+                source={{
+                  uri: formatCachedUrl(formatMediaUrl(item.emoji.url)),
+                }}
+                style={{ resizeMode: 'contain', width: 24, height: 24 }}
+              />
+            ) : null}
+          </Pressable>
+        )}
+      />
+      <FlashList
+        ref={listRef}
+        data={emojiList}
+        keyExtractor={(item) => item.id}
+        numColumns={columns}
+        renderItem={({ item }) => {
+          return (
+            <Pressable
+              className={clsx(
+                'active:bg-indigo-900 rounded-lg py-2 px-4 h-12',
+                {
+                  'bg-indigo-800': haveIReacted(item),
+                },
+              )}
+              accessibilityLabel={item.name}
+              onPress={() => handlePick(item)}
+            >
+              {item.content ? (
+                <Text className="text-2xl">{item.content}</Text>
+              ) : (
+                <Image
+                  enforceEarlyResizing
+                  contentFit="contain"
+                  source={{ uri: formatCachedUrl(formatMediaUrl(item.url)) }}
+                  style={{ width: 32, height: 32 }}
+                />
+              )}
+            </Pressable>
+          )
+        }}
+      />
+    </View>
   )
 }
