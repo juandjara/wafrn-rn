@@ -156,7 +156,7 @@ export default function UserFeed() {
               )}
             </View>
           }
-          ListFooterComponent={feedFetching ? <Loading /> : null}
+          ListFooterComponent={hasNextPage ? <Loading /> : null}
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </View>
