@@ -22,7 +22,7 @@ import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
 import { clsx } from 'clsx'
 import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/postStore'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
@@ -78,6 +78,15 @@ export default function PostFragment({
   const isDetailView = postid === post.id
 
   const [imageGalleryOpen, setImageGalleryOpen] = useState<number | null>(null)
+
+  const contentInnerStyle = useMemo(
+    () => ({
+      height: cwOpen ? ('auto' as const) : 0,
+      paddingHorizontal: contentWarning ? 12 : 0,
+      marginBottom: 4,
+    }),
+    [cwOpen, contentWarning],
+  )
 
   const hiddenUserIds = useHiddenUserIds()
   const hiddenUserMentioned = mentionedUsers.some((user) =>
@@ -229,18 +238,7 @@ export default function PostFragment({
                 </View>
               </View>
             )}
-            <View
-              id="content-inner"
-              style={[
-                { height: cwOpen ? 'auto' : 0 },
-                { paddingHorizontal: contentWarning ? 12 : 0 },
-                {
-                  transformOrigin: 'top center',
-                  overflow: 'hidden',
-                  marginBottom: 4,
-                },
-              ]}
-            >
+            <View id="content-inner" style={contentInnerStyle}>
               {ask && (
                 <View
                   id="ask"
