@@ -4,11 +4,11 @@ import {
   useDashboard,
 } from '@/lib/api/dashboard'
 import { FlatList } from 'react-native'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
-import { useScrollToTop } from '@react-navigation/native'
+import { useScrollToTop, useFocusEffect } from '@react-navigation/native'
 import { useLayoutData } from '@/lib/postStore'
 import {
   FLATLIST_PERFORMANCE_CONFIG,
@@ -16,7 +16,6 @@ import {
 } from '@/lib/api/posts'
 import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from './FeedItemRenderer'
-import { useFocusEffect } from '@react-navigation/native'
 
 function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />
