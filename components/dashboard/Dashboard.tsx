@@ -4,7 +4,7 @@ import {
   useDashboard,
 } from '@/lib/api/dashboard'
 import { FlatList } from 'react-native'
-import { useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
@@ -16,6 +16,7 @@ import {
 } from '@/lib/api/posts'
 import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from './FeedItemRenderer'
+import { useFocusEffect } from '@react-navigation/native'
 
 function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />
@@ -35,6 +36,15 @@ export default function Dashboard({
   const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
     useDashboard(mode)
 
+  const qc = useQueryClient()
+  const focusEffect = useCallback(() => {
+    // When screen loses focus (navigation away), cancel in-flight queries
+    return () => {
+      qc.cancelQueries({ queryKey: ['dashboard', mode] })
+    }
+  }, [qc, mode])
+  useFocusEffect(focusEffect)
+
   const context = combineDashboardContextPages(
     data?.pages.map((p) => p.context) ?? [],
   )
@@ -44,7 +54,6 @@ export default function Dashboard({
 
   useScrollToTop(listRef)
 
-  const qc = useQueryClient()
   async function refresh() {
     await qc.resetQueries({
       queryKey: ['dashboard', mode],
