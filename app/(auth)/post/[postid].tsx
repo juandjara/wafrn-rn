@@ -302,6 +302,18 @@ export default function PostDetail() {
     )
   }
 
+  // Show loading immediately while fetching
+  if (!data || isFetching) {
+    return (
+      <View className="flex-1">
+        {header}
+        <View style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT }}>
+          <Loading />
+        </View>
+      </View>
+    )
+  }
+
   return (
     <DashboardContextProvider data={context}>
       {header}
