@@ -78,6 +78,15 @@ export default function Media({
   const height = contentWidth * aspectRatio
   const mime = isExternalGIF ? 'image/gif' : media.mediaType
 
+  const backgroundImage = useMemo(
+    () => ({
+      src,
+      width: contentWidth,
+      aspectRatio,
+    }),
+    [src, contentWidth, aspectRatio],
+  )
+
   if (mime === 'text/html') {
     return (
       <LinkPreviewCard
@@ -143,11 +152,7 @@ export default function Media({
       <MediaCloak
         blurHash={media.blurhash}
         isNSFW={media.NSFW}
-        backgroundImage={{
-          src,
-          width: contentWidth,
-          aspectRatio,
-        }}
+        backgroundImage={backgroundImage}
       >
         {content}
       </MediaCloak>
