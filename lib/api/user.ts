@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
-import { getEnvironmentStatic, parseToken } from './auth'
+import { DEFAULT_INSTANCE, getEnvironmentStatic, parseToken } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
@@ -151,9 +151,12 @@ export function useAccounts() {
 
   const accountsData = _accountsData?.length
     ? _accountsData
-    : [{ token: token!, instance: instance! }]
+    : [{ token: token!, instance: instance ?? DEFAULT_INSTANCE }]
 
-  const accountQueries = useAccountsQueries(accountsData, instance!)
+  const accountQueries = useAccountsQueries(
+    accountsData,
+    instance ?? DEFAULT_INSTANCE,
+  )
   const loading =
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
 

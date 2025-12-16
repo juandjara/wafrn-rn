@@ -40,7 +40,7 @@ export default function ModalSignIn({
   const loginMutation = useLoginMutation(env)
 
   async function completeLogin(token: string) {
-    onLoginComplete(token, instance!)
+    onLoginComplete(token, instance)
   }
 
   function login() {
