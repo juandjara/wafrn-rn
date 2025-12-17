@@ -1,42 +1,19 @@
-import { Platform } from 'react-native'
 import { getItemAsync, deleteItemAsync, setItemAsync } from 'expo-secure-store'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
-async function setStorageItemAsync(key: string, value: string | null) {
-  if (Platform.OS === 'web') {
-    try {
-      if (value === null) {
-        localStorage.removeItem(key)
-      } else {
-        localStorage.setItem(key, value)
-      }
-    } catch (e) {
-      console.error('Local storage is unavailable:', e)
-    }
+export async function setStorageItemAsync(key: string, value: string | null) {
+  if (value === null) {
+    await deleteItemAsync(key)
   } else {
-    if (value === null) {
-      await deleteItemAsync(key)
-    } else {
-      await setItemAsync(key, value)
-    }
+    await setItemAsync(key, value)
   }
 }
-async function getStorageItemAsync(key: string) {
-  if (Platform.OS === 'web') {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        return localStorage.getItem(key)
-      }
-      console.error('Error: localStorage is not defined in window')
-    } catch (e) {
-      console.error('Error getting value from localStorage: ', e)
-    }
-  } else {
-    try {
-      return getItemAsync(key)
-    } catch (err) {
-      console.error('Error getting value from SecureStore: ', err)
-    }
+export async function getStorageItemAsync(key: string) {
+  try {
+    return getItemAsync(key)
+  } catch (err) {
+    console.error('Error getting value from SecureStore: ', err)
   }
   return null
 }
@@ -61,11 +38,14 @@ export default function useAsyncStorage<T = unknown>(
       await refetch()
     },
   })
-
   const loading = isLoading || mutation.isPending
-  return {
-    loading,
-    value: data || null,
-    setValue: mutation.mutateAsync,
-  }
+
+  return useMemo(
+    () => ({
+      loading,
+      value: data || null,
+      setValue: (value: T | null) => mutation.mutateAsync(value),
+    }),
+    [loading, data, mutation],
+  )
 }
