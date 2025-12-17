@@ -53,11 +53,10 @@ export default function RootLayout() {
           <ThemeProvider value={DarkTheme}>
             <GestureHandlerRootView style={styles.root}>
               <Toasts />
+              <NetInfoRibbon />
               <MenuProvider backHandler customStyles={styles}>
                 <HtmlEngineProvider>
-                  <NetInfoRibbon>
-                    <Slot />
-                  </NetInfoRibbon>
+                  <Slot />
                 </HtmlEngineProvider>
               </MenuProvider>
             </GestureHandlerRootView>
