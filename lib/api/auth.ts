@@ -3,12 +3,11 @@ import { getJSON } from '../http'
 import { createAtom } from '@xstate/store'
 
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
-export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
-export const AUTH_TOKEN_KEY = 'wafrn_token'
 
 type EnvStatus = 'pending' | 'error' | 'success'
 
 export const tokenAtom = createAtom<string | null>(null)
+export const instanceAtom = createAtom<string | null>(null)
 export const envAtom = createAtom<Environment | undefined>(undefined)
 export const statusAtom = createAtom<EnvStatus>('pending')
 

@@ -21,7 +21,7 @@ export default function CompletePasswordReset() {
   const color = Colors.dark.text
   const [password, setPassword] = useState('')
 
-  const { status, instance, setInstance } = useAuth()
+  const { envStatus, instance, setInstance } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
@@ -77,7 +77,7 @@ export default function CompletePasswordReset() {
           <InstanceProvider
             savedInstance={instance}
             setSavedInstance={setInstance}
-            envStatus={status}
+            envStatus={envStatus}
           >
             <TextInput
               secureTextEntry

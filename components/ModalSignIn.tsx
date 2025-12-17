@@ -2,7 +2,6 @@ import {
   useLoginMutation,
   useLoginMfaMutation,
   DEFAULT_INSTANCE,
-  SAVED_INSTANCE_KEY,
   useEnvironment,
 } from '@/lib/api/auth'
 import { Link } from 'expo-router'
@@ -13,8 +12,8 @@ import { Colors } from '@/constants/Colors'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useToasts } from '@/lib/toasts'
 import Button from './Button'
-import useAsyncStorage from '@/lib/useLocalStorage'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
+import { useAuth } from '@/lib/contexts/AuthContext'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -26,11 +25,11 @@ export default function ModalSignIn({
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
 
+  const { instance: savedInstance } = useAuth()
   const [_instance, setInstance] = useState<string | null>(null)
-  const { value, loading } = useAsyncStorage<string>(SAVED_INSTANCE_KEY)
-  const instance = _instance ?? value ?? DEFAULT_INSTANCE
+  const instance = _instance ?? savedInstance ?? DEFAULT_INSTANCE
 
-  const { data: env, status, isLoading } = useEnvironment(instance, !loading)
+  const { data: env, status, isLoading } = useEnvironment(instance)
   const envStatus = isLoading ? 'pending' : status
 
   const { showToastError } = useToasts()

@@ -1,5 +1,4 @@
 // initial reference: https://docs.expo.dev/router/reference/authentication/
-import SplashScreen from '@/components/SplashScreen'
 import { getRootStyles } from '@/constants/Colors'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { Redirect, Stack } from 'expo-router'
@@ -10,12 +9,8 @@ export const unstable_settings = {
 }
 
 export default function ProtectedLayout() {
-  const { token, env, status } = useAuth()
+  const { token, env } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
-
-  if (status === 'pending') {
-    return <SplashScreen />
-  }
 
   if (!token || !env) {
     return <Redirect href="/sign-in" />

@@ -10,7 +10,7 @@ import { Text, View, ScrollView } from 'react-native'
 
 export default function ActivateScreen() {
   const sx = useSafeAreaPadding()
-  const { status, instance, setInstance } = useAuth()
+  const { envStatus, instance, setInstance } = useAuth()
   const { code, email } = useLocalSearchParams<{
     code: string
     email: string
@@ -48,7 +48,7 @@ export default function ActivateScreen() {
         <InstanceProvider
           savedInstance={instance}
           setSavedInstance={setInstance}
-          envStatus={status}
+          envStatus={envStatus}
         >
           <View className="pt-12 pb-6">
             {mutation.isError ? (
