@@ -76,15 +76,16 @@
     "react-native-awesome-gallery": "^0.4.3",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-html-engine": "^8.0.4",
-    "react-native-keyboard-controller": "1.20.1",
+    "react-native-keyboard-controller": "1.18.5",
     "react-native-more-controlled-mentions": "3.0.1",
     "react-native-pager-view": "6.9.1",
     "react-native-popup-menu": "0.17.0",
-    "react-native-reanimated": "~4.2.0",
+    "react-native-reanimated": "~4.1.6",
+    "react-native-release-profiler": "^0.4.4",
     "react-native-safe-area-context": "5.6.2",
-    "react-native-screens": "~4.18.0",
+    "react-native-screens": "~4.16.0",
     "react-native-tab-view": "^3.5.2",
-    "react-native-worklets": "0.7.1",
+    "react-native-worklets": "0.5.1",
     "showdown": "^2.1.0",
     "tailwindcss": "^4.1.17",
     "tenor-gif-api": "^1.0.3",
@@ -93,6 +94,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@react-native-community/cli": "^20.0.2",
     "@types/react": "~19.1.17",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "9",
@@ -115,12 +117,6 @@
       "android": {
         "buildFromSource": []
       }
-    }
-  },
-  "reanimated": {
-    "staticFeatureFlags": {
-      "DISABLE_COMMIT_PAUSING_MECHANISM": true,
-      "USE_COMMIT_HOOK_ONLY_FOR_REACT_COMMITS": true
     }
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"

@@ -31,12 +31,6 @@
           <string>dev.djara.wafrn-rn</string>
         </array>
       </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>exp+wafrn-rn</string>
-        </array>
-      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
@@ -71,8 +65,6 @@
     </array>
     <key>RCTNewArchEnabled</key>
     <true/>
-    <key>ReactNativeReleaseLevel</key>
-    <string>experimental</string>
     <key>UIBackgroundModes</key>
     <array>
       <string>audio</string>

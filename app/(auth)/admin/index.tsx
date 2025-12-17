@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useCSSVariable } from 'uniwind'
+import { startProfiling, stopProfiling } from 'react-native-release-profiler'
 
 export default function AdminIndex() {
   const { data: badges } = useNotificationBadges()
@@ -15,6 +16,16 @@ export default function AdminIndex() {
   const gray200 = useCSSVariable('--color-gray-200') as string
 
   const options = [
+    {
+      label: 'Start profiling',
+      icon: 'play-circle-outline' as const,
+      onPress: () => startProfiling(),
+    },
+    {
+      label: 'Stop profiling',
+      icon: 'stop-circle-outline' as const,
+      onPress: () => stopProfiling(true),
+    },
     {
       label: 'Emoji packs',
       link: 'admin/emoji',
@@ -67,7 +78,9 @@ export default function AdminIndex() {
             key={i}
             className="active:bg-white/10"
             style={optionStyleDark(i)}
-            onPress={() => router.navigate(opt.link)}
+            onPress={() =>
+              opt.onPress ? opt.onPress() : router.navigate(opt.link)
+            }
           >
             <MaterialCommunityIcons name={opt.icon} size={24} color={gray200} />
             <Text className="text-white">{opt.label}</Text>
