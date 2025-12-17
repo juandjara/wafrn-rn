@@ -1,5 +1,5 @@
-import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Post, PostUser } from './api/posts.types'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { PostUser } from './api/posts.types'
 import { useAuth } from './contexts/AuthContext'
 import { getJSON } from './http'
 import { getEnvironmentStatic } from './api/auth'
