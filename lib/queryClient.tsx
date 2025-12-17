@@ -15,6 +15,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
       throwOnError: false,
       // TODO: consider if we should control retry logic here or in the caller
       retry: (failureCount, error) => {
