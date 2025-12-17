@@ -120,26 +120,6 @@ export type DashboardData = {
   bookmarks?: PostUserRelation[] // posts bookmarked by me
 }
 
-export type DashboardContextPage = {
-  users: Record<string, PostUser>
-  emojiRelations: {
-    emojis: Record<string, EmojiBase>
-    userEmojiRelation: Record<string, UserEmojiRelation>
-    postEmojiRelation: Record<string, PostEmojiRelation>
-    postEmojiReactions: Record<string, PostEmojiReaction>
-  }
-  likes: Record<string, PostUserRelation>
-  medias: Record<string, PostMedia>
-  mentions: Record<string, PostMention>
-  polls: Record<string, PostPoll>
-  quotedPosts: Record<string, Post>
-  quotes: Record<string, PostQuote>
-  tags: Record<string, PostTag>
-  asks: Record<string, PostAsk>
-  rewootIds: string[]
-  bookmarks: PostUserRelation[]
-}
-
 export type PostAsk = Timestamps & {
   id: number
   apObject: string // full AP object encoded as JSON, not typed
