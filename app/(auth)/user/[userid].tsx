@@ -12,7 +12,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { useMemo, useRef } from 'react'
-import { FlatList, Pressable, Text, View } from 'react-native'
+import { FlatList, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
 import ErrorView from '@/components/errors/ErrorView'
@@ -126,13 +126,12 @@ export default function UserFeed() {
 
   return (
     <DashboardContextProvider data={context}>
-      <Link href="../" asChild>
-        <Pressable
-          style={styles.mt}
-          className="bg-black/30 rounded-full absolute top-2 left-2 z-10 p-2"
-        >
-          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
-        </Pressable>
+      <Link
+        href="../"
+        style={styles.mt}
+        className="bg-black/30 rounded-full absolute top-2 left-2 z-10 p-2"
+      >
+        <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Link>
       <View style={styles.flexPt}>
         <Animated.FlatList
