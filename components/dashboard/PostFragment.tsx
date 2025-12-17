@@ -2,6 +2,7 @@ import type { Post } from '@/lib/api/posts.types'
 import {
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   useWindowDimensions,
   View,
@@ -80,12 +81,14 @@ export default function PostFragment({
   const [imageGalleryOpen, setImageGalleryOpen] = useState<number | null>(null)
 
   const contentInnerStyle = useMemo(
-    () => ({
-      height: cwOpen ? ('auto' as const) : 0,
-      paddingHorizontal: contentWarning ? 12 : 0,
-      marginBottom: 4,
-    }),
-    [cwOpen, contentWarning],
+    () =>
+      StyleSheet.create({
+        post: {
+          paddingHorizontal: contentWarning ? 12 : 0,
+          marginBottom: 4,
+        },
+      }).post,
+    [contentWarning],
   )
 
   const hiddenUserIds = useHiddenUserIds()
@@ -238,94 +241,96 @@ export default function PostFragment({
                 </View>
               </View>
             )}
-            <View id="content-inner" style={contentInnerStyle}>
-              {ask && (
-                <View
-                  id="ask"
-                  className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
-                >
-                  {ask.user && (
-                    <AskRibbon user={ask.user} emojis={ask.userEmojis} />
-                  )}
-                  <Text className="text-white px-2 py-1 leading-relaxed">
-                    {ask.question}
-                  </Text>
-                </View>
-              )}
-              {mentionedUsers.length > 0 && (
-                <ScrollView
-                  horizontal
-                  contentContainerClassName="gap-2"
-                  className="shrink-0 grow-0 mt-2"
-                >
-                  {mentionedUsers.map((u) => (
-                    <Link key={u.id} href={`/user/${u.url}`}>
-                      <Text className="text-cyan-200 text-sm">
-                        {formatUserUrl(u.url)}
-                      </Text>
-                    </Link>
-                  ))}
-                </ScrollView>
-              )}
-              <View collapsable={false} className="py-2">
-                <HtmlEngineRenderer
-                  html={postContent}
-                  contentWidth={contentWidth}
-                  hiddenLinks={hiddenLinks}
-                />
-              </View>
-              {medias.length > 0 && (
-                <View id="media-list" className="pt-4 pb-2">
-                  <ImageGallery
-                    open={imageGalleryOpen !== null}
-                    setOpen={(open) => setImageGalleryOpen(open ? 0 : null)}
-                    medias={medias}
-                    index={imageGalleryOpen ?? 0}
+            {cwOpen ? (
+              <View id="content-inner" style={contentInnerStyle}>
+                {ask && (
+                  <View
+                    id="ask"
+                    className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
+                  >
+                    {ask.user && (
+                      <AskRibbon user={ask.user} emojis={ask.userEmojis} />
+                    )}
+                    <Text className="text-white px-2 py-1 leading-relaxed">
+                      {ask.question}
+                    </Text>
+                  </View>
+                )}
+                {mentionedUsers.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    contentContainerClassName="gap-2"
+                    className="shrink-0 grow-0 mt-2"
+                  >
+                    {mentionedUsers.map((u) => (
+                      <Link key={u.id} href={`/user/${u.url}`}>
+                        <Text className="text-cyan-200 text-sm">
+                          {formatUserUrl(u.url)}
+                        </Text>
+                      </Link>
+                    ))}
+                  </ScrollView>
+                )}
+                <View collapsable={false} className="py-2">
+                  <HtmlEngineRenderer
+                    html={postContent}
+                    contentWidth={contentWidth}
+                    hiddenLinks={hiddenLinks}
                   />
-                  {medias.map((media, index) => (
-                    <Media
-                      key={`${media.id}-${index}`}
-                      media={media}
-                      contentWidth={contentWidth}
-                      userUrl={formatUserUrl(user?.url)}
-                      onPress={() => setImageGalleryOpen(index)}
+                </View>
+                {medias.length > 0 && (
+                  <View id="media-list" className="pt-4 pb-2">
+                    <ImageGallery
+                      open={imageGalleryOpen !== null}
+                      setOpen={(open) => setImageGalleryOpen(open ? 0 : null)}
+                      medias={medias}
+                      index={imageGalleryOpen ?? 0}
                     />
-                  ))}
-                </View>
-              )}
-              {poll && (
-                <Poll
-                  key={post.id}
-                  postId={post.id}
-                  poll={poll}
-                  interactable={isDetailView}
-                />
-              )}
-              {tags.length > 0 && (
-                <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
-                  {tags.map((tag, index) => (
-                    <Link
-                      key={`${tag}-${index}`}
-                      href={`/search?q=${tag}`}
-                      className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
-                      asChild
-                    >
-                      <Pressable>
-                        <Text className="text-cyan-200 text-sm">#{tag}</Text>
-                      </Pressable>
-                    </Link>
-                  ))}
-                </View>
-              )}
-              {showQuotedPost && (
-                <View
-                  id="quoted-post"
-                  className="my-2 border border-gray-500 rounded-xl bg-gray-500/10"
-                >
-                  <PostFragment isQuote post={quotedPost} />
-                </View>
-              )}
-            </View>
+                    {medias.map((media, index) => (
+                      <Media
+                        key={`${media.id}-${index}`}
+                        media={media}
+                        contentWidth={contentWidth}
+                        userUrl={formatUserUrl(user?.url)}
+                        onPress={() => setImageGalleryOpen(index)}
+                      />
+                    ))}
+                  </View>
+                )}
+                {poll && (
+                  <Poll
+                    key={post.id}
+                    postId={post.id}
+                    poll={poll}
+                    interactable={isDetailView}
+                  />
+                )}
+                {tags.length > 0 && (
+                  <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
+                    {tags.map((tag, index) => (
+                      <Link
+                        key={`${tag}-${index}`}
+                        href={`/search?q=${tag}`}
+                        className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
+                        asChild
+                      >
+                        <Pressable>
+                          <Text className="text-cyan-200 text-sm">#{tag}</Text>
+                        </Pressable>
+                      </Link>
+                    ))}
+                  </View>
+                )}
+                {showQuotedPost && (
+                  <View
+                    id="quoted-post"
+                    className="my-2 border border-gray-500 rounded-xl bg-gray-500/10"
+                  >
+                    <PostFragment isQuote post={quotedPost} />
+                  </View>
+                )}
+              </View>
+            ) : null}
           </View>
           <PostReactionList post={post} />
         </>
