@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { AppState } from 'react-native'
 
 export default function useAppFocusListener(
@@ -6,6 +6,11 @@ export default function useAppFocusListener(
   runOnStartup: boolean | undefined = true,
 ) {
   const previousAppState = useRef(AppState.currentState)
+  const callbackRef = useRef(onFocus)
+
+  useLayoutEffect(() => {
+    callbackRef.current = onFocus
+  })
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -13,19 +18,18 @@ export default function useAppFocusListener(
         previousAppState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        onFocus()
+        callbackRef.current()
       }
 
       previousAppState.current = nextAppState
     })
 
     if (runOnStartup && AppState.currentState === 'active') {
-      onFocus()
+      callbackRef.current()
     }
 
     return () => {
       subscription?.remove()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [runOnStartup])
 }
