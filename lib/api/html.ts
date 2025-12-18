@@ -165,6 +165,9 @@ export function minifyHtml(html: string) {
   return miniHtml
 }
 
+const WHITESPACE_REGEX = /(<\w+[^>]*>)\s+|\s+(<\/\w+>)/g
+const BR_REGEX = /\s*<br\s*\/?>\s*/g
+
 /**
  * Whitespace characters directly after a tag opening and directly before a tag closing should always be collapsed to one whitespace
  * with the exception for the br tag, around which whitespaces always disappear.
@@ -172,9 +175,7 @@ export function minifyHtml(html: string) {
  */
 export function collapseWhitespace(html: string) {
   const miniHtml = minifyHtml(html)
-  return miniHtml
-    .replace(/(<\w+[^>]*>)\s+|\s+(<\/\w+>)/g, '$1 $2')
-    .replace(/\s*<br\s*\/?>\s*/g, '<br>')
+  return miniHtml.replace(WHITESPACE_REGEX, '$1 $2').replace(BR_REGEX, '<br>')
 }
 
 export function handleLinkClick(href: string, attribs: Record<string, string>) {
