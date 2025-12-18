@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getJSON } from './http'
-import { useAuth, useParsedToken } from './contexts/AuthContext'
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
+import { useAuth } from './contexts/AuthContext'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   DashboardData,
   Post,
@@ -14,10 +14,8 @@ import {
   PostUser,
 } from './api/posts.types'
 import { Timestamps } from './api/types'
-import { getEnvironmentStatic } from './api/auth'
+import { getEnvironmentStatic, parseToken } from './api/auth'
 import { deleteItemAsync, getItemAsync } from 'expo-secure-store'
-import { getDashboardContextPage } from './api/dashboard'
-import { useSettings } from './api/settings'
 
 type NotificationsBadges = {
   asks: number
@@ -146,44 +144,6 @@ export async function getNotifications({
   return json as NotificationsPage
 }
 
-export function useNotifications() {
-  const { data: settings } = useSettings()
-  const { refetch: refetchBadge } = useNotificationBadges()
-  const { token } = useAuth()
-  return useInfiniteQuery({
-    queryKey: ['notifications'],
-    queryFn: async ({ pageParam, signal }) => {
-      const list = await getNotifications({
-        token: token!,
-        page: pageParam.page,
-        date: pageParam.date,
-        signal,
-      })
-      const dashboardData = notificationPageToDashboardPage(list)
-      const context = getDashboardContextPage(dashboardData, settings)
-      const feed = parseNotificationPage(list)
-      const dates = list.notifications.map((n) =>
-        new Date(n.updatedAt).getTime(),
-      )
-      const endDate = Math.min(...dates)
-
-      await refetchBadge()
-      return { context, feed, endDate }
-    },
-    initialPageParam: {
-      date: 0,
-      page: 0,
-    },
-    getNextPageParam: (lastPage, allPages, lastPageParam) => {
-      return {
-        date: lastPage.endDate,
-        page: lastPageParam.page + 1,
-      }
-    },
-    enabled: !!token && !!settings,
-  })
-}
-
 export function notificationPageToDashboardPage(page: NotificationsPage) {
   return {
     ...page,
@@ -310,28 +270,39 @@ export async function unregisterUnifiedPush(
 
 export const PUSH_TOKEN_KEY = 'pushNotificationToken'
 
+export async function notificationCleanup(
+  token: string,
+  options: { deleteExpo?: boolean; deleteUP?: boolean },
+) {
+  const tokenData = parseToken(token)
+  const { deleteExpo, deleteUP } = options
+  const expoToken = await getItemAsync(PUSH_TOKEN_KEY)
+  if (expoToken && deleteExpo) {
+    await unregisterPushNotificationToken(token!, expoToken)
+    await deleteItemAsync(PUSH_TOKEN_KEY)
+  }
+  const upData = await getItemAsync(`UnifiedPushData-${tokenData?.userId}`)
+  if (upData && deleteUP) {
+    await unregisterUnifiedPush(token!, JSON.parse(upData))
+    await deleteItemAsync(`UnifiedPushData-${tokenData?.userId}`)
+  }
+}
+
 export function useNotificationCleanupMutation() {
   const { token } = useAuth()
-  const tokenData = useParsedToken()
 
   return useMutation({
     mutationKey: ['notificationCleanup', token],
-    mutationFn: async ({
-      deleteExpo = true,
-      deleteUP = true,
-    }: {
+    mutationFn: async (options: {
       deleteExpo?: boolean
       deleteUP?: boolean
     }) => {
-      const expoToken = await getItemAsync(PUSH_TOKEN_KEY)
-      if (expoToken && deleteExpo) {
-        await unregisterPushNotificationToken(token!, expoToken)
-        await deleteItemAsync(PUSH_TOKEN_KEY)
-      }
-      const upData = await getItemAsync(`UnifiedPushData-${tokenData?.userId}`)
-      if (upData && deleteUP) {
-        await unregisterUnifiedPush(token!, JSON.parse(upData))
-        await deleteItemAsync(`UnifiedPushData-${tokenData?.userId}`)
+      if (token) {
+        notificationCleanup(token, options)
+      } else {
+        throw new Error(
+          'Cannot run useNotificationCleanupMutation without a token',
+        )
       }
     },
   })

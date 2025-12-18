@@ -1,14 +1,19 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
-import { DashboardData } from './posts.types'
+import { DashboardData, PostUser } from './posts.types'
 import { useAuth } from '../contexts/AuthContext'
 import { DashboardContextData } from '../contexts/DashboardContext'
 import { Timestamps } from './types'
-import { useNotificationBadges } from '../notifications'
+import {
+  getNotifications,
+  notificationPageToDashboardPage,
+  parseNotificationPage,
+  useNotificationBadges,
+} from '../notifications'
 import { getEnvironmentStatic } from './auth'
-import { Settings, useSettings } from './settings'
-import { DerivedPostData, getDerivedPostState } from './content'
+import { useSettings } from './settings'
 import { getFeedData } from '../feeds'
+import { EmojiBase } from './emojis'
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -58,7 +63,7 @@ export function useDashboard(mode: DashboardMode) {
         token: token!,
         signal,
       })
-      const context = getDashboardContextPage(list, settings)
+      const context = getDashboardContextPage(list)
       const feed = getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
 
@@ -80,47 +85,45 @@ export function getLastDate(posts: Timestamps[]) {
   return Math.min(...dates) - 1
 }
 
-export function getDashboardContextPage(
-  data: DashboardData,
-  settings: Settings | undefined,
-) {
+export function getDashboardContextPage(data: DashboardData) {
   const context = {
     ...data,
-    postsData: {} as Record<string, DerivedPostData>,
+    users: Object.fromEntries(data.users.map((u) => [u.id, u])),
+    emojis: Object.fromEntries(
+      data.emojiRelations.emojis.map((e) => [e.id, e]),
+    ),
+    emojiRelations: {
+      userEmojiRelation: data.emojiRelations.userEmojiRelation,
+      postEmojiRelation: data.emojiRelations.postEmojiRelation,
+      postEmojiReactions: data.emojiRelations.postEmojiReactions,
+    },
   } satisfies DashboardContextData
-  for (const thread of data.posts) {
-    context.postsData[thread.id] = getDerivedPostState(
-      thread,
-      context,
-      settings,
-    )
-    if (thread.ancestors) {
-      for (const postAncestor of thread.ancestors) {
-        context.postsData[postAncestor.id] = getDerivedPostState(
-          postAncestor,
-          context,
-          settings,
-        )
-      }
-    }
-  }
-  for (const quotedPost of data.quotedPosts) {
-    context.postsData[quotedPost.id] = getDerivedPostState(
-      quotedPost,
-      context,
-      settings,
-    )
-  }
   return context
+}
+
+function combineUsers(pages: DashboardContextData[]) {
+  const users = {} as Record<string, PostUser>
+  for (const page of pages) {
+    Object.assign(users, page.users)
+  }
+  return users
+}
+
+function combineEmojis(pages: DashboardContextData[]) {
+  const emojis = {} as Record<string, EmojiBase>
+  for (const page of pages) {
+    Object.assign(emojis, page.emojis)
+  }
+  return emojis
 }
 
 // merge objects from many dashboard context pages into a single one
 export function combineDashboardContextPages(pages: DashboardContextData[]) {
   // const seen = new Set<string>()
   const combined: DashboardContextData = {
-    users: dedupeById(pages.flatMap((p) => p.users)),
+    users: combineUsers(pages),
+    emojis: combineEmojis(pages),
     emojiRelations: {
-      emojis: pages.flatMap((p) => p.emojiRelations.emojis),
       userEmojiRelation: pages.flatMap(
         (p) => p.emojiRelations.userEmojiRelation,
       ),
@@ -154,7 +157,6 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     asks: pages.flatMap((p) => p.asks || []),
     rewootIds: pages.flatMap((p) => p.rewootIds || []),
     bookmarks: pages.flatMap((p) => p.bookmarks || []),
-    postsData: Object.assign({}, ...pages.map((p) => p.postsData)),
   }
   return combined
 }
@@ -220,13 +222,52 @@ export function useUserFeed(userId: string) {
         token: token!,
         signal,
       })
-      const context = getDashboardContextPage(list, settings)
+      const context = getDashboardContextPage(list)
       const feed = getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
+      console.log('first post', list.posts[0])
       return { context, feed, lastDate }
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.lastDate,
+    enabled: !!token && !!settings,
+  })
+}
+
+export function useNotifications() {
+  const { data: settings } = useSettings()
+  const { refetch: refetchBadge } = useNotificationBadges()
+  const { token } = useAuth()
+  return useInfiniteQuery({
+    queryKey: ['notifications'],
+    queryFn: async ({ pageParam, signal }) => {
+      const list = await getNotifications({
+        token: token!,
+        page: pageParam.page,
+        date: pageParam.date,
+        signal,
+      })
+      const dashboardData = notificationPageToDashboardPage(list)
+      const context = getDashboardContextPage(dashboardData)
+      const feed = parseNotificationPage(list)
+      const dates = list.notifications.map((n) =>
+        new Date(n.updatedAt).getTime(),
+      )
+      const endDate = Math.min(...dates)
+
+      await refetchBadge()
+      return { context, feed, endDate }
+    },
+    initialPageParam: {
+      date: 0,
+      page: 0,
+    },
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      return {
+        date: lastPage.endDate,
+        page: lastPageParam.page + 1,
+      }
+    },
     enabled: !!token && !!settings,
   })
 }

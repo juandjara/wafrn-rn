@@ -1,15 +1,20 @@
 import { createContext, PropsWithChildren, useContext } from 'react'
-import { DashboardData } from '../api/posts.types'
-import type { DerivedPostData } from '../api/content'
+import { DashboardData, PostEmojiContext, PostUser } from '../api/posts.types'
+import { EmojiBase } from '../api/emojis'
 
-export type DashboardContextData = Omit<DashboardData, 'posts'> & {
-  postsData: Record<string, DerivedPostData>
+export type DashboardContextData = Omit<
+  DashboardData,
+  'posts' | 'users' | 'emojiRelations'
+> & {
+  emojiRelations: Omit<PostEmojiContext, 'emojis'>
+  emojis: Record<string, EmojiBase | undefined>
+  users: Record<string, PostUser | undefined>
 }
 
 const DashboardContext = createContext<DashboardContextData>({
-  users: [],
+  users: {},
+  emojis: {},
   emojiRelations: {
-    emojis: [],
     userEmojiRelation: [],
     postEmojiRelation: [],
     postEmojiReactions: [],
@@ -22,7 +27,6 @@ const DashboardContext = createContext<DashboardContextData>({
   quotes: [],
   tags: [],
   asks: [],
-  postsData: {},
 })
 
 export function DashboardContextProvider({

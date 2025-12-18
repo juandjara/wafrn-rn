@@ -5,13 +5,16 @@ import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import UserCard from '@/components/user/UserCard'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserEmojis } from '@/lib/api/content'
-import { combineDashboardContextPages } from '@/lib/api/dashboard'
+import {
+  combineDashboardContextPages,
+  useNotifications,
+} from '@/lib/api/dashboard'
 import {
   DashboardContextProvider,
   useDashboardContext,
 } from '@/lib/contexts/DashboardContext'
 import { formatTimeAgo } from '@/lib/formatters'
-import { FullNotification, useNotifications } from '@/lib/notifications'
+import { FullNotification } from '@/lib/notifications'
 import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
@@ -115,10 +118,7 @@ function NotificationItem({
   if (notification.notificationType === 'EMOJIREACT') {
     const id =
       'emojiId' in notification.emoji! ? notification.emoji.emojiId : null
-    const emojis = Object.fromEntries(
-      context.emojiRelations.emojis.map((e) => [e.id, e]),
-    )
-    const emoji = id ? emojis[id] : notification.emoji!.content
+    const emoji = id ? context.emojis[id]! : notification.emoji!.content
     ribbon = (
       <EmojiReactRibbon
         user={user}

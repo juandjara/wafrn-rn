@@ -1,4 +1,4 @@
-import { getDerivedThreadState } from './api/content'
+import { getDerivedThreadState, getUserEmojis } from './api/content'
 import { PostThread } from './api/posts.types'
 import { Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
@@ -17,7 +17,8 @@ function threadToListItems(
     morePostsCount,
     postHidden,
   } = getDerivedThreadState(thread, context, settings)
-  const { user, userEmojis } = context.postsData[thread.id]
+  const user = context.users[thread.userId]
+  const userEmojis = user ? getUserEmojis(user, context) : []
 
   if (postHidden) {
     return []

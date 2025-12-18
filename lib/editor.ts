@@ -112,7 +112,7 @@ export function useEditorData() {
     let replyLabel = ''
     let mentionedUsers = [] as PostUser[]
     const context = reply
-      ? getDashboardContextPage(reply, settings)
+      ? getDashboardContextPage(reply)
       : combineDashboardContextPages([])
     const formState: EditorFormState = {
       content: '',
@@ -158,13 +158,10 @@ export function useEditorData() {
 
         // generating mentionsPrefix and mentionedUserIds
         const userId = replyPost.userId
-        const userMap = Object.fromEntries(
-          reply.users.map((user) => [user.id, user]),
-        )
 
         privacySelectDisabled =
           !!replyPost.bskyUri &&
-          !!userMap[replyPost.userId]?.url.startsWith('@')
+          !!context.users[replyPost.userId]?.url.startsWith('@')
         if (privacySelectDisabled) {
           formState.privacy = PrivacyLevel.PUBLIC
         }
@@ -220,7 +217,9 @@ export function useEditorData() {
           }
         }
 
-        mentionedUsers = Array.from(mentionIds).map((id) => userMap[id])
+        mentionedUsers = Array.from(mentionIds)
+          .map((id) => context.users[id])
+          .filter((u) => !!u)
       }
     }
 
@@ -240,9 +239,8 @@ export function useEditorData() {
 
       let content = post.markdownContent || ''
       const mentions = reply.mentions.filter((m) => m.post === post.id)
-      const userMap = Object.fromEntries(reply.users.map((u) => [u.id, u]))
       for (const mention of mentions) {
-        const user = userMap[mention.userMentioned]
+        const user = context.users[mention.userMentioned]
         if (!user) {
           continue
         }
@@ -254,8 +252,8 @@ export function useEditorData() {
       }
 
       mentionedUsers = Array.from(
-        new Set(mentions.map((m) => userMap[m.userMentioned])),
-      )
+        new Set(mentions.map((m) => context.users[m.userMentioned])),
+      ).filter((u) => !!u)
 
       formState.content = content
       formState.tags = tags.join(', ')
@@ -277,6 +275,5 @@ export function useEditorData() {
       isLoading,
       privacySelectDisabled,
     }
-    // NOTE: explicitly ignoring dependency on other props in `params` like `params.askId`
   }, [me, env?.BASE_URL, asks, reply, settings, params, isLoading])
 }

@@ -97,17 +97,14 @@ export function processPostContent(
       .filter((e) => e.postId === post.id)
       .map((e) => e.emojiId) ?? []
 
-  const emojis =
-    context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  const emojis = ids.map((id) => context.emojis[id]).filter((e) => !!e)
 
   return replaceEmojis(content, emojis)
 }
 
 export function isBlueskyPost(post: Post, context: DashboardContextData) {
-  return (
-    !!post.bskyUri &&
-    context.users.some((u) => u.id === post.userId && u.url.startsWith('@'))
-  )
+  const user = context.users[post.userId]
+  return !!post.bskyUri && user?.url.startsWith('@')
 }
 
 export function getUserEmojis(user: PostUser, context: DashboardContextData) {
@@ -115,7 +112,7 @@ export function getUserEmojis(user: PostUser, context: DashboardContextData) {
     context.emojiRelations.userEmojiRelation
       .filter((e) => e.userId === user.id)
       .map((e) => e.emojiId) ?? []
-  return context.emojiRelations.emojis.filter((e) => ids?.includes(e.id)) ?? []
+  return ids.map((id) => context.emojis[id]).filter((e) => !!e)
 }
 
 export function isUnicodeHeart(emoji: unknown) {
@@ -126,24 +123,20 @@ export function isUnicodeHeart(emoji: unknown) {
 }
 
 export function getReactions(post: Post, context: DashboardContextData) {
-  const emojis = Object.fromEntries(
-    context.emojiRelations.emojis.map((e) => [e.id, e]),
-  )
   type Reaction = {
     id: string
     user: PostUser
     emoji: EmojiReaction
   }
-  const users = Object.fromEntries(context.users.map((u) => [u.id, u]))
 
   const reactions: Reaction[] = []
   for (const r of context.emojiRelations.postEmojiReactions) {
     if (r.postId === post.id) {
-      const user = users[r.userId]
+      const user = context.users[r.userId]
       if (!user) {
         continue
       }
-      const emoji = r.emojiId ? emojis[r.emojiId] : r.content
+      const emoji = r.emojiId ? context.emojis[r.emojiId]! : r.content
       reactions.push({
         id: `${r.emojiId}-${r.userId}`,
         user,
@@ -443,7 +436,7 @@ export function getAskData(post: Post, context: DashboardContextData) {
   if (!ask) {
     return null
   }
-  const askUser = context.users.find((u) => u.id === ask.userAsker)
+  const askUser = context.users[ask.userAsker]
   return {
     user: askUser,
     userEmojis: askUser ? getUserEmojis(askUser, context) : [],
@@ -455,11 +448,10 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   const reactions = getReactions(post, context)
   const fullReactions = [] as EmojiGroup[]
   const likeUsers = [] as PostUser[]
-  const users = Object.fromEntries(context.users.map((u) => [u.id, u]))
 
   for (const like of context.likes) {
     if (like.postId === post.id) {
-      const user = users[like.userId]
+      const user = context.users[like.userId]
       if (user) {
         likeUsers.push(user)
       }
@@ -502,7 +494,7 @@ function getAppliedMute(
     .filter((t) => t.postId === post.id)
     .map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
-  const user = context.users.find((u) => u.id === post.userId)
+  const user = context.users[post.userId]
   const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
   const isLocalPost = !post.remotePostId && !user?.url.startsWith('@')
   const isFediversePost = post.remotePostId && !post.bskyUri
@@ -583,7 +575,7 @@ export function getDerivedPostState(
   settings?: Settings,
 ) {
   const options = settings?.options || []
-  const user = context.users.find((u) => u.id === post.userId)
+  const user = context.users[post.userId]
   const userEmojis = user ? getUserEmojis(user, context) : []
   let postContent = processPostContent(post, context, options)
   const tags = context.tags
@@ -650,17 +642,17 @@ export function getDerivedPostState(
   const isFedi = !!post.remotePostId && !post.bskyUri
   const isReply = !!post.parentId
   if (!isFedi && isReply) {
-    const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
     const mentionedUserIds = context.mentions
       .filter((m) => m.post === post.id && m.userMentioned !== post.userId)
       .map((m) => m.userMentioned)
 
-    mentionedUsers = Array.from(new Set(mentionedUserIds)).map(
-      (id) => userMap[id],
-    )
+    mentionedUsers = Array.from(new Set(mentionedUserIds))
+      .map((id) => context.users[id])
+      .filter((u) => !!u)
   }
 
   return {
+    post,
     user,
     userEmojis,
     postContent,

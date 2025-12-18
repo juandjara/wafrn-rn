@@ -6,6 +6,7 @@ import { getEnvironmentStatic } from './auth'
 import { useToasts } from '../toasts'
 import { useDashboardContext } from '../contexts/DashboardContext'
 import { useMemo } from 'react'
+import { useDerivedPostState } from '../postStore'
 
 export type EmojiBase = {
   external: boolean
@@ -128,7 +129,7 @@ function combineReactions(
 export function useExtendedReactions(postId: string) {
   const me = useParsedToken()
   const context = useDashboardContext()
-  const { reactions } = context.postsData[postId]
+  const postState = useDerivedPostState(postId)
   const emojiReactionState = useMutationState<EmojiReactPayload>({
     filters: {
       mutationKey: ['emojiReact', postId],
@@ -149,6 +150,7 @@ export function useExtendedReactions(postId: string) {
   const isLiked = lastLikeMutation ?? initialIsLiked
 
   return useMemo(() => {
+    const reactions = postState?.reactions || []
     if (!me) {
       return reactions
     }
@@ -187,5 +189,5 @@ export function useExtendedReactions(postId: string) {
     }
 
     return likesReaction ? [likesReaction, ...otherReactions] : otherReactions
-  }, [me, isLiked, postId, reactions, emojiReactionState])
+  }, [me, isLiked, postId, postState?.reactions, emojiReactionState])
 }

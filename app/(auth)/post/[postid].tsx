@@ -17,7 +17,6 @@ import {
   useRemoteRepliesMutation,
 } from '@/lib/api/posts'
 import { Post, PostThread, PostUser } from '@/lib/api/posts.types'
-import { useSettings } from '@/lib/api/settings'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { formatUserUrl } from '@/lib/formatters'
 import pluralize from '@/lib/pluralize'
@@ -88,7 +87,6 @@ export default function PostDetail() {
 
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const hiddenUserIds = useHiddenUserIds()
-  const { data: settings } = useSettings()
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<PostDetailItemData>>(null)
 
@@ -97,17 +95,12 @@ export default function PostDetail() {
       const postData = data?.post
       const repliesData = data?.replies
 
-      const page1 = postData && getDashboardContextPage(postData, settings)
-      const page2 =
-        repliesData && getDashboardContextPage(repliesData, settings)
+      const page1 = postData && getDashboardContextPage(postData)
+      const page2 = repliesData && getDashboardContextPage(repliesData)
       const context = combineDashboardContextPages(
         [page1, page2].filter((x) => !!x),
       )
 
-      const userMap = Object.fromEntries(context.users.map((u) => [u.id, u]))
-      const userEmojis = Object.fromEntries(
-        context.users.map((u) => [u.id, getUserEmojis(u, context)]),
-      )
       const replies = (repliesData?.posts || []).filter(
         (p) => !hiddenUserIds.includes(p.userId),
       )
@@ -124,7 +117,7 @@ export default function PostDetail() {
       )}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
 
       const mainPost = postData?.posts?.[0]
-      const mainUser = mainPost && userMap[mainPost.userId]
+      const mainUser = mainPost && context.users[mainPost.userId]
       const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
       const ancestors =
         mainPost?.ancestors
@@ -156,12 +149,13 @@ export default function PostDetail() {
         })
         .sort(sortPosts)
         .map((p) => {
+          const user = context.users[p.userId]!
           if (isEmptyRewoot(p, context)) {
             return {
               type: 'rewoot' as const,
               data: {
-                user: userMap[p.userId],
-                emojis: userEmojis[p.userId],
+                user,
+                emojis: getUserEmojis(user, context),
               },
             }
           } else {
@@ -185,7 +179,7 @@ export default function PostDetail() {
         : []
 
       return { mainPost, mainUser, postCount, replyCount, listData, context }
-    }, [settings, data, postid, hiddenUserIds])
+    }, [data, postid, hiddenUserIds])
 
   // Pagination strategy copied and adapted from https://github.com/bluesky-social/social-app/blob/main/src/view/com/post-thread/PostThread.tsx#L377
 

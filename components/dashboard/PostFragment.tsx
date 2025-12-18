@@ -22,30 +22,59 @@ import HtmlEngineRenderer from '../posts/HtmlEngineRenderer'
 import UserCard from '../user/UserCard'
 import Poll from '../posts/Poll'
 import { clsx } from 'clsx'
-import { toggleCollapsed, toggleCwOpen, usePostLayout } from '@/lib/postStore'
-import { useMemo, useState } from 'react'
+import {
+  setDerivedPostState,
+  toggleCollapsed,
+  toggleCwOpen,
+  useDerivedPostState,
+  usePostLayout,
+} from '@/lib/postStore'
+import { useEffect, useMemo, useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
 import InteractionMenu from '../interactions/InteractionMenu'
 import PostReactionList from '../posts/PostReactionList'
+import { DerivedPostData, getDerivedPostState } from '@/lib/api/content'
+import { useSettings } from '@/lib/api/settings'
 
-export default function PostFragment({
-  post,
-  isQuote,
-  hasCornerMenu = true,
-  collapsible = true,
-  clickable = true,
-}: {
+type PostFragmentProps = {
   post: Post
   isQuote?: boolean
   hasCornerMenu?: boolean
   collapsible?: boolean
   clickable?: boolean
-}) {
+}
+
+export default function PostFragment({ post, ...props }: PostFragmentProps) {
+  const derivedState = useDerivedPostState(post.id)
   const context = useDashboardContext()
-  const derivedState = context.postsData[post.id]
+  const { data: settings } = useSettings()
+
+  useEffect(() => {
+    if (settings && !derivedState) {
+      requestIdleCallback(() => {
+        const derivedState = getDerivedPostState(post, context, settings)
+        setDerivedPostState(post.id, derivedState)
+      })
+    }
+  }, [post, derivedState, context, settings])
+
+  return derivedState ? (
+    <PostFragmentInner postState={derivedState} {...props} />
+  ) : null
+}
+
+function PostFragmentInner({
+  postState,
+  isQuote,
+  hasCornerMenu = true,
+  collapsible = true,
+  clickable = true,
+}: Omit<PostFragmentProps, 'post'> & {
+  postState: DerivedPostData
+}) {
   const {
     user,
     userEmojis,
@@ -61,7 +90,8 @@ export default function PostFragment({
     hiddenLinks,
     mentionedUsers,
     isHidden,
-  } = derivedState
+    post,
+  } = postState
 
   const showQuotedPost = !!quotedPost && !isQuote
 

@@ -101,7 +101,7 @@ export function useSearch(query: string) {
         return { users: list.users }
       } else {
         const data = list.posts
-        const context = getDashboardContextPage(data, settings)
+        const context = getDashboardContextPage(data)
         const feed = getFeedData(context, data.posts, settings)
         return { context, feed }
       }
