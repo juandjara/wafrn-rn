@@ -102,7 +102,7 @@ export function useSearch(query: string) {
       } else {
         const data = list.posts
         const context = getDashboardContextPage(data)
-        const feed = getFeedData(context, data.posts, settings)
+        const feed = await getFeedData(context, data.posts, settings)
         return { context, feed }
       }
     },

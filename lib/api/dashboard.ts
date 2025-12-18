@@ -64,7 +64,7 @@ export function useDashboard(mode: DashboardMode) {
         signal,
       })
       const context = getDashboardContextPage(list)
-      const feed = getFeedData(context, list.posts, settings)
+      const feed = await getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
 
       await refetchBadge()
@@ -223,7 +223,7 @@ export function useUserFeed(userId: string) {
         signal,
       })
       const context = getDashboardContextPage(list)
-      const feed = getFeedData(context, list.posts, settings)
+      const feed = await getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
       console.log('first post', list.posts[0])
       return { context, feed, lastDate }
