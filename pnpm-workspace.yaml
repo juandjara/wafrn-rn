@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - '@shopify/react-native-skia'
+  - unrs-resolver
 
 patchedDependencies:
   '@react-native/gradle-plugin': patches/@react-native__gradle-plugin.patch
