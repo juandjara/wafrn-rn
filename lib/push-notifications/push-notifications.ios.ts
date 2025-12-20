@@ -10,8 +10,8 @@ import {
   useNotificationBadges,
 } from '../notifications'
 import { router } from 'expo-router'
-import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
+import { setItemAsync } from 'expo-secure-store'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,8 +24,8 @@ Notifications.setNotificationHandler({
 })
 
 async function setupPushNotifications(authToken: string) {
+  // NOTE: must use physical device to setup push notifications
   if (!Device.isDevice) {
-    // NOTE: must use physical device to setup push notifications
     return null
   }
 
@@ -48,12 +48,14 @@ async function setupPushNotifications(authToken: string) {
     throw new Error('Expo project ID not found')
   }
 
-  const token = await Notifications.getExpoPushTokenAsync({ projectId })
-  await registerPushNotificationToken(authToken, token.data)
-
+  const { data: expoToken } = await Notifications.getExpoPushTokenAsync({
+    projectId,
+  })
+  await registerPushNotificationToken(authToken, expoToken)
   console.log('> Expo token registered with server instance')
 
-  return token.data
+  await setItemAsync(PUSH_TOKEN_KEY, expoToken)
+  console.log('> Expo token saved in storage')
 }
 
 type PushNotificationPayload = {
@@ -66,40 +68,32 @@ type PushNotificationPayload = {
 }
 
 export function usePushNotifications() {
-  const { token: authToken } = useAuth()
+  const { token } = useAuth()
   const { refetch: refetchBadges } = useNotificationBadges()
-  const {
-    value: expoToken,
-    loading: expoTokenLoading,
-    setValue: setExpoToken,
-  } = useAsyncStorage<string>(PUSH_TOKEN_KEY)
   const lastNotification = Notifications.useLastNotificationResponse()
   const { showToastError } = useToasts()
 
   useEffect(() => {
-    if (authToken && !expoToken && !expoTokenLoading) {
-      setupPushNotifications(authToken)
-        .then((token) => setExpoToken(token))
-        .catch((err) => {
-          console.error(err)
-          if (err instanceof Error) {
-            showToastError(err.message)
-          } else {
-            showToastError('Failed to setup push notifications')
-          }
-        })
+    if (!!token) {
+      setupPushNotifications(token).catch((err) => {
+        console.error(err)
+        if (err instanceof Error) {
+          showToastError(err.message)
+        } else {
+          showToastError('Failed to setup push notifications')
+        }
+      })
     }
+  }, [token])
 
-    const subscription = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        refetchBadges()
-      },
-    )
-
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(() => {
+      refetchBadges()
+    })
     return () => {
       subscription.remove()
     }
-  }, [authToken, refetchBadges, expoToken, expoTokenLoading, setExpoToken])
+  }, [])
 
   // react to last notification response independent of auth token or expo token loading state
   useEffect(() => {
