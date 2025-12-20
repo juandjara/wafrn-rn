@@ -73,7 +73,6 @@ export function useDashboard(mode: DashboardMode) {
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.lastDate,
     enabled: !!token && !!settings,
-    staleTime: 1000 * 60 * 60, // 1 hour
   })
 }
 

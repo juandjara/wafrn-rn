@@ -37,11 +37,14 @@ export default function Dashboard({
 
   const qc = useQueryClient()
   const focusEffect = useCallback(() => {
-    // When screen loses focus (navigation away), cancel in-flight queries
+    // If we are beyond the first page, when screen loses focus (navigation away), cancel in-flight queries
+    // `isLoading` is good here because it will only be true when we are loading with no previous data or pages
     return () => {
-      qc.cancelQueries({ queryKey: ['dashboard', mode] })
+      if (!isLoading) {
+        qc.cancelQueries({ queryKey: ['dashboard', mode] })
+      }
     }
-  }, [qc, mode])
+  }, [qc, mode, isLoading])
   useFocusEffect(focusEffect)
 
   const context = combineDashboardContextPages(
