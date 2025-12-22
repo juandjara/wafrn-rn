@@ -114,7 +114,10 @@ export async function getFeedData(
   settings?: Settings,
 ) {
   const feed = [] as FeedItem[]
-  for (const post of posts) {
+  const sortedPosts = posts.sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  )
+  for (const post of sortedPosts) {
     const items = await threadToListItems(post, context, settings)
     feed.push(...items)
   }
