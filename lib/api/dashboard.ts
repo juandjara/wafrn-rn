@@ -224,7 +224,6 @@ export function useUserFeed(userId: string) {
       const context = getDashboardContextPage(list)
       const feed = await getFeedData(context, list.posts, settings)
       const lastDate = getLastDate(list.posts)
-      console.log('first post', list.posts[0])
       return { context, feed, lastDate }
     },
     initialPageParam: 0,
