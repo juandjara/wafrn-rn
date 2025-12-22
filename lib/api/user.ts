@@ -177,8 +177,8 @@ export function useAccounts() {
   }
 
   function nextTick() {
-    return new Promise((resolve) => {
-      setImmediate(() => resolve(Date.now()))
+    return new Promise<void>((resolve) => {
+      setImmediate(resolve)
     })
   }
 
