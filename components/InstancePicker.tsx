@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   LayoutChangeEvent,
   Modal,
@@ -60,9 +60,7 @@ export default function InstancePicker({
   const sx = useSafeAreaPadding()
   const { data, isFetching, refetch } = useInstanceList()
   const instances = data ?? DEFAULT_LIST
-  // const instances = data?.pages.flatMap((p) => p.instances) ?? EMPTY_ARRAY
 
-  const [url, setUrl] = useState('')
   const [mode, setMode] = useState<'list' | 'write'>('list')
 
   const pagerRef = useRef<PagerView>(null)
@@ -73,19 +71,19 @@ export default function InstancePicker({
   }))
 
   function setTab(tab: 'list' | 'write') {
-    const targetPosition = tab === 'list' ? 0 : tabBarWidth.value / 2 - 8
-    tabPositionX.value = withTiming(targetPosition)
     pagerRef.current?.setPage(tab === 'list' ? 0 : 1)
-    setMode(tab)
   }
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      const targetPosition = mode === 'list' ? 0 : tabBarWidth.value / 2 - 8
+      tabPositionX.value = withTiming(targetPosition)
+    })
+    // shared values are always stable, I guess?
+  }, [mode, tabPositionX, tabBarWidth])
 
   function onLayout(ev: LayoutChangeEvent) {
     tabBarWidth.value = ev.nativeEvent.layout.width
-  }
-
-  function isSelected(item: InstanceListItem) {
-    const itemHost = isValidURL(item.url) ? new URL(item.url).host : item.url
-    return itemHost === selected
   }
 
   return (
@@ -146,117 +144,148 @@ export default function InstancePicker({
           initialPage={0}
           onPageSelected={(ev) => {
             const page = ev.nativeEvent.position
-            setTab(page === 0 ? 'list' : 'write')
+            setMode(page === 0 ? 'list' : 'write')
           }}
           style={{ flex: 1 }}
         >
-          <View key="list">
-            <ScrollView
-              className="grow-0"
-              contentContainerClassName="py-2 px-4"
-              refreshControl={
-                <RefreshControl refreshing={isFetching} onRefresh={refetch} />
-              }
-            >
-              {instances.map((instance) => (
-                <Pressable
-                  key={instance.url}
-                  onPress={() => onSelect(instance.url)}
-                  className={clsx(
-                    'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
-                    { 'bg-slate-700': isSelected(instance) },
-                  )}
-                >
-                  <View className="bg-blue-900 mr-3 rounded p-1">
-                    <Image
-                      source={{ uri: instance.icon }}
-                      style={{ width: 42, height: 42 }}
-                    />
-                  </View>
-                  <View className="flex-1 relative">
-                    {isSelected(instance) ? (
-                      <View className="absolute z-10 -top-1 -right-1">
-                        <Ionicons name="checkmark" color="white" size={24} />
-                      </View>
-                    ) : null}
-                    {instance.name ? (
-                      <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
-                        {instance.name}
-                      </Text>
-                    ) : null}
-                    {instance.name.toLowerCase() !==
-                    new URL(instance.url).host ? (
-                      <Text className="text-white mb-4 text-sm">
-                        {new URL(instance.url).host}
-                      </Text>
-                    ) : null}
-                    {instance.description ? (
-                      <Text className="text-white mb-2 text-sm">
-                        {instance.description}
-                      </Text>
-                    ) : null}
-                    <Text className="text-white text-xs mb-2">
-                      Registrations:{' '}
-                      {instance.registrationUrl ? (
-                        <Link
-                          className="text-blue-500"
-                          href={instance.registrationUrl}
-                        >
-                          {instance.registrationType}
-                        </Link>
-                      ) : (
-                        instance.registrationType
-                      )}
-                    </Text>
-                    {instance.registrationCondition ? (
-                      <Text className="text-white text-xs mb-2">
-                        {instance.registrationCondition}
-                      </Text>
-                    ) : null}
-                    {instance.version ? (
-                      <Text className="text-gray-400 mb-2 text-xs">
-                        v{instance.version}
-                      </Text>
-                    ) : null}
-                    {instance.bskyEnabled ? (
-                      <Text className="text-gray-400 text-xs">
-                        <FontAwesome6 name="bluesky" />
-                        {' Bluesky enabled'}
-                      </Text>
-                    ) : (
-                      ''
-                    )}
-                  </View>
-                </Pressable>
-              ))}
-              {instances.length <= 1 && (
-                <Text className="text-gray-300 text-center my-3">
-                  No known instances found other than the default. You can still
-                  add one manually.
-                </Text>
-              )}
-            </ScrollView>
-          </View>
-          <View key="write" className="px-3">
-            <KeyboardAwareScrollView>
-              <TextInput
-                autoCapitalize="none"
-                placeholder="Your server domain (e.g. app.wafrn.net)"
-                className="p-3 my-3 border border-gray-500 rounded text-white"
-                value={url}
-                onChangeText={setUrl}
-              />
-              <View className="mt-2">
-                <Button
-                  text="Connect"
-                  disabled={!isValidURL(`https://${url}`)}
-                  onPress={() => onSelect(`https://${url}`)}
-                />
-              </View>
-            </KeyboardAwareScrollView>
-          </View>
+          <InstanceList
+            instances={instances}
+            selected={selected}
+            onSelect={onSelect}
+            isLoading={isFetching}
+            onRefresh={refetch}
+          />
+          <InstanceInput onSelect={onSelect} />
         </PagerView>
       </View>
     </Modal>
+  )
+}
+
+type InstanceListProps = {
+  instances: InstanceListItem[]
+  selected: string | null
+  onSelect: (url: string) => void
+  isLoading: boolean
+  onRefresh: () => void
+}
+
+function InstanceList({
+  instances,
+  selected,
+  onSelect,
+  isLoading,
+  onRefresh,
+}: InstanceListProps) {
+  function isSelected(item: InstanceListItem) {
+    const itemHost = isValidURL(item.url) ? new URL(item.url).host : item.url
+    return itemHost === selected
+  }
+  return (
+    <ScrollView
+      className="grow-0"
+      contentContainerClassName="py-2 px-4"
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+      }
+    >
+      {instances.map((instance) => (
+        <Pressable
+          key={instance.url}
+          onPress={() => onSelect(instance.url)}
+          className={clsx(
+            'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
+            { 'bg-slate-700': isSelected(instance) },
+          )}
+        >
+          <View className="bg-blue-900 mr-3 rounded p-1">
+            <Image
+              source={{ uri: instance.icon }}
+              style={{ width: 42, height: 42 }}
+            />
+          </View>
+          <View className="flex-1 relative">
+            {isSelected(instance) ? (
+              <View className="absolute z-10 -top-1 -right-1">
+                <Ionicons name="checkmark" color="white" size={24} />
+              </View>
+            ) : null}
+            {instance.name ? (
+              <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
+                {instance.name}
+              </Text>
+            ) : null}
+            {instance.name.toLowerCase() !== new URL(instance.url).host ? (
+              <Text className="text-white mb-4 text-sm">
+                {new URL(instance.url).host}
+              </Text>
+            ) : null}
+            {instance.description ? (
+              <Text className="text-white mb-2 text-sm">
+                {instance.description}
+              </Text>
+            ) : null}
+            <Text className="text-white text-xs mb-2">
+              Registrations:{' '}
+              {instance.registrationUrl ? (
+                <Link className="text-blue-500" href={instance.registrationUrl}>
+                  {instance.registrationType}
+                </Link>
+              ) : (
+                instance.registrationType
+              )}
+            </Text>
+            {instance.registrationCondition ? (
+              <Text className="text-white text-xs mb-2">
+                {instance.registrationCondition}
+              </Text>
+            ) : null}
+            {instance.version ? (
+              <Text className="text-gray-400 mb-2 text-xs">
+                v{instance.version}
+              </Text>
+            ) : null}
+            {instance.bskyEnabled ? (
+              <Text className="text-gray-400 text-xs">
+                <FontAwesome6 name="bluesky" />
+                {' Bluesky enabled'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </View>
+        </Pressable>
+      ))}
+      {instances.length <= 1 && (
+        <Text className="text-gray-300 text-center my-3">
+          No known instances found other than the default. You can still add one
+          manually.
+        </Text>
+      )}
+    </ScrollView>
+  )
+}
+
+function InstanceInput({ onSelect }: { onSelect: (url: string) => void }) {
+  const [url, setUrl] = useState('')
+  return (
+    <KeyboardAwareScrollView>
+      <View className="px-3">
+        <TextInput
+          autoCapitalize="none"
+          placeholder="Your server domain (e.g. app.wafrn.net)"
+          className="p-3 my-3 border border-gray-500 rounded text-white"
+          value={url}
+          onChangeText={setUrl}
+        />
+        <View className="mt-2">
+          <Button
+            text="Connect"
+            disabled={!isValidURL(`https://${url}`)}
+            onPress={() => onSelect(`https://${url}`)}
+          />
+        </View>
+      </View>
+    </KeyboardAwareScrollView>
   )
 }
