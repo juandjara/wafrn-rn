@@ -32,8 +32,15 @@ export default function Dashboard({
 }) {
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<FeedItem>>(null)
-  const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
+  const { data, isLoading, isFetching, fetchNextPage, hasNextPage, refetch } =
     useDashboard(mode)
+
+  async function refresh() {
+    await refetch()
+    requestIdleCallback(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false })
+    })
+  }
 
   const qc = useQueryClient()
   const focusEffect = useCallback(() => {
@@ -56,12 +63,6 @@ export default function Dashboard({
 
   useScrollToTop(listRef)
 
-  async function refresh() {
-    await qc.resetQueries({
-      queryKey: ['dashboard', mode],
-    })
-  }
-
   function onEndReached() {
     if (hasNextPage && !isFetching) {
       fetchNextPage()
@@ -76,7 +77,7 @@ export default function Dashboard({
     <DashboardContextProvider data={context}>
       <FlatList
         ref={listRef}
-        refreshing={isLoading}
+        refreshing={isFetching}
         onRefresh={refresh}
         extraData={layoutData}
         data={feed}
@@ -87,7 +88,7 @@ export default function Dashboard({
         ListHeaderComponent={header}
         contentInset={contentInset}
         maintainVisibleContentPosition={
-          MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+          isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
         }
         {...FLATLIST_PERFORMANCE_CONFIG}
       />

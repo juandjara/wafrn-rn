@@ -2,7 +2,6 @@ import { getJSON } from '../http'
 import { DashboardData, PostUser } from './posts.types'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { useAuth } from '../contexts/AuthContext'
-import { useMemo } from 'react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getEnvironmentStatic } from './auth'
 import { useSettings } from './settings'
@@ -82,31 +81,34 @@ export async function search({
 
 export function useSearch(query: string) {
   const { token } = useAuth()
-  const time = useMemo(() => Date.now(), [])
   const type = detectSearchType(query)
   const { data: settings } = useSettings()
 
   return useInfiniteQuery({
-    queryKey: ['search', query, time],
+    queryKey: ['search', query],
     queryFn: async ({ pageParam, signal }) => {
+      const time = pageParam.time || Date.now()
       const list = await search({
-        page: pageParam,
-        term: query,
         time,
+        page: pageParam.page,
+        term: query,
         token: token!,
         signal,
       })
 
       if (type === SearchType.User) {
-        return { users: list.users }
+        return { time, users: list.users }
       } else {
         const data = list.posts
         const context = getDashboardContextPage(data)
         const feed = await getFeedData(context, data.posts, settings)
-        return { context, feed }
+        return { time, context, feed }
       }
     },
-    initialPageParam: 0,
+    initialPageParam: {
+      time: 0,
+      page: 0,
+    },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (type === SearchType.User && lastPage.users?.foundUsers.length === 0) {
         return undefined
@@ -114,9 +116,13 @@ export function useSearch(query: string) {
       if (type !== SearchType.User && lastPage.feed?.length === 0) {
         return undefined
       }
-      return lastPageParam + 1
+      return {
+        time: lastPage.time,
+        page: lastPageParam.page + 1,
+      }
     },
     enabled: !!token && !!settings,
+    staleTime: Infinity, // prevent re-fetching old data
   })
 }
 

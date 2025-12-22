@@ -2,14 +2,16 @@ import { combineDashboardContextPages } from '@/lib/api/dashboard'
 import { SearchType, useSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
 import { useLayoutData } from '@/lib/postStore'
-import { useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { type FlatList, Pressable, Text, View } from 'react-native'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import Animated from 'react-native-reanimated'
 import { useFollowTagMutation } from '@/lib/interaction'
 import { clsx } from 'clsx'
-import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
+import {
+  FLATLIST_PERFORMANCE_CONFIG,
+  MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
+} from '@/lib/api/posts'
 import { useCornerButtonAnimation } from '../CornerButton'
 import { KeyboardStickyView } from 'react-native-keyboard-controller'
 import { type FeedItem, feedKeyExtractor } from '@/lib/feeds'
@@ -33,17 +35,18 @@ export default function SearchResultsPosts({
 }) {
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<FeedItem> | null>(null)
-  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
+    useSearch(query)
 
   const context = combineDashboardContextPages(
     (data?.pages ?? []).map((p) => p.context).filter((x) => !!x),
   )
   const feedData = data?.pages.flatMap((p) => p.feed).filter((x) => !!x)
 
-  const qc = useQueryClient()
-  const refresh = async () => {
-    await qc.resetQueries({
-      queryKey: ['search', query],
+  async function refresh() {
+    await refetch()
+    requestIdleCallback(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false })
     })
   }
 
@@ -88,6 +91,9 @@ export default function SearchResultsPosts({
                 </Text>
               )}
             </View>
+          }
+          maintainVisibleContentPosition={
+            isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
           }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />

@@ -1,8 +1,7 @@
 import { dedupeById } from '@/lib/api/dashboard'
 import { useSearch } from '@/lib/api/search'
-import { FlashList } from '@shopify/flash-list'
-import { useQueryClient } from '@tanstack/react-query'
-import { forwardRef, useMemo } from 'react'
+import { FlashList, FlashListRef } from '@shopify/flash-list'
+import { forwardRef, useMemo, useRef } from 'react'
 import { Text, View, ScrollViewProps, ScrollView } from 'react-native'
 import UserCard from '../user/UserCard'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
@@ -14,14 +13,8 @@ const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
 RenderScrollComponent.displayName = 'RenderScrollComponent'
 
 export default function SearchResultsUsers({ query }: { query: string }) {
-  const { data, fetchNextPage, hasNextPage, isFetching } = useSearch(query)
-
-  const qc = useQueryClient()
-  const refresh = async () => {
-    await qc.resetQueries({
-      queryKey: ['search', query],
-    })
-  }
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
+    useSearch(query)
 
   const users = useMemo(() => {
     const emojis = data?.pages.flatMap((page) => page.users!.emojis) || []
@@ -40,8 +33,18 @@ export default function SearchResultsUsers({ query }: { query: string }) {
     })
   }, [data?.pages])
 
+  const listRef = useRef<FlashListRef<(typeof users)[number]>>(null)
+
+  async function refresh() {
+    await refetch()
+    requestIdleCallback(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false })
+    })
+  }
+
   return (
     <FlashList
+      ref={listRef}
       refreshing={isFetching}
       onRefresh={refresh}
       data={users}

@@ -18,7 +18,6 @@ import { FullNotification } from '@/lib/notifications'
 import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
-import { useQueryClient } from '@tanstack/react-query'
 import { Link } from 'expo-router'
 import { useRef } from 'react'
 import { Text, useWindowDimensions, View, FlatList } from 'react-native'
@@ -27,7 +26,10 @@ import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
 import FollowRibbon from '@/components/ribbons/FollowRibbon'
 import ReplyRibbon from '@/components/ribbons/ReplyRibbon'
-import { FLATLIST_PERFORMANCE_CONFIG } from '@/lib/api/posts'
+import {
+  FLATLIST_PERFORMANCE_CONFIG,
+  MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
+} from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import { clsx } from 'clsx'
@@ -35,7 +37,8 @@ import { clsx } from 'clsx'
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
   const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
-  const { data, fetchNextPage, hasNextPage, isFetching } = useNotifications()
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
+    useNotifications()
   const notifications = data ? data.pages.flatMap((p) => p.feed) : []
   const context = combineDashboardContextPages(
     data?.pages.map((p) => p.context) ?? [],
@@ -47,10 +50,10 @@ export default function NotificationList() {
 
   useScrollToTop(listRef)
 
-  const qc = useQueryClient()
-  const refresh = async () => {
-    await qc.resetQueries({
-      queryKey: ['notifications'],
+  async function refresh() {
+    await refetch()
+    requestIdleCallback(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: false })
     })
   }
 
@@ -70,10 +73,9 @@ export default function NotificationList() {
           onEndReachedThreshold={2}
           ListFooterComponent={isFetching ? <Loading /> : null}
           contentInset={{ bottom: bottomPadding }}
-          maintainVisibleContentPosition={{
-            minIndexForVisible: 0,
-          }}
-          progressViewOffset={isFetching ? -1 : 0}
+          maintainVisibleContentPosition={
+            isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+          }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
       </DashboardContextProvider>

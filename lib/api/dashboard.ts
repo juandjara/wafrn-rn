@@ -73,6 +73,7 @@ export function useDashboard(mode: DashboardMode) {
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.lastDate,
     enabled: !!token && !!settings,
+    staleTime: Infinity, // prevent re-fetching old data
   })
 }
 
@@ -229,6 +230,7 @@ export function useUserFeed(userId: string) {
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.lastDate,
     enabled: !!token && !!settings,
+    staleTime: Infinity, // prevent re-fetching old data
   })
 }
 
@@ -248,10 +250,7 @@ export function useNotifications() {
       const dashboardData = notificationPageToDashboardPage(list)
       const context = getDashboardContextPage(dashboardData)
       const feed = parseNotificationPage(list)
-      const dates = list.notifications.map((n) =>
-        new Date(n.updatedAt).getTime(),
-      )
-      const endDate = Math.min(...dates)
+      const endDate = getLastDate(list.notifications)
 
       await refetchBadge()
       return { context, feed, endDate }
@@ -262,10 +261,11 @@ export function useNotifications() {
     },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       return {
-        date: lastPage.endDate,
+        date: lastPage.endDate ?? 0,
         page: lastPageParam.page + 1,
       }
     },
     enabled: !!token && !!settings,
+    staleTime: Infinity, // prevent re-fetching old data
   })
 }
