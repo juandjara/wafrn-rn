@@ -59,6 +59,7 @@ export enum PrivateOptionNames {
   EnableReplaceAIWord = 'wafrn.replaceAIWithCocaine',
   ReplaceAIWord = 'wafrn.replaceAIWord',
   AdvancedMutedWords = 'wafrn.advancedMutedWords',
+  LongPressToReact = 'wafrn.longPressToReact',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -83,6 +84,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.EnableReplaceAIWord]: boolean
   [PrivateOptionNames.ReplaceAIWord]: string
   [PrivateOptionNames.AdvancedMutedWords]: AdvancedMutedWord[]
+  [PrivateOptionNames.LongPressToReact]: boolean
 }
 
 export enum MuteSource {
@@ -129,6 +131,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.EnableReplaceAIWord]: false,
   [PrivateOptionNames.ReplaceAIWord]: 'cocaine',
   [PrivateOptionNames.AdvancedMutedWords]: [] as AdvancedMutedWord[],
+  [PrivateOptionNames.LongPressToReact]: false,
 }
 
 export type PrivateOption = SettingsOption & {

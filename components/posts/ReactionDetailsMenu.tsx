@@ -14,18 +14,24 @@ import { useCSSVariable } from 'uniwind'
 import { EmojiReaction } from '@/lib/api/emojis'
 import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import clsx from 'clsx'
+import { getPrivateOptionValue, PrivateOptionNames, useSettings } from '@/lib/api/settings'
 
 export default function ReactionDetailsMenu({
   users,
   emoji,
-  onLongPress,
+  onToggleReaction,
   className,
 }: {
   users: PostUser[]
   emoji: EmojiReaction
-  onLongPress?: () => void
+  onToggleReaction?: () => void
   className?: string
 }) {
+  const { data: settings } = useSettings()
+  const longPressToReact = getPrivateOptionValue(
+    settings?.options ?? [],
+    PrivateOptionNames.LongPressToReact,
+  )
   const reactionName = typeof emoji !== 'string' && emoji.name
   const gray900 = useCSSVariable('--color-gray-900') as string
   const menuRef = useRef<Menu>(null)
@@ -77,7 +83,7 @@ export default function ReactionDetailsMenu({
         },
       }}
     >
-      <MenuTrigger onAlternativeAction={onLongPress}>
+      <MenuTrigger triggerOnLongPress={!longPressToReact} onAlternativeAction={onToggleReaction}>
         <View
           className={clsx(
             className,

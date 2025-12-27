@@ -3,11 +3,11 @@ import { type EmojiGroup } from '@/lib/api/emojis'
 
 export default function PostReaction({
   reaction,
-  onLongPress,
+  onToggleReaction,
   className,
 }: {
   reaction: EmojiGroup
-  onLongPress?: () => void
+  onToggleReaction?: () => void
   className?: string
 }) {
   return (
@@ -15,7 +15,7 @@ export default function PostReaction({
       key={reaction.id}
       users={reaction.users}
       emoji={reaction.emoji}
-      onLongPress={onLongPress}
+      onToggleReaction={onToggleReaction}
       className={className}
     />
   )
