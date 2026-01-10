@@ -21,15 +21,15 @@ export enum SearchView {
 }
 
 type SearchResponse = {
-  emojis: EmojiBase[]
-  userEmojiIds: UserEmojiRelation[]
+  emojis?: EmojiBase[]
+  userEmojiIds?: UserEmojiRelation[]
   foundUsers: PostUser[]
   posts: DashboardData
 }
 export type SearchData = {
   users: {
-    emojis: EmojiBase[]
-    userEmojiRelation: UserEmojiRelation[]
+    emojis?: EmojiBase[]
+    userEmojiRelation?: UserEmojiRelation[]
     foundUsers: PostUser[]
   }
   posts: DashboardData

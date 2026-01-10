@@ -90,7 +90,7 @@ export function getDashboardContextPage(data: DashboardData) {
     ...data,
     users: Object.fromEntries(data.users.map((u) => [u.id, u])),
     emojis: Object.fromEntries(
-      data.emojiRelations.emojis.map((e) => [e.id, e]),
+      (data.emojiRelations.emojis ?? []).map((e) => [e.id, e]),
     ),
     emojiRelations: {
       userEmojiRelation: data.emojiRelations.userEmojiRelation,
@@ -125,13 +125,13 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     emojis: combineEmojis(pages),
     emojiRelations: {
       userEmojiRelation: pages.flatMap(
-        (p) => p.emojiRelations.userEmojiRelation,
+        (p) => p.emojiRelations.userEmojiRelation ?? [],
       ),
       postEmojiRelation: pages.flatMap(
-        (p) => p.emojiRelations.postEmojiRelation,
+        (p) => p.emojiRelations.postEmojiRelation ?? [],
       ),
       postEmojiReactions: pages.flatMap(
-        (p) => p.emojiRelations.postEmojiReactions,
+        (p) => p.emojiRelations.postEmojiReactions ?? [],
       ),
       // .filter((reaction) => {
       //   const innerKey = reaction.emojiId || reaction.content
@@ -154,9 +154,9 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     quotedPosts: pages.flatMap((p) => p.quotedPosts),
     quotes: pages.flatMap((p) => p.quotes),
     tags: pages.flatMap((p) => p.tags),
-    asks: pages.flatMap((p) => p.asks || []),
-    rewootIds: pages.flatMap((p) => p.rewootIds || []),
-    bookmarks: pages.flatMap((p) => p.bookmarks || []),
+    asks: pages.flatMap((p) => p.asks ?? []),
+    rewootIds: pages.flatMap((p) => p.rewootIds ?? []),
+    bookmarks: pages.flatMap((p) => p.bookmarks ?? []),
   }
   return combined
 }

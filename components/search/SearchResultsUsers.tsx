@@ -17,11 +17,11 @@ export default function SearchResultsUsers({ query }: { query: string }) {
     useSearch(query)
 
   const users = useMemo(() => {
-    const emojis = data?.pages.flatMap((page) => page.users!.emojis) || []
+    const emojis = data?.pages.flatMap((page) => page.users!.emojis ?? []) || []
     const emojiUserRelation =
-      data?.pages.flatMap((page) => page.users!.userEmojiRelation) || []
+      data?.pages.flatMap((page) => page.users!.userEmojiRelation ?? []) || []
     const users = dedupeById(
-      data?.pages.flatMap((page) => page.users!.foundUsers) || [],
+      data?.pages.flatMap((page) => page.users!.foundUsers ?? []) || [],
     )
     return users.map((user) => {
       const ids =

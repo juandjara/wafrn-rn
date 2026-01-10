@@ -35,10 +35,10 @@ export type PostUser = {
 }
 
 export type PostEmojiContext = {
-  emojis: EmojiBase[]
-  userEmojiRelation: UserEmojiRelation[]
-  postEmojiRelation: PostEmojiRelation[]
-  postEmojiReactions: PostEmojiReaction[]
+  emojis?: EmojiBase[]
+  userEmojiRelation?: UserEmojiRelation[]
+  postEmojiRelation?: PostEmojiRelation[]
+  postEmojiReactions?: PostEmojiReaction[]
 }
 
 export type PostUserRelation = {

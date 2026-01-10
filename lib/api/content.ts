@@ -93,7 +93,7 @@ export function processPostContent(
   }
 
   const ids =
-    context.emojiRelations.postEmojiRelation
+    (context.emojiRelations.postEmojiRelation ?? [])
       .filter((e) => e.postId === post.id)
       .map((e) => e.emojiId) ?? []
 
@@ -109,7 +109,7 @@ export function isBlueskyPost(post: Post, context: DashboardContextData) {
 
 export function getUserEmojis(user: PostUser, context: DashboardContextData) {
   const ids =
-    context.emojiRelations.userEmojiRelation
+    (context.emojiRelations.userEmojiRelation ?? [])
       .filter((e) => e.userId === user.id)
       .map((e) => e.emojiId) ?? []
   return ids.map((id) => context.emojis[id]).filter((e) => !!e)
@@ -129,15 +129,16 @@ export function getReactions(post: Post, context: DashboardContextData) {
     emoji: EmojiReaction
   }
 
-  const reactions: Reaction[] = []
-  for (const r of context.emojiRelations.postEmojiReactions) {
+  const postReactions: Reaction[] = []
+  const contextReactions = context.emojiRelations.postEmojiReactions ?? []
+  for (const r of contextReactions) {
     if (r.postId === post.id) {
       const user = context.users[r.userId]
       if (!user) {
         continue
       }
       const emoji = r.emojiId ? context.emojis[r.emojiId]! : r.content
-      reactions.push({
+      postReactions.push({
         id: `${r.emojiId}-${r.userId}`,
         user,
         emoji,
@@ -145,7 +146,7 @@ export function getReactions(post: Post, context: DashboardContextData) {
     }
   }
   const grouped = new Map<string, EmojiGroup>()
-  for (const r of reactions) {
+  for (const r of postReactions) {
     const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
     if (!grouped.has(key)) {
       grouped.set(key, {
