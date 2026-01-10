@@ -183,7 +183,7 @@ export function parseNotificationPage(page: NotificationsPage) {
       }
 
       if (n.notificationType === 'EMOJIREACT') {
-        const emoji = page.emojiRelations.postEmojiReactions.find(
+        const emoji = (page.emojiRelations.postEmojiReactions ?? []).find(
           (e) => e.id === n.emojiReactionId,
         ) || { content: '∅' }
         return { ...n, user, post, emoji }
