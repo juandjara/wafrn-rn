@@ -9,7 +9,6 @@ export function useServiceAnnouncements() {
   const { showToastError, showToastInfo } = useToasts()
 
   const announcements = settings?.serviceAnnouncements ?? EMPTY
-  console.log(announcements)
 
   useEffect(() => {
     for (const announcement of announcements) {
