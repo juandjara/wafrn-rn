@@ -1,4 +1,4 @@
-import { toast } from '@backpackapp-io/react-native-toast'
+import { toast, ToastOptions } from '@backpackapp-io/react-native-toast'
 import { useMemo } from 'react'
 import { useCSSVariable } from 'uniwind'
 
@@ -30,7 +30,7 @@ export function useToasts() {
       })
     }
 
-    function showToastError(message: string) {
+    function showToastError(message: string, options?: ToastOptions) {
       toast.error(message, {
         styles: {
           text: {
@@ -41,6 +41,7 @@ export function useToasts() {
             borderRadius: 8,
           },
         },
+        ...options,
       })
     }
 

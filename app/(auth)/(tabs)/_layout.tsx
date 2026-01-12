@@ -9,6 +9,7 @@ import { useCSSVariable } from 'uniwind'
 import { Extrapolation } from 'react-native-reanimated'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
+import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -28,6 +29,7 @@ export default function TabsLayout() {
 
   // running this here to only register notifications after auth flow is complete
   usePushNotifications()
+  useServiceAnnouncements()
 
   const { height } = useWindowDimensions()
 

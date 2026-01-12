@@ -212,6 +212,12 @@ export function getPublicOptionValue<
   }
 }
 
+type ServiceAnnouncement = {
+  level: 'error' | 'info' | 'warning'
+  code: 'bsky_account_force_disabled' | 'generic' // TODO: more codes will come
+  message: string
+}
+
 export type Settings = {
   myFollowers: string[] // ids of people who follow you
   blockedUsers: string[] // ids of people you've blocked
@@ -222,6 +228,7 @@ export type Settings = {
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
   options: PrivateOption[] & PublicOption[] // the actual values of the settings for the user
   followedHashtags: string[] // normalized hashtags you follow (without the #)
+  serviceAnnouncements?: ServiceAnnouncement[]
 }
 
 export async function getSettings(token: string, signal: AbortSignal) {
