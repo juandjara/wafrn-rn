@@ -11,20 +11,28 @@ import {
   renderers,
 } from 'react-native-popup-menu'
 import { useCSSVariable } from 'uniwind'
+import { EmojiReaction } from '@/lib/api/emojis'
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import clsx from 'clsx'
+import { getPrivateOptionValue, PrivateOptionNames, useSettings } from '@/lib/api/settings'
 
 export default function ReactionDetailsMenu({
-  children,
   users,
-  reaction,
-  reactionName,
-  onLongPress,
+  emoji,
+  onToggleReaction,
+  className,
 }: {
-  children: React.ReactNode
   users: PostUser[]
-  reaction: React.ReactNode
-  reactionName?: string
-  onLongPress?: () => void
+  emoji: EmojiReaction
+  onToggleReaction?: () => void
+  className?: string
 }) {
+  const { data: settings } = useSettings()
+  const longPressToReact = getPrivateOptionValue(
+    settings?.options ?? [],
+    PrivateOptionNames.LongPressToReact,
+  )
+  const reactionName = typeof emoji !== 'string' && emoji.name
   const gray900 = useCSSVariable('--color-gray-900') as string
   const menuRef = useRef<Menu>(null)
   const renderItem = useCallback(
@@ -51,6 +59,18 @@ export default function ReactionDetailsMenu({
     [],
   )
 
+  const emojiInline =
+    typeof emoji === 'string' ? (
+      emoji
+    ) : (
+      <Image
+        source={{
+          uri: formatCachedUrl(formatMediaUrl(emoji.url)),
+        }}
+        style={{ resizeMode: 'contain', width: 20, height: 20 }}
+      />
+    )
+
   return (
     <Menu
       ref={menuRef}
@@ -63,7 +83,26 @@ export default function ReactionDetailsMenu({
         },
       }}
     >
-      <MenuTrigger onAlternativeAction={onLongPress}>{children}</MenuTrigger>
+      <MenuTrigger triggerOnLongPress={!longPressToReact} onAlternativeAction={onToggleReaction}>
+        <View
+          className={clsx(
+            className,
+            'flex-row items-center gap-2 py-1 px-2 rounded-md',
+          )}
+        >
+          {typeof emoji === 'string' ? (
+            <Text>{emoji}</Text>
+          ) : (
+            <Image
+              source={{
+                uri: formatCachedUrl(formatMediaUrl(emoji.url)),
+              }}
+              style={{ resizeMode: 'contain', width: 20, height: 20 }}
+            />
+          )}
+          <Text className="text-gray-200">{users.length}</Text>
+        </View>
+      </MenuTrigger>
       <MenuOptions
         customStyles={{
           optionsContainer: {
@@ -76,7 +115,7 @@ export default function ReactionDetailsMenu({
             <Text className="text-gray-300 text-xs">{reactionName}</Text>
           )}
           <View className="flex-row items-center gap-1">
-            <Text className="text-gray-200 text-sm">{reaction}</Text>
+            <Text className="text-gray-200 text-sm">{emojiInline}</Text>
             <Text className="text-gray-200 text-sm">by</Text>
           </View>
         </View>

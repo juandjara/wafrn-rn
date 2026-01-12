@@ -22,7 +22,7 @@ export default function PostReactionList({ post }: { post: Post }) {
   const { showToastError } = useToasts()
   const extendedReactions = useExtendedReactions(post.id)
 
-  function onLongPressReaction(reaction: EmojiGroup) {
+  function onToggleReaction(reaction: EmojiGroup) {
     if (typeof reaction.emoji !== 'string' && reaction.emoji.external) {
       showToastError('WAFRN does not have this emoji')
       return // cannot react with external emojis
@@ -69,7 +69,7 @@ export default function PostReactionList({ post }: { post: Post }) {
         <PostReaction
           key={r.id}
           reaction={r}
-          onLongPress={() => onLongPressReaction(r)}
+          onToggleReaction={() => onToggleReaction(r)}
           className={getClassname(r)}
         />
       ))}

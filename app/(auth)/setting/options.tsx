@@ -56,6 +56,7 @@ type FormState = {
   hideFollows: boolean
   hideProfileNotLoggedIn: boolean
   disableEmailNotifications: boolean
+  longPressToReact: boolean
 }
 
 export default function Options() {
@@ -113,6 +114,10 @@ export default function Options() {
       PrivateOptionNames.ReplaceAIWord,
     )
     const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
+    const longPressToReact = getPrivateOptionValue(
+      opts,
+      PrivateOptionNames.LongPressToReact
+    )
 
     return {
       gifApiKey,
@@ -132,6 +137,7 @@ export default function Options() {
       asks,
       enableReplaceAIWord,
       replaceAIWord,
+      longPressToReact
     }
   })
   const parsedMutedWords = form.mutedWords
@@ -209,6 +215,10 @@ export default function Options() {
       {
         name: PrivateOptionNames.ReplaceAIWord,
         value: JSON.stringify(form.replaceAIWord),
+      },
+      {
+        name: PrivateOptionNames.LongPressToReact,
+        value: JSON.stringify(form.longPressToReact),
       },
     ]
     editMutation.mutate({
@@ -486,6 +496,20 @@ export default function Options() {
             onValueChange={(flag) => update('disableForceAltText', flag)}
             trackColor={{ false: gray700, true: cyan900 }}
             thumbColor={form.disableForceAltText ? cyan600 : gray300}
+          />
+        </Pressable>
+        <Pressable
+          onPress={() => update('longPressToReact', (prev) => !prev)}
+          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+        >
+          <Text className="text-white text-base leading-6 grow shrink">
+            Long press to toggle reaction
+          </Text>
+          <Switch
+            value={form.longPressToReact}
+            onValueChange={(flag) => update('longPressToReact', flag)}
+            trackColor={{ false: gray700, true: cyan900 }}
+            thumbColor={form.longPressToReact ? cyan600 : gray300}
           />
         </Pressable>
         <View className="p-4">
