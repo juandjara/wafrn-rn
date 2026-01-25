@@ -1,3 +1,4 @@
+import Button from '@/components/Button'
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
@@ -11,9 +12,9 @@ import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
   Alert,
-  Button,
   Modal,
   Pressable,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -57,7 +58,7 @@ export default function AccountSwitcherSettings() {
       )}
       <View className="flex-row gap-2 items-center mb-2">
         <Text className="text-white px-4 text-sm grow">
-          Click on an account to switch to it
+          Click an account to switch
         </Text>
         <Pressable
           className={clsx(
@@ -75,7 +76,7 @@ export default function AccountSwitcherSettings() {
           />
         </Pressable>
       </View>
-      <View className="p-2">
+      <ScrollView className="p-2">
         {accounts.map((acc, index) => (
           <Pressable
             key={acc?.id}
@@ -128,10 +129,18 @@ export default function AccountSwitcherSettings() {
             </TouchableOpacity>
           </Pressable>
         ))}
-      </View>
-      <View className="mt-4">
+      </ScrollView>
+      <View className="my-4">
         <View className="px-4">
-          <Button title="Add account" onPress={() => setShowLogin(true)} />
+          <Button
+            text={
+              <>
+                <MaterialCommunityIcons name="plus" size={20} color="white" />
+                <Text>Add account</Text>
+              </>
+            }
+            onPress={() => setShowLogin(true)}
+          />
         </View>
         <Modal
           visible={showLogin}
