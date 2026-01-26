@@ -169,23 +169,29 @@ export function useExtendedReactions(postId: string) {
     )
     let likesReaction = extendedReactions.find(
       (r) => r.id === `${postId}-likes`,
-    )
+    ) || {
+      id: `${postId}-likes`,
+      users: [],
+      emoji: '❤️',
+    }
+
     const otherReactions = extendedReactions.filter(
       (r) => r.id !== `${postId}-likes`,
     )
 
-    if (!isLiked && likesReaction?.users.some((u) => u.id === me.userId)) {
-      likesReaction.users = likesReaction.users.filter(
-        (u) => u.id !== me.userId,
-      )
-    }
-    if (isLiked && !likesReaction?.users.some((u) => u.id === me.userId)) {
-      likesReaction = likesReaction || {
+    if (!isLiked && likesReaction.users.some((u) => u.id === me.userId)) {
+      likesReaction = {
         id: `${postId}-likes`,
-        users: [],
         emoji: '❤️',
+        users: likesReaction.users.filter((u) => u.id !== me.userId),
       }
-      likesReaction.users = [...likesReaction.users, myUser]
+    }
+    if (isLiked && !likesReaction.users.some((u) => u.id === me.userId)) {
+      likesReaction = {
+        id: `${postId}-likes`,
+        emoji: '❤️',
+        users: likesReaction.users.concat(myUser),
+      }
     }
 
     return likesReaction ? [likesReaction, ...otherReactions] : otherReactions

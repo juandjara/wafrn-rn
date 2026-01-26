@@ -9,7 +9,6 @@ import {
 } from 'react-native'
 import { formatUserUrl, formatDate } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
-import { POST_MARGIN } from '@/lib/api/posts'
 import Media from '../posts/Media'
 import { Link, router, useLocalSearchParams } from 'expo-router'
 import {
@@ -36,7 +35,11 @@ import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
 import InteractionMenu from '../interactions/InteractionMenu'
 import PostReactionList from '../posts/PostReactionList'
-import { DerivedPostData, getDerivedPostState } from '@/lib/api/content'
+import {
+  POST_MARGIN,
+  DerivedPostData,
+  getDerivedPostState,
+} from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 
 type PostFragmentProps = {

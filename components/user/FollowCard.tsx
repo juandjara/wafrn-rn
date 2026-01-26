@@ -1,4 +1,4 @@
-import { AVATAR_SIZE } from '@/lib/api/posts'
+import { AVATAR_SIZE } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 import { Follow } from '@/lib/api/user'
 import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'

@@ -10,6 +10,12 @@ import { EditorImage } from '../editor'
 import { useAccounts } from './user'
 import { router } from 'expo-router'
 import { useToasts } from '../toasts'
+import { useSettings } from './settings'
+import { processPost } from '../feeds'
+import {
+  combineDashboardContextPages,
+  getDashboardContextPage,
+} from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
@@ -28,10 +34,6 @@ export const FLATLIST_PERFORMANCE_CONFIG = {
   updateCellsBatchingPeriod: 200,
   maxToRenderPerBatch: 6,
 }
-
-const LAYOUT_MARGIN = 24
-export const AVATAR_SIZE = 42
-export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
 export async function getPostDetail(
   token: string,
@@ -59,6 +61,8 @@ export async function getPostDetail(
 
 export function usePostDetail(id: string, includeReplies = true) {
   const { token } = useAuth()
+  const { data: settings } = useSettings()
+
   return useQuery({
     queryKey: ['post', id, 'detail', includeReplies],
     queryFn: async ({ signal }) => {
@@ -66,13 +70,22 @@ export function usePostDetail(id: string, includeReplies = true) {
       if (includeReplies) {
         promises.push(getPostReplies(token!, signal, id))
       }
+
       const [post, replies] = await Promise.all(promises)
+      const page1 = getDashboardContextPage(post)
+      const page2 = getDashboardContextPage(replies)
+      const context = combineDashboardContextPages(
+        [page1, page2].filter((x) => !!x),
+      )
+      await processPost(post.posts[0], context, settings)
+
       return {
-        post,
-        replies,
+        post: post.posts[0],
+        replies: replies.posts,
+        context,
       }
     },
-    enabled: !!token && !!id,
+    enabled: !!token && !!settings && !!id,
   })
 }
 

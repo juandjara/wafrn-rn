@@ -20,7 +20,10 @@ import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
 import { collapseWhitespace, replaceInlineImages } from './html'
 import { Dimensions } from 'react-native'
-import { POST_MARGIN } from './posts'
+
+const LAYOUT_MARGIN = 24
+export const AVATAR_SIZE = 42
+export const POST_MARGIN = LAYOUT_MARGIN // AVATAR_SIZE + LAYOUT_MARGIN
 
 export const HTTP_LINK_REGEX = /(https?:\/\/[^\s$.?#].[^\s]*)/gi
 export const MENTION_REGEX = /@[\w-\.]+@?[\w-\.]*/gi
@@ -448,25 +451,28 @@ export function getAskData(post: Post, context: DashboardContextData) {
 export function groupPostReactions(post: Post, context: DashboardContextData) {
   const reactions = getReactions(post, context)
   const fullReactions = [] as EmojiGroup[]
-  const likeUsers = [] as PostUser[]
+  const likeUsersSet = new Set<PostUser>()
 
   for (const like of context.likes) {
     if (like.postId === post.id) {
       const user = context.users[like.userId]
       if (user) {
-        likeUsers.push(user)
+        likeUsersSet.add(user)
       }
     }
   }
 
   for (const r of reactions) {
     if (isUnicodeHeart(r.emoji)) {
-      likeUsers.push(...r.users)
+      for (const u of r.users) {
+        likeUsersSet.add(u)
+      }
     } else {
       fullReactions.push(r)
     }
   }
 
+  const likeUsers = Array.from(likeUsersSet)
   if (likeUsers.length) {
     return [
       {

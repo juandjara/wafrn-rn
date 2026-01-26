@@ -8,7 +8,7 @@ import { Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 import { setDerivedPostState } from './postStore'
 
-async function processPost(
+export async function processPost(
   post: Post,
   context: DashboardContextData,
   settings?: Settings,

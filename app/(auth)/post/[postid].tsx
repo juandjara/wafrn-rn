@@ -7,10 +7,6 @@ import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserEmojis, isEmptyRewoot, sortPosts } from '@/lib/api/content'
 import {
-  combineDashboardContextPages,
-  getDashboardContextPage,
-} from '@/lib/api/dashboard'
-import {
   FLATLIST_PERFORMANCE_CONFIG,
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
   usePostDetail,
@@ -92,18 +88,23 @@ export default function PostDetail() {
 
   const { mainPost, mainUser, postCount, replyCount, listData, context } =
     useMemo(() => {
-      const postData = data?.post
-      const repliesData = data?.replies
+      if (!data) {
+        return {
+          mainPost: null,
+          mainUser: null,
+          postCount: 0,
+          replyCount: 0,
+          listData: [] as never[],
+          context: null,
+        }
+      }
 
-      const page1 = postData && getDashboardContextPage(postData)
-      const page2 = repliesData && getDashboardContextPage(repliesData)
-      const context = combineDashboardContextPages(
-        [page1, page2].filter((x) => !!x),
-      )
-
-      const replies = (repliesData?.posts || []).filter(
+      const context = data.context
+      const mainPost = data.post
+      const replies = data.replies.filter(
         (p) => !hiddenUserIds.includes(p.userId),
       )
+
       const numRewoots = replies.filter(
         (p) => isEmptyRewoot(p, context) && p.parentId === postid,
       ).length
@@ -116,17 +117,14 @@ export default function PostDetail() {
         'replies',
       )}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
 
-      const mainPost = postData?.posts?.[0]
-      const mainUser = mainPost && context.users[mainPost.userId]
-      const mainIsRewoot = mainPost && isEmptyRewoot(mainPost, context)
-      const ancestors =
-        mainPost?.ancestors
-          .filter((a) => !hiddenUserIds.includes(a.userId))
-          .sort(sortPosts)
-          .map((a) => ({ post: a, className: 'border-t border-slate-600' })) ||
-        []
+      const mainUser = context.users[mainPost.userId]
+      const mainIsRewoot = isEmptyRewoot(mainPost, context)
+      const ancestors = mainPost.ancestors
+        .filter((a) => !hiddenUserIds.includes(a.userId))
+        .sort(sortPosts)
+        .map((a) => ({ post: a, className: 'border-t border-slate-600' }))
 
-      const mainFragment = mainPost && {
+      const mainFragment = {
         post: mainPost,
         className: clsx('border-slate-600', {
           'border-b': mainIsRewoot,
@@ -134,11 +132,9 @@ export default function PostDetail() {
         }),
       }
 
-      const thread = mainFragment
-        ? mainIsRewoot
-          ? [mainFragment, ...ancestors]
-          : [...ancestors, mainFragment]
-        : []
+      const thread = mainIsRewoot
+        ? [mainFragment, ...ancestors]
+        : [...ancestors, mainFragment]
 
       const fullReplies = replies
         .filter((p) => {
@@ -169,14 +165,12 @@ export default function PostDetail() {
       const replyCount = fullReplies.length
       const postCount = thread.length
 
-      const listData = mainPost
-        ? [
-            ...thread.map((post) => ({ type: 'post' as const, data: post })),
-            { type: 'interaction-ribbon' as const, data: mainPost },
-            { type: 'stats' as const, data: statsText },
-            ...fullReplies,
-          ].filter((l) => !!l)
-        : []
+      const listData = [
+        ...thread.map((post) => ({ type: 'post' as const, data: post })),
+        { type: 'interaction-ribbon' as const, data: mainPost },
+        { type: 'stats' as const, data: statsText },
+        ...fullReplies,
+      ].filter((l) => !!l)
 
       return { mainPost, mainUser, postCount, replyCount, listData, context }
     }, [data, postid, hiddenUserIds])
@@ -297,7 +291,7 @@ export default function PostDetail() {
   }
 
   // Show loading immediately while fetching
-  if (!data || isFetching) {
+  if (!context || isFetching) {
     return (
       <View className="flex-1">
         {header}
@@ -322,18 +316,7 @@ export default function PostDetail() {
             paddingBottom: 80,
             minHeight: Dimensions.get('screen').height + 80,
           }}
-          keyExtractor={(item) => {
-            if (item.type === 'post' || item.type === 'reply') {
-              return item.data.post.id
-            }
-            if (item.type === 'rewoot') {
-              return item.data.user.id
-            }
-            if (item.type === 'stats') {
-              return item.data
-            }
-            return item.type
-          }}
+          keyExtractor={keyExtractor}
           maintainVisibleContentPosition={
             isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
           }
@@ -391,6 +374,19 @@ export default function PostDetail() {
       </View>
     </DashboardContextProvider>
   )
+}
+
+function keyExtractor(item: PostDetailItemData) {
+  if (item.type === 'post' || item.type === 'reply') {
+    return item.data.post.id
+  }
+  if (item.type === 'rewoot') {
+    return item.data.user.id
+  }
+  if (item.type === 'stats') {
+    return item.data
+  }
+  return item.type
 }
 
 function _PostDetailItem({ item }: { item: PostDetailItemData }) {
