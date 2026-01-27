@@ -194,6 +194,8 @@ export function useExtendedReactions(postId: string) {
       }
     }
 
-    return likesReaction ? [likesReaction, ...otherReactions] : otherReactions
+    return likesReaction.users.length
+      ? [likesReaction, ...otherReactions]
+      : otherReactions
   }, [me, isLiked, postId, postState?.reactions, emojiReactionState])
 }
