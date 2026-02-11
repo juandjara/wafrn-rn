@@ -81,8 +81,14 @@ export default function UserCard({
             </View>
           )}
         </View>
-        <Text numberOfLines={1} className="mb-1 text-sm text-cyan-400">
+        <Text numberOfLines={1} className="shrink-0 text-sm text-cyan-400">
           {formatUserUrl(user.url)}
+          {user.pronouns ? (
+            <Text numberOfLines={1} className="text-xs text-cyan-500">
+              {' ~'}
+              {user.pronouns}
+            </Text>
+          ) : null}
         </Text>
       </View>
     </TouchableOpacity>
