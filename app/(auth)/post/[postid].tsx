@@ -76,10 +76,7 @@ type PostDetailItemData =
 export default function PostDetail() {
   const sx = useSafeAreaPadding()
   const { postid } = useLocalSearchParams()
-  const { data, isFetching, refetch, error } = usePostDetail(
-    postid as string,
-    true,
-  )
+  const { data, isFetching, refetch, error } = usePostDetail(postid as string)
 
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
   const hiddenUserIds = useHiddenUserIds()

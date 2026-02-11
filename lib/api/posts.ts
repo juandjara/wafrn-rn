@@ -12,10 +12,7 @@ import { router } from 'expo-router'
 import { useToasts } from '../toasts'
 import { useSettings } from './settings'
 import { processPost } from '../feeds'
-import {
-  combineDashboardContextPages,
-  getDashboardContextPage,
-} from './dashboard'
+import { getDashboardContextPage } from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
@@ -59,31 +56,22 @@ export async function getPostDetail(
   }
 }
 
-export function usePostDetail(id: string, includeReplies = true) {
+export function usePostDetail(id: string) {
   const { token } = useAuth()
   const { data: settings } = useSettings()
 
   return useQuery({
-    queryKey: ['post', id, 'detail', includeReplies],
+    queryKey: ['post', id, 'detail'],
     queryFn: async ({ signal }) => {
-      const promises = [getPostDetail(token!, signal, id)]
-      if (includeReplies) {
-        promises.push(getPostReplies(token!, signal, id))
-      }
-
-      const [post, replies] = await Promise.all(promises)
-      const page1 = getDashboardContextPage(post)
-      const page2 = getDashboardContextPage(replies)
-      const context = combineDashboardContextPages(
-        [page1, page2].filter((x) => !!x),
-      )
-      await processPost(post.posts[0], context, settings)
-
-      return {
-        post: post.posts[0],
-        replies: replies.posts,
-        context,
-      }
+      const [postData, repliesData] = await Promise.all([
+        getPostDetail(token!, signal, id),
+        getPostReplies(token!, signal, id),
+      ])
+      const post = postData.posts[0]
+      const replies = repliesData.posts
+      const context = getDashboardContextPage(repliesData)
+      await processPost(post, context, settings)
+      return { post, replies, context }
     },
     enabled: !!token && !!settings && !!id,
   })
@@ -127,7 +115,7 @@ export async function requestMoreRemoteReplies(token: string, id: string) {
 
 export function useRemoteRepliesMutation(postId: string) {
   const { token } = useAuth()
-  const { refetch } = usePostDetail(postId, true)
+  const { refetch } = usePostDetail(postId)
   return useMutation({
     mutationKey: ['loadRemoteReplies', postId],
     mutationFn: async () => {
