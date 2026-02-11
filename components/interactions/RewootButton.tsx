@@ -29,6 +29,15 @@ export default function RewootButton({
     ? !rewootMutation.variables
     : initialIsRewooted
 
+  const disabled = !post.canReblog || rewootMutation.isPending
+
+  function action() {
+    if (!disabled) {
+      rewootMutation.mutate(isRewooted)
+    }
+    onPress?.()
+  }
+
   return long ? (
     <MenuItem
       icon={
@@ -38,27 +47,18 @@ export default function RewootButton({
           color={isRewooted ? green500 : gray600}
         />
       }
-      action={() => {
-        if (!rewootMutation.isPending) {
-          rewootMutation.mutate(isRewooted)
-        }
-        onPress?.()
-      }}
+      action={action}
       label={isRewooted ? 'Undo Rewoot' : 'Rewoot'}
-      disabled={rewootMutation.isPending}
+      disabled={disabled}
       style={style}
     />
   ) : (
     <WigglyPressable
       className={interactionIconCn}
-      onPress={() => {
-        if (!rewootMutation.isPending) {
-          rewootMutation.mutate(isRewooted)
-        }
-      }}
-      disabled={rewootMutation.isPending}
+      onPress={action}
+      disabled={disabled}
       accessibilityLabel={isRewooted ? 'Undo Rewoot' : 'Rewoot'}
-      style={[style, { opacity: rewootMutation.isPending ? 0.5 : 1 }]}
+      style={[style, { opacity: disabled ? 0.5 : 1 }]}
     >
       <MaterialCommunityIcons
         name="repeat"

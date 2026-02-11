@@ -33,8 +33,10 @@ export default function LikeButton({
     ? !likeMutation.variables
     : initialIsLiked
 
+  const disabled = !post.canLike || likeMutation.isPending
+
   function likeAction() {
-    if (!likeMutation.isPending) {
+    if (!disabled) {
       likeMutation.mutate(isLiked)
     }
     onPress?.()
@@ -51,16 +53,16 @@ export default function LikeButton({
       }
       action={likeAction}
       label={isLiked ? 'Undo Like' : 'Like'}
-      disabled={likeMutation.isPending}
+      disabled={disabled}
       style={style}
     />
   ) : (
     <WigglyPressable
       className={interactionIconCn}
       onPress={likeAction}
-      disabled={likeMutation.isPending}
+      disabled={disabled}
       accessibilityLabel={isLiked ? 'Undo Like' : 'Like'}
-      style={[style, { opacity: likeMutation.isPending ? 0.5 : 1 }]}
+      style={[style, { opacity: disabled ? 0.5 : 1 }]}
     >
       <MaterialCommunityIcons
         size={20}

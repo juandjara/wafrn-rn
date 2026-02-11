@@ -37,10 +37,10 @@ export default function InteractionMenu({ post }: { post: Post }) {
   const me = useParsedToken()
   const createdByMe = post.userId === me?.userId
 
-  const canQuote =
+  const showQuote =
     post.privacy === PrivacyLevel.PUBLIC ||
     post.privacy === PrivacyLevel.UNLISTED
-  const canRewoot =
+  const showRewoot =
     post.privacy !== PrivacyLevel.DIRECT_MESSAGE &&
     post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
 
@@ -92,21 +92,23 @@ export default function InteractionMenu({ post }: { post: Post }) {
             router.navigate(`/editor?type=reply&replyId=${post.id}`)
             setMenuOpen(false)
           }}
+          disabled={!post.canReply}
           icon={'reply'}
           style={optionStyleBig(0)}
         />
-        {canQuote ? (
+        {showQuote ? (
           <MenuItem
             label="Quote"
             action={() => {
               router.navigate(`/editor?type=quote&quoteId=${post.id}`)
               setMenuOpen(false)
             }}
+            disabled={!post.canQuote}
             icon={'format-quote-close'}
             style={optionStyleBig(1)}
           />
         ) : null}
-        {canRewoot ? (
+        {showRewoot ? (
           <RewootButton
             post={post}
             long

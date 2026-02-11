@@ -12,16 +12,17 @@ import BookmarkButton from '../interactions/BookmarkButton'
 import DeleteButton from '../interactions/DeleteButton'
 import { interactionIconCn } from '@/lib/styles'
 import WigglyPressable from '../WigglyPressable'
+import { clsx } from 'clsx'
 
 export default function InteractionRibbon({ post }: { post: Post }) {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
   const me = useParsedToken()
   const createdByMe = post.userId === me?.userId
 
-  const canQuote =
+  const showQuote =
     post.privacy === PrivacyLevel.PUBLIC ||
     post.privacy === PrivacyLevel.UNLISTED
-  const canRewoot =
+  const showRewoot =
     post.privacy !== PrivacyLevel.DIRECT_MESSAGE &&
     post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
 
@@ -46,17 +47,26 @@ export default function InteractionRibbon({ post }: { post: Post }) {
         <View id="interactions" className="flex-row gap-3 shrink">
           <Link href={`/editor?type=reply&replyId=${post.id}`} asChild>
             <WigglyPressable
+              disabled={!post.canReply}
               accessibilityLabel="Reply"
-              className="flex p-1.5 active:bg-gray-300/30 rounded-full"
+              className={clsx('flex p-1.5 active:bg-gray-300/30 rounded-full', {
+                'opacity-50': !post.canReply,
+              })}
             >
               <MaterialCommunityIcons name="reply" size={20} color="white" />
             </WigglyPressable>
           </Link>
-          {canQuote ? (
+          {showQuote ? (
             <Link href={`/editor?type=quote&quoteId=${post.id}`} asChild>
               <WigglyPressable
+                disabled={!post.canQuote}
                 accessibilityLabel="Quote"
-                className="flex p-1.5 active:bg-gray-300/30 rounded-full"
+                className={clsx(
+                  'flex p-1.5 active:bg-gray-300/30 rounded-full',
+                  {
+                    'opacity-50': !post.canQuote,
+                  },
+                )}
               >
                 <MaterialCommunityIcons
                   name="format-quote-close"
@@ -66,7 +76,7 @@ export default function InteractionRibbon({ post }: { post: Post }) {
               </WigglyPressable>
             </Link>
           ) : null}
-          {canRewoot ? <RewootButton post={post} /> : null}
+          {showRewoot ? <RewootButton post={post} /> : null}
           {!createdByMe ? <LikeButton post={post} /> : null}
           <BookmarkButton post={post} />
           {!createdByMe ? (
