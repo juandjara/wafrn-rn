@@ -2,6 +2,30 @@ import { EmojiBase, PostEmojiRelation, UserEmojiRelation } from './emojis'
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
 
+export enum InteractionControl {
+  Anyone = 0,
+  Followers = 1,
+  Following = 2,
+  FollowersAndFollowing = 3,
+  FollowersAndMentioned = 4,
+  FollowingAndMentioned = 5,
+  FollowersFollowersAndMentioned = 6,
+  MentionedUsersOnly = 7,
+  NoOne = 8,
+  SameAsOp = 100, // this one is bsky exclusive. This only applies to REPLIES. Nothing else.
+}
+
+export type PostInteractionControl = {
+  replyControl?: InteractionControl
+  likeControl?: InteractionControl
+  reblogControl?: InteractionControl
+  quoteControl?: InteractionControl
+  canReply: boolean
+  canLike: boolean
+  canReblog: boolean
+  canQuote: boolean
+}
+
 export type Post = {
   id: string
   content_warning: string
@@ -9,7 +33,7 @@ export type Post = {
   markdownContent?: string
   remotePostId: string | null
   privacy: PrivacyLevel
-  featured: boolean
+  featured?: Date | null
   isRewoot?: boolean // TODO: defined only for local posts
   isDeleted?: boolean // TODO: (not sure about this one) defined only for local posts ??
   createdAt: string // ISO string
@@ -20,7 +44,8 @@ export type Post = {
   notes: number
   bskyCid?: string
   bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>
-}
+  displayUrl: string | null // for cases of bridging and such
+} & PostInteractionControl
 export type PostThread = Post & {
   ancestors: Post[]
   notes: number
@@ -32,6 +57,7 @@ export type PostUser = {
   id: string // uuid
   name: string
   remoteId: string | null // full url
+  pronouns?: string
 }
 
 export type PostEmojiContext = {

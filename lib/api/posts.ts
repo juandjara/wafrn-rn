@@ -353,6 +353,9 @@ export function useVoteMutation(pollId: number | null) {
 }
 
 export function getRemotePostUrl(post: Post) {
+  if (post.displayUrl) {
+    return post.displayUrl
+  }
   if (post.remotePostId) {
     return post.remotePostId
   }

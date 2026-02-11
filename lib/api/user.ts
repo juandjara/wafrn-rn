@@ -55,9 +55,13 @@ export type User = {
   postCount: number
   isBlueskyUser?: boolean
   isFediverseUser?: boolean
+  isAdmin?: boolean
   hideFollows?: boolean
   hideProfileNotLoggedIn?: boolean
   disableEmailNotifications?: boolean
+  userMigratedTo?: string
+  displayUrl?: string
+  alternateUrl?: string
 }
 export type UserEmoji = EmojiBase &
   Timestamps & {
@@ -268,7 +272,7 @@ export function useFollowed(handle?: string) {
 export function getRemoteInfo(user: User) {
   if (user.remoteId) {
     return {
-      href: user.remoteId,
+      href: user.displayUrl || user.remoteId,
       name: user.federatedHost?.displayName,
     }
   }
