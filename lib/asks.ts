@@ -10,6 +10,10 @@ export type UserAsksData = {
   asks: PostAsk[]
 }
 
+export type Ask = PostAsk & {
+  user: PostUser
+}
+
 export async function getAsks(
   token: string,
   signal: AbortSignal,
@@ -39,7 +43,7 @@ export async function getAsks(
     return {
       ...ask,
       user,
-    }
+    } satisfies Ask
   })
 }
 
