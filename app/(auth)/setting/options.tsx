@@ -116,7 +116,7 @@ export default function Options() {
     const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
     const longPressToReact = getPrivateOptionValue(
       opts,
-      PrivateOptionNames.LongPressToReact
+      PrivateOptionNames.LongPressToReact,
     )
 
     return {
@@ -137,7 +137,7 @@ export default function Options() {
       asks,
       enableReplaceAIWord,
       replaceAIWord,
-      longPressToReact
+      longPressToReact,
     }
   })
   const parsedMutedWords = form.mutedWords
