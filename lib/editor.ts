@@ -224,6 +224,7 @@ export function useEditorData() {
     }
 
     if (reply && params.type === 'edit') {
+      replyLabel = 'Editing:'
       const post = reply.posts[0]
       const tags = reply.tags
         .filter((t) => t.postId === post.id)
@@ -275,5 +276,5 @@ export function useEditorData() {
       isLoading,
       privacySelectDisabled,
     }
-  }, [me, env?.BASE_URL, asks, reply, settings, params, isLoading])
+  }, [me?.userId, env?.BASE_URL, asks, reply, settings, params, isLoading])
 }
