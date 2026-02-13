@@ -232,6 +232,7 @@ export default function EditorView() {
     toggleCW: () => {
       update('contentWarningOpen', !form.contentWarningOpen)
     },
+    setPostingAs: (userId: string) => update('postingAs', userId),
   }
 
   return (
@@ -248,8 +249,6 @@ export default function EditorView() {
         <EditorHeader
           privacy={form.privacy}
           setPrivacy={(p) => update('privacy', p)}
-          postingAs={form.postingAs}
-          setPostingAs={(userId) => update('postingAs', userId)}
           isLoading={createMutation.isPending}
           canPublish={canPublish()}
           onPublish={onPublish}
@@ -332,7 +331,7 @@ export default function EditorView() {
             </View>
           )}
         </ScrollView>
-        <EditorActions actions={actions} cwOpen={form.contentWarningOpen} />
+        <EditorActions actions={actions} form={form} />
       </KeyboardAvoidingView>
     </DashboardContextProvider>
   )

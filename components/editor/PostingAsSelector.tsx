@@ -42,7 +42,7 @@ export default function PostingAsSelector({
       >
         <Image
           source={formatSmallAvatar(selectedAccount?.avatar)}
-          style={{ width: 32, height: 32, borderRadius: 100 }}
+          style={{ width: 40, height: 40, borderRadius: 100 }}
         />
       </MenuTrigger>
       <MenuOptions

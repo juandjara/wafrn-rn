@@ -5,14 +5,12 @@ import { Link, useLocalSearchParams } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'
 import { EditorSearchParams } from '@/lib/editor'
-import PostingAsSelector from './PostingAsSelector'
+import { useCSSVariable } from 'uniwind'
 
 export default function EditorHeader({
   isLoading,
   privacy,
   setPrivacy,
-  postingAs,
-  setPostingAs,
   canPublish,
   onPublish,
   maxPrivacy,
@@ -21,14 +19,13 @@ export default function EditorHeader({
   isLoading: boolean
   privacy: PrivacyLevel
   setPrivacy: (privacy: PrivacyLevel) => void
-  postingAs: string
-  setPostingAs: (userId: string) => void
   canPublish: boolean
   onPublish: () => void
   maxPrivacy?: PrivacyLevel
   privacySelectDisabled?: boolean
 }) {
   const { type } = useLocalSearchParams<EditorSearchParams>()
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
@@ -48,10 +45,16 @@ export default function EditorHeader({
         />
       </View>
       <View className="grow"></View>
-      <PostingAsSelector
-        selectedUserId={postingAs}
-        setSelectedUserId={setPostingAs}
-      />
+      <Pressable
+        className="p-1.5 rounded-full active:bg-gray-300/30"
+        accessibilityLabel="Drafts"
+      >
+        <MaterialCommunityIcons
+          name="archive-edit-outline"
+          color={gray300}
+          size={24}
+        />
+      </Pressable>
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}

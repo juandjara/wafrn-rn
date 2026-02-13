@@ -10,8 +10,9 @@ import { launchImageLibraryAsync } from 'expo-image-picker'
 import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
-import { EditorImage } from '@/lib/editor'
+import { EditorFormState, EditorImage } from '@/lib/editor'
 import { useCSSVariable } from 'uniwind'
+import PostingAsSelector from './PostingAsSelector'
 
 export type EditorActionProps = {
   actions: {
@@ -19,11 +20,13 @@ export type EditorActionProps = {
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
     toggleCW: () => void
+    setPostingAs: (userId: string) => void
   }
-  cwOpen: boolean
+  form: EditorFormState
 }
 
-export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
+export default function EditorActions({ actions, form }: EditorActionProps) {
+  const { contentWarningOpen } = form
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
@@ -91,6 +94,10 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
+        <PostingAsSelector
+          selectedUserId={form.postingAs}
+          setSelectedUserId={actions.setPostingAs}
+        />
         <Pressable
           onPress={() => actions.insertCharacter('@')}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
@@ -110,7 +117,7 @@ export default function EditorActions({ actions, cwOpen }: EditorActionProps) {
           <Ionicons
             name="warning"
             size={24}
-            color={cwOpen ? yellow500 : 'white'}
+            color={contentWarningOpen ? yellow500 : 'white'}
           />
         </Pressable>
         <Pressable
