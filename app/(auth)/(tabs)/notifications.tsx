@@ -19,8 +19,14 @@ import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
-import { useRef } from 'react'
-import { Text, useWindowDimensions, View, FlatList } from 'react-native'
+import { useRef, useState } from 'react'
+import {
+  Text,
+  useWindowDimensions,
+  View,
+  FlatList,
+  Pressable,
+} from 'react-native'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
@@ -33,12 +39,17 @@ import {
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import { clsx } from 'clsx'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useCSSVariable } from 'uniwind'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
+  const gray300 = useCSSVariable('--color-gray-300') as string
   const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
+  const [showDetached, setShowDetached] = useState(false)
   const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
-    useNotifications()
+    useNotifications(showDetached)
+
   const notifications = data ? data.pages.flatMap((p) => p.feed) : []
   const context = combineDashboardContextPages(
     data?.pages.map((p) => p.context) ?? [],
@@ -57,9 +68,29 @@ export default function NotificationList() {
     })
   }
 
+  function toggleDetached() {
+    setShowDetached((s) => !s)
+  }
+
+  const cornerButton = (
+    <Pressable
+      onPress={toggleDetached}
+      className="p-1.5 rounded-full active:bg-gray-300/30"
+    >
+      <MaterialCommunityIcons
+        name={showDetached ? 'lock' : 'lock-off-outline'}
+        size={20}
+        color={gray300}
+      />
+    </Pressable>
+  )
+
   return (
     <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
-      <Header title="Notifications" />
+      <Header
+        title={showDetached ? 'Unauthorized notifications' : 'Notifications'}
+        right={cornerButton}
+      />
       <DashboardContextProvider data={context}>
         <FlatList
           ref={listRef}

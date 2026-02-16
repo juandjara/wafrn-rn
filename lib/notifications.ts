@@ -125,15 +125,17 @@ export async function getNotifications({
   page,
   date,
   signal,
+  showDetached,
 }: {
   token: string
   page: number
   date: number
   signal: AbortSignal
+  showDetached: boolean
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v3/notificationsScroll?page=${page}&date=${date || Date.now()}`,
+    `${env?.API_URL}/v3/notificationsScroll?page=${page}&date=${date || Date.now()}&detached=${showDetached}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

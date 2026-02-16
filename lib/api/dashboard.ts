@@ -235,18 +235,20 @@ export function useUserFeed(userId: string) {
   })
 }
 
-export function useNotifications() {
+// pass showDetached true to ONLY show unauthorized notifications
+export function useNotifications(showDetached: boolean) {
   const { data: settings } = useSettings()
   const { refetch: refetchBadge } = useNotificationBadges()
   const { token } = useAuth()
   return useInfiniteQuery({
-    queryKey: ['notifications'],
+    queryKey: ['notifications', showDetached],
     queryFn: async ({ pageParam, signal }) => {
       const list = await getNotifications({
         token: token!,
         page: pageParam.page,
         date: pageParam.date,
         signal,
+        showDetached,
       })
       const dashboardData = notificationPageToDashboardPage(list)
       const context = getDashboardContextPage(dashboardData)
@@ -261,6 +263,9 @@ export function useNotifications() {
       page: 0,
     },
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.feed.length === 0) {
+        return undefined
+      }
       return {
         date: lastPage.endDate ?? 0,
         page: lastPageParam.page + 1,
