@@ -12,7 +12,7 @@ import { router } from 'expo-router'
 import { useToasts } from '../toasts'
 import { useSettings } from './settings'
 import { processPost } from '../feeds'
-import { getDashboardContextPage } from './dashboard'
+import { dedupeById, getDashboardContextPage } from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
@@ -72,6 +72,11 @@ export function usePostDetail(id: string) {
       // NOTE: data from replies already has the full context for everything (users, tags, mentions, etc) including the necesary data to render the initial post
       // if we are fetching two things above it is because the original post is explicitly filtered in the backend results before returning it
       const context = getDashboardContextPage(repliesData)
+      const postContext = getDashboardContextPage(postData)
+      context.users = {
+        ...context.users,
+        ...postContext.users,
+      }
       await processPost(post, context, settings)
       return { post, replies, context }
     },
