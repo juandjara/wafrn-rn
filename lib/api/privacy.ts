@@ -4,6 +4,7 @@ export enum PrivacyLevel {
   INSTANCE_ONLY = 2,
   UNLISTED = 3,
   DIRECT_MESSAGE = 10,
+  DRAFT = 30,
 }
 
 export const PRIVACY_LABELS = {
@@ -12,6 +13,7 @@ export const PRIVACY_LABELS = {
   [PrivacyLevel.INSTANCE_ONLY]: 'Instance only',
   [PrivacyLevel.UNLISTED]: 'Unlisted',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Direct message',
+  [PrivacyLevel.DRAFT]: 'Draft',
 } as const
 
 export const PRIVACY_DESCRIPTIONS = {
@@ -21,6 +23,7 @@ export const PRIVACY_DESCRIPTIONS = {
   [PrivacyLevel.UNLISTED]:
     'Visible to everyone but does not appear in searches or public feeds',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Visible to mentioned users only',
+  [PrivacyLevel.DRAFT]: `Visible only to you, won't federate to other platforms or create any notifications`,
 }
 
 // names for MaterialCommunityIcons
@@ -30,6 +33,7 @@ export const PRIVACY_ICONS = {
   [PrivacyLevel.INSTANCE_ONLY]: 'server',
   [PrivacyLevel.UNLISTED]: 'lock',
   [PrivacyLevel.DIRECT_MESSAGE]: 'email',
+  [PrivacyLevel.DRAFT]: 'archive',
 } as const
 
 export const PRIVACY_ORDER = [
@@ -38,6 +42,7 @@ export const PRIVACY_ORDER = [
   PrivacyLevel.FOLLOWERS_ONLY,
   PrivacyLevel.INSTANCE_ONLY,
   PrivacyLevel.DIRECT_MESSAGE,
+  PrivacyLevel.DRAFT,
 ]
 
 /** returns true if a is less private than b */

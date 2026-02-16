@@ -32,29 +32,28 @@ export default function EditorHeader({
       <Link href="../" className="rounded-full p-1">
         <MaterialIcons name="close" color="white" size={20} />
       </Link>
-      <View
-        className={clsx('shrink', {
-          'pointer-events-none opacity-50': type === 'edit',
-        })}
-      >
+      <View className={clsx('shrink')}>
         <PrivacySelect
           privacy={privacy}
           setPrivacy={setPrivacy}
           maxPrivacy={maxPrivacy}
           disabled={privacySelectDisabled}
+          invertMaxPrivacy={type === 'edit'}
         />
       </View>
       <View className="grow"></View>
-      <Pressable
-        className="p-1.5 rounded-full active:bg-gray-300/30"
-        accessibilityLabel="Drafts"
-      >
-        <MaterialCommunityIcons
-          name="archive-edit-outline"
-          color={gray300}
-          size={24}
-        />
-      </Pressable>
+      <Link asChild href="/drafts">
+        <Pressable
+          className="p-1.5 rounded-full active:bg-gray-300/30"
+          accessibilityLabel="Drafts"
+        >
+          <MaterialCommunityIcons
+            name="archive-edit-outline"
+            color={gray300}
+            size={24}
+          />
+        </Pressable>
+      </Link>
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}

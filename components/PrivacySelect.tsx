@@ -26,6 +26,7 @@ type PrivacyModalProps = {
   options?: PrivacyLevel[]
   maxPrivacy?: PrivacyLevel
   disabled?: boolean
+  invertMaxPrivacy?: boolean
 }
 
 export default function PrivacySelect({
@@ -35,12 +36,16 @@ export default function PrivacySelect({
   options = PRIVACY_ORDER,
   maxPrivacy,
   disabled = false,
+  invertMaxPrivacy = false,
 }: PrivacyModalProps) {
   const sx = useSafeAreaPadding()
   const gray600 = useCSSVariable('--color-gray-600') as string
 
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
+    if (invertMaxPrivacy) {
+      return isLessPrivateThan(maxPrivacy, p)
+    }
     return isLessPrivateThan(p, maxPrivacy)
   }
 
