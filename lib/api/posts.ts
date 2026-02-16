@@ -12,7 +12,7 @@ import { router } from 'expo-router'
 import { useToasts } from '../toasts'
 import { useSettings } from './settings'
 import { processPost } from '../feeds'
-import { dedupeById, getDashboardContextPage } from './dashboard'
+import { getDashboardContextPage } from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
