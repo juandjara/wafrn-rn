@@ -61,6 +61,9 @@ type EnvironmenResponse = {
   maintenance: boolean
   maintenanceMessage: string
   webpushPublicKey: string
+  featureFlags?: {
+    drafts?: boolean
+  }
 }
 export type Environment = {
   API_URL: string
@@ -69,6 +72,7 @@ export type Environment = {
   BASE_URL: string
   CACHE_HOST: string
   SERVER_VAPID_KEY: string
+  ENABLE_DRAFTS?: boolean
 }
 
 export async function getInstanceEnvironment(instanceURL: string) {
@@ -99,6 +103,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const CACHE_URL = new URL(env.externalCacheurl, instanceURL).href
   const BASE_URL = new URL(env.baseUrl, instanceURL).origin
   const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
+  const ENABLE_DRAFTS = !!env.featureFlags?.drafts
 
   return {
     API_URL,
@@ -107,6 +112,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
     BASE_URL,
     CACHE_HOST,
     SERVER_VAPID_KEY,
+    ENABLE_DRAFTS,
   }
 }
 
