@@ -60,20 +60,6 @@ export default function EditorHeader({
         selectedUserId={postingAs}
         setSelectedUserId={setPostingAs}
       />
-      {/* {enableDrafts ? (
-        <Link asChild href="/drafts">
-          <Pressable
-            className="p-1.5 rounded-full active:bg-gray-300/30"
-            accessibilityLabel="Drafts"
-          >
-            <MaterialCommunityIcons
-              name="archive-edit-outline"
-              color={gray300}
-              size={24}
-            />
-          </Pressable>
-        </Link>
-      ) : null} */}
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}

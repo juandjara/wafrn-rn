@@ -94,10 +94,6 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
-        {/* <PostingAsSelector
-          selectedUserId={form.postingAs}
-          setSelectedUserId={actions.setPostingAs}
-        /> */}
         <Link asChild href="/drafts">
           <Pressable
             className="active:bg-white/50 bg-white/15 p-2 rounded-full"
