@@ -4,34 +4,41 @@ import { clsx } from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import PrivacySelect from '../PrivacySelect'
-import { EditorSearchParams } from '@/lib/editor'
-import { useCSSVariable } from 'uniwind'
+import { EditorFormState, EditorSearchParams } from '@/lib/editor'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import PostingAsSelector from './PostingAsSelector'
 
 export default function EditorHeader({
   isLoading,
-  privacy,
-  setPrivacy,
+  form,
+  setForm,
   canPublish,
   onPublish,
   maxPrivacy,
   privacySelectDisabled = false,
 }: {
   isLoading: boolean
-  privacy: PrivacyLevel
-  setPrivacy: (privacy: PrivacyLevel) => void
+  form: EditorFormState
+  setForm: (form: EditorFormState) => void
   canPublish: boolean
   onPublish: () => void
   maxPrivacy?: PrivacyLevel
   privacySelectDisabled?: boolean
 }) {
+  const { privacy, postingAs } = form
   const { type } = useLocalSearchParams<EditorSearchParams>()
-  const gray300 = useCSSVariable('--color-gray-300') as string
   const { env } = useAuth()
   const enableDrafts = env?.ENABLE_DRAFTS
   const privacyOptions = enableDrafts
     ? PRIVACY_ORDER
     : PRIVACY_ORDER.filter((p) => p !== PrivacyLevel.DRAFT)
+
+  function setPrivacy(p: PrivacyLevel) {
+    setForm({ ...form, privacy: p })
+  }
+  function setPostingAs(userId: string) {
+    setForm({ ...form, postingAs: userId })
+  }
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
@@ -49,7 +56,11 @@ export default function EditorHeader({
         />
       </View>
       <View className="grow"></View>
-      {enableDrafts ? (
+      <PostingAsSelector
+        selectedUserId={postingAs}
+        setSelectedUserId={setPostingAs}
+      />
+      {/* {enableDrafts ? (
         <Link asChild href="/drafts">
           <Pressable
             className="p-1.5 rounded-full active:bg-gray-300/30"
@@ -62,7 +73,7 @@ export default function EditorHeader({
             />
           </Pressable>
         </Link>
-      ) : null}
+      ) : null} */}
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}

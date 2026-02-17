@@ -247,9 +247,9 @@ export default function EditorView() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <EditorHeader
-          privacy={form.privacy}
-          setPrivacy={(p) => update('privacy', p)}
           isLoading={createMutation.isPending}
+          form={form}
+          setForm={setForm}
           canPublish={canPublish()}
           onPublish={onPublish}
           maxPrivacy={maxPrivacy}

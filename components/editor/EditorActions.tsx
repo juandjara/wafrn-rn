@@ -12,7 +12,7 @@ import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorFormState, EditorImage } from '@/lib/editor'
 import { useCSSVariable } from 'uniwind'
-import PostingAsSelector from './PostingAsSelector'
+import { Link } from 'expo-router'
 
 export type EditorActionProps = {
   actions: {
@@ -94,10 +94,22 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
-        <PostingAsSelector
+        {/* <PostingAsSelector
           selectedUserId={form.postingAs}
           setSelectedUserId={actions.setPostingAs}
-        />
+        /> */}
+        <Link asChild href="/drafts">
+          <Pressable
+            className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+            accessibilityLabel="Drafts"
+          >
+            <MaterialCommunityIcons
+              name="archive-edit-outline"
+              color="white"
+              size={24}
+            />
+          </Pressable>
+        </Link>
         <Pressable
           onPress={() => actions.insertCharacter('@')}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
