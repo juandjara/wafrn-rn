@@ -144,12 +144,23 @@ export default function InteractionMenu({ post }: { post: Post }) {
           />
         ) : null}
         {createdByMe ? (
-          <DeleteButton
-            post={post}
-            long
-            style={optionStyleBig(1)}
-            onPress={() => setMenuOpen(false)}
-          />
+          <>
+            <MenuItem
+              icon={'pencil'}
+              action={() => {
+                router.navigate(`/editor?type=edit&editId=${post.id}`)
+                setMenuOpen(false)
+              }}
+              label="Edit"
+              style={optionStyleBig(1)}
+            />
+            <DeleteButton
+              post={post}
+              long
+              style={optionStyleBig(1)}
+              onPress={() => setMenuOpen(false)}
+            />
+          </>
         ) : null}
         {/* --- SECONDARY --- */}
         {!createdByMe ? (
@@ -218,22 +229,11 @@ export default function InteractionMenu({ post }: { post: Post }) {
           style={optionStyleBig(1)}
         />
         {createdByMe ? (
-          <>
-            <SilenceButton
-              post={post}
-              style={optionStyleBig(1)}
-              onPress={() => setMenuOpen(false)}
-            />
-            <MenuItem
-              icon={'pencil'}
-              action={() => {
-                router.navigate(`/editor?type=edit&editId=${post.id}`)
-                setMenuOpen(false)
-              }}
-              label="Edit"
-              style={optionStyleBig(1)}
-            />
-          </>
+          <SilenceButton
+            post={post}
+            style={optionStyleBig(1)}
+            onPress={() => setMenuOpen(false)}
+          />
         ) : null}
       </BottomShhet>
     </>

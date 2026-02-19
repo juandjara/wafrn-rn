@@ -88,7 +88,23 @@ export default function InteractionRibbon({ post }: { post: Post }) {
               <MaterialIcons name="emoji-emotions" size={20} color="white" />
             </WigglyPressable>
           ) : null}
-          {createdByMe ? <DeleteButton post={post} /> : null}
+          {createdByMe ? (
+            <>
+              <Link href={`/editor?type=edit&editId=${post.id}`} asChild>
+                <WigglyPressable
+                  accessibilityLabel="Edit"
+                  className={interactionIconCn}
+                >
+                  <MaterialCommunityIcons
+                    name="pencil"
+                    size={20}
+                    color="white"
+                  />
+                </WigglyPressable>
+              </Link>
+              <DeleteButton post={post} />
+            </>
+          ) : null}
         </View>
       </View>
     </>
