@@ -13,6 +13,9 @@ import GifSearch from './GifSearch'
 import { EditorFormState, EditorImage } from '@/lib/editor'
 import { useCSSVariable } from 'uniwind'
 import { Link } from 'expo-router'
+import InteractionControlMenu, {
+  InteractionControlChange,
+} from './InteractionControlMenu'
 
 export type EditorActionProps = {
   actions: {
@@ -21,6 +24,7 @@ export type EditorActionProps = {
     addImages: (images: EditorImage[]) => void
     toggleCW: () => void
     setPostingAs: (userId: string) => void
+    onInteractionControlChange: (change: InteractionControlChange) => void
   }
   form: EditorFormState
 }
@@ -94,6 +98,7 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
+        <InteractionControlMenu onChange={actions.onInteractionControlChange} />
         <Link asChild href="/drafts">
           <Pressable
             className="active:bg-white/50 bg-white/15 p-2 rounded-full"
@@ -156,6 +161,7 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         >
           <MaterialCommunityIcons name="brush" color="white" size={24} />
         </Pressable>
+        <View className="w-4" />
       </ScrollView>
     </View>
   )

@@ -155,10 +155,12 @@ export default function EditorView() {
       })),
       mentionedUserIds,
       postingAccountId: form.postingAs,
+      canQuote: form.canQuote,
+      canReply: form.canReply,
     })
   }
 
-  const actions: EditorActionProps['actions'] = {
+  const actions = {
     insertCharacter: (character: string) => {
       const text = mentionApi.mentionState.plainText
       const textBeforeCursor = text.substring(0, selection.start)
@@ -233,7 +235,11 @@ export default function EditorView() {
       update('contentWarningOpen', !form.contentWarningOpen)
     },
     setPostingAs: (userId: string) => update('postingAs', userId),
-  }
+    onInteractionControlChange: ({ canQuote, interactionControl }) => {
+      update('canQuote', canQuote)
+      update('canReply', interactionControl)
+    },
+  } satisfies EditorActionProps['actions']
 
   return (
     <DashboardContextProvider data={context}>

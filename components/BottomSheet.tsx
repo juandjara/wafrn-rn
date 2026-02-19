@@ -1,4 +1,5 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { clsx } from 'clsx'
 import {
   Modal,
   Pressable,
@@ -25,9 +26,11 @@ import Animated, {
 function BottomSheetContent({
   children,
   onClose,
+  className,
 }: {
   children: React.ReactNode
   onClose: () => void
+  className?: string
 }) {
   const sx = useSafeAreaPadding()
   const { height } = useWindowDimensions()
@@ -72,7 +75,7 @@ function BottomSheetContent({
         <Animated.View
           exiting={SlideOutDown}
           style={[animStyle]}
-          className="bg-white rounded-t-xl"
+          className={clsx('bg-white rounded-t-xl', className)}
         >
           <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
           <View onLayout={onLayout}>
@@ -90,14 +93,16 @@ export default function BottomSheet({
   open,
   setOpen,
   children,
+  className,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   children: React.ReactNode
+  className?: string
 }) {
   return (
     <Modal transparent visible={open} onRequestClose={() => setOpen(false)}>
-      <BottomSheetContent onClose={() => setOpen(false)}>
+      <BottomSheetContent className={className} onClose={() => setOpen(false)}>
         {children}
       </BottomSheetContent>
     </Modal>

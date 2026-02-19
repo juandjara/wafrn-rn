@@ -15,7 +15,7 @@ import {
   combineDashboardContextPages,
 } from './api/dashboard'
 import { useAsks } from './asks'
-import { PostUser } from './api/posts.types'
+import { InteractionControl, PostUser } from './api/posts.types'
 
 export type EditorSearchParams =
   | {
@@ -43,6 +43,8 @@ export type EditorFormState = {
   privacy: PrivacyLevel
   medias: EditorImage[]
   postingAs: string // user id
+  canQuote: boolean
+  canReply: InteractionControl
 }
 
 export type EditorImage = {
@@ -122,6 +124,11 @@ export function useEditorData() {
       privacy: defaultPrivacy,
       medias: [] as EditorImage[],
       postingAs: me?.userId || '',
+      canQuote: true,
+      canReply:
+        params.type === 'reply'
+          ? InteractionControl.SameAsOp
+          : InteractionControl.Anyone,
     }
 
     if (params.type === 'ask') {

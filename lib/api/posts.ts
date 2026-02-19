@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON, statusError, StatusError } from '../http'
-import { DashboardData, Post, PostUser } from './posts.types'
+import {
+  DashboardData,
+  InteractionControl,
+  Post,
+  PostUser,
+} from './posts.types'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
 import { BSKY_URL } from './html'
@@ -144,6 +149,8 @@ export type CreatePostPayload = {
   medias: Required<Omit<EditorImage, 'fileName' | 'mimeType'>>[]
   mentionedUserIds: string[]
   postingAccountId: string
+  canQuote: boolean
+  canReply: InteractionControl
 }
 
 export async function wait(ms: number) {
@@ -182,6 +189,8 @@ export async function createPost(
       postToQuote: payload.quotedPostId,
       ask: payload.askId,
       mentionedUserIds: payload.mentionedUserIds,
+      canQuote: payload.canQuote,
+      canReply: payload.canReply,
     }),
   })
   await arbitraryWaitPostQueue()
@@ -234,6 +243,8 @@ export async function rewoot(
     privacy,
     medias: [],
     mentionedUserIds: [],
+    canQuote: true,
+    canReply: InteractionControl.Anyone,
   })
 }
 
