@@ -98,7 +98,10 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
-        <InteractionControlMenu onChange={actions.onInteractionControlChange} />
+        <InteractionControlMenu
+          initialCanReply={form.canReply}
+          onChange={actions.onInteractionControlChange}
+        />
         <Link asChild href="/drafts">
           <Pressable
             className="active:bg-white/50 bg-white/15 p-2 rounded-full"

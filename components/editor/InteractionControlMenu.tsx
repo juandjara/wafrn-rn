@@ -4,6 +4,9 @@ import BottomSheet from '../BottomSheet'
 import { useState } from 'react'
 import { useCSSVariable } from 'uniwind'
 import { InteractionControl } from '@/lib/api/posts.types'
+import { useLocalSearchParams } from 'expo-router'
+import { EditorSearchParams } from '@/lib/editor'
+import { clsx } from 'clsx'
 
 type InteractionOption =
   | 'anyone'
@@ -18,21 +21,25 @@ export type InteractionControlChange = {
 }
 
 export default function InteractionControlMenu({
+  initialCanReply,
   onChange,
 }: {
+  initialCanReply: InteractionControl
   onChange: (p: InteractionControlChange) => void
 }) {
+  const { type } = useLocalSearchParams<EditorSearchParams>()
   const [open, setOpen] = useState(false)
 
   const gray700 = useCSSVariable('--color-gray-700') as string
   const cyan900 = useCSSVariable('--color-cyan-900') as string
   const cyan600 = useCSSVariable('--color-cyan-600') as string
   const gray300 = useCSSVariable('--color-gray-300') as string
+  const disabled = type === 'edit' || type === 'reply'
 
   const [canQuote, setCanQuote] = useState(true)
   const [interactionOptions, setInteractionOptions] = useState<
     InteractionOption[]
-  >(['anyone'])
+  >(initialCanReply === InteractionControl.Anyone ? ['anyone'] : ['none'])
 
   const isInteractionControlModified =
     interactionOptions.join() !== 'anyone' || !canQuote
@@ -42,84 +49,85 @@ export default function InteractionControlMenu({
   }
 
   function toggleSelection(opt: 'followers' | 'following' | 'mentioned') {
-    setInteractionOptions((prev) => {
-      const fprev = prev.filter((o) => o !== 'anyone' && o !== 'none')
-      if (fprev.includes(opt)) {
-        if (fprev.length === 1) {
-          return ['anyone']
-        }
-        return fprev.filter((o) => o !== opt)
+    let newOptions = interactionOptions
+    const fprev = interactionOptions.filter(
+      (o) => o !== 'anyone' && o !== 'none',
+    )
+    if (fprev.includes(opt)) {
+      if (fprev.length === 1) {
+        newOptions = ['anyone']
+      } else {
+        newOptions = fprev.filter((o) => o !== opt)
       }
-      return fprev.concat(opt)
+    } else {
+      newOptions = fprev.concat(opt)
+    }
+    setInteractionOptions(newOptions)
+    onChange({
+      canQuote,
+      interactionControl: getInteractionControl(newOptions),
     })
-    handleChange()
   }
 
   function handleInteractionOption(opt: InteractionOption) {
     setInteractionOptions([opt])
-    handleChange()
+    onChange({
+      canQuote,
+      interactionControl: getInteractionControl([opt]),
+    })
   }
 
   function handleQuoteChange(flag: boolean) {
     setCanQuote(flag)
-    handleChange()
+    onChange({
+      canQuote: flag,
+      interactionControl: getInteractionControl(interactionOptions),
+    })
   }
 
-  function getInteractionControl() {
-    if (interactionOptions.includes('anyone')) {
+  function getInteractionControl(options: InteractionOption[]) {
+    if (options.includes('anyone')) {
       return InteractionControl.Anyone
     }
-    if (interactionOptions.includes('none')) {
+    if (options.includes('none')) {
       return InteractionControl.NoOne
     }
     if (
-      interactionOptions.includes('mentioned') &&
-      interactionOptions.includes('followers') &&
-      interactionOptions.includes('following')
+      options.includes('mentioned') &&
+      options.includes('followers') &&
+      options.includes('following')
     ) {
       return InteractionControl.FollowersFollowersAndMentioned
     }
-    if (
-      interactionOptions.includes('following') &&
-      interactionOptions.includes('mentioned')
-    ) {
+    if (options.includes('following') && options.includes('mentioned')) {
       return InteractionControl.FollowingAndMentioned
     }
-    if (
-      interactionOptions.includes('followers') &&
-      interactionOptions.includes('mentioned')
-    ) {
+    if (options.includes('followers') && options.includes('mentioned')) {
       return InteractionControl.FollowersAndMentioned
     }
-    if (
-      interactionOptions.includes('followers') &&
-      interactionOptions.includes('following')
-    ) {
+    if (options.includes('followers') && options.includes('following')) {
       return InteractionControl.FollowersAndFollowing
     }
-    if (interactionOptions.includes('followers')) {
+    if (options.includes('followers')) {
       return InteractionControl.Followers
     }
-    if (interactionOptions.includes('following')) {
+    if (options.includes('following')) {
       return InteractionControl.Following
     }
-    if (interactionOptions.includes('mentioned')) {
+    if (options.includes('mentioned')) {
       return InteractionControl.MentionedUsersOnly
     }
     // if no option is found in the array (weird, but ok) default to no interaction control (Avoid bugs > protect feature)
     return InteractionControl.Anyone
   }
 
-  function handleChange() {
-    const interactionControl = getInteractionControl()
-    onChange({ interactionControl, canQuote })
-  }
-
   return (
     <>
       <Pressable
         onPress={() => setOpen(!open)}
-        className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+        className={clsx('active:bg-white/50 bg-white/15 p-2 rounded-full', {
+          'opacity-50 pointer-events-none': disabled,
+        })}
       >
         <MaterialCommunityIcons
           name={

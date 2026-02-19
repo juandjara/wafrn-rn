@@ -269,6 +269,14 @@ export function useEditorData() {
       formState.privacy = post.privacy
       formState.contentWarning = post.content_warning || ''
       formState.contentWarningOpen = !!post.content_warning
+      if (post.replyControl) {
+        formState.canReply = post.replyControl
+      } else if (post.parentId) {
+        formState.canReply = InteractionControl.SameAsOp
+      }
+      if (post.quoteControl) {
+        formState.canQuote = false
+      }
     }
 
     return {
