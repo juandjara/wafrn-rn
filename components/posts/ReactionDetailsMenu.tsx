@@ -102,7 +102,7 @@ export default function ReactionDetailsMenu({
           )}
         >
           {typeof emoji === 'string' ? (
-            <Text>{emoji}</Text>
+            <Text className="text-gray-300">{emoji}</Text>
           ) : (
             <Image
               source={{

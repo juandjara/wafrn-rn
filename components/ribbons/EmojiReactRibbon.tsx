@@ -27,7 +27,7 @@ export default function EmojiReactRibbon({
       label="reacted to your post"
       icon={
         typeof reactionEmoji === 'string' ? (
-          <Text className="mx-1">{reactionEmoji}</Text>
+          <Text className="mx-1 text-gray-300">{reactionEmoji}</Text>
         ) : (
           <Image
             source={{ uri: formatCachedUrl(formatMediaUrl(reactionEmoji.url)) }}
