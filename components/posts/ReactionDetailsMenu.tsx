@@ -1,5 +1,10 @@
 import { PostUser } from '@/lib/api/posts.types'
-import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
+import {
+  formatUserUrl,
+  formatSmallAvatar,
+  formatCachedUrl,
+  formatMediaUrl,
+} from '@/lib/formatters'
 import { Link } from 'expo-router'
 import { useCallback, useRef } from 'react'
 import { FlatList, Pressable, Text, View } from 'react-native'
@@ -12,9 +17,12 @@ import {
 } from 'react-native-popup-menu'
 import { useCSSVariable } from 'uniwind'
 import { EmojiReaction } from '@/lib/api/emojis'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
-import clsx from 'clsx'
-import { getPrivateOptionValue, PrivateOptionNames, useSettings } from '@/lib/api/settings'
+import { clsx } from 'clsx'
+import {
+  getPrivateOptionValue,
+  PrivateOptionNames,
+  useSettings,
+} from '@/lib/api/settings'
 
 export default function ReactionDetailsMenu({
   users,
@@ -83,7 +91,10 @@ export default function ReactionDetailsMenu({
         },
       }}
     >
-      <MenuTrigger triggerOnLongPress={!longPressToReact} onAlternativeAction={onToggleReaction}>
+      <MenuTrigger
+        triggerOnLongPress={!longPressToReact}
+        onAlternativeAction={onToggleReaction}
+      >
         <View
           className={clsx(
             className,
