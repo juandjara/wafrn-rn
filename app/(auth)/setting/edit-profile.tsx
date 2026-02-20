@@ -41,6 +41,7 @@ import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from 'react-native-keyboard-controller'
+import { InteractionControl } from '@/lib/api/posts.types'
 
 type FormState = {
   name: string
@@ -333,6 +334,8 @@ export default function EditProfile() {
               contentWarningOpen: false,
               medias: [],
               privacy: PrivacyLevel.PUBLIC,
+              canQuote: true,
+              canReply: InteractionControl.Anyone,
             }}
             updateFormState={update as any}
             selection={selection}
