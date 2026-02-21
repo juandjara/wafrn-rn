@@ -117,18 +117,21 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         <Pressable
           onPress={() => actions.insertCharacter('@')}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Mention users"
         >
           <MaterialCommunityIcons name="at" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowEmojiPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Open emoji picker"
         >
           <MaterialIcons name="emoji-emotions" size={24} color="white" />
         </Pressable>
         <Pressable
           onPress={actions.toggleCW}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Toggle content warning"
         >
           <Ionicons
             name="warning"
@@ -139,18 +142,21 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         <Pressable
           onPress={pickImages}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Upload images or videos from your device"
         >
           <MaterialCommunityIcons name="image" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowGifPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Open GIF search"
         >
           <MaterialIcons name="gif" color="white" size={24} />
         </Pressable>
         <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Open color picker"
         >
           <MaterialCommunityIcons
             name="format-color-text"
@@ -161,6 +167,7 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         <Pressable
           onPress={() => setShowCanvas(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Open canvas"
         >
           <MaterialCommunityIcons name="brush" color="white" size={24} />
         </Pressable>

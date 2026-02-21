@@ -65,6 +65,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
       <TouchableOpacity
         onPress={() => setMenuOpen(true)}
         className="py-3 px-2 rounded-lg"
+        accessibilityLabel="Interaction menu"
       >
         <MaterialCommunityIcons
           size={20}
