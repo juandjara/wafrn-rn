@@ -87,10 +87,10 @@ export function getLastDate(posts: Timestamps[]) {
 }
 
 function groupTags(data: DashboardData) {
-  const tags = {} as Record<string, Set<string>>
+  const tags = {} as Record<string, string[]>
   for (const tag of data.tags) {
-    tags[tag.postId] = tags[tag.postId] ?? new Set()
-    tags[tag.postId].add(tag.tagName)
+    tags[tag.postId] = tags[tag.postId] ?? []
+    tags[tag.postId].push(tag.tagName)
   }
   return tags
 }
@@ -129,7 +129,7 @@ function combineEmojis(pages: DashboardContextData[]) {
 }
 
 function combineTags(pages: DashboardContextData[]) {
-  const tags = {} as Record<string, Set<string>>
+  const tags = {} as Record<string, string[]>
   for (const page of pages) {
     Object.assign(tags, page.tags)
   }

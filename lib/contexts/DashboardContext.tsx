@@ -9,7 +9,7 @@ export type DashboardContextData = Omit<
   emojiRelations: Omit<PostEmojiContext, 'emojis'>
   emojis: Record<string, EmojiBase | undefined>
   users: Record<string, PostUser | undefined>
-  tags: Record<string, Set<string> | undefined>
+  tags: Record<string, string[] | undefined>
 }
 
 const DashboardContext = createContext<DashboardContextData>({

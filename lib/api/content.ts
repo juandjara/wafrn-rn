@@ -497,7 +497,7 @@ function getAppliedMute(
     return getAppliedMute(rewootedPost, context, options)
   }
 
-  const tags = Array.from(context.tags[post.id] ?? []).map(
+  const tags = (context.tags[post.id] ?? []).map(
     (t) => `#${t.trim().toLocaleLowerCase()}`,
   )
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
@@ -585,7 +585,7 @@ export function getDerivedPostState(
   const user = context.users[post.userId]
   const userEmojis = user ? getUserEmojis(user, context) : []
   let postContent = processPostContent(post, context, options)
-  const tags = Array.from(context.tags[post.id] ?? [])
+  const tags = context.tags[post.id] ?? []
 
   // this processes the option "wafrn.disableNSFWCloak"
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)
