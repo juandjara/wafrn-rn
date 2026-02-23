@@ -1,15 +1,23 @@
 import { createContext, PropsWithChildren, useContext } from 'react'
-import { DashboardData, PostEmojiContext, PostUser } from '../api/posts.types'
+import {
+  DashboardData,
+  PostEmojiContext,
+  PostEmojiReaction,
+  PostUser,
+} from '../api/posts.types'
 import { EmojiBase } from '../api/emojis'
 
 export type DashboardContextData = Omit<
   DashboardData,
-  'posts' | 'users' | 'emojiRelations' | 'tags'
+  'posts' | 'users' | 'emojiRelations' | 'tags' | 'likes'
 > & {
-  emojiRelations: Omit<PostEmojiContext, 'emojis'>
-  emojis: Record<string, EmojiBase | undefined>
-  users: Record<string, PostUser | undefined>
-  tags: Record<string, string[] | undefined>
+  emojiRelations: Omit<PostEmojiContext, 'emojis' | 'postEmojiReactions'> & {
+    postEmojiReactions: Record<string, PostEmojiReaction[] | undefined> // key is post id
+  }
+  emojis: Record<string, EmojiBase | undefined> // key is emoji id
+  users: Record<string, PostUser | undefined> // key is user id
+  tags: Record<string, string[] | undefined> // key is post id, values are tags
+  likes: Record<string, string[] | undefined> // key is post id, values are user ids
 }
 
 const DashboardContext = createContext<DashboardContextData>({
@@ -18,10 +26,10 @@ const DashboardContext = createContext<DashboardContextData>({
   emojiRelations: {
     userEmojiRelation: [],
     postEmojiRelation: [],
-    postEmojiReactions: [],
+    postEmojiReactions: {},
   },
   tags: {},
-  likes: [],
+  likes: {},
   medias: [],
   mentions: [],
   polls: [],

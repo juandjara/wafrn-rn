@@ -133,20 +133,19 @@ export function getReactions(post: Post, context: DashboardContextData) {
   }
 
   const postReactions: Reaction[] = []
-  const contextReactions = context.emojiRelations.postEmojiReactions ?? []
+  const contextReactions =
+    context.emojiRelations.postEmojiReactions[post.id] ?? []
   for (const r of contextReactions) {
-    if (r.postId === post.id) {
-      const user = context.users[r.userId]
-      if (!user) {
-        continue
-      }
-      const emoji = r.emojiId ? context.emojis[r.emojiId]! : r.content
-      postReactions.push({
-        id: `${r.emojiId}-${r.userId}`,
-        user,
-        emoji,
-      })
+    const user = context.users[r.userId]
+    if (!user) {
+      continue
     }
+    const emoji = r.emojiId ? context.emojis[r.emojiId]! : r.content
+    postReactions.push({
+      id: `${r.emojiId}-${r.userId}`,
+      user,
+      emoji,
+    })
   }
   const grouped = new Map<string, EmojiGroup>()
   for (const r of postReactions) {
@@ -451,34 +450,26 @@ export function getAskData(post: Post, context: DashboardContextData) {
 export function groupPostReactions(post: Post, context: DashboardContextData) {
   const reactions = getReactions(post, context)
   const fullReactions = [] as EmojiGroup[]
-  const likeUsersSet = new Set<PostUser>()
-
-  for (const like of context.likes) {
-    if (like.postId === post.id) {
-      const user = context.users[like.userId]
-      if (user) {
-        likeUsersSet.add(user)
-      }
-    }
-  }
+  const likeUsers = (context.likes[post.id] ?? []).map(
+    (id) => context.users[id],
+  )
 
   for (const r of reactions) {
     if (isUnicodeHeart(r.emoji)) {
       for (const u of r.users) {
-        likeUsersSet.add(u)
+        likeUsers.push(u)
       }
     } else {
       fullReactions.push(r)
     }
   }
 
-  const likeUsers = Array.from(likeUsersSet)
   if (likeUsers.length) {
     return [
       {
         id: `${post.id}-likes`,
         emoji: '❤️' as EmojiReaction,
-        users: likeUsers,
+        users: likeUsers.filter((u) => !!u),
       },
     ].concat(fullReactions)
   }

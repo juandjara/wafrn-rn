@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
-import { DashboardData, PostUser } from './posts.types'
+import { DashboardData, PostEmojiReaction, PostUser } from './posts.types'
 import { useAuth } from '../contexts/AuthContext'
 import { DashboardContextData } from '../contexts/DashboardContext'
 import { Timestamps } from './types'
@@ -95,6 +95,25 @@ function groupTags(data: DashboardData) {
   return tags
 }
 
+function groupLikes(data: DashboardData) {
+  const likes = {} as Record<string, string[]>
+  for (const like of data.likes) {
+    likes[like.postId] = likes[like.postId] ?? []
+    likes[like.postId].push(like.userId)
+  }
+  return likes
+}
+
+function groupPostReactions(data: DashboardData) {
+  const source = data.emojiRelations.postEmojiReactions ?? []
+  const reactions = {} as Record<string, PostEmojiReaction[]>
+  for (const reaction of source) {
+    reactions[reaction.postId] = reactions[reaction.postId] ?? []
+    reactions[reaction.postId].push(reaction)
+  }
+  return reactions
+}
+
 export function getDashboardContextPage(data: DashboardData) {
   const context = {
     ...data,
@@ -105,43 +124,35 @@ export function getDashboardContextPage(data: DashboardData) {
     emojiRelations: {
       userEmojiRelation: data.emojiRelations.userEmojiRelation,
       postEmojiRelation: data.emojiRelations.postEmojiRelation,
-      postEmojiReactions: data.emojiRelations.postEmojiReactions,
+      postEmojiReactions: groupPostReactions(data),
     },
     tags: groupTags(data),
+    likes: groupLikes(data),
   } satisfies DashboardContextData
   return context
 }
 
-function combineUsers(pages: DashboardContextData[]) {
-  const users = {} as Record<string, PostUser>
+function combine<T>(
+  pages: DashboardContextData[],
+  key:
+    | keyof DashboardContextData
+    | ((data: DashboardContextData) => Record<string, T | undefined>),
+) {
+  const target = {} as Record<string, T>
   for (const page of pages) {
-    Object.assign(users, page.users)
+    const newData = typeof key === 'function' ? key(page) : page[key]
+    if (newData) {
+      Object.assign(target, newData)
+    }
   }
-  return users
-}
-
-function combineEmojis(pages: DashboardContextData[]) {
-  const emojis = {} as Record<string, EmojiBase>
-  for (const page of pages) {
-    Object.assign(emojis, page.emojis)
-  }
-  return emojis
-}
-
-function combineTags(pages: DashboardContextData[]) {
-  const tags = {} as Record<string, string[]>
-  for (const page of pages) {
-    Object.assign(tags, page.tags)
-  }
-  return tags
+  return target
 }
 
 // merge objects from many dashboard context pages into a single one
 export function combineDashboardContextPages(pages: DashboardContextData[]) {
-  const seen = new Set<string>()
   const combined: DashboardContextData = {
-    users: combineUsers(pages),
-    emojis: combineEmojis(pages),
+    users: combine<PostUser>(pages, 'users'),
+    emojis: combine<EmojiBase>(pages, 'emojis'),
     emojiRelations: {
       userEmojiRelation: pages.flatMap(
         (p) => p.emojiRelations.userEmojiRelation ?? [],
@@ -149,25 +160,13 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
       postEmojiRelation: pages.flatMap(
         (p) => p.emojiRelations.postEmojiRelation ?? [],
       ),
-      postEmojiReactions: pages
-        .flatMap((p) => p.emojiRelations.postEmojiReactions ?? [])
-        .filter((reaction) => {
-          const innerKey = reaction.emojiId || reaction.content
-          const key = `postEmojiReactions-${innerKey}-${reaction.postId}-${reaction.userId}`
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        }),
+      postEmojiReactions: combine<PostEmojiReaction[]>(
+        pages,
+        (p) => p.emojiRelations.postEmojiReactions,
+      ),
     },
-    tags: combineTags(pages),
-    likes: pages
-      .flatMap((p) => p.likes)
-      .filter((like) => {
-        const key = `likes-${like.postId}-${like.userId}`
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      }),
+    tags: combine<string[]>(pages, 'tags'),
+    likes: combine<string[]>(pages, 'likes'),
     medias: dedupeById(pages.flatMap((p) => p.medias)),
     mentions: pages.flatMap((p) => p.mentions),
     polls: pages.flatMap((p) => p.polls),

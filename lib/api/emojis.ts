@@ -144,8 +144,8 @@ export function useExtendedReactions(postId: string) {
     select: (mut) => !mut.state.variables,
   })
   const lastLikeMutation = likeMutationState[likeMutationState.length - 1]
-  const initialIsLiked = context.likes.some(
-    (like) => like.postId === postId && like.userId === me?.userId,
+  const initialIsLiked = (context.likes[postId] ?? []).includes(
+    me?.userId ?? '',
   )
   const isLiked = lastLikeMutation ?? initialIsLiked
 

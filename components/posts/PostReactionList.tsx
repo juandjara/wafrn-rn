@@ -32,8 +32,8 @@ export default function PostReactionList({ post }: { post: Post }) {
       typeof reaction.emoji === 'string' ? reaction.emoji : reaction.emoji.name
 
     if (isUnicodeHeart(emojiName)) {
-      const initialIsLiked = context.likes.some(
-        (like) => like.postId === post.id && like.userId === me?.userId,
+      const initialIsLiked = (context.likes[post.id] ?? []).includes(
+        me?.userId ?? '',
       )
       const isLiked = likeMutation.isSuccess
         ? !likeMutation.variables

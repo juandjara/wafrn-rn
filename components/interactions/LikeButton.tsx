@@ -26,8 +26,8 @@ export default function LikeButton({
   const red500 = useCSSVariable('--color-red-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
 
-  const initialIsLiked = context.likes.some(
-    (like) => like.postId === post.id && like.userId === me?.userId,
+  const initialIsLiked = (context.likes[post.id] ?? []).includes(
+    me?.userId ?? '',
   )
   const isLiked = likeMutation.isSuccess
     ? !likeMutation.variables
