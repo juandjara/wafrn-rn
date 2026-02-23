@@ -4,11 +4,12 @@ import { EmojiBase } from '../api/emojis'
 
 export type DashboardContextData = Omit<
   DashboardData,
-  'posts' | 'users' | 'emojiRelations'
+  'posts' | 'users' | 'emojiRelations' | 'tags'
 > & {
   emojiRelations: Omit<PostEmojiContext, 'emojis'>
   emojis: Record<string, EmojiBase | undefined>
   users: Record<string, PostUser | undefined>
+  tags: Record<string, Set<string> | undefined>
 }
 
 const DashboardContext = createContext<DashboardContextData>({
@@ -19,13 +20,13 @@ const DashboardContext = createContext<DashboardContextData>({
     postEmojiRelation: [],
     postEmojiReactions: [],
   },
+  tags: {},
   likes: [],
   medias: [],
   mentions: [],
   polls: [],
   quotedPosts: [],
   quotes: [],
-  tags: [],
   asks: [],
 })
 

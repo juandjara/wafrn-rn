@@ -49,7 +49,7 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
   }
 
   const hasMedias = context.medias.some((m) => m.postId === post.id)
-  const hasTags = context.tags.some((t) => t.postId === post.id)
+  const hasTags = !!context.tags[post.id]
   return !hasMedias && !hasTags
 }
 
@@ -497,9 +497,9 @@ function getAppliedMute(
     return getAppliedMute(rewootedPost, context, options)
   }
 
-  const tags = context.tags
-    .filter((t) => t.postId === post.id)
-    .map((t) => `#${t.tagName.trim().toLocaleLowerCase()}`)
+  const tags = Array.from(context.tags[post.id] ?? []).map(
+    (t) => `#${t.trim().toLocaleLowerCase()}`,
+  )
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
   const user = context.users[post.userId]
   const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
@@ -585,9 +585,7 @@ export function getDerivedPostState(
   const user = context.users[post.userId]
   const userEmojis = user ? getUserEmojis(user, context) : []
   let postContent = processPostContent(post, context, options)
-  const tags = context.tags
-    .filter((t) => t.postId === post.id)
-    .map((t) => t.tagName)
+  const tags = Array.from(context.tags[post.id] ?? [])
 
   // this processes the option "wafrn.disableNSFWCloak"
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)

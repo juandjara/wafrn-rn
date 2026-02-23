@@ -86,6 +86,15 @@ export function getLastDate(posts: Timestamps[]) {
   return Math.min(...dates) - 1
 }
 
+function groupTags(data: DashboardData) {
+  const tags = {} as Record<string, Set<string>>
+  for (const tag of data.tags) {
+    tags[tag.postId] = tags[tag.postId] ?? new Set()
+    tags[tag.postId].add(tag.tagName)
+  }
+  return tags
+}
+
 export function getDashboardContextPage(data: DashboardData) {
   const context = {
     ...data,
@@ -98,6 +107,7 @@ export function getDashboardContextPage(data: DashboardData) {
       postEmojiRelation: data.emojiRelations.postEmojiRelation,
       postEmojiReactions: data.emojiRelations.postEmojiReactions,
     },
+    tags: groupTags(data),
   } satisfies DashboardContextData
   return context
 }
@@ -118,9 +128,17 @@ function combineEmojis(pages: DashboardContextData[]) {
   return emojis
 }
 
+function combineTags(pages: DashboardContextData[]) {
+  const tags = {} as Record<string, Set<string>>
+  for (const page of pages) {
+    Object.assign(tags, page.tags)
+  }
+  return tags
+}
+
 // merge objects from many dashboard context pages into a single one
 export function combineDashboardContextPages(pages: DashboardContextData[]) {
-  // const seen = new Set<string>()
+  const seen = new Set<string>()
   const combined: DashboardContextData = {
     users: combineUsers(pages),
     emojis: combineEmojis(pages),
@@ -131,30 +149,30 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
       postEmojiRelation: pages.flatMap(
         (p) => p.emojiRelations.postEmojiRelation ?? [],
       ),
-      postEmojiReactions: pages.flatMap(
-        (p) => p.emojiRelations.postEmojiReactions ?? [],
-      ),
-      // .filter((reaction) => {
-      //   const innerKey = reaction.emojiId || reaction.content
-      //   const key = `postEmojiReactions-${innerKey}-${reaction.postId}-${reaction.userId}`
-      //   if (seen.has(key)) return false
-      //   seen.add(key)
-      //   return true
-      // }),
+      postEmojiReactions: pages
+        .flatMap((p) => p.emojiRelations.postEmojiReactions ?? [])
+        .filter((reaction) => {
+          const innerKey = reaction.emojiId || reaction.content
+          const key = `postEmojiReactions-${innerKey}-${reaction.postId}-${reaction.userId}`
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        }),
     },
-    likes: pages.flatMap((p) => p.likes),
-    // .filter((like) => {
-    //   const key = `likes-${like.postId}-${like.userId}`
-    //   if (seen.has(key)) return false
-    //   seen.add(key)
-    //   return true
-    // }),
+    tags: combineTags(pages),
+    likes: pages
+      .flatMap((p) => p.likes)
+      .filter((like) => {
+        const key = `likes-${like.postId}-${like.userId}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      }),
     medias: dedupeById(pages.flatMap((p) => p.medias)),
     mentions: pages.flatMap((p) => p.mentions),
     polls: pages.flatMap((p) => p.polls),
     quotedPosts: pages.flatMap((p) => p.quotedPosts),
     quotes: pages.flatMap((p) => p.quotes),
-    tags: pages.flatMap((p) => p.tags),
     asks: pages.flatMap((p) => p.asks ?? []),
     rewootIds: pages.flatMap((p) => p.rewootIds ?? []),
     bookmarks: pages.flatMap((p) => p.bookmarks ?? []),
