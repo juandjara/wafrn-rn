@@ -9,17 +9,17 @@ export default function AskRibbon({
   emojis,
   className,
 }: {
-  user: Omit<PostUser, 'remoteId'>
+  user?: Omit<PostUser, 'remoteId'>
   emojis?: EmojiBase[]
   className?: string
 }) {
   return (
     <BaseRibbon
       className={className}
-      avatar={formatSmallAvatar(user.avatar)}
-      name={user.name}
+      avatar={user ? formatSmallAvatar(user.avatar) : ''}
+      name={user?.name ?? 'Anon'}
       emojis={emojis ?? []}
-      link={user.url === '@anon' ? '' : `/user/${user.url}`}
+      link={user ? `/user/${user.url}` : ''}
       label="asked"
       icon={
         <MaterialCommunityIcons

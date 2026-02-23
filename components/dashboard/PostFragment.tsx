@@ -41,6 +41,7 @@ import {
   getDerivedPostState,
 } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
+import HtmlSimpleRenderer from '../HtmlSimpleRenderer'
 
 type PostFragmentProps = {
   post: Post
@@ -277,15 +278,10 @@ function PostFragmentInner({
             {cwOpen ? (
               <View id="content-inner" style={contentInnerStyle}>
                 {ask && (
-                  <View
-                    id="ask"
-                    className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10"
-                  >
-                    {ask.user && (
-                      <AskRibbon user={ask.user} emojis={ask.userEmojis} />
-                    )}
+                  <View className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
+                    <AskRibbon user={ask.user} emojis={ask.userEmojis} />
                     <Text className="text-white px-2 py-1 leading-relaxed">
-                      {ask.question}
+                      <HtmlSimpleRenderer html={ask.question} />
                     </Text>
                   </View>
                 )}

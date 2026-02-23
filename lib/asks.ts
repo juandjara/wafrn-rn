@@ -11,7 +11,7 @@ export type UserAsksData = {
 }
 
 export type Ask = PostAsk & {
-  user: PostUser
+  user?: PostUser
 }
 
 export async function getAsks(
@@ -31,15 +31,7 @@ export async function getAsks(
   )
   const data = json as UserAsksData
   return data.asks.map((ask) => {
-    const user =
-      data.users.find((user) => user.id === ask.userAsker) ||
-      ({
-        id: '',
-        name: '',
-        url: '@anon',
-        avatar: '',
-        remoteId: null,
-      } as PostUser)
+    const user = data.users.find((user) => user.id === ask.userAsker)
     return {
       ...ask,
       user,
