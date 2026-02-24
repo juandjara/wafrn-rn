@@ -125,6 +125,7 @@ export default function InteractionControlMenu({
     <>
       <Pressable
         onPress={() => setOpen(!open)}
+        accessibilityLabel={`Interaction Control: ${isInteractionControlModified ? 'Restricted' : 'Open'}`}
         className={clsx('active:bg-white/50 bg-white/15 p-2 rounded-full', {
           'opacity-50 pointer-events-none': disabled,
         })}
@@ -141,6 +142,13 @@ export default function InteractionControlMenu({
         <View className="px-4 py-3">
           <Text className="text-white mb-3">
             Who can interact with this post?
+          </Text>
+          <Text className="text-white mb-3 text-xs">
+            In this moment, only Bluesky, GoToSocial and Wafrn support this
+            feature. Unwanted replies will be hidden from threads and
+            notifications and only displayed in the &quot;Unauthorized
+            Notifications&quot; screen but they might be visible from other
+            places
           </Text>
           <View className="flex-row gap-3">
             <Pressable
