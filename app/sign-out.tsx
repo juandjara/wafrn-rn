@@ -18,7 +18,6 @@ export default function SignOut() {
   useEffect(() => {
     if (notificationCleanup.isIdle) {
       qc.clear()
-      setToken(null)
       notificationCleanup.mutate(
         { deleteExpo: true, deleteUP: true },
         {
@@ -26,6 +25,7 @@ export default function SignOut() {
             showToastError('Failed clearing notification data')
           },
           onSettled: () => {
+            setToken(null)
             router.replace('/sign-in')
           },
         },
