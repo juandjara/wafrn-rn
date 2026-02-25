@@ -212,8 +212,8 @@ export default function Register() {
                                 onBlur={onBlur}
                               />
                               <Text className="text-xs text-gray-200 my-1">
-                                This instance requires an invite code to join.
-                                You can get one by contacting the admins.
+                                This server requires an invite code to join. You
+                                can get one by contacting the admins.
                               </Text>
                               {errors.map((error) => (
                                 <Text

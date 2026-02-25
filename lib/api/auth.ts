@@ -90,7 +90,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
 
   if (env.maintenance) {
     throw new Error(
-      'Sorry, this instance is in maintenance mode. Check back soon',
+      'Sorry, this server is in maintenance mode. Check back soon',
     )
   }
 
