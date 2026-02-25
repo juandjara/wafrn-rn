@@ -52,7 +52,7 @@ export function useNotificationBadges() {
   const { token } = useAuth()
   const time = useMemo(() => Date.now(), [])
   return useQuery({
-    queryKey: ['notificationsBadge', token],
+    queryKey: ['notificationsBadge'],
     queryFn: ({ signal }) =>
       getNotificationBadges({ token: token!, time, signal }),
     enabled: !!token,

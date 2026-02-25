@@ -7,6 +7,7 @@ import {
 import { getJSON, statusError, StatusError } from '../http'
 import {
   DEFAULT_INSTANCE,
+  envAtom,
   getEnvironmentStatic,
   getInstanceEnvironment,
   parseToken,
@@ -24,6 +25,7 @@ import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { File } from 'expo-file-system'
 import { router } from 'expo-router'
+import { startTransition } from 'react'
 
 export type User = {
   createdAt: string // iso date
@@ -199,11 +201,15 @@ export function useAccounts() {
   async function selectAccount(index: number) {
     const newValues = accountsData?.[index] ?? null
     const { token, instance } = newValues ?? {}
-    await setToken(token)
-    await nextTick()
-    await setInstance(instance)
-    await qc.invalidateQueries({
-      predicate: ({ queryKey }) => queryKey[0] !== 'environment',
+    startTransition(async () => {
+      setInstance(instance)
+      setToken(token)
+      const env = await getInstanceEnvironment(instance)
+      envAtom.set(env)
+      await nextTick()
+      await qc.invalidateQueries({
+        predicate: ({ queryKey }) => queryKey[0] !== 'environment',
+      })
     })
   }
   return {
