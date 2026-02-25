@@ -27,6 +27,7 @@ import { router } from 'expo-router'
 import { useRegisterMutation } from '@/lib/api/user'
 import { useCSSVariable } from 'uniwind'
 import { useToasts } from '@/lib/toasts'
+import { useAuth } from '@/lib/contexts/AuthContext'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -59,6 +60,7 @@ export default function Register() {
   const mutation = useRegisterMutation()
   const { showToastSuccess } = useToasts()
   const gray600 = useCSSVariable('--color-gray-600') as string
+  const { env } = useAuth()
 
   function onSubmit(values: RegisterFormState) {
     mutation.mutate(
@@ -107,11 +109,6 @@ export default function Register() {
             Welcome! We hope you enjoy this place!
           </Text>
           <View className="mb-12">
-            <Text className="text-center text-gray-200 mb-6">
-              An administrator will review your profile before you can join.
-              This process can take a few hours.
-            </Text>
-
             <Pressable
               className="flex-row items-center gap-3 mb-2"
               onPress={() => router.back()}
@@ -126,315 +123,376 @@ export default function Register() {
               <Text className="text-gray-200">Back to login</Text>
             </Pressable>
 
-            <Form onSubmit={onSubmit}>
-              {({ isValid, submit }) => (
-                <View className="mb-6">
-                  <Field
-                    name="email"
-                    onBlurValidate={z
-                      .string()
-                      .email({ message: 'Invalid email address' })}
-                    children={({ value, setValue, onBlur, errors }) => (
-                      <View className="my-3">
-                        <TextInput
-                          autoCapitalize="none"
-                          inputMode="email"
-                          placeholder="Email"
-                          style={{ color: inputTextColor }}
-                          className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
-                          value={value}
-                          onChangeText={setValue}
-                          onBlur={onBlur}
-                        />
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="password"
-                    onBlurValidate={z
-                      .string()
-                      .min(8, 'Password must at least 8 characters long')}
-                    children={({ value, setValue, onBlur, errors }) => (
-                      <View className="my-3">
-                        <TextInput
-                          secureTextEntry
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          autoComplete="new-password"
-                          placeholder="Password"
-                          style={{ color: inputTextColor }}
-                          className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
-                          value={value}
-                          onChangeText={setValue}
-                          onBlur={onBlur}
-                        />
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="username"
-                    onChangeValidate={z
-                      .string()
-                      .regex(/^\w+$/, 'Invalid username')}
-                    children={({ value, setValue, onBlur, errors }) => (
-                      <View className="my-3">
-                        <TextInput
-                          autoCapitalize="none"
-                          placeholder="Your username"
-                          style={{ color: inputTextColor }}
-                          className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
-                          value={value}
-                          onChangeText={setValue}
-                          onBlur={onBlur}
-                        />
-                        <Text className="text-xs text-gray-200 my-1">
-                          Right now we do not allow special characters nor
-                          spaces
-                        </Text>
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="dob"
-                    onChangeValidate={z
-                      .string()
-                      .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Invalid date')
-                      .refine(
-                        (input) => {
-                          const date = parseDate(input)
-                          if (!date) {
-                            return false
-                          }
-
-                          return date.getTime() < minDate.getTime()
-                        },
-                        {
-                          message:
-                            'You must be at least 18 years old to use this app',
-                        },
-                      )}
-                    children={({ value, setValue, onBlur, errors }) => (
-                      <View className="my-3">
-                        <TextInput
-                          placeholder="Your birth date"
-                          style={{ color: inputTextColor }}
-                          className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
-                          value={value}
-                          onChangeText={setValue}
-                          onBlur={onBlur}
-                        />
-                        <Text className="text-xs text-gray-200 my-1">
-                          Format <Text className="font-bold">DD/MM/YYYY</Text> -
-                          Your birthday date is required for legal reasons in
-                          the EU and the USA. It is not shared with anyone.
-                        </Text>
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="bio"
-                    onBlurValidate={z.string()}
-                    children={({ value, setValue, onBlur, errors }) => (
-                      <View className="my-3">
-                        <TextInput
-                          multiline
-                          numberOfLines={3}
-                          placeholder="Describe yourself (optional)"
-                          style={{ color: inputTextColor }}
-                          className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
-                          value={value}
-                          onChangeText={setValue}
-                          onBlur={onBlur}
-                        />
-                        <Text className="text-xs text-gray-200 my-1">
-                          A short description of yourself so other people can
-                          know who you are
-                        </Text>
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="gender"
-                    onChangeValidate={z.string()}
-                    children={({ value, setValue, errors }) => (
-                      <View className="my-3">
-                        <Menu
-                          onSelect={setValue}
-                          renderer={renderers.SlideInMenu}
-                        >
-                          <MenuTrigger>
-                            <View className="flex-row items-center gap-1 rounded p-3 border border-gray-600">
-                              <Text className="text-white grow shrink">
-                                {value}
-                                {!value && (
-                                  <Text className="text-gray-400">
-                                    Select your gender (or {"don't"})
-                                  </Text>
-                                )}
-                              </Text>
-                              <MaterialCommunityIcons
-                                name="chevron-down"
-                                color={gray600}
-                                size={20}
-                              />
-                            </View>
-                          </MenuTrigger>
-                          <MenuOptions
-                            customStyles={{
-                              optionsContainer: {
-                                paddingBottom: sx.paddingBottom,
-                                maxHeight: '50%',
-                              },
-                            }}
-                          >
-                            <ScrollView>
-                              {GENDERS.map((gender) => (
-                                <MenuOption
-                                  key={gender}
-                                  onSelect={() => setValue(gender)}
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 16,
-                                    padding: 16,
-                                  }}
-                                >
-                                  <Text className="font-semibold shrink grow">
-                                    {gender}
-                                  </Text>
-                                  {value === gender && (
-                                    <Ionicons
-                                      className="shrink-0"
-                                      name="checkmark-sharp"
-                                      color="black"
-                                      size={24}
-                                    />
-                                  )}
-                                </MenuOption>
-                              ))}
-                            </ScrollView>
-                          </MenuOptions>
-                        </Menu>
-                        <Text className="text-xs text-gray-200 my-1">
-                          This actually does nothing at all
-                        </Text>
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
-                      </View>
-                    )}
-                  />
-                  <Field
-                    name="avatar"
-                    onChangeValidate={z.any()}
-                    children={({ value, setValue, errors }) => (
-                      <View className="items-start my-4">
-                        <Text className="text-white mb-2">
-                          Avatar{' '}
-                          <Text className="text-gray-200 text-xs">
-                            (optional)
-                          </Text>
-                        </Text>
-                        <Pressable
-                          className="relative bg-black rounded-lg border border-gray-500"
-                          onPress={async () => {
-                            const image = await pickEditableImage()
-                            if (image) {
-                              setValue(image)
-                            }
-                          }}
-                        >
-                          <Image
-                            style={{ width: 150, height: 150 }}
-                            source={value}
-                            className="rounded-lg"
-                          />
-                          {value && (
-                            <Pressable
-                              className="absolute z-20 right-0.5 top-0.5 bg-black/40 rounded-full p-1"
-                              onPress={() => setValue(null)}
-                            >
-                              <MaterialCommunityIcons
-                                name="close"
-                                size={20}
-                                color="white"
-                              />
-                            </Pressable>
-                          )}
-                          <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-2">
-                            <MaterialCommunityIcons
-                              name="camera"
-                              size={20}
-                              color="white"
+            {env?.REGISTER_TYPE === 'PRIVATE' ? (
+              <View>
+                <Text className="text-white text-xs my-3 mx-1">
+                  {env.BASE_URL} does not allow new registrations, but since
+                  WAFRN is decentralized you can join any other server and
+                  interact with people from here.
+                </Text>
+              </View>
+            ) : (
+              <>
+                <Form onSubmit={onSubmit}>
+                  {({ isValid, submit }) => (
+                    <View className="mb-6">
+                      <Field
+                        name="email"
+                        onBlurValidate={z
+                          .string()
+                          .email({ message: 'Invalid email address' })}
+                        children={({ value, setValue, onBlur, errors }) => (
+                          <View className="my-3">
+                            <TextInput
+                              autoCapitalize="none"
+                              inputMode="email"
+                              placeholder="Email"
+                              style={{ color: inputTextColor }}
+                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              value={value}
+                              onChangeText={setValue}
+                              onBlur={onBlur}
                             />
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
                           </View>
-                        </Pressable>
-                        {errors.map((error) => (
-                          <Text
-                            key={error}
-                            className="text-xs text-red-600 my-1"
-                          >
-                            {error}
-                          </Text>
-                        ))}
+                        )}
+                      />
+                      <Field
+                        name="password"
+                        onBlurValidate={z
+                          .string()
+                          .min(8, 'Password must at least 8 characters long')}
+                        children={({ value, setValue, onBlur, errors }) => (
+                          <View className="my-3">
+                            <TextInput
+                              secureTextEntry
+                              autoCapitalize="none"
+                              autoCorrect={false}
+                              autoComplete="new-password"
+                              placeholder="Password"
+                              style={{ color: inputTextColor }}
+                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              value={value}
+                              onChangeText={setValue}
+                              onBlur={onBlur}
+                            />
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      {env?.REGISTER_TYPE === 'INVITE' ? (
+                        <Field
+                          name="inviteCode"
+                          onBlurValidate={z.string()}
+                          children={({ value, setValue, onBlur, errors }) => (
+                            <View className="my-3">
+                              <TextInput
+                                autoCapitalize="none"
+                                placeholder="Invite code"
+                                style={{ color: inputTextColor }}
+                                className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                                value={value}
+                                onChangeText={setValue}
+                                onBlur={onBlur}
+                              />
+                              <Text className="text-xs text-gray-200 my-1">
+                                This instance requires an invite code to join.
+                                You can get one by contacting the admins.
+                              </Text>
+                              {errors.map((error) => (
+                                <Text
+                                  key={error}
+                                  className="text-xs text-red-600 my-1"
+                                >
+                                  {error}
+                                </Text>
+                              ))}
+                            </View>
+                          )}
+                        />
+                      ) : null}
+                      <Field
+                        name="username"
+                        onChangeValidate={z
+                          .string()
+                          .regex(/^\w+$/, 'Invalid username')}
+                        children={({ value, setValue, onBlur, errors }) => (
+                          <View className="my-3">
+                            <TextInput
+                              autoCapitalize="none"
+                              placeholder="Your username"
+                              style={{ color: inputTextColor }}
+                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              value={value}
+                              onChangeText={setValue}
+                              onBlur={onBlur}
+                            />
+                            <Text className="text-xs text-gray-200 my-1">
+                              Right now we do not allow special characters nor
+                              spaces
+                            </Text>
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      <Field
+                        name="dob"
+                        onChangeValidate={z
+                          .string()
+                          .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Invalid date')
+                          .refine(
+                            (input) => {
+                              const date = parseDate(input)
+                              if (!date) {
+                                return false
+                              }
+
+                              return date.getTime() < minDate.getTime()
+                            },
+                            {
+                              message:
+                                'You must be at least 18 years old to use this app',
+                            },
+                          )}
+                        children={({ value, setValue, onBlur, errors }) => (
+                          <View className="my-3">
+                            <TextInput
+                              placeholder="Your birth date"
+                              style={{ color: inputTextColor }}
+                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              value={value}
+                              onChangeText={setValue}
+                              onBlur={onBlur}
+                            />
+                            <Text className="text-xs text-gray-200 my-1">
+                              Format{' '}
+                              <Text className="font-bold">DD/MM/YYYY</Text> -
+                              Your birthday date is required for legal reasons
+                              in the EU and the USA. It is not shared with
+                              anyone.
+                            </Text>
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      <Field
+                        name="bio"
+                        onBlurValidate={z.string()}
+                        children={({ value, setValue, onBlur, errors }) => (
+                          <View className="my-3">
+                            <TextInput
+                              multiline
+                              numberOfLines={3}
+                              placeholder="Describe yourself (optional)"
+                              style={{ color: inputTextColor }}
+                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              value={value}
+                              onChangeText={setValue}
+                              onBlur={onBlur}
+                            />
+                            <Text className="text-xs text-gray-200 my-1">
+                              A short description of yourself so other people
+                              can know who you are
+                            </Text>
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      <Field
+                        name="gender"
+                        onChangeValidate={z.string()}
+                        children={({ value, setValue, errors }) => (
+                          <View className="my-3">
+                            <Menu
+                              onSelect={setValue}
+                              renderer={renderers.SlideInMenu}
+                            >
+                              <MenuTrigger>
+                                <View className="flex-row items-center gap-1 rounded p-3 border border-gray-600">
+                                  <Text className="text-white grow shrink">
+                                    {value}
+                                    {!value && (
+                                      <Text className="text-gray-400">
+                                        Select your gender (or {"don't"})
+                                      </Text>
+                                    )}
+                                  </Text>
+                                  <MaterialCommunityIcons
+                                    name="chevron-down"
+                                    color={gray600}
+                                    size={20}
+                                  />
+                                </View>
+                              </MenuTrigger>
+                              <MenuOptions
+                                customStyles={{
+                                  optionsContainer: {
+                                    paddingBottom: sx.paddingBottom,
+                                    maxHeight: '50%',
+                                  },
+                                }}
+                              >
+                                <ScrollView>
+                                  {GENDERS.map((gender) => (
+                                    <MenuOption
+                                      key={gender}
+                                      onSelect={() => setValue(gender)}
+                                      style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 16,
+                                        padding: 16,
+                                      }}
+                                    >
+                                      <Text className="font-semibold shrink grow">
+                                        {gender}
+                                      </Text>
+                                      {value === gender && (
+                                        <Ionicons
+                                          className="shrink-0"
+                                          name="checkmark-sharp"
+                                          color="black"
+                                          size={24}
+                                        />
+                                      )}
+                                    </MenuOption>
+                                  ))}
+                                </ScrollView>
+                              </MenuOptions>
+                            </Menu>
+                            <Text className="text-xs text-gray-200 my-1">
+                              This actually does nothing at all lol
+                            </Text>
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      <Field
+                        name="avatar"
+                        onChangeValidate={z.any()}
+                        children={({ value, setValue, errors }) => (
+                          <View className="items-start my-4">
+                            <Text className="text-white mb-2">
+                              Avatar{' '}
+                              <Text className="text-gray-200 text-xs">
+                                (optional)
+                              </Text>
+                            </Text>
+                            <Pressable
+                              className="relative bg-black rounded-lg border border-gray-500"
+                              onPress={async () => {
+                                const image = await pickEditableImage()
+                                if (image) {
+                                  setValue(image)
+                                }
+                              }}
+                            >
+                              <Image
+                                style={{ width: 150, height: 150 }}
+                                source={value}
+                                className="rounded-lg"
+                              />
+                              {value && (
+                                <Pressable
+                                  className="absolute z-20 right-0.5 top-0.5 bg-black/40 rounded-full p-1"
+                                  onPress={() => setValue(null)}
+                                >
+                                  <MaterialCommunityIcons
+                                    name="close"
+                                    size={20}
+                                    color="white"
+                                  />
+                                </Pressable>
+                              )}
+                              <View className="absolute z-20 right-1 bottom-1 bg-black/40 rounded-full p-2">
+                                <MaterialCommunityIcons
+                                  name="camera"
+                                  size={20}
+                                  color="white"
+                                />
+                              </View>
+                            </Pressable>
+                            {errors.map((error) => (
+                              <Text
+                                key={error}
+                                className="text-xs text-red-600 my-1"
+                              >
+                                {error}
+                              </Text>
+                            ))}
+                          </View>
+                        )}
+                      />
+                      <View className="my-3">
+                        <Button
+                          disabled={!isValid || mutation.isPending}
+                          title="Register"
+                          onPress={submit}
+                        />
                       </View>
-                    )}
-                  />
-                  <View className="my-3">
-                    <Button
-                      disabled={!isValid || mutation.isPending}
-                      title="Register"
-                      onPress={submit}
-                    />
-                  </View>
-                </View>
-              )}
-            </Form>
+                    </View>
+                  )}
+                </Form>
+                {env?.REGISTER_HAS_REVIEW ? (
+                  <>
+                    <Text className="text-white mb-2 text-xs">
+                      An administrator will review your profile before you can
+                      join. This process can take a few hours depending on
+                      timezones. Please be patient.
+                    </Text>
+                    <Text className="text-white text-xs mb-6">
+                      If you use a VPN when registering, you may not get
+                      approved unless you ask your admins directly. We are sorry
+                      but this has been one of the most effective measures to
+                      combat spam and bad behaviour for us. After you finish
+                      your registration you can keep using your VPN as you want
+                    </Text>
+                  </>
+                ) : null}
+              </>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
