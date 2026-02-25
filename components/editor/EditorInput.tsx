@@ -163,9 +163,9 @@ export default function EditorInput({
           />
           {parsedTags.length > 0 && (
             <View className="flex-row flex-wrap items-center gap-2 p-2">
-              {parsedTags.map((tag) => (
+              {parsedTags.map((tag, index) => (
                 <Text
-                  key={tag}
+                  key={index}
                   className="bg-gray-600 px-1 rounded-lg text-white"
                 >
                   #{tag}
