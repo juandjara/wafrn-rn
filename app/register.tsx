@@ -34,6 +34,7 @@ const bigW = require('@/assets/images/logo_w.png')
 type RegisterFormState = {
   email: string
   password: string
+  inviteCode?: string
   username: string
   bio: string
   dob: string
@@ -71,6 +72,7 @@ export default function Register() {
         birthDate: parseDate(values.dob)!.toISOString(),
         description: values.bio,
         url: values.username,
+        inviteCode: values.inviteCode,
       },
       {
         onSuccess: () => {

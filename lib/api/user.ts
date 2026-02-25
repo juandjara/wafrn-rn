@@ -583,6 +583,7 @@ export function useFollowAllMutation() {
 type RegisterPayload = {
   email: string
   password: string
+  inviteCode?: string
   url: string // username
   birthDate: string // date in ms
   avatar?: MediaUploadPayload
@@ -593,6 +594,9 @@ export async function register(token: string, payload: RegisterPayload) {
   const formData = new FormData()
   formData.append('email', payload.email)
   formData.append('password', payload.password)
+  if (payload.inviteCode) {
+    formData.append('inviteCode', payload.inviteCode)
+  }
   formData.append('url', payload.url)
   formData.append('birthDate', payload.birthDate)
   formData.append('description', payload.description)
