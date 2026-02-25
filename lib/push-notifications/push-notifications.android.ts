@@ -46,7 +46,7 @@ async function checkNotificationPermissions() {
 
 async function notificationSetup(token: string, serverVAPIDKey?: string) {
   if (!serverVAPIDKey) {
-    throw new Error('webpushPublicKey not found in instance environment')
+    throw new Error('webpushPublicKey not found in server environment')
   }
 
   const tokenData = parseToken(token)

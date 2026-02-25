@@ -71,7 +71,7 @@ export default function SearchIndex({
             </Text>
             <Text className="text-white text-sm mb-2">
               You can also use full URLs to fetch a specific post from a
-              specific instance or from bsky.app.
+              specific server or from bsky.app.
             </Text>
           </View>
         ) : null}

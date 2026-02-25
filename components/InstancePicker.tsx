@@ -258,7 +258,7 @@ function InstanceList({
       ))}
       {instances.length <= 1 && (
         <Text className="text-gray-300 text-center my-3">
-          No known instances found other than the default. You can still add one
+          No known servers found other than the default. You can still add one
           manually.
         </Text>
       )}
