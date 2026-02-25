@@ -5,7 +5,12 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
-import { DEFAULT_INSTANCE, getEnvironmentStatic, parseToken } from './auth'
+import {
+  DEFAULT_INSTANCE,
+  getEnvironmentStatic,
+  getInstanceEnvironment,
+  parseToken,
+} from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
 import { Timestamps } from './types'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
@@ -14,7 +19,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
-import { formatCachedUrl, formatUserUrl } from '../formatters'
+import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { File } from 'expo-file-system'
@@ -115,24 +120,32 @@ export function useUser(handle: string) {
 }
 
 // all of this just to get the fucking avatars and names for the account switcher
-function useAccountsQueries(data: SavedAccount[], currentInstance: string) {
+function useAccountsQueries(data: SavedAccount[], enabled: boolean) {
   return useQueries({
     queries: data.map((account) => ({
       queryKey: ['user', account.token, account.instance],
-      queryFn: ({ signal }) => {
+      queryFn: async ({ signal }) => {
         const user = parseToken(account.token)
         let handle = user?.url || ''
-        if (account.instance !== currentInstance && !handle.includes('@')) {
-          const host = new URL(account.instance).hostname
-          handle = `@${handle}@${host}`
-        }
         try {
-          return getUser(account.token, signal, handle)
+          const { instance, token } = account
+          const env = await getInstanceEnvironment(instance)
+          const url = `${env.API_URL}/user?id=${handle}`
+          const json = await getJSON(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            signal,
+          })
+          const user = json as User
+          user.avatar = formatMediaUrl(user.avatar, env.MEDIA_URL)
+          return user
         } catch (error) {
           console.error('Error fetching user:', error)
           return null
         }
       },
+      enabled,
     })),
   })
 }
@@ -157,10 +170,7 @@ export function useAccounts() {
     ? _accountsData
     : [{ token: token!, instance: instance ?? DEFAULT_INSTANCE }]
 
-  const accountQueries = useAccountsQueries(
-    accountsData,
-    instance ?? DEFAULT_INSTANCE,
-  )
+  const accountQueries = useAccountsQueries(accountsData, !accountsDataLoading)
   const loading =
     accountsDataLoading || accountQueries.some((query) => query.isLoading)
 

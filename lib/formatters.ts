@@ -17,7 +17,7 @@ export function formatCachedUrl(url: string) {
   return `${env?.CACHE_URL}${encodeURIComponent(url)}`
 }
 
-export function formatMediaUrl(url?: string) {
+export function formatMediaUrl(url?: string, mediaUrl?: string) {
   if (!url) {
     return ''
   }
@@ -29,7 +29,7 @@ export function formatMediaUrl(url?: string) {
   if (url.startsWith('?')) {
     return url
   }
-  return `${env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
+  return `${mediaUrl || env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
 export function formatSmallAvatar(link?: string) {
