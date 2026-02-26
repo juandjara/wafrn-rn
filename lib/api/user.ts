@@ -1,9 +1,4 @@
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
 import {
   DEFAULT_INSTANCE,
@@ -20,7 +15,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
-import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
+import { formatCachedUrl, formatUserUrl } from '../formatters'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { File } from 'expo-file-system'
@@ -121,36 +116,36 @@ export function useUser(handle: string) {
   })
 }
 
-// all of this just to get the fucking avatars and names for the account switcher
-function useAccountsQueries(data: SavedAccount[], enabled: boolean) {
-  return useQueries({
-    queries: data.map((account) => ({
-      queryKey: ['user', account.token, account.instance],
-      queryFn: async ({ signal }) => {
-        const user = parseToken(account.token)
-        let handle = user?.url || ''
-        try {
-          const { instance, token } = account
-          const env = await getInstanceEnvironment(instance)
-          const url = `${env.API_URL}/user?id=${handle}`
-          const json = await getJSON(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal,
-          })
-          const user = json as User
-          user.avatar = formatMediaUrl(user.avatar, env.MEDIA_URL)
-          return user
-        } catch (error) {
-          console.error('Error fetching user:', error)
-          return null
-        }
-      },
-      enabled,
-    })),
-  })
-}
+// // all of this just to get the fucking avatars and names for the account switcher
+// function useAccountsQueries(data: SavedAccount[], enabled: boolean) {
+//   return useQueries({
+//     queries: data.map((account) => ({
+//       queryKey: ['user', account.token, account.instance],
+//       queryFn: async ({ signal }) => {
+//         const user = parseToken(account.token)
+//         let handle = user?.url || ''
+//         try {
+//           const { instance, token } = account
+//           const env = await getInstanceEnvironment(instance)
+//           const url = `${env.API_URL}/user?id=${handle}`
+//           const json = await getJSON(url, {
+//             headers: {
+//               Authorization: `Bearer ${token}`,
+//             },
+//             signal,
+//           })
+//           const user = json as User
+//           user.avatar = formatMediaUrl(user.avatar, env.MEDIA_URL)
+//           return user
+//         } catch (error) {
+//           console.error('Error fetching user:', error)
+//           return null
+//         }
+//       },
+//       enabled,
+//     })),
+//   })
+// }
 
 const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 
@@ -161,9 +156,9 @@ export type SavedAccount = {
 
 export function useAccounts() {
   const qc = useQueryClient()
-  const { token, setToken, instance, setInstance } = useAuth()
+  const { env, token, setToken, instance, setInstance } = useAuth()
   const {
-    loading: accountsDataLoading,
+    loading,
     value: _accountsData,
     setValue: setAccountsData,
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
@@ -172,11 +167,25 @@ export function useAccounts() {
     ? _accountsData
     : [{ token: token!, instance: instance ?? DEFAULT_INSTANCE }]
 
-  const accountQueries = useAccountsQueries(accountsData, !accountsDataLoading)
-  const loading =
-    accountsDataLoading || accountQueries.some((query) => query.isLoading)
-
-  const accounts = accountQueries.map((query) => query.data).filter((a) => !!a)
+  const accounts = accountsData
+    .map((a) => {
+      const user = parseToken(a.token)
+      if (!user) {
+        return null
+      }
+      const baseUrl =
+        instance === a.instance ? `https://${env?.CACHE_HOST}` : a.instance
+      const avatar = `${baseUrl}/api/v2/cache/avatar/${user.userId}`
+      return {
+        id: user.userId,
+        name: user.url,
+        url: user.url,
+        avatar,
+        role: user.role,
+        email: user.email,
+      }
+    })
+    .filter((a) => !!a)
 
   function addAccount(token: string, instance: string) {
     setAccountsData([...(accountsData ?? []), { token, instance }])

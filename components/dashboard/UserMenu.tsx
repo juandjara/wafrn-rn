@@ -21,7 +21,6 @@ export default function UserMenu({ size }: { size?: number }) {
   const isAdmin = useAdminCheck()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // TODO: remove this, find a way in backend to get avatars only without fetching the full user
   const { accounts, loading, selectAccount } = useAccounts()
   const accountList = useMemo(() => {
     return accounts.map((a, index) => ({ ...a, index }))
