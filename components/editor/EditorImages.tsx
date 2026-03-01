@@ -126,8 +126,9 @@ export default function ImageList({
               />
             ) : (
               <Image
-                source={selectedImage}
-                style={{ width: size, height: size, resizeMode: 'contain' }}
+                source={selectedImage.uri}
+                contentFit="contain"
+                style={{ width: size, height: size }}
               />
             )}
           </View>
@@ -191,7 +192,8 @@ export default function ImageList({
               onPress={() => setOpenIndex(index)}
             >
               <Image
-                source={img}
+                source={img.uri}
+                contentFit="cover"
                 style={[imageCn, { width: 100, height: 100 }]}
               />
             </Pressable>
