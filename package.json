@@ -63,7 +63,7 @@
     "expo-splash-screen": "~31.0.12",
     "expo-status-bar": "~3.0.9",
     "expo-system-ui": "~6.0.9",
-    "expo-unified-push": "0.4.0",
+    "expo-unified-push": "file:../expo-unified-push",
     "expo-video": "^3.0.15",
     "houseform": "^1.13.0",
     "html-crush": "^4.2.0",
