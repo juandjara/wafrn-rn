@@ -11,7 +11,7 @@ import {
   formatUserUrl,
   formatCachedUrl,
   formatMediaUrl,
-  formatSmallAvatar,
+  formatAvatarUrl,
 } from '@/lib/formatters'
 import { EmojiBase } from '@/lib/api/emojis'
 
@@ -144,7 +144,7 @@ function MentionSuggestionItem({
       onPress={() => onSelect({ ...user, name: url })}
     >
       <Image
-        source={{ uri: formatSmallAvatar(user.avatar) }}
+        source={{ uri: formatAvatarUrl(user.id) }}
         style={{ resizeMode: 'contain', width: 48, height: 48 }}
       />
       <Text className="text-white text-lg font-medium shrink">{url}</Text>
