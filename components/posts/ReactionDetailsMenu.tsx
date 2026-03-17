@@ -1,7 +1,7 @@
 import { PostUser } from '@/lib/api/posts.types'
 import {
   formatUserUrl,
-  formatSmallAvatar,
+  formatAvatarUrl,
   formatCachedUrl,
   formatMediaUrl,
 } from '@/lib/formatters'
@@ -55,7 +55,7 @@ export default function ReactionDetailsMenu({
       >
         <Pressable className="my-1 flex-row items-center gap-2">
           <Image
-            source={{ uri: formatSmallAvatar(user.avatar) }}
+            source={{ uri: formatAvatarUrl(user.id) }}
             style={{ borderRadius: 8, width: 24, height: 24 }}
           />
           <Text className="text-gray-200 grow shrink-0">
