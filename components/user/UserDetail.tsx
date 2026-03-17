@@ -13,8 +13,8 @@ import {
 import { Pressable, Text, useWindowDimensions, View } from 'react-native'
 import {
   formatUserUrl,
-  formatCachedUrl,
-  formatMediaUrl,
+  formatHeaderUrl,
+  formatAvatarUrl,
 } from '@/lib/formatters'
 import { useMemo, useState } from 'react'
 import { isValidURL, replaceEmojis } from '@/lib/api/content'
@@ -98,7 +98,7 @@ export default function UserDetail({ user }: { user: User }) {
         <ZoomableImage
           id="header"
           key={user.headerImage}
-          src={formatCachedUrl(formatMediaUrl(user.headerImage))}
+          src={formatHeaderUrl(user.id)}
           width={width}
           height={height}
           className="border-b border-gray-500"
@@ -113,7 +113,7 @@ export default function UserDetail({ user }: { user: User }) {
       <View className="flex-row justify-center items-center my-4 rounded-md -mt-12">
         <ZoomableImage
           id="avatar"
-          src={formatCachedUrl(formatMediaUrl(user.avatar))}
+          src={formatAvatarUrl(user.id)}
           width={150}
           height={150}
           className="rounded-xl border border-gray-500 bg-black"
@@ -192,7 +192,7 @@ export default function UserDetail({ user }: { user: User }) {
                 <Link key={f.id} href={`/user/${f.url}`}>
                   <Image
                     key={f.id}
-                    source={formatCachedUrl(formatMediaUrl(f.avatar))}
+                    source={formatAvatarUrl(f.id)}
                     style={{ width: 32, height: 32, borderRadius: 100 }}
                   />
                 </Link>
