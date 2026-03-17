@@ -1,5 +1,5 @@
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatAvatarUrl, formatUserUrl } from '@/lib/formatters'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity, View, Pressable } from 'react-native'
 import { Image } from 'expo-image'
@@ -96,7 +96,7 @@ export default function UserMenu({ size }: { size?: number }) {
       >
         <View className="border border-gray-700 bg-gray-700 rounded-full">
           <Image
-            source={{ uri: formatSmallAvatar(me?.avatar) }}
+            source={{ uri: formatAvatarUrl(me?.id ?? '') }}
             style={{ width: size ?? 40, height: size ?? 40, borderRadius: 100 }}
           />
         </View>
@@ -119,7 +119,7 @@ export default function UserMenu({ size }: { size?: number }) {
           <View className="flex-row px-2 mb-2 gap-2 items-start">
             <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
-                source={{ uri: formatSmallAvatar(me?.avatar) }}
+                source={{ uri: formatAvatarUrl(me?.id ?? '') }}
                 style={{
                   width: 48,
                   height: 48,
@@ -147,7 +147,7 @@ export default function UserMenu({ size }: { size?: number }) {
                     activeOpacity={0.5}
                   >
                     <Image
-                      source={{ uri: formatSmallAvatar(acc?.avatar) }}
+                      source={{ uri: acc?.avatar }}
                       style={{ width: 44, height: 44, borderRadius: 8 }}
                     />
                     {acc?.avatar ? null : (

@@ -4,7 +4,7 @@ import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
 import TextWithEmojis from '@/components/TextWithEmojis'
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
@@ -87,7 +87,7 @@ export default function AccountSwitcherSettings() {
           >
             <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
-                source={{ uri: formatSmallAvatar(acc.avatar) }}
+                source={{ uri: acc.avatar }}
                 style={{
                   width: 48,
                   height: 48,

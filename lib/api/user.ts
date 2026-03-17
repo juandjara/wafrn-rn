@@ -15,7 +15,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_URL } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
-import { formatCachedUrl, formatUserUrl } from '../formatters'
+import { formatAvatarUrl, formatCachedUrl, formatUserUrl } from '../formatters'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { File } from 'expo-file-system'
@@ -156,7 +156,7 @@ export type SavedAccount = {
 
 export function useAccounts() {
   const qc = useQueryClient()
-  const { env, token, setToken, instance, setInstance } = useAuth()
+  const { token, setToken, instance, setInstance } = useAuth()
   const {
     loading,
     value: _accountsData,
@@ -173,9 +173,11 @@ export function useAccounts() {
       if (!user) {
         return null
       }
-      const baseUrl =
-        instance === a.instance ? `https://${env?.CACHE_HOST}` : a.instance
-      const avatar = `${baseUrl}/api/v2/cache/avatar/${user.userId}`
+      // avatars must be fetched from the home server because current server may not have them cached
+      const avatar = formatAvatarUrl(
+        user.userId,
+        instance === a.instance ? '' : a.instance,
+      )
       return {
         id: user.userId,
         name: user.url,

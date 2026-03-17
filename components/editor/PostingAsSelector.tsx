@@ -1,5 +1,5 @@
 import { useAccounts } from '@/lib/api/user'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatUserUrl } from '@/lib/formatters'
 import { optionStyleBig } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
@@ -41,7 +41,7 @@ export default function PostingAsSelector({
         }}
       >
         <Image
-          source={formatSmallAvatar(selectedAccount?.avatar)}
+          source={selectedAccount?.avatar}
           style={{ width: 40, height: 40, borderRadius: 100 }}
         />
       </MenuTrigger>
@@ -65,7 +65,7 @@ export default function PostingAsSelector({
           >
             <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
-                source={{ uri: formatSmallAvatar(acc.avatar) }}
+                source={{ uri: acc.avatar }}
                 style={{
                   width: 48,
                   height: 48,
