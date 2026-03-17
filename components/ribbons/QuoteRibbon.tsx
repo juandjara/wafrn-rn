@@ -1,6 +1,6 @@
 import { EmojiBase } from '@/lib/api/emojis'
 import BaseRibbon from './BaseRibbon'
-import { formatSmallAvatar } from '@/lib/formatters'
+import { formatAvatarUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { PostUser } from '@/lib/api/posts.types'
 
@@ -13,7 +13,7 @@ export default function QuoteRibbon({
 }) {
   return (
     <BaseRibbon
-      avatar={formatSmallAvatar(user.avatar)}
+      avatar={formatAvatarUrl(user.id)}
       name={user.name}
       emojis={emojis}
       link={`/user/${user.url}`}

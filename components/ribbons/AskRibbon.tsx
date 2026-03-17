@@ -1,6 +1,6 @@
 import { PostUser } from '@/lib/api/posts.types'
 import BaseRibbon from './BaseRibbon'
-import { formatSmallAvatar } from '@/lib/formatters'
+import { formatAvatarUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { EmojiBase } from '@/lib/api/emojis'
 
@@ -16,7 +16,7 @@ export default function AskRibbon({
   return (
     <BaseRibbon
       className={className}
-      avatar={user ? formatSmallAvatar(user.avatar) : ''}
+      avatar={user ? formatAvatarUrl(user.id) : ''}
       name={user?.name ?? 'Anon'}
       emojis={emojis ?? []}
       link={user ? `/user/${user.url}` : ''}

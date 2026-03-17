@@ -1,5 +1,5 @@
 import BaseRibbon from './BaseRibbon'
-import { formatSmallAvatar, formatUserUrl } from '@/lib/formatters'
+import { formatAvatarUrl, formatUserUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function ReportRibbon({
@@ -16,7 +16,7 @@ export default function ReportRibbon({
   return (
     <BaseRibbon
       className={className}
-      avatar={formatSmallAvatar(user.avatar)}
+      avatar={formatAvatarUrl(user.id)}
       name={formatUserUrl(user.url)}
       emojis={[]}
       link={`/user/${user.url}`}

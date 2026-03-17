@@ -1,7 +1,7 @@
 import { PostUser } from '@/lib/api/posts.types'
 import BaseRibbon from './BaseRibbon'
 import { EmojiBase } from '@/lib/api/emojis'
-import { formatSmallAvatar } from '@/lib/formatters'
+import { formatAvatarUrl } from '@/lib/formatters'
 import { FontAwesome6 } from '@expo/vector-icons'
 
 export default function BiteRibbon({
@@ -15,7 +15,7 @@ export default function BiteRibbon({
 }) {
   return (
     <BaseRibbon
-      avatar={formatSmallAvatar(user.avatar)}
+      avatar={formatAvatarUrl(user.id)}
       name={user.name}
       emojis={emojis}
       link={`/user/${user.url}`}

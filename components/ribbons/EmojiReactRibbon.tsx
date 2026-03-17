@@ -1,7 +1,7 @@
 import {
   formatCachedUrl,
   formatMediaUrl,
-  formatSmallAvatar,
+  formatAvatarUrl,
 } from '@/lib/formatters'
 import BaseRibbon from './BaseRibbon'
 import { PostUser } from '@/lib/api/posts.types'
@@ -20,7 +20,7 @@ export default function EmojiReactRibbon({
 }) {
   return (
     <BaseRibbon
-      avatar={formatSmallAvatar(user.avatar)}
+      avatar={formatAvatarUrl(user.id)}
       name={user.name}
       emojis={userEmojis}
       link={`/user/${user.url}`}
