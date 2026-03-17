@@ -70,3 +70,19 @@ export function formatTimeAgo(date: string) {
 
   return formatTimeAgo
 }
+
+export function formatHeaderUrl(userId: string, instanceUrl?: string) {
+  const env = getEnvironmentStatic()
+  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
+  return `${baseUrl}/api/v2/cache/header/${userId}`
+}
+export function formatAvatarUrl(userId: string, instanceUrl?: string) {
+  const env = getEnvironmentStatic()
+  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
+  return `${baseUrl}/api/v2/cache/avatar/${userId}`
+}
+export function formatMediaIdUrl(mediaId: string, instanceUrl?: string) {
+  const env = getEnvironmentStatic()
+  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
+  return `${baseUrl}/api/v2/cache/media/${mediaId}`
+}
