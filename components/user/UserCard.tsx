@@ -1,7 +1,7 @@
 import { AVATAR_SIZE } from '@/lib/api/content'
 import { PostUser } from '@/lib/api/posts.types'
 import { useSettings } from '@/lib/api/settings'
-import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
+import { formatUserUrl, formatAvatarUrl } from '@/lib/formatters'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -44,7 +44,7 @@ export default function UserCard({
       }}
     >
       <Image
-        source={{ uri: formatSmallAvatar(user.avatar) }}
+        source={{ uri: formatAvatarUrl(user.id) }}
         style={[cn, { width: AVATAR_SIZE, height: AVATAR_SIZE }]}
       />
       <View id="user-name-and-url" className="flex-1">

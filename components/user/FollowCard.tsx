@@ -1,7 +1,7 @@
 import { AVATAR_SIZE } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 import { Follow } from '@/lib/api/user'
-import { formatUserUrl, formatSmallAvatar } from '@/lib/formatters'
+import { formatUserUrl, formatAvatarUrl } from '@/lib/formatters'
 import { useFollowMutation } from '@/lib/interaction'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
@@ -24,7 +24,7 @@ export default function FollowCard({ follow }: { follow: Follow }) {
   return (
     <View className="flex-row gap-3 items-stretch">
       <Image
-        source={{ uri: formatSmallAvatar(follow.avatar) }}
+        source={{ uri: formatAvatarUrl(follow.id) }}
         style={[
           useResolveClassNames(
             'rounded-md border border-gray-500 shrink-0 my-3 mx-1',
