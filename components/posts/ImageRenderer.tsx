@@ -33,7 +33,6 @@ export default function ImageRenderer({
         cachePolicy={'memory-disk'}
         style={StyleSheet.absoluteFillObject}
         onLoad={(e) => {
-          console.log('image load', e)
           const { width, height } = e.source
           setImageDimensions({ width, height })
           setLoading(false)
