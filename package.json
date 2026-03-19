@@ -1,7 +1,7 @@
 {
   "name": "wafrn-rn",
   "main": "expo-router/entry",
-  "version": "1.2.0",
+  "version": "1.11.0",
   "repository": {
     "type": "git",
     "url": "git+https://codeberg.org/wafrn/wafrn-rn"
