@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { compare } from 'compare-versions'
 
 const RELEASES_URL =
+  process.env.RELEASES_URL ||
   'https://codeberg.org/api/v1/repos/REPO_OWNER/releases/latest'
 
 let repoOwner = 'wafrn/wafrn-rn'
