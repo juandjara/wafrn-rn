@@ -4,14 +4,6 @@ import { getEnvironmentStatic } from './api/auth'
 
 dayjs.extend(relativeTime)
 
-export function unfurlCacheUrl(url: string) {
-  const env = getEnvironmentStatic()
-  if (!url.startsWith(env!.CACHE_URL)) {
-    return url
-  }
-  return decodeURIComponent(url.replace(env!.CACHE_URL, ''))
-}
-
 export function formatCachedUrl(url: string) {
   const env = getEnvironmentStatic()
   return `${env?.CACHE_URL}${encodeURIComponent(url)}`
