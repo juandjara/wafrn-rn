@@ -45,6 +45,7 @@ function ImageWithLoader({
         </View>
       )}
       <Image
+        enforceEarlyResizing
         recyclingKey={id}
         source={src}
         cachePolicy={'memory-disk'}
