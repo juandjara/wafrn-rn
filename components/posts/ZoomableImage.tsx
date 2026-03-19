@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { extensionFromMimeType, useReloadImageMutation } from '@/lib/api/media'
+import { bumpImageRetries, useImageRetries } from '@/lib/imageRetriesStore'
 import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
@@ -49,7 +50,7 @@ export default function ZoomableImage({
   const [showOverlay, setShowOverlay] = useState(true)
   const downloadMutation = useDownloadToGalleryMutation()
   const reloadImageMutation = useReloadImageMutation()
-  const [retries, setRetries] = useState(0)
+  const retries = useImageRetries(src)
 
   function download() {
     let name = unfurlCacheUrl(src).split('/').pop() || ''
@@ -71,7 +72,7 @@ export default function ZoomableImage({
       { src },
       {
         onSuccess: () => {
-          setRetries((r) => r + 1)
+          bumpImageRetries(src)
         },
         onError: (err) => {
           console.error(err)
@@ -90,7 +91,7 @@ export default function ZoomableImage({
         <Toasts />
         <Gallery
           initialIndex={0}
-          data={[{ src, blurHash, retries }]}
+          data={[{ src, blurHash }]}
           renderItem={ImageRenderer}
           onSwipeToClose={() => setModalOpen(false)}
           onTap={() => setShowOverlay(!showOverlay)}
@@ -154,7 +155,10 @@ export default function ZoomableImage({
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <Image
           cachePolicy={'memory-disk'}
-          source={src}
+          source={{
+            uri: src,
+            cacheKey: retries > 0 ? `${src}-${retries}` : src,
+          }}
           placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}
           style={[

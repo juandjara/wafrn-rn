@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   Modal,
   Pressable,
@@ -21,6 +21,7 @@ import {
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import ImageRenderer from './ImageRenderer'
+import { bumpImageRetries } from '@/lib/imageRetriesStore'
 
 export default function ImageGallery({
   open,
@@ -39,7 +40,6 @@ export default function ImageGallery({
   const media = medias[_index]
   const downloadMutation = useDownloadToGalleryMutation()
   const reloadImageMutation = useReloadImageMutation()
-  const [retries, setRetries] = useState(() => medias.map(() => 0))
 
   function getImageMime(media: PostMedia) {
     const isExternalGIF = isTenorLink(media.url) || isGiphyLink(media.url)
@@ -67,30 +67,19 @@ export default function ImageGallery({
     })
   }
 
-  const data = useMemo(() => {
-    return medias.map((media, index) => ({
-      id: media.id,
-      src: getImageSrc(media),
-      blurHash: media.blurhash || '',
-      retries: retries[index],
-    }))
-  }, [medias, retries])
+  const data = medias.map((media) => ({
+    id: media.id,
+    src: getImageSrc(media),
+    blurHash: media.blurhash || '',
+  }))
 
   function reloadImage() {
+    const src = getImageSrc(media)
     reloadImageMutation.mutate(
-      {
-        src: getImageSrc(media),
-      },
+      { src },
       {
         onSuccess: () => {
-          setRetries((rs) =>
-            rs.map((r, index) => {
-              if (index === _index) {
-                return r + 1
-              }
-              return r
-            }),
-          )
+          bumpImageRetries(src)
         },
         onError: (err) => {
           console.error(err)
@@ -143,7 +132,7 @@ export default function ImageGallery({
         renderItem={ImageRenderer}
         onSwipeToClose={() => setOpen(false)}
         onTap={() => setShowOverlay(!showOverlay)}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.src}
       />
       {showOverlay && (
         <View

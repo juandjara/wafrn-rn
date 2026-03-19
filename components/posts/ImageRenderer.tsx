@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import type { RenderItemInfo } from 'react-native-awesome-gallery'
 import Loading from '../Loading'
+import { useImageRetries } from '@/lib/imageRetriesStore'
 
 type ImageRendererItem = {
   src: string
   blurHash: string | undefined
-  retries: number
 }
 
 export default function ImageRenderer({
@@ -15,6 +15,7 @@ export default function ImageRenderer({
   setImageDimensions,
 }: RenderItemInfo<ImageRendererItem>) {
   const [loading, setLoading] = useState(true)
+  const retries = useImageRetries(item.src)
   return (
     <View className="flex-1">
       {loading && (
@@ -25,7 +26,7 @@ export default function ImageRenderer({
       <Image
         source={{
           uri: item.src,
-          cacheKey: item.retries > 0 ? `${item.src}-${item.retries}` : item.src,
+          cacheKey: retries > 0 ? `${item.src}-${retries}` : item.src,
         }}
         placeholder={{ blurhash: item.blurHash }}
         placeholderContentFit="contain"

@@ -17,6 +17,7 @@ import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import { Image } from 'expo-image'
 import Loading from '../Loading'
+import { useImageRetries } from '@/lib/imageRetriesStore'
 
 function ImageWithLoader({
   id,
@@ -32,6 +33,7 @@ function ImageWithLoader({
   blurhash: string
 }) {
   const [loading, setLoading] = useState(true)
+  const retries = useImageRetries(src)
   const style = useMemo(
     () => StyleSheet.create({ img: { width, height } }).img,
     [width, height],
@@ -47,7 +49,10 @@ function ImageWithLoader({
       <Image
         enforceEarlyResizing
         recyclingKey={id}
-        source={src}
+        source={{
+          uri: src,
+          cacheKey: retries > 0 ? `${src}-${retries}` : src,
+        }}
         cachePolicy={'memory-disk'}
         contentFit="cover"
         placeholderContentFit="cover"
