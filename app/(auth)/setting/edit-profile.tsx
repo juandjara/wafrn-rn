@@ -9,7 +9,7 @@ import {
   Keyboard,
 } from 'react-native'
 import { Image } from 'expo-image'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatAvatarUrl, formatHeaderUrl } from '@/lib/formatters'
 import { TextInput } from 'react-native-gesture-handler'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -71,10 +71,10 @@ export default function EditProfile() {
     content: me?.description || '',
   })
   const [avatar, setAvatar] = useState<string | MediaUploadPayload>(
-    formatCachedUrl(formatMediaUrl(me?.avatar || '')),
+    formatAvatarUrl(me?.id || ''),
   )
   const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
-    formatCachedUrl(formatMediaUrl(me?.headerImage || '')),
+    formatHeaderUrl(me?.id || ''),
   )
 
   const savedCustomFields = useMemo(() => {

@@ -1,6 +1,6 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useBanList, useToggleBanUserMutation } from '@/lib/api/admin'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatAvatarUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
@@ -26,10 +26,7 @@ export default function BanList() {
         renderItem={({ item }) => (
           <View className="p-3 bg-gray-800 rounded-lg mb-3 m-2">
             <View className="flex-row items-center gap-3">
-              <Image
-                source={{ uri: formatCachedUrl(formatMediaUrl(item.avatar)) }}
-                style={cn}
-              />
+              <Image source={{ uri: formatAvatarUrl(item.id) }} style={cn} />
               <Text className="text-white grow shrink">{item.url}</Text>
             </View>
             <Pressable

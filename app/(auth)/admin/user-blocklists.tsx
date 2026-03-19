@@ -1,7 +1,7 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
 import BlockRibbon from '@/components/ribbons/BlockRibbon'
 import { useBlocklists } from '@/lib/api/admin'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatAvatarUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
@@ -37,9 +37,7 @@ export default function UserBlocklists() {
                     <Image
                       style={imageCn}
                       source={{
-                        uri: formatCachedUrl(
-                          formatMediaUrl(item.blockedUser.avatar),
-                        ),
+                        uri: formatAvatarUrl(item.blockedUser.id),
                       }}
                     />
                     <Text className="text-white grow shrink">
