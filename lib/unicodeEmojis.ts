@@ -4,10 +4,6 @@ import emojiData from 'emoji-datasource'
 type Emoji = (typeof emojiData)[number]
 
 export const Categories = {
-  // history: {
-  //   symbol: "🕘",
-  //   name: "Recently used"
-  // },
   emotion: {
     symbol: '😀',
     name: 'Smileys & Emotion',
@@ -69,6 +65,7 @@ export function getUnicodeEmojiGroups() {
       updatedAt: '',
       emojis: emojis.map((e) => ({
         emojiCollectionId: category.symbol,
+        uuid: e.short_name,
         id: e.short_name,
         name: e.short_name,
         content: charFromEmojiObject(e),

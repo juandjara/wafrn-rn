@@ -97,8 +97,10 @@ function EmojiSuggestionItem({
         <Text className="text-2xl">{emoji.content}</Text>
       ) : (
         <Image
-          source={{ uri: formatEmojiUrl(emoji.id) }}
-          style={{ resizeMode: 'contain', width: 32, height: 32 }}
+          contentFit="contain"
+          enforceEarlyResizing
+          source={{ uri: formatEmojiUrl(emoji.uuid) }}
+          style={{ width: 32, height: 32 }}
         />
       )}
       <Text className="text-white">{emoji.name}</Text>

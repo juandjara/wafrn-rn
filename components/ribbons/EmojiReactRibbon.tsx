@@ -26,10 +26,11 @@ export default function EmojiReactRibbon({
           <Text className="mx-1 text-gray-300">{reactionEmoji}</Text>
         ) : (
           <Image
-            source={{ uri: formatEmojiUrl(reactionEmoji.id) }}
+            contentFit="contain"
+            enforceEarlyResizing
+            source={{ uri: formatEmojiUrl(reactionEmoji.uuid) }}
             style={{
               marginInline: 4,
-              resizeMode: 'contain',
               width: 20,
               height: 20,
             }}

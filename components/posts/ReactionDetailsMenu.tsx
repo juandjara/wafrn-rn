@@ -71,10 +71,10 @@ export default function ReactionDetailsMenu({
       emoji
     ) : (
       <Image
-        source={{
-          uri: formatEmojiUrl(emoji.id),
-        }}
-        style={{ resizeMode: 'contain', width: 20, height: 20 }}
+        contentFit="contain"
+        enforceEarlyResizing
+        source={{ uri: formatEmojiUrl(emoji.uuid) }}
+        style={{ width: 20, height: 20 }}
       />
     )
 
@@ -104,10 +104,10 @@ export default function ReactionDetailsMenu({
             <Text className="text-gray-300">{emoji}</Text>
           ) : (
             <Image
-              source={{
-                uri: formatEmojiUrl(emoji.id),
-              }}
-              style={{ resizeMode: 'contain', width: 20, height: 20 }}
+              contentFit="contain"
+              enforceEarlyResizing
+              source={{ uri: formatEmojiUrl(emoji.uuid) }}
+              style={{ width: 20, height: 20 }}
             />
           )}
           <Text className="text-gray-200">{users.length}</Text>

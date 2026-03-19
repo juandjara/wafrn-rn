@@ -13,6 +13,7 @@ export type EmojiBase = {
   id: string
   name: string
   url: string
+  uuid: string
 }
 
 export type UserEmojiRelation = {

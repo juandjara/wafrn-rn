@@ -87,6 +87,7 @@ export default function EmojiPicker({
         emojis: [
           {
             id: emojiList[0]?.id || '',
+            uuid: emojiList[0]?.uuid || '',
             name: 'time',
             url: '',
             external: false,
@@ -108,12 +109,12 @@ export default function EmojiPicker({
         index,
         name: e.name,
         emoji: first.external
-          ? { content: e.id, name: e.name, url: null, id: first.id }
+          ? { content: e.id, name: e.name, url: null, uuid: first.uuid }
           : {
               content: first.content,
               name: first.name,
               url: first.url,
-              id: first.id,
+              uuid: first.uuid,
             },
       }
     })
@@ -186,10 +187,10 @@ export default function EmojiPicker({
               <Text className="text-lg">{item.emoji.content}</Text>
             ) : item.emoji.url ? (
               <Image
-                source={{
-                  uri: formatEmojiUrl(item.emoji.id),
-                }}
-                style={{ resizeMode: 'contain', width: 24, height: 24 }}
+                contentFit="contain"
+                enforceEarlyResizing
+                source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
+                style={{ width: 24, height: 24 }}
               />
             ) : null}
           </Pressable>
@@ -216,9 +217,9 @@ export default function EmojiPicker({
                 <Text className="text-2xl">{item.content}</Text>
               ) : (
                 <Image
-                  enforceEarlyResizing
                   contentFit="contain"
-                  source={{ uri: formatEmojiUrl(item.id) }}
+                  enforceEarlyResizing
+                  source={{ uri: formatEmojiUrl(item.uuid) }}
                   style={{ width: 32, height: 32 }}
                 />
               )}

@@ -47,7 +47,7 @@ export default function TextWithEmojis({
           <Image
             key={`${matchIndex}-${emoji.name}`}
             source={{
-              uri: formatEmojiUrl(emoji.id),
+              uri: formatEmojiUrl(emoji.uuid),
               width: 20,
               height: 20,
             }}
