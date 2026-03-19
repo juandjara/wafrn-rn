@@ -10,13 +10,12 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { extensionFromMimeType, useReloadImageMutation } from '@/lib/api/media'
+import { useReloadImageMutation } from '@/lib/api/media'
 import { bumpImageRetries, useImageRetries } from '@/lib/imageRetriesStore'
 import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
-import { unfurlCacheUrl } from '@/lib/formatters'
 import { useResolveClassNames } from 'uniwind'
 import ImageRenderer from './ImageRenderer'
 
@@ -53,17 +52,9 @@ export default function ZoomableImage({
   const retries = useImageRetries(src)
 
   function download() {
-    let name = unfurlCacheUrl(src).split('/').pop() || ''
-    if (name?.startsWith('?cid=')) {
-      name = name.replace('?cid=', '')
-      if (mimeType) {
-        const ext = extensionFromMimeType(mimeType)
-        name = `${name}.${ext}`
-      }
-    }
     downloadMutation.mutate({
       url: src,
-      filename: name,
+      mime: mimeType || '',
     })
   }
 

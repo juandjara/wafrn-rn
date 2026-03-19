@@ -8,16 +8,12 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { extensionFromMimeType, useReloadImageMutation } from '@/lib/api/media'
+import { useReloadImageMutation } from '@/lib/api/media'
 import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
-import {
-  formatCachedUrl,
-  formatMediaUrl,
-  unfurlCacheUrl,
-} from '@/lib/formatters'
+import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import ImageRenderer from './ImageRenderer'
@@ -52,18 +48,10 @@ export default function ImageGallery({
 
   function download(media: PostMedia) {
     const src = getImageSrc(media)
-    const mimeType = getImageMime(media)
-    let name = unfurlCacheUrl(src).split('/').pop() || ''
-    if (name?.startsWith('?cid=')) {
-      name = name.replace('?cid=', '')
-      if (mimeType) {
-        const ext = extensionFromMimeType(mimeType)
-        name = `${name}.${ext}`
-      }
-    }
+    const mimeType = getImageMime(media) || ''
     downloadMutation.mutate({
       url: src,
-      filename: name,
+      mime: mimeType,
     })
   }
 

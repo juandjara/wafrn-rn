@@ -7,6 +7,7 @@ import {
 import * as Device from 'expo-device'
 import { useToasts } from './toasts'
 import { useMutation } from '@tanstack/react-query'
+import { extensionFromMimeType } from './api/media'
 
 const CACHE_DIR = Paths.join(Paths.cache, 'WAFRN')
 
@@ -36,8 +37,14 @@ export async function saveFileToGallery(localUrl: string) {
   await saveToLibraryAsync(localUrl)
 }
 
-export async function downloadFile(url: string, name: string) {
+export async function downloadFile(url: string, mime: string) {
+  if (!mime) {
+    throw new Error('Cannot download without mime type')
+  }
+  console.log('download', { url, mime })
   ensureDownloadDirectory()
+  const basename = new URL(url).pathname.split('/').at(-1)!
+  const name = `${basename}.${extensionFromMimeType(mime)}`
   let path = new File(CACHE_DIR, name)
   if (path.exists) {
     path = new File(CACHE_DIR, `copy_${Date.now()}_${name}`)
@@ -48,15 +55,15 @@ export async function downloadFile(url: string, name: string) {
 
 export type DownloadToGalleryPayload = {
   url: string
-  filename: string
+  mime: string
 }
 
 export function useDownloadToGalleryMutation() {
   const { showToastSuccess, showToastError } = useToasts()
   return useMutation<void, Error, DownloadToGalleryPayload>({
     mutationKey: ['download-to-gallery'],
-    mutationFn: async ({ url, filename }) => {
-      const uri = await downloadFile(url, filename)
+    mutationFn: async ({ url, mime }) => {
+      const uri = await downloadFile(url, mime)
       await saveFileToGallery(uri)
     },
     onSuccess: () => showToastSuccess('Downloaded to gallery'),
