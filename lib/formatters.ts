@@ -32,7 +32,6 @@ export function formatMediaUrl(url?: string, mediaUrl?: string) {
   return `${mediaUrl || env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
-
 export function formatDate(date: string) {
   return new Date(date).toLocaleString()
 }
@@ -77,4 +76,9 @@ export function formatMediaIdUrl(mediaId: string, instanceUrl?: string) {
   const env = getEnvironmentStatic()
   const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
   return `${baseUrl}/api/v2/cache/media/${mediaId}`
+}
+export function formatEmojiUrl(emojiId: string, instanceUrl?: string) {
+  const env = getEnvironmentStatic()
+  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
+  return `${baseUrl}/api/v2/cache/emoji/${emojiId}`
 }

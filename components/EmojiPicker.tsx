@@ -12,7 +12,7 @@ import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
 import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import { Image } from 'expo-image'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatEmojiUrl } from '@/lib/formatters'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FlashList, FlashListRef } from '@shopify/flash-list'
 import useDebounce from '@/lib/useDebounce'
@@ -108,8 +108,13 @@ export default function EmojiPicker({
         index,
         name: e.name,
         emoji: first.external
-          ? { content: e.id, name: e.name, url: null }
-          : { content: first.content, name: first.name, url: first.url },
+          ? { content: e.id, name: e.name, url: null, id: first.id }
+          : {
+              content: first.content,
+              name: first.name,
+              url: first.url,
+              id: first.id,
+            },
       }
     })
   }, [settings, emojiList])
@@ -182,7 +187,7 @@ export default function EmojiPicker({
             ) : item.emoji.url ? (
               <Image
                 source={{
-                  uri: formatCachedUrl(formatMediaUrl(item.emoji.url)),
+                  uri: formatEmojiUrl(item.emoji.id),
                 }}
                 style={{ resizeMode: 'contain', width: 24, height: 24 }}
               />
@@ -213,7 +218,7 @@ export default function EmojiPicker({
                 <Image
                   enforceEarlyResizing
                   contentFit="contain"
-                  source={{ uri: formatCachedUrl(formatMediaUrl(item.url)) }}
+                  source={{ uri: formatEmojiUrl(item.id) }}
                   style={{ width: 32, height: 32 }}
                 />
               )}

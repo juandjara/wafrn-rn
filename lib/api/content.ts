@@ -1,6 +1,6 @@
 import { DashboardContextData } from '../contexts/DashboardContext'
 import { Post, PostThread, PostUser } from './posts.types'
-import { formatCachedUrl, formatMediaUrl } from '../formatters'
+import { formatEmojiUrl } from '../formatters'
 import { EmojiGroup, type EmojiBase, type EmojiReaction } from './emojis'
 import {
   isTriggerConfig,
@@ -55,7 +55,7 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
 
 export function replaceEmojis(text: string, emojis: EmojiBase[]) {
   for (const emoji of emojis) {
-    const url = formatCachedUrl(formatMediaUrl(emoji.url))
+    const url = formatEmojiUrl(emoji.id)
     text = text.replaceAll(
       emoji.name,
       `<img width="24" height="24" src="${url}" alt="${emoji.name.replaceAll(':', '')}" />`,

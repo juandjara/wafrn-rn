@@ -1,8 +1,4 @@
-import {
-  formatCachedUrl,
-  formatMediaUrl,
-  formatAvatarUrl,
-} from '@/lib/formatters'
+import { formatAvatarUrl, formatEmojiUrl } from '@/lib/formatters'
 import BaseRibbon from './BaseRibbon'
 import { PostUser } from '@/lib/api/posts.types'
 import { EmojiBase } from '@/lib/api/emojis'
@@ -30,7 +26,7 @@ export default function EmojiReactRibbon({
           <Text className="mx-1 text-gray-300">{reactionEmoji}</Text>
         ) : (
           <Image
-            source={{ uri: formatCachedUrl(formatMediaUrl(reactionEmoji.url)) }}
+            source={{ uri: formatEmojiUrl(reactionEmoji.id) }}
             style={{
               marginInline: 4,
               resizeMode: 'contain',

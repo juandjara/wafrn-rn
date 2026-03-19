@@ -1,6 +1,6 @@
 import { EmojiBase } from '@/lib/api/emojis'
 import { useSettings } from '@/lib/api/settings'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatEmojiUrl } from '@/lib/formatters'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
 import { Image, Text, TextProps } from 'react-native'
@@ -47,7 +47,7 @@ export default function TextWithEmojis({
           <Image
             key={`${matchIndex}-${emoji.name}`}
             source={{
-              uri: formatCachedUrl(formatMediaUrl(emoji.url)),
+              uri: formatEmojiUrl(emoji.id),
               width: 20,
               height: 20,
             }}

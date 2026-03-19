@@ -9,9 +9,8 @@ import { PostUser } from '@/lib/api/posts.types'
 import { Image } from 'expo-image'
 import {
   formatUserUrl,
-  formatCachedUrl,
-  formatMediaUrl,
   formatAvatarUrl,
+  formatEmojiUrl,
 } from '@/lib/formatters'
 import { EmojiBase } from '@/lib/api/emojis'
 
@@ -98,7 +97,7 @@ function EmojiSuggestionItem({
         <Text className="text-2xl">{emoji.content}</Text>
       ) : (
         <Image
-          source={{ uri: formatCachedUrl(formatMediaUrl(emoji.url)) }}
+          source={{ uri: formatEmojiUrl(emoji.id) }}
           style={{ resizeMode: 'contain', width: 32, height: 32 }}
         />
       )}

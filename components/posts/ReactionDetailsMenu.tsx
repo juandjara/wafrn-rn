@@ -2,8 +2,7 @@ import { PostUser } from '@/lib/api/posts.types'
 import {
   formatUserUrl,
   formatAvatarUrl,
-  formatCachedUrl,
-  formatMediaUrl,
+  formatEmojiUrl,
 } from '@/lib/formatters'
 import { Link } from 'expo-router'
 import { useCallback, useRef } from 'react'
@@ -73,7 +72,7 @@ export default function ReactionDetailsMenu({
     ) : (
       <Image
         source={{
-          uri: formatCachedUrl(formatMediaUrl(emoji.url)),
+          uri: formatEmojiUrl(emoji.id),
         }}
         style={{ resizeMode: 'contain', width: 20, height: 20 }}
       />
@@ -106,7 +105,7 @@ export default function ReactionDetailsMenu({
           ) : (
             <Image
               source={{
-                uri: formatCachedUrl(formatMediaUrl(emoji.url)),
+                uri: formatEmojiUrl(emoji.id),
               }}
               style={{ resizeMode: 'contain', width: 20, height: 20 }}
             />
