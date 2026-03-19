@@ -1,16 +1,24 @@
 import { useEffect } from 'react'
 import { useSettings } from './api/settings'
 import { useToasts } from './toasts'
-
-const EMPTY = [] as never[]
+import { useVersionCheck } from './api/versionCheck'
 
 export function useServiceAnnouncements() {
   const { data: settings } = useSettings()
+  const { data: versionCheck } = useVersionCheck()
   const { showToastError, showToastInfo } = useToasts()
 
-  const announcements = settings?.serviceAnnouncements ?? EMPTY
-
   useEffect(() => {
+    const announcements = settings?.serviceAnnouncements ?? []
+    if (versionCheck?.tagIsGreater) {
+      announcements.push({
+        code: 'generic',
+        level: 'info',
+        message:
+          'You are using an outdated version of the app. Please update to the latest one to clear the old bugs and say hi to new ones',
+      })
+    }
+
     for (const announcement of announcements) {
       const isError = announcement.level === 'error'
       // const link =
@@ -19,10 +27,18 @@ export function useServiceAnnouncements() {
       //     : null
       const msg = announcement.message
       if (isError) {
-        showToastError(msg, { duration: 10000 })
+        showToastError(msg, { id: announcement.code, duration: 10000 })
       } else {
-        showToastInfo(msg)
+        showToastInfo(msg, {
+          duration: 10000,
+          id: announcement.code,
+        })
       }
     }
-  }, [announcements, showToastError, showToastInfo])
+  }, [
+    versionCheck,
+    settings?.serviceAnnouncements,
+    showToastError,
+    showToastInfo,
+  ])
 }

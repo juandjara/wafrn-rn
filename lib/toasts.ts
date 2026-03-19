@@ -61,7 +61,7 @@ export function useToasts() {
       })
     }
 
-    function showToastInfo(message: string) {
+    function showToastInfo(message: string, options?: ToastOptions) {
       toast(message, {
         styles: {
           text: {
@@ -72,6 +72,7 @@ export function useToasts() {
             borderRadius: 8,
           },
         },
+        ...options,
       })
     }
 
