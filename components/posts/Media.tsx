@@ -1,5 +1,5 @@
 import { PostMedia } from '@/lib/api/posts.types'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatMediaIdUrl } from '@/lib/formatters'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import {
   getAspectRatio,
@@ -76,7 +76,7 @@ export default function Media({
   onPress: () => void
 }) {
   const [showAlt, setShowAlt] = useState(false)
-  const src = formatCachedUrl(formatMediaUrl(media.url))
+  const src = formatMediaIdUrl(media.id)
   const isExternalGIF = isTenorLink(media.url) || isGiphyLink(media.url)
   const aspectRatio = isExternalGIF
     ? getGIFAspectRatio(media)

@@ -13,7 +13,7 @@ import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
-import { formatCachedUrl, formatMediaUrl } from '@/lib/formatters'
+import { formatMediaIdUrl } from '@/lib/formatters'
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import ImageRenderer from './ImageRenderer'
@@ -43,7 +43,7 @@ export default function ImageGallery({
   }
 
   function getImageSrc(media: PostMedia) {
-    return formatCachedUrl(formatMediaUrl(media.url))
+    return formatMediaIdUrl(media.id)
   }
 
   function download(media: PostMedia) {

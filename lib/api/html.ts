@@ -1,5 +1,5 @@
 import { Platform } from 'react-native'
-import { formatCachedUrl, formatMediaUrl, formatUserUrl } from '../formatters'
+import { formatMediaIdUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
 import { getEnvironmentStatic } from './auth'
 import { crush } from 'html-crush'
@@ -146,7 +146,7 @@ export function replaceInlineImages(
 ) {
   medias.forEach((media, index) => {
     const ratio = (media.height || 1) / (media.width || 1)
-    const src = formatCachedUrl(formatMediaUrl(media.url))
+    const src = formatMediaIdUrl(media.id)
     const width = contentWidth - 12
     const height = width * ratio
     html = html.replace(
