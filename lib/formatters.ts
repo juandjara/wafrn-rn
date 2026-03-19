@@ -32,14 +32,6 @@ export function formatMediaUrl(url?: string, mediaUrl?: string) {
   return `${mediaUrl || env?.MEDIA_URL}/${url.startsWith('/') ? url.slice(1) : url}`
 }
 
-export function formatSmallAvatar(link?: string) {
-  if (!link) {
-    return ''
-  }
-  const url = formatCachedUrl(formatMediaUrl(link))
-  const small = `${url}&avatar=true`
-  return small
-}
 
 export function formatDate(date: string) {
   return new Date(date).toLocaleString()
