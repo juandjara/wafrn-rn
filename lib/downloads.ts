@@ -8,6 +8,7 @@ import * as Device from 'expo-device'
 import { useToasts } from './toasts'
 import { useMutation } from '@tanstack/react-query'
 import { extensionFromMimeType } from './api/media'
+import { getUserAgent, handleFetchError } from './http'
 
 const CACHE_DIR = Paths.join(Paths.cache, 'WAFRN')
 
@@ -37,11 +38,27 @@ export async function saveFileToGallery(localUrl: string) {
   await saveToLibraryAsync(localUrl)
 }
 
+async function fetchMimeType(url: string) {
+  const res = await fetch(url, {
+    method: 'HEAD',
+    headers: {
+      'User-Agent': getUserAgent(),
+    },
+  })
+  if (!res.ok) {
+    await handleFetchError(url, res)
+  }
+  const mime = res.headers.get('Content-Type')
+  if (!mime) {
+    throw new Error('No Content-Type for this image URL')
+  }
+  return mime
+}
+
 export async function downloadFile(url: string, mime: string) {
   if (!mime) {
-    throw new Error('Cannot download without mime type')
+    mime = await fetchMimeType(url)
   }
-  console.log('download', { url, mime })
   ensureDownloadDirectory()
   const basename = new URL(url).pathname.split('/').at(-1)!
   const name = `${basename}.${extensionFromMimeType(mime)}`
