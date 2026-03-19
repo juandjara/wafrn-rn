@@ -1,17 +1,15 @@
 import { useMemo, useState } from 'react'
-import { Image } from 'expo-image'
 import {
   Modal,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
   ActivityIndicator,
 } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { extensionFromMimeType } from '@/lib/api/media'
-import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { extensionFromMimeType, useReloadImageMutation } from '@/lib/api/media'
+import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
@@ -20,37 +18,9 @@ import {
   formatMediaUrl,
   unfurlCacheUrl,
 } from '@/lib/formatters'
-import Loading from '../Loading'
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
-
-const ImageRenderer = ({
-  item,
-  setImageDimensions,
-}: RenderItemInfo<{ src: string; blurHash: string | undefined }>) => {
-  const [loading, setLoading] = useState(true)
-  return (
-    <View className="flex-1">
-      {loading && (
-        <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
-          <Loading />
-        </View>
-      )}
-      <Image
-        source={{ uri: item.src }}
-        placeholder={{ blurhash: item.blurHash }}
-        placeholderContentFit="contain"
-        contentFit="contain"
-        style={StyleSheet.absoluteFillObject}
-        onLoad={(e) => {
-          const { width, height } = e.source
-          setImageDimensions({ width, height })
-          setLoading(false)
-        }}
-      />
-    </View>
-  )
-}
+import ImageRenderer from './ImageRenderer'
 
 export default function ImageGallery({
   open,
@@ -68,6 +38,8 @@ export default function ImageGallery({
   const [_index, setIndex] = useState(index)
   const media = medias[_index]
   const downloadMutation = useDownloadToGalleryMutation()
+  const reloadImageMutation = useReloadImageMutation()
+  const [retries, setRetries] = useState(() => medias.map(() => 0))
 
   function getImageMime(media: PostMedia) {
     const isExternalGIF = isTenorLink(media.url) || isGiphyLink(media.url)
@@ -96,12 +68,36 @@ export default function ImageGallery({
   }
 
   const data = useMemo(() => {
-    return medias.map((media) => ({
+    return medias.map((media, index) => ({
       id: media.id,
       src: getImageSrc(media),
       blurHash: media.blurhash || '',
+      retries: retries[index],
     }))
-  }, [medias])
+  }, [medias, retries])
+
+  function reloadImage() {
+    reloadImageMutation.mutate(
+      {
+        src: getImageSrc(media),
+      },
+      {
+        onSuccess: () => {
+          setRetries((rs) =>
+            rs.map((r, index) => {
+              if (index === _index) {
+                return r + 1
+              }
+              return r
+            }),
+          )
+        },
+        onError: (err) => {
+          console.error(err)
+        },
+      },
+    )
+  }
 
   return (
     <Modal visible={open} onRequestClose={() => setOpen(false)}>
@@ -111,6 +107,17 @@ export default function ImageGallery({
           style={{ paddingTop: sx.paddingTop }}
           className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
         >
+          <Pressable
+            className="p-2 rounded-full active:bg-white/20"
+            disabled={reloadImageMutation.isPending}
+            onPress={reloadImage}
+          >
+            {reloadImageMutation.isPending ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <MaterialCommunityIcons size={24} name="reload" color="white" />
+            )}
+          </Pressable>
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
             onPress={() => download(media)}

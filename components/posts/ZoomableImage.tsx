@@ -4,49 +4,20 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
   ViewStyle,
   ActivityIndicator,
 } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { extensionFromMimeType } from '@/lib/api/media'
-import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { extensionFromMimeType, useReloadImageMutation } from '@/lib/api/media'
+import Gallery from 'react-native-awesome-gallery'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { unfurlCacheUrl } from '@/lib/formatters'
-import Loading from '../Loading'
 import { useResolveClassNames } from 'uniwind'
-
-const ImageRenderer = ({
-  item,
-  setImageDimensions,
-}: RenderItemInfo<{ src: string; blurHash: string | undefined }>) => {
-  const [loading, setLoading] = useState(true)
-  return (
-    <View className="flex-1">
-      {loading && (
-        <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
-          <Loading />
-        </View>
-      )}
-      <Image
-        source={{ uri: item.src }}
-        placeholder={{ blurhash: item.blurHash }}
-        placeholderContentFit="contain"
-        contentFit="contain"
-        style={StyleSheet.absoluteFillObject}
-        onLoad={(e) => {
-          const { width, height } = e.source
-          setImageDimensions({ width, height })
-          setLoading(false)
-        }}
-      />
-    </View>
-  )
-}
+import ImageRenderer from './ImageRenderer'
 
 export default function ZoomableImage({
   id,
@@ -77,6 +48,8 @@ export default function ZoomableImage({
   const [modalOpen, setModalOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(true)
   const downloadMutation = useDownloadToGalleryMutation()
+  const reloadImageMutation = useReloadImageMutation()
+  const [retries, setRetries] = useState(0)
 
   function download() {
     let name = unfurlCacheUrl(src).split('/').pop() || ''
@@ -93,6 +66,20 @@ export default function ZoomableImage({
     })
   }
 
+  function reloadImage() {
+    reloadImageMutation.mutate(
+      { src },
+      {
+        onSuccess: () => {
+          setRetries((r) => r + 1)
+        },
+        onError: (err) => {
+          console.error(err)
+        },
+      },
+    )
+  }
+
   return (
     <View>
       <Modal
@@ -103,7 +90,7 @@ export default function ZoomableImage({
         <Toasts />
         <Gallery
           initialIndex={0}
-          data={[{ src, blurHash }]}
+          data={[{ src, blurHash, retries }]}
           renderItem={ImageRenderer}
           onSwipeToClose={() => setModalOpen(false)}
           onTap={() => setShowOverlay(!showOverlay)}
@@ -118,6 +105,22 @@ export default function ZoomableImage({
             >
               <Pressable
                 className="p-2 rounded-full active:bg-white/20"
+                disabled={reloadImageMutation.isPending}
+                onPress={reloadImage}
+              >
+                {reloadImageMutation.isPending ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <MaterialCommunityIcons
+                    size={24}
+                    name="reload"
+                    color="white"
+                  />
+                )}
+              </Pressable>
+              <Pressable
+                className="p-2 rounded-full active:bg-white/20"
+                disabled={downloadMutation.isPending}
                 onPress={download}
               >
                 {downloadMutation.isPending ? (

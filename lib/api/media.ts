@@ -201,3 +201,24 @@ export function useLinkPreview(link: string | null) {
     enabled: !!link,
   })
 }
+
+type ReloadImagePayload = {
+  src: string // must be a valid URL
+}
+
+async function reloadImage({ src }: ReloadImagePayload) {
+  if (!isValidURL(src)) {
+    throw new Error('src must be a valid URL')
+  }
+  await fetch(`${src}?force=true`)
+  await fetch(src, {
+    headers: { 'Cache-Control': 'no-cache' },
+  })
+}
+
+export function useReloadImageMutation() {
+  return useMutation({
+    mutationKey: ['reload-image'],
+    mutationFn: reloadImage,
+  })
+}
