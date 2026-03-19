@@ -95,15 +95,11 @@ function combineReactions(
   mutationState: EmojiReactPayload[],
 ) {
   const map = Object.fromEntries(reactions.map((r) => [r.id, r]))
-  const label = reactions.map((r) => r.id)
   for (const variables of mutationState) {
     const key =
       typeof variables.nextEmoji === 'string'
         ? variables.nextEmoji
         : variables.nextEmoji.id
-    console.log(
-      `Call "${variables.undo ? 'Undo' : 'Add'}" ${key} on "${label.join(', ')}"`,
-    )
     if (map[key]) {
       if (variables.undo) {
         map[key].users = map[key].users.filter((u) => u.id !== me?.id)
