@@ -20,8 +20,14 @@ export default function TextWithEmojis({
 } & TextProps) {
   const { data: settings } = useSettings()
 
-  const emojiList = useMemo(() => {
-    return emojis ?? settings?.emojis.flatMap((emoji) => emoji.emojis) ?? []
+  const emojiMap = useMemo(() => {
+    const list =
+      emojis ?? settings?.emojis.flatMap((emoji) => emoji.emojis) ?? []
+    const map = new Map<string, EmojiBase>()
+    for (const emoji of list) {
+      map.set(emoji.name.replaceAll(':', ''), emoji)
+    }
+    return map
   }, [emojis, settings])
 
   const elements = useMemo(() => {
@@ -38,10 +44,7 @@ export default function TextWithEmojis({
           {textBefore}
         </Text>,
       )
-      const emoji = emojiList.find(
-        (emoji) =>
-          emoji.name.replaceAll(':', '') === matchText.replaceAll(':', ''),
-      )
+      const emoji = emojiMap.get(matchText.replaceAll(':', ''))
       if (emoji) {
         elements.push(
           <Image
@@ -78,7 +81,7 @@ export default function TextWithEmojis({
       </Text>,
     )
     return elements
-  }, [text, emojiList, innerTextProps])
+  }, [text, emojiMap, innerTextProps])
 
   return (
     <Text
