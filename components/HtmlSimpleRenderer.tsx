@@ -147,8 +147,8 @@ function renderElement(node: ElementNode, index: number, color?: string) {
         style={{
           width: Number(width),
           height: Number(height),
-          resizeMode: 'contain',
         }}
+        contentFit="contain"
         key={index}
         source={src}
       />

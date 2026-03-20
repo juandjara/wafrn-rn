@@ -152,10 +152,11 @@ export default function ZoomableImage({
           }}
           placeholderContentFit={contentFit}
           placeholder={{ blurhash: blurHash, width, height }}
+          contentFit={contentFit}
           style={[
             useResolveClassNames(imgClassName ?? ''),
             style as ImageStyle,
-            { width, height, resizeMode: contentFit },
+            { width, height },
           ]}
         />
       </Pressable>
