@@ -76,6 +76,14 @@ You can start developing by editing the files inside the **app** directory. This
 
 > NOTE: This project contains custom native modules, so you cannot run the app with Expo Go. You need to use a real device or an emulator.
 
+## Environment Variables
+
+| Variable                | Description                                                                 | Default                                                |
+| ----------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `EXPO_PUBLIC_TENOR_KEY` | Tenor API key for GIF support. If set, GIF search is enabled automatically. | _empty_                                                |
+| `RELEASES_URL`          | URL for checking the latest app release.                                    | Codeberg Releases API for this repo (`wafrn/wafrn-rn`) |
+| `INSTANCES_URL`         | URL for fetching the list of Wafrn instances.                               | `https://join.wafrn.net/instances.json`                |
+
 ## Build from source a local version of the production release (only for Android)
 
 You need to have your android environment setup to build the app. See [the expo docs](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) for more info.
