@@ -145,8 +145,10 @@ function MentionSuggestionItem({
       onPress={() => onSelect({ ...user, name: url })}
     >
       <Image
+        contentFit="contain"
+        enforceEarlyResizing
         source={{ uri: formatAvatarUrl(user.id) }}
-        style={{ resizeMode: 'contain', width: 48, height: 48 }}
+        style={{ width: 48, height: 48 }}
       />
       <Text className="text-white text-lg font-medium shrink">{url}</Text>
     </Pressable>
