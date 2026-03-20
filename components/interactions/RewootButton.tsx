@@ -24,7 +24,7 @@ export default function RewootButton({
   const green500 = useCSSVariable('--color-green-500') as string
   const gray600 = useCSSVariable('--color-gray-600') as string
 
-  const initialIsRewooted = (context.rewootIds || []).includes(post.id)
+  const initialIsRewooted = !!context.rewootIds[post.id]
   const isRewooted = rewootMutation.isSuccess
     ? !rewootMutation.variables
     : initialIsRewooted

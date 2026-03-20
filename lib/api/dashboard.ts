@@ -128,6 +128,12 @@ export function getDashboardContextPage(data: DashboardData) {
     },
     tags: groupTags(data),
     likes: groupLikes(data),
+    rewootIds: Object.fromEntries(
+      (data.rewootIds ?? []).map((id) => [id, true as const]),
+    ),
+    bookmarks: Object.fromEntries(
+      (data.bookmarks ?? []).map((b) => [b.postId, true as const]),
+    ),
   } satisfies DashboardContextData
   return context
 }
@@ -173,8 +179,8 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     quotedPosts: pages.flatMap((p) => p.quotedPosts),
     quotes: pages.flatMap((p) => p.quotes),
     asks: pages.flatMap((p) => p.asks ?? []),
-    rewootIds: pages.flatMap((p) => p.rewootIds ?? []),
-    bookmarks: pages.flatMap((p) => p.bookmarks ?? []),
+    rewootIds: combine<true>(pages, (p) => p.rewootIds),
+    bookmarks: combine<true>(pages, (p) => p.bookmarks),
   }
   return combined
 }

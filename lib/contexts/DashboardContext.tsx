@@ -9,7 +9,13 @@ import { EmojiBase } from '../api/emojis'
 
 export type DashboardContextData = Omit<
   DashboardData,
-  'posts' | 'users' | 'emojiRelations' | 'tags' | 'likes'
+  | 'posts'
+  | 'users'
+  | 'emojiRelations'
+  | 'tags'
+  | 'likes'
+  | 'rewootIds'
+  | 'bookmarks'
 > & {
   emojiRelations: Omit<PostEmojiContext, 'emojis' | 'postEmojiReactions'> & {
     postEmojiReactions: Record<string, PostEmojiReaction[] | undefined> // key is post id
@@ -18,6 +24,8 @@ export type DashboardContextData = Omit<
   users: Record<string, PostUser | undefined> // key is user id
   tags: Record<string, string[] | undefined> // key is post id, values are tags
   likes: Record<string, string[] | undefined> // key is post id, values are user ids
+  rewootIds: Record<string, true | undefined> // key is post id
+  bookmarks: Record<string, true | undefined> // key is post id
 }
 
 const DashboardContext = createContext<DashboardContextData>({
@@ -36,6 +44,8 @@ const DashboardContext = createContext<DashboardContextData>({
   quotedPosts: [],
   quotes: [],
   asks: [],
+  rewootIds: {},
+  bookmarks: {},
 })
 
 export function DashboardContextProvider({

@@ -1,5 +1,4 @@
 import { type Post } from '@/lib/api/posts.types'
-import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useBookmarkMutation } from '@/lib/interaction'
 import { ViewStyle } from 'react-native'
@@ -19,12 +18,9 @@ export default function BookmarkButton({
   style?: ViewStyle
   onPress?: () => void
 }) {
-  const me = useParsedToken()
   const context = useDashboardContext()
   const bookmarkMutation = useBookmarkMutation(post)
-  const initialIsBookmarked = (context.bookmarks || []).some(
-    (b) => b.postId === post.id && b.userId === me?.userId,
-  )
+  const initialIsBookmarked = !!context.bookmarks[post.id]
   const isBookmarked = bookmarkMutation.isSuccess
     ? !bookmarkMutation.variables
     : initialIsBookmarked
