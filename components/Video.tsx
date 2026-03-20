@@ -55,7 +55,11 @@ export default function Video({
   })
 
   useEventListener(player, 'playingChange', (ev) => setIsPlaying(ev.isPlaying))
-  useEventListener(player, 'timeUpdate', (ev) => setCurrentTime(ev.currentTime))
+  useEventListener(player, 'timeUpdate', (ev) => {
+    if (showControls) {
+      setCurrentTime(ev.currentTime)
+    }
+  })
   useEventListener(player, 'sourceLoad', (ev) => setDuration(ev.duration))
   useEventListener(player, 'mutedChange', (ev) => setMuted(ev.muted))
 
@@ -105,7 +109,12 @@ export default function Video({
         fullscreenOptions={{ enable: true }}
       />
       <Pressable
-        onPress={() => setShowControls(!showControls)}
+        onPress={() => {
+          if (!showControls) {
+            setCurrentTime(player.currentTime)
+          }
+          setShowControls(!showControls)
+        }}
         className={clsx('z-10 absolute inset-0 justify-between p-4', {
           'bg-black/50': showControls,
         })}
