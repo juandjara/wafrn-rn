@@ -5,15 +5,7 @@ import { compare } from 'compare-versions'
 
 const RELEASES_URL =
   process.env.RELEASES_URL ||
-  'https://codeberg.org/api/v1/repos/REPO_OWNER/releases/latest'
-
-let repoOwner = 'wafrn/wafrn-rn'
-if (pkg.repository?.url) {
-  const parts = pkg.repository?.url.split('/')
-  const repo = parts.at(-1)
-  const owner = parts.at(-2)
-  repoOwner = `${owner}/${repo}`
-}
+  'https://codeberg.org/api/v1/repos/wafrn/wafrn-rn/releases/latest'
 
 // omited fields: "author", "assets", "archive_download_count"
 type CodebergRelease = {
@@ -36,7 +28,7 @@ type CodebergRelease = {
 
 async function fetchLatestVersion(signal: AbortSignal) {
   try {
-    const url = RELEASES_URL.replace('REPO_OWNER', repoOwner)
+    const url = RELEASES_URL
     const json = (await getJSON(url, { signal })) as CodebergRelease
     let tag = json.tag_name
     if (tag.startsWith('v')) {

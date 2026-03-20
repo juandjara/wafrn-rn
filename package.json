@@ -2,10 +2,6 @@
   "name": "wafrn-rn",
   "main": "expo-router/entry",
   "version": "1.11.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://codeberg.org/wafrn/wafrn-rn"
-  },
   "scripts": {
     "update:preview_ci": "npx eas-cli update --channel preview --auto --non-interactive --environment preview",
     "update:preview": "npx eas-cli update --channel preview --auto --environment preview",
