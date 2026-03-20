@@ -78,7 +78,7 @@ You can start developing by editing the files inside the **app** directory. This
 
 ## Environment Variables
 
-There are a couple variables this project can read from a .env file. None are required to be set, they have some defaults, but this is just an easy way to customize some hardcoded URLs or keys.
+There are a couple variables this project can read from a `.env` file. None are required to be set, they have some defaults, but this is just an easy way to customize some hardcoded URLs or keys.
 
 | Variable                | Description                                                                 | Default                                                |
 | ----------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------ |
@@ -87,6 +87,8 @@ There are a couple variables this project can read from a .env file. None are re
 | `INSTANCES_URL`         | URL for fetching the list of Wafrn instances.                               | `https://join.wafrn.net/instances.json`                |
 
 Support for `EXPO_PUBLIC_TENOR_KEY` might be removed in the future, as this can be configured in the settings UI, and no API Key is included by default to respect FOSS principles.
+
+Btw, if you have a `.env.local` file in your project it will also work but it will be ignored by git.
 
 ## Build from source a local version of the production release (only for Android)
 
