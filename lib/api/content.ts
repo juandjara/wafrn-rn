@@ -55,10 +55,11 @@ export function isEmptyRewoot(post: Post, context: DashboardContextData) {
 
 export function replaceEmojis(text: string, emojis: EmojiBase[]) {
   for (const emoji of emojis) {
+    const name = emoji.name.replaceAll(':', '')
     const url = formatEmojiUrl(emoji.uuid)
     text = text.replaceAll(
-      emoji.name,
-      `<img width="24" height="24" src="${url}" alt="${emoji.name.replaceAll(':', '')}" />`,
+      `:${name}:`,
+      `<img width="24" height="24" src="${url}" alt="${name}" />`,
     )
   }
   return text
