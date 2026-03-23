@@ -173,8 +173,8 @@ const BR_REGEX = /\s*<br\s*\/?>\s*/g
  * with the exception for the br tag, around which whitespaces always disappear.
  * Whitespace characters are spaces, tabs and line breaks
  */
-export function collapseWhitespace(html: string) {
-  const miniHtml = minifyHtml(html)
+export function collapseWhitespace(html?: string) {
+  const miniHtml = minifyHtml(html ?? '')
   return miniHtml.replace(WHITESPACE_REGEX, '$1 $2').replace(BR_REGEX, '<br>')
 }
 
