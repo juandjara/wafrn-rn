@@ -217,7 +217,7 @@ export function getPublicOptionValue<
 
 type ServiceAnnouncement = {
   level: 'error' | 'info' | 'warning'
-  code: 'bsky_account_force_disabled' | 'generic' // TODO: more codes will come
+  code: 'reinstall_required' | 'bsky_account_force_disabled' | 'generic' // TODO: more codes will come
   message: string
 }
 

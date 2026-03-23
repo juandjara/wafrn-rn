@@ -10,7 +10,14 @@ export function useServiceAnnouncements() {
 
   useEffect(() => {
     const announcements = settings?.serviceAnnouncements ?? []
-    if (versionCheck?.tagIsGreater) {
+    if (versionCheck?.reinstallRequired) {
+      announcements.push({
+        code: 'reinstall_required',
+        level: 'error',
+        message:
+          'If you installed this app from F-Droid, you must uninstall and reinstall it to keep getting updates',
+      })
+    } else if (versionCheck?.tagIsGreater) {
       announcements.push({
         code: 'generic',
         level: 'info',
@@ -21,10 +28,6 @@ export function useServiceAnnouncements() {
 
     for (const announcement of announcements) {
       const isError = announcement.level === 'error'
-      // const link =
-      //   announcement.code === 'bsky_account_force_disabled'
-      //     ? '/setting/bluesky-settings'
-      //     : null
       const msg = announcement.message
       if (isError) {
         showToastError(msg, { id: announcement.code, duration: 10000 })

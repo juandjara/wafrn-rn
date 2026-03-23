@@ -26,6 +26,8 @@ type CodebergRelease = {
   published_at: string // ISO date
 }
 
+const SIGNATURE_CHANGE_VERSION = '1.13.0'
+
 async function fetchLatestVersion(signal: AbortSignal) {
   try {
     const url = RELEASES_URL
@@ -35,10 +37,18 @@ async function fetchLatestVersion(signal: AbortSignal) {
       tag = tag.substring(1)
     }
     const tagIsGreater = compare(tag, pkg.version, '>')
-    return { tag, pkg: pkg.version, tagIsGreater }
+    const reinstallRequired =
+      compare(tag, SIGNATURE_CHANGE_VERSION, '>=') &&
+      compare(pkg.version, SIGNATURE_CHANGE_VERSION, '<')
+    return { tag, pkg: pkg.version, tagIsGreater, reinstallRequired }
   } catch (err) {
     console.error('Codeberg is down or having problems', err)
-    return { tag: '', pkg: pkg.version, tagIsGreater: false }
+    return {
+      tag: '',
+      pkg: pkg.version,
+      tagIsGreater: false,
+      reinstallRequired: false,
+    }
   }
 }
 
