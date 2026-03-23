@@ -12,7 +12,7 @@ export function useServiceAnnouncements() {
     const announcements = settings?.serviceAnnouncements ?? []
     if (versionCheck?.reinstallRequired) {
       announcements.push({
-        code: 'reinstall_required',
+        code: 'permanent',
         level: 'error',
         message:
           'If you installed this app from F-Droid, you must uninstall and reinstall it to keep getting updates',
@@ -29,13 +29,11 @@ export function useServiceAnnouncements() {
     for (const announcement of announcements) {
       const isError = announcement.level === 'error'
       const msg = announcement.message
+      const duration = announcement.code === 'permanent' ? Infinity : 10000
       if (isError) {
-        showToastError(msg, { id: announcement.code, duration: 10000 })
+        showToastError(msg, { id: announcement.code, duration })
       } else {
-        showToastInfo(msg, {
-          duration: 10000,
-          id: announcement.code,
-        })
+        showToastInfo(msg, { id: announcement.code, duration })
       }
     }
   }, [
