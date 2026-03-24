@@ -4,6 +4,7 @@ import { getJSON } from './http'
 import { useAuth } from './contexts/AuthContext'
 import { useToasts } from './toasts'
 import { getEnvironmentStatic } from './api/auth'
+import { EmojiBase } from './api/emojis'
 
 export type UserAsksData = {
   users: PostUser[]
@@ -12,6 +13,7 @@ export type UserAsksData = {
 
 export type Ask = PostAsk & {
   user?: PostUser
+  userEmojis?: EmojiBase[]
 }
 
 export async function getAsks(
