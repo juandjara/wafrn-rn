@@ -26,8 +26,8 @@ export default function BaseRibbon({
   const content = (
     <View
       className={clsx(
-        className,
         'px-1 flex-row gap-2 items-center bg-blue-950 overflow-hidden',
+        className,
       )}
     >
       {icon}
