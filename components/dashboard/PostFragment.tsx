@@ -31,7 +31,6 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
-import AskRibbon from '../ribbons/AskRibbon'
 import { useCSSVariable } from 'uniwind'
 import InteractionMenu from '../interactions/InteractionMenu'
 import PostReactionList from '../posts/PostReactionList'
@@ -41,7 +40,7 @@ import {
   getDerivedPostState,
 } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
-import HtmlSimpleRenderer from '../HtmlSimpleRenderer'
+import AskCard from '../posts/Ask'
 
 type PostFragmentProps = {
   post: Post
@@ -277,14 +276,7 @@ function PostFragmentInner({
             )}
             {cwOpen ? (
               <View id="content-inner" style={contentInnerStyle}>
-                {ask && (
-                  <View className="mt-4 mb-2 p-2 border border-gray-600 rounded-xl bg-gray-500/10">
-                    <AskRibbon user={ask.user} emojis={ask.userEmojis} />
-                    <Text className="text-white px-2 py-1 leading-relaxed">
-                      <HtmlSimpleRenderer html={ask.question} />
-                    </Text>
-                  </View>
-                )}
+                {ask && <AskCard className="mt-4 mb-2" ask={ask} />}
                 {mentionedUsers.length > 0 && (
                   <ScrollView
                     horizontal

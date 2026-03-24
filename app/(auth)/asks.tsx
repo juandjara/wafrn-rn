@@ -8,7 +8,7 @@ import { Link } from 'expo-router'
 import { useRef, useState } from 'react'
 import { FlatList, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import PagerView from 'react-native-pager-view'
-import AskRibbon from '@/components/ribbons/AskRibbon'
+import AskCard from '@/components/posts/Ask'
 
 export default function Asks() {
   const sx = useSafeAreaPadding()
@@ -71,14 +71,13 @@ function AskList({ answered }: { answered: boolean }) {
           'opacity-50': deleteAskMutation.isPending,
         })}
       >
-        <AskRibbon user={ask.user} className="border-b border-slate-600" />
-        <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
+        <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute z-10 bg-blue-950 top-2 right-1.5 rounded-md border border-slate-600">
           <Text className="text-gray-300 text-xs">
             {formatTimeAgo(ask.createdAt)}
           </Text>
         </View>
-        <Text className="text-lg text-white p-3">{ask.question}</Text>
-        <View className="flex-row gap-3 p-3 mt-3">
+        <AskCard className="mx-2 mt-3" ask={ask} />
+        <View className="flex-row gap-3 p-3 mt-1">
           {answered ? (
             <Link href={`/post/${ask.postId}`} asChild>
               <Pressable
