@@ -67,7 +67,10 @@ export default function EditorView() {
     // disable updates if initial editor data is still loading
     if (!isLoading) {
       const newValue = typeof value === 'function' ? value(form[key]) : value
-      setForm({ ...form, [key]: newValue })
+      setForm((_prev) => {
+        const prev = _prev || formState
+        return { ...prev, [key]: newValue }
+      })
     }
   }
 
