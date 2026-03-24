@@ -3,7 +3,7 @@ import {
   DashboardMode,
   useDashboard,
 } from '@/lib/api/dashboard'
-import { FlatList } from 'react-native'
+import { FlatList, Text } from 'react-native'
 import { useCallback, useRef } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
@@ -86,6 +86,7 @@ export default function Dashboard({
         onEndReached={onEndReached}
         ListFooterComponent={hasNextPage ? <Loading /> : null}
         ListHeaderComponent={header}
+        ListEmptyComponent={ListEmpty}
         contentInset={contentInset}
         maintainVisibleContentPosition={
           isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
@@ -94,4 +95,8 @@ export default function Dashboard({
       />
     </DashboardContextProvider>
   )
+}
+
+function ListEmpty() {
+  return <Text className="text-gray-300 text-center py-3">No more posts</Text>
 }
