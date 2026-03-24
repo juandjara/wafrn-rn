@@ -131,8 +131,8 @@ importers:
         specifier: ~6.0.9
         version: 6.0.9(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))
       expo-unified-push:
-        specifier: file:../expo-unified-push
-        version: file:../expo-unified-push(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+        specifier: 0.5.0
+        version: 0.5.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-video:
         specifier: ^3.0.15
         version: 3.0.15(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -3026,8 +3026,8 @@ packages:
       react-native-web:
         optional: true
 
-  expo-unified-push@file:../expo-unified-push:
-    resolution: {directory: ../expo-unified-push, type: directory}
+  expo-unified-push@0.5.0:
+    resolution: {integrity: sha512-7P0ocKQGBllXdtpeuRQIn1wnpsGlDr8ve2IOqHZMZm0ixLGW8esWNOJOrpyFaJ26yNTaK6JwssWQNTXxdj1PhQ==}
     peerDependencies:
       expo: '*'
       react: '*'
@@ -8880,7 +8880,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  expo-unified-push@file:../expo-unified-push(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
+  expo-unified-push@0.5.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
       expo: 54.0.29(@babel/core@7.28.5)(@expo/metro-runtime@5.0.5(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0)))(expo-router@6.0.19)(react-native@0.81.5(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       react: 19.1.0
