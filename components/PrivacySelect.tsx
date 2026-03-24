@@ -93,7 +93,7 @@ export default function PrivacySelect({
           },
         }}
       >
-        <Text className="p-4 text-lg font-medium">Select privacy level</Text>
+        <Text className="p-4 text-lg font-medium">Select posting mode</Text>
         {options.map((p) => (
           <MenuOption
             disabled={isDisabled(p)}
