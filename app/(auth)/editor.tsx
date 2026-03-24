@@ -33,10 +33,14 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
-import AskRibbon from '@/components/ribbons/AskRibbon'
 import { PostUser } from '@/lib/api/posts.types'
 import { useCSSVariable } from 'uniwind'
 import { Colors } from '@/constants/Colors'
+import AskCard from '@/components/posts/Ask'
+import PostingAsSelector from '@/components/editor/PostingAsSelector'
+import PrivacySelect from '@/components/PrivacySelect'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { PRIVACY_ORDER, PrivacyLevel } from '@/lib/api/privacy'
 
 export default function EditorView() {
   const {
@@ -205,7 +209,7 @@ export default function EditorView() {
           name: a.fileName!,
         })),
         {
-          onSuccess(data, variables) {
+          onSuccess: (data, variables) => {
             // on success, update the images with the new data
             const inputUris = variables.map((v) => v.uri)
             const otherMedias = form.medias.filter(
@@ -244,6 +248,13 @@ export default function EditorView() {
     },
   } satisfies EditorActionProps['actions']
 
+  const { env } = useAuth()
+
+  const enableDrafts = env?.ENABLE_DRAFTS
+  const privacyOptions = enableDrafts
+    ? PRIVACY_ORDER
+    : PRIVACY_ORDER.filter((p) => p !== PrivacyLevel.DRAFT)
+
   return (
     <DashboardContextProvider data={context}>
       <KeyboardAvoidingView
@@ -257,12 +268,8 @@ export default function EditorView() {
       >
         <EditorHeader
           isLoading={createMutation.isPending}
-          form={form}
-          setForm={setForm}
           canPublish={canPublish()}
           onPublish={onPublish}
-          maxPrivacy={maxPrivacy}
-          privacySelectDisabled={privacySelectDisabled}
         />
         <ScrollView
           id="editor-scroll"
@@ -310,35 +317,42 @@ export default function EditorView() {
             setImages={(images) => update('medias', images)}
             disableForceAltText={disableForceAltText}
           />
-          {reply && (
-            <View className="mx-2 mb-1 mt-4 rounded-lg bg-indigo-950">
-              <Text className="text-white mb-2 px-3 pt-2 text-sm">
-                {replyLabel}
-              </Text>
-              <PostFragment
-                post={reply.posts[0]}
-                collapsible={false}
-                clickable={false}
-                hasCornerMenu={false}
+          <View className="mx-2 mb-1 mt-3 rounded-lg bg-indigo-950">
+            <View className="flex-row items-center px-3 py-2 gap-2">
+              <PostingAsSelector
+                selectedUserId={form.postingAs}
+                setSelectedUserId={(userId) => {
+                  setForm({ ...form, postingAs: userId })
+                }}
               />
+              <Text className="text-white text-sm">is {replyLabel}</Text>
+              <View className="grow" />
+              <Text className="text-white text-sm">in</Text>
+              <View className="shrink">
+                <PrivacySelect
+                  options={privacyOptions}
+                  privacy={form.privacy}
+                  setPrivacy={(p: PrivacyLevel) => {
+                    setForm({ ...form, privacy: p })
+                  }}
+                  maxPrivacy={maxPrivacy}
+                  disabled={privacySelectDisabled}
+                  invertMaxPrivacy={params.type === 'edit'}
+                />
+              </View>
             </View>
-          )}
-          {ask && (
-            <View className="mx-2 mt-3 mb-1 rounded-lg bg-blue-950">
-              {replyLabel ? (
-                <Text className="text-white my-1 px-3 pt-2 text-sm">
-                  {replyLabel}
-                </Text>
-              ) : null}
-              <AskRibbon
-                user={ask.user}
-                className="border-b border-slate-600"
-              />
-              <Text className="bg-indigo-950 rounded-b-lg text-lg text-white px-3 py-4">
-                {ask.question}
-              </Text>
-            </View>
-          )}
+            {reply ? (
+              <View className="border-t border-gray-600">
+                <PostFragment
+                  post={reply.posts[0]}
+                  collapsible={false}
+                  clickable={false}
+                  hasCornerMenu={false}
+                />
+              </View>
+            ) : null}
+            {ask ? <AskCard className="m-2 mt-1" ask={ask} /> : null}
+          </View>
         </ScrollView>
         <EditorActions actions={actions} form={form} />
       </KeyboardAvoidingView>

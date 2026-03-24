@@ -111,7 +111,7 @@ export function useEditorData() {
     )
 
     let ask = null
-    let replyLabel = ''
+    let replyLabel = 'wooting'
     let mentionedUsers = [] as PostUser[]
     const context = reply
       ? getDashboardContextPage(reply)
@@ -134,12 +134,12 @@ export function useEditorData() {
     if (params.type === 'ask') {
       ask = asks?.find((a) => a.id === Number(params.askId))
       if (ask) {
-        replyLabel = 'Replying to:'
+        replyLabel = 'answering'
       }
     }
 
     if (reply && params.type === 'quote') {
-      replyLabel = 'Quoting:'
+      replyLabel = 'quoting'
       const quotePost = reply.posts[0]
       if (quotePost) {
         formState.privacy = Math.max(quotePost.privacy, defaultPrivacy)
@@ -148,7 +148,7 @@ export function useEditorData() {
 
     let privacySelectDisabled = false
     if (reply && params.type === 'reply') {
-      replyLabel = 'Replying to:'
+      replyLabel = 'replying'
       const replyPost = reply.posts[0]
       if (replyPost) {
         formState.privacy = isLessPrivateThan(replyPost.privacy, defaultPrivacy)
@@ -231,7 +231,7 @@ export function useEditorData() {
     }
 
     if (reply && params.type === 'edit') {
-      replyLabel = 'Editing:'
+      replyLabel = 'editing'
       const post = reply.posts[0]
       const tags = reply.tags
         .filter((t) => t.postId === post.id)

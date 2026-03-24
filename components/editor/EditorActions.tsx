@@ -12,7 +12,6 @@ import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorFormState, EditorImage } from '@/lib/editor'
 import { useCSSVariable } from 'uniwind'
-import { Link } from 'expo-router'
 import InteractionControlMenu, {
   InteractionControlChange,
 } from './InteractionControlMenu'
@@ -93,8 +92,8 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         />
       </Modal>
       <ScrollView
-        contentContainerClassName="gap-3 mx-auto"
-        className="p-3 shrink-0 grow-0"
+        contentContainerClassName="gap-3 w-full justify-center p-3"
+        className="shrink-0 grow-0"
         keyboardShouldPersistTaps="always"
         horizontal
       >
@@ -102,25 +101,6 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
           initialCanReply={form.canReply}
           onChange={actions.onInteractionControlChange}
         />
-        <Link asChild href="/drafts">
-          <Pressable
-            className="active:bg-white/50 bg-white/15 p-2 rounded-full"
-            accessibilityLabel="Drafts"
-          >
-            <MaterialCommunityIcons
-              name="archive-edit-outline"
-              color="white"
-              size={24}
-            />
-          </Pressable>
-        </Link>
-        <Pressable
-          onPress={() => actions.insertCharacter('@')}
-          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
-          accessibilityLabel="Mention users"
-        >
-          <MaterialCommunityIcons name="at" color="white" size={24} />
-        </Pressable>
         <Pressable
           onPress={() => setShowEmojiPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
@@ -147,13 +127,6 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
           <MaterialCommunityIcons name="image" color="white" size={24} />
         </Pressable>
         <Pressable
-          onPress={() => setShowGifPicker(true)}
-          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
-          accessibilityLabel="Open GIF search"
-        >
-          <MaterialIcons name="gif" color="white" size={24} />
-        </Pressable>
-        <Pressable
           onPress={() => setShowColorPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
           accessibilityLabel="Open color picker"
@@ -171,7 +144,13 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         >
           <MaterialCommunityIcons name="brush" color="white" size={24} />
         </Pressable>
-        <View className="w-4" />
+        <Pressable
+          onPress={() => setShowGifPicker(true)}
+          className="active:bg-white/50 bg-white/15 p-2 rounded-full"
+          accessibilityLabel="Open GIF search"
+        >
+          <MaterialIcons name="gif" color="white" size={24} />
+        </Pressable>
       </ScrollView>
     </View>
   )

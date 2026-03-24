@@ -1,65 +1,36 @@
-import { PRIVACY_ORDER, PrivacyLevel } from '@/lib/api/privacy'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { Link, useLocalSearchParams } from 'expo-router'
+import { Link } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
-import PrivacySelect from '../PrivacySelect'
-import { EditorFormState, EditorSearchParams } from '@/lib/editor'
-import { useAuth } from '@/lib/contexts/AuthContext'
-import PostingAsSelector from './PostingAsSelector'
+import { useCSSVariable } from 'uniwind'
 
 export default function EditorHeader({
   isLoading,
-  form,
-  setForm,
   canPublish,
   onPublish,
-  maxPrivacy,
-  privacySelectDisabled = false,
 }: {
   isLoading: boolean
-  form: EditorFormState
-  setForm: (form: EditorFormState) => void
   canPublish: boolean
   onPublish: () => void
-  maxPrivacy?: PrivacyLevel
-  privacySelectDisabled?: boolean
 }) {
-  const { privacy, postingAs } = form
-  const { type } = useLocalSearchParams<EditorSearchParams>()
-  const { env } = useAuth()
-  const enableDrafts = env?.ENABLE_DRAFTS
-  const privacyOptions = enableDrafts
-    ? PRIVACY_ORDER
-    : PRIVACY_ORDER.filter((p) => p !== PrivacyLevel.DRAFT)
-
-  function setPrivacy(p: PrivacyLevel) {
-    setForm({ ...form, privacy: p })
-  }
-  function setPostingAs(userId: string) {
-    setForm({ ...form, postingAs: userId })
-  }
+  const gray300 = useCSSVariable('--color-gray-300') as string
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
       <Link href="../" className="rounded-full p-1">
         <MaterialIcons name="close" color="white" size={20} />
       </Link>
-      <View className={clsx('shrink')}>
-        <PrivacySelect
-          options={privacyOptions}
-          privacy={privacy}
-          setPrivacy={setPrivacy}
-          maxPrivacy={maxPrivacy}
-          disabled={privacySelectDisabled}
-          invertMaxPrivacy={type === 'edit'}
-        />
-      </View>
+      <Link asChild href="/drafts">
+        <Pressable className="border-gray-600 border active:bg-white/30 px-2 py-1 rounded-xl flex-row items-center gap-2">
+          <MaterialCommunityIcons
+            name="archive-edit-outline"
+            color={gray300}
+            size={20}
+          />
+          <Text className="text-white">Drafts</Text>
+        </Pressable>
+      </Link>
       <View className="grow"></View>
-      <PostingAsSelector
-        selectedUserId={postingAs}
-        setSelectedUserId={setPostingAs}
-      />
       <Pressable
         disabled={!canPublish}
         onPress={onPublish}
