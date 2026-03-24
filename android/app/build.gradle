@@ -277,14 +277,17 @@ def createStripTaskForVariant(variantName, libDir) {
     }
 }
 
+// Rewrite non-deterministic fields in the Expo Updates app.manifest to ensure reproducible builds.
+// The manifest contains a random "id" and "commitTime" that change on every build,
+// which would cause APK checksums to differ across builds of the same source.
 def createRewriteExpoManifestTaskForVariant(variantName) {
     tasks.register("rewriteExpoManifest${variantName}") {
         doLast {
-            if (System.getenv('REWRITE_EXPO_MANIFEST') == null) {
-                println "Skipping rewrite of Expo manifest for ${variantName}."
+            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
+            if (!manifestFile.exists()) {
+                println "No app.manifest found for ${variantName}, skipping rewrite."
                 return
             }
-            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
             def replaced = manifestFile.text.replaceAll(/"id":.*,/, '"id": "9cecc843-557f-42fb-9e69-9d5fae5715fb",')
             replaced = replaced.replaceAll(/"commitTime":.*,/, '"commitTime": 1750716764178,')
             manifestFile.write(replaced)

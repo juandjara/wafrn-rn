@@ -8,7 +8,6 @@ on:
         description: 'Build type to run'
         options:
           - dev
-          - prod-base
           - prod-foss
           - prod-google
           - prod-all
@@ -93,26 +92,18 @@ jobs:
       - name: '📱 Build Development APK'
         if: github.event.inputs.buildType == 'dev'
         run: |
-          export UNSIGNED_APK=0 # sign with debug key
           bash ./scripts/android_build.sh dev
           mkdir -p ./outputs/dev
           cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
 
-      - name: '📱 Build Production APK'
-        if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-base'
-        run: |
-          bash ./scripts/android_build.sh prod
-          mkdir -p ./outputs/prod
-          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod
-
-      - name: '📱 Build Production APK (FOSS version)'
+      - name: '📱 Build Production APK (FOSS)'
         if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-foss'
         run: |
           bash ./scripts/android_build.sh prod-foss
           mkdir -p ./outputs/prod-foss
           cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
 
-      - name: '📱 Build Production AAB'
+      - name: '📱 Build Production AAB (Google)'
         if: github.event.inputs.buildType == 'prod-all' || github.event.inputs.buildType == 'prod-google'
         run: |
           bash ./scripts/android_build.sh prod-google

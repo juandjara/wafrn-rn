@@ -11,10 +11,11 @@ set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 
-# default is to run this script pretending to sign, but this is configured further in the build.gradle file
-# if sign keys are not configured, this script will produce an unsigned APK
-UNSIGNED_APK=${UNSIGNED_APK:"0"}
-env=${1:-prod}
+# "prod" is kept as an alias for backwards compatibility
+env=${1:-prod-foss}
+if [ "$env" == "prod" ]; then
+  env="prod-foss"
+fi
 
 # make sure we have pnpm installed
 if ! [ -x "$(command -v pnpm)" ]; then
@@ -46,7 +47,7 @@ fi
 
 # exit if no android/gradlew exists
 if ! [ -f 'android/gradlew' ]; then
-  echo 'android/gradlew not found'
+  echo 'Error: android/gradlew not found, cannot run build. Exiting...'
   exit 1
 fi
 
@@ -67,16 +68,6 @@ elif [ "$env" == "prod-google" ]; then
   echo '> creating production release in .aab format'
   ./gradlew buildRelease
   ./gradlew app:bundleRelease
-elif [ "$env" == "prod-foss" ]; then
-  export NODE_ENV=production
-  echo '> setting up production environment'
-  pnpm run setup:prod
-  echo '> disabling auto-updates in AndroidManifest.xml'
-  pushd android
-  echo '> creating production release build in .apk format with auto-updates disabled'
-  export REWRITE_EXPO_MANIFEST=1
-  ./gradlew buildRelease
-  ./gradlew app:assembleRelease
 else
   export NODE_ENV=production
   echo '> setting up production environment'
@@ -107,15 +98,6 @@ if [ "$env" == "dev" ]; then
   echo '> APKs created in ./android/app/build/outputs/apk/debug'
 elif [ "$env" == "prod-google" ]; then
   echo '> AABs created in ./android/app/build/outputs/bundle/release'
-elif [ "$env" == "prod-foss" ]; then
-  if [ "$UNSIGNED_APK" == "0" ]; then
-    mv ./app/build/outputs/apk/release ./app/build/outputs/apk/foss
-    mv ./app/build/outputs/apk/foss/app-arm64-v8a-{release,foss}.apk
-    mv ./app/build/outputs/apk/foss/app-armeabi-v7a-{release,foss}.apk
-    echo '> APKs created in ./android/app/build/outputs/apk/foss'
-  else
-    echo '> APKs created in ./android/app/build/outputs/apk/release'
-  fi
 else
   echo '> APKs created in ./android/app/build/outputs/apk/release'
 fi
