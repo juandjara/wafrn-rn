@@ -123,15 +123,15 @@ If you want to know more about the Version Release Process, [read here](./docs/V
 
 This app uses UnifiedPush for sending its notifications (via [expo-unified-push](https://github.com/juandjara/expo-unified-push/)). You can read more about UnifiedPush in https://unifiedpush.org. After a sucessfull login, the Wafrn App will ask for notification permission and try to register with the first UnifiedPush distributor available in your device. You can change this later in settings. If no UnifiedPush distributor is installed in your device, the Wafrn App will use the embedded Firebase Cloud Messaging distributor, but only as a last resource.
 
-## Join the community
-
-Discussions and contributions about the development of the app are welcome on the [Discord server](https://discord.gg/DTqGpk2AUV). (migration to some other platform might come in the future) and on [Wafrn itself](https://app.wafrn.net). When adding your feedback, please consider that the app is still in beta and some things might change.
-
-If you want to ensure a quick response, you can always ping [@javascript@app.wafrn.net](https://app.wafrn.net/blog/javascript) or [@gabboman@app.wafrn.net](https://app.wafrn.net/blog/gabboman) using any fediverse software.
-
 ## Contributing
 
 You can contribute to the project by creating a PR or by opening an issue for discussion.
+
+## Join the community
+
+Discussions and contributions about the development of the app are welcome on the [Discord server](https://discord.gg/DTqGpk2AUV). (or the fluxxer bridge) and on [Wafrn itself](https://app.wafrn.net). When adding your feedback, please consider that the app continues to be in development and some things might change. If have a more solid issue, bug or request, is best for the team if you write it in the [Codeberg Issues](https://codeberg.org/wafrn/wafrn-rn/issues)
+
+If you want to ensure a quick response, you can always ping `@javascript@app.wafrn.net` using any fediverse software or ping `@djara.dev` using any ATProto software.
 
 ## License
 
