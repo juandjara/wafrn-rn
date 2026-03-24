@@ -39,6 +39,8 @@ For the release process you should choose `prod-foss`.
 
 After the APK build completes, create a release on [Codeberg](https://codeberg.org/wafrn/wafrn-rn/releases) with the name of the new version and the release notes, attaching the signed APKs from the CI artifacts. Keep in mind Codeberg Releases are the source of truth for version release notes.
 
+**Important**: The APKs downloaded from the CI artifacts should be renamed to `app-armeabi-v7a-foss.apk` and `app-arm64-v8a-foss.apk` before being uploaded to the release.
+
 When the release is published, the new version of the app will be instantly available to download on **Obtanium**, and after a few hours (1 day at most), it will be available to download on **IzzyOnDroid** too.
 
 ### 4. Build and upload for iOS in GitHub Actions
