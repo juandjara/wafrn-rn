@@ -1,7 +1,6 @@
 <!-- Badges -->
 
 [<img src="https://shields.rbtlog.dev/simple/dev.djara.wafrn_rn" alt="RB shield">](https://shields.rbtlog.dev/dev.djara.wafrn_rn)
-[<img src="https://github.com/juandjara/wafrn-rn/actions/workflows/build.yml/badge.svg" alt="Build Status" />](https://github.com/juandjara/wafrn-rn/actions/workflows/build.yml)
 [<img src="https://github.com/juandjara/wafrn-rn/actions/workflows/build_ios.yml/badge.svg" alt="Build Status" />](https://github.com/juandjara/wafrn-rn/actions/workflows/build_ios.yml)
 
 # Wafrn React Native App
