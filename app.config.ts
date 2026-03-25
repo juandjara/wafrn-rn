@@ -20,7 +20,7 @@ const plugins = [
     'expo-video',
     {
       supportsBackgroundPlayback: true,
-      supportsPictureInPicture: true,
+      supportsPictureInPicture: false,
     },
   ],
 ] as ExpoConfig['plugins']
