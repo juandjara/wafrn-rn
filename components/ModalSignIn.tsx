@@ -1,7 +1,6 @@
 import {
   useLoginMutation,
   useLoginMfaMutation,
-  DEFAULT_INSTANCE,
   useEnvironment,
 } from '@/lib/api/auth'
 import { Link } from 'expo-router'
@@ -26,8 +25,7 @@ export default function ModalSignIn({
   const [firstPassToken, setFirstPassToken] = useState('')
 
   const { instance: savedInstance } = useAuth()
-  const [_instance, setInstance] = useState<string | null>(null)
-  const instance = _instance ?? savedInstance ?? DEFAULT_INSTANCE
+  const [instance, setInstance] = useState<string>(savedInstance)
 
   const { data: env, status, isLoading } = useEnvironment(instance)
   const envStatus = isLoading ? 'pending' : status

@@ -1,13 +1,33 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { createAtom } from '@xstate/store'
+import { getItem } from 'expo-secure-store'
 
+export const AUTH_TOKEN_KEY = 'wafrn_token'
+export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
 export const DEFAULT_INSTANCE = 'https://app.wafrn.net'
 
-type EnvStatus = 'pending' | 'error' | 'success'
+export type EnvStatus = 'pending' | 'error' | 'success'
 
-export const tokenAtom = createAtom<string | null>(null)
-export const instanceAtom = createAtom<string | null>(null)
+function getInitialAuthState() {
+  try {
+    const savedToken = getItem(AUTH_TOKEN_KEY)
+    const savedInstance = getItem(SAVED_INSTANCE_KEY)
+    const instance = savedInstance
+      ? (JSON.parse(savedInstance) as string)
+      : null
+    const token = savedToken ? (JSON.parse(savedToken) as string) : null
+    const tokenValid = !!parseToken(token)
+    return { token: tokenValid ? token : null, instance }
+  } catch (err) {
+    console.error('Failed to restore auth state:', err)
+    return { token: null, instance: null }
+  }
+}
+const { token, instance } = getInitialAuthState()
+
+export const tokenAtom = createAtom<string | null>(token)
+export const instanceAtom = createAtom<string>(instance ?? DEFAULT_INSTANCE)
 export const envAtom = createAtom<Environment | undefined>(undefined)
 export const statusAtom = createAtom<EnvStatus>('pending')
 

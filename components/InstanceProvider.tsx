@@ -4,7 +4,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type PropsWithChildren, useState } from 'react'
 import { Image } from 'expo-image'
 import { useCSSVariable } from 'uniwind'
-import { DEFAULT_INSTANCE } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
 import { useToasts } from '@/lib/toasts'
 
@@ -14,8 +13,8 @@ export default function InstanceProvider({
   setSavedInstance,
   envStatus,
 }: PropsWithChildren & {
-  savedInstance: string | null
-  setSavedInstance: (url: string | null) => void
+  savedInstance: string
+  setSavedInstance: (url: string) => void
   envStatus: 'pending' | 'error' | 'success'
 }) {
   const gray600 = useCSSVariable('--color-gray-600') as string
@@ -35,9 +34,10 @@ export default function InstanceProvider({
     }
   }
 
-  const instance = savedInstance ?? DEFAULT_INSTANCE
-  const favicon = `${instance}/favicon.ico`
-  const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
+  const favicon = `${savedInstance}/favicon.ico`
+  const instanceHost = isValidURL(savedInstance)
+    ? new URL(savedInstance).host
+    : savedInstance
 
   return (
     <View>

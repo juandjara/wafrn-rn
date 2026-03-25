@@ -1,22 +1,18 @@
 import { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
-  DEFAULT_INSTANCE,
   parseToken,
-  envAtom,
   tokenAtom,
   instanceAtom,
-  useEnvironment,
+  AUTH_TOKEN_KEY,
+  SAVED_INSTANCE_KEY,
+  envAtom,
+  EnvStatus,
   statusAtom,
+  useEnvironment,
 } from '../api/auth'
 import { useAtom } from '@xstate/store/react'
-import { useMutation } from '@tanstack/react-query'
-import { useToasts } from '../toasts'
-import { getStorageItemAsync, setStorageItemAsync } from '../useLocalStorage'
+import { setStorageItemAsync } from '../useLocalStorage'
 import SplashScreen from '@/components/SplashScreen'
-
-// these are not meant to be used anywhere but here
-const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
-const AUTH_TOKEN_KEY = 'wafrn_token'
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const isLoading = useAuthRestore()
@@ -27,17 +23,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
 }
 
 function useAuthRestore() {
-  const mutation = useAuthMutation()
   const instance = useAtom(instanceAtom)
-  const { data, status, isLoading } = useEnvironment(
-    instance ?? DEFAULT_INSTANCE,
-  )
-  const { showToastError } = useToasts()
+  const { data, status, isLoading } = useEnvironment(instance)
+
+  const envStatus = (isLoading ? 'pending' : status) satisfies EnvStatus
 
   // sync status atom with env query status
   useEffect(() => {
-    statusAtom.set(isLoading ? 'pending' : status)
-  }, [status, isLoading])
+    statusAtom.set(envStatus)
+  }, [envStatus])
 
   // sync env atom with env query data
   useEffect(() => {
@@ -61,42 +55,7 @@ function useAuthRestore() {
     }
   }, [])
 
-  // run auth mutation on startup
-  useEffect(() => {
-    if (mutation.isIdle) {
-      mutation.mutate(undefined, {
-        onSuccess: ({ token, instance }) => {
-          tokenAtom.set(token)
-          instanceAtom.set(instance)
-        },
-        onError: (err) => {
-          console.error(err)
-          showToastError('Error restoring auth')
-        },
-      })
-    }
-  }, [mutation, showToastError])
-
-  // return general auth loading state
-  return mutation.isPending || status === 'pending'
-}
-
-function useAuthMutation() {
-  return useMutation({
-    mutationKey: ['auth'],
-    mutationFn: async () => {
-      const [savedInstance, savedToken] = await Promise.all([
-        getStorageItemAsync(SAVED_INSTANCE_KEY),
-        getStorageItemAsync(AUTH_TOKEN_KEY),
-      ])
-      const instance = savedInstance
-        ? (JSON.parse(savedInstance) as string)
-        : null
-      const token = savedToken ? (JSON.parse(savedToken) as string) : null
-      const tokenValid = !!parseToken(token)
-      return { token: tokenValid ? token : null, instance }
-    },
-  })
+  return envStatus === 'pending'
 }
 
 export function useAuth() {
@@ -109,7 +68,7 @@ export function useAuth() {
     function setToken(value: string | null) {
       tokenAtom.set(value)
     }
-    function setInstance(value: string | null) {
+    function setInstance(value: string) {
       instanceAtom.set(value)
     }
     return { token, setToken, instance, setInstance, env, envStatus }

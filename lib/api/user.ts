@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON, statusError, StatusError } from '../http'
 import {
-  DEFAULT_INSTANCE,
   envAtom,
   getEnvironmentStatic,
   getInstanceEnvironment,
@@ -165,7 +164,7 @@ export function useAccounts() {
 
   const accountsData = _accountsData?.length
     ? _accountsData
-    : [{ token: token!, instance: instance ?? DEFAULT_INSTANCE }]
+    : [{ token: token!, instance }]
 
   const accounts = accountsData
     .map((a) => {
