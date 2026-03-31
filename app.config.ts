@@ -34,6 +34,15 @@ if (isDev) {
   ])
 }
 
+let instances: string[] = []
+try {
+  instances = require('./instances.json')
+} catch {
+  console.error('error loading file instances.json')
+}
+const ATPROTO_INTENT_LINKS = ['bsky.app', 'witchsky.app', 'deer.social']
+const INTENT_LINKS = [...ATPROTO_INTENT_LINKS, ...instances]
+
 export default {
   expo: {
     newArchEnabled: true,
@@ -75,6 +84,11 @@ export default {
           data: [{ scheme: 'https', host: 'app.wafrn.net' }],
           category: ['BROWSABLE', 'DEFAULT'],
         },
+        ...INTENT_LINKS.map((l) => ({
+          action: 'VIEW',
+          data: [{ scheme: 'https', host: l }],
+          category: ['BROWSABLE', 'DEFAULT'],
+        })),
       ],
       edgeToEdgeEnabled: true,
     },

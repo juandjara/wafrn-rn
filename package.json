@@ -18,6 +18,8 @@
     "ios": "NODE_ENV=development expo run:ios",
     "lint": "expo lint --fix",
     "tsc": "tsc",
+    "prepare": "npm run instances",
+    "instances": "node scripts/downloadInstances.ts",
     "check-env": "node scripts/checkEnvironment.ts",
     "preversion": "npm run check-env",
     "version": "npm run setup:prod && git add -A .",
