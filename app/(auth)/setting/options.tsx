@@ -13,6 +13,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
+import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
@@ -36,7 +37,7 @@ import {
 } from 'react-native-popup-menu'
 import { useCSSVariable } from 'uniwind'
 
-const AUTO_GIF_SUPPORT = !!process.env.EXPO_PUBLIC_TENOR_KEY
+const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
 
 type FormState = {
   gifApiKey: string

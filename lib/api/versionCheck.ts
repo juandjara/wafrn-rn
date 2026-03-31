@@ -2,10 +2,7 @@ import pkg from '@/package.json'
 import { getJSON } from '../http'
 import { useQuery } from '@tanstack/react-query'
 import { compare } from 'compare-versions'
-
-const RELEASES_URL =
-  process.env.RELEASES_URL ||
-  'https://codeberg.org/api/v1/repos/wafrn/wafrn-rn/releases/latest'
+import { RELEASES_URL } from '../envVars'
 
 // omited fields: "author", "assets", "archive_download_count"
 type CodebergRelease = {

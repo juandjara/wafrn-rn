@@ -5,6 +5,7 @@ import { EmojiBase } from './emojis'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic } from './auth'
+import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
@@ -111,7 +112,7 @@ export const ALL_MUTE_SOURCES = [
 export const MINIMUM_THREAD_ANCESTOR_LIMIT = 1
 
 export const DEFAULT_PRIVATE_OPTIONS = {
-  [PrivateOptionNames.GifApiKey]: process.env.EXPO_PUBLIC_TENOR_KEY || '',
+  [PrivateOptionNames.GifApiKey]: EXPO_PUBLIC_TENOR_KEY,
   [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel.PUBLIC,
   [PrivateOptionNames.DisableForceAltText]: false,
   [PrivateOptionNames.FederateWithThreads]: true,

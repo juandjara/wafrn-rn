@@ -2,10 +2,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { getWellKnownNodeInfo, WellKnownNodeInfo } from './admin'
 import { dedupeById } from './dashboard'
-
-const FEDIDB_URL = 'https://api.fedidb.org/v1/software/wafrn/servers?limit=10'
-const DEFAULT_INSTANCES_URL = 'https://join.wafrn.net/instances.json'
-const INSTANCES_URL = process.env.INSTANCES_URL || DEFAULT_INSTANCES_URL
+import { FEDIDB_URL, INSTANCES_URL } from '../envVars'
 
 type FediDBItem = {
   domain: string
