@@ -23,3 +23,4 @@ google-services.json*
 *.apk
 *.aab
 *.ipa
+instances.json
