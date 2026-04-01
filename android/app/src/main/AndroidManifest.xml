@@ -194,10 +194,14 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
+    </activity>
+    <activity android:name=".ShareReceiverActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:noHistory="true" android:excludeFromRecents="true">
       <intent-filter>
         <action android:name="android.intent.action.SEND"/>
         <data android:mimeType="text/*"/>
         <data android:mimeType="image/*"/>
+        <data android:mimeType="video/*"/>
+        <data android:mimeType="audio/*"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>

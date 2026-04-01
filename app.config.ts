@@ -34,7 +34,7 @@ const plugins = [
         NSExtensionActivationSupportsMovieWithMaxCount: 1,
         NSExtensionActivationSupportsFileWithMaxCount: 1,
       },
-      androidIntentFilters: ['text/*', 'image/*', 'video/*', 'audio/*'],
+      disableAndroid: true,
     },
   ],
 ] as ExpoConfig['plugins']
@@ -102,7 +102,6 @@ export default {
       permissions: [],
       package: appId,
       intentFilters: [
-        intentLink('app.wafrn.net', true),
         ...instances.map((host) => intentLink(host, true)),
         ...ATPROTO_INTENT_LINKS.map((host) => intentLink(host, false)),
       ],
