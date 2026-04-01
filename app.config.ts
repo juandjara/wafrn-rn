@@ -23,6 +23,20 @@ const plugins = [
       supportsPictureInPicture: false,
     },
   ],
+  [
+    'expo-share-intent',
+    {
+      iosActivationRules: {
+        NSExtensionActivationSupportsText: true,
+        NSExtensionActivationSupportsWebURLWithMaxCount: 1,
+        NSExtensionActivationSupportsWebPageWithMaxCount: 1,
+        NSExtensionActivationSupportsImageWithMaxCount: 1,
+        NSExtensionActivationSupportsMovieWithMaxCount: 1,
+        NSExtensionActivationSupportsFileWithMaxCount: 1,
+      },
+      androidIntentFilters: ['text/*', 'image/*', 'video/*', 'audio/*'],
+    },
+  ],
 ] as ExpoConfig['plugins']
 
 if (isDev) {
