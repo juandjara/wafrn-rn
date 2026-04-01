@@ -76,6 +76,12 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="https" android:host="meowing.men"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+      <intent-filter android:autoVerify="true" data-generated="true">
+        <action android:name="android.intent.action.VIEW"/>
         <data android:scheme="https" android:host="w.linuxposting.xyz"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -106,13 +112,13 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="worldspawn.unrealneutrals.net"/>
+        <data android:scheme="https" android:host="primate.wang"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="miaudev.rotund.cat"/>
+        <data android:scheme="https" android:host="worldspawn.unrealneutrals.net"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
@@ -155,12 +161,6 @@
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
         <data android:scheme="https" android:host="social.sztupy.hu"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="fright.tomb.download"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
