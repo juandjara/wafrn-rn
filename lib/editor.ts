@@ -34,6 +34,11 @@ export type EditorSearchParams =
       type: 'edit'
       editId: string
     }
+  | {
+      type: 'share'
+      sharedText?: string
+      sharedUrl?: string
+    }
 
 export type EditorFormState = {
   content: string
@@ -276,6 +281,14 @@ export function useEditorData() {
       }
       if (post.quoteControl) {
         formState.canQuote = false
+      }
+    }
+
+    if (params.type === 'share') {
+      if (params.sharedUrl) {
+        formState.content = params.sharedUrl
+      } else if (params.sharedText) {
+        formState.content = params.sharedText
       }
     }
 
