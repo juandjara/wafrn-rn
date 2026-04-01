@@ -29,5 +29,9 @@
       <string>applinks:dragonite.blog</string>
       <string>applinks:social.stg.sztupy.hu</string>
     </array>
+    <key>com.apple.security.application-groups</key>
+    <array>
+      <string>group.dev.djara.wafrn-rn</string>
+    </array>
   </dict>
 </plist>
