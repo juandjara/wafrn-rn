@@ -3,15 +3,21 @@ import { useShareIntentContext } from 'expo-share-intent'
 import { router } from 'expo-router'
 
 export function useShareIntentHandler() {
-  const { hasShareIntent, isReady, error } = useShareIntentContext()
+  const {
+    shareIntent: _shareIntent,
+    hasShareIntent,
+    isReady,
+    error,
+  } = useShareIntentContext()
+  const shareIntent = hasShareIntent ? _shareIntent : null
 
   useEffect(() => {
     if (isReady) {
       if (error) {
         console.error('share intent error: ', error)
-      } else if (hasShareIntent) {
+      } else if (shareIntent) {
         router.navigate('/editor?type=share')
       }
     }
-  }, [hasShareIntent, isReady, error])
+  }, [shareIntent, isReady, error])
 }
