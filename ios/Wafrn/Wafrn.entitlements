@@ -4,5 +4,30 @@
   <dict>
     <key>aps-environment</key>
     <string>development</string>
+    <key>com.apple.developer.associated-domains</key>
+    <array>
+      <string>applinks:app.wafrn.net</string>
+      <string>applinks:waf.moe</string>
+      <string>applinks:bark.wolp.chat</string>
+      <string>applinks:homestuck.fr</string>
+      <string>applinks:w.linuxposting.xyz</string>
+      <string>applinks:wafrn.vaguely.art</string>
+      <string>applinks:problemeowtic.net</string>
+      <string>applinks:club.endormis.cat</string>
+      <string>applinks:waf.c00lest-kats-on.ovh</string>
+      <string>applinks:worldspawn.unrealneutrals.net</string>
+      <string>applinks:miaudev.rotund.cat</string>
+      <string>applinks:wafrn.adamski2003.lol</string>
+      <string>applinks:wafrn.is.sillyand.gay</string>
+      <string>applinks:wf.jbc.lol</string>
+      <string>applinks:irminsul.cc</string>
+      <string>applinks:gabboman.xyz</string>
+      <string>applinks:wicwafren.com</string>
+      <string>applinks:social.sztupy.hu</string>
+      <string>applinks:fright.tomb.download</string>
+      <string>applinks:wafrn.lonewolf.zone</string>
+      <string>applinks:dragonite.blog</string>
+      <string>applinks:social.stg.sztupy.hu</string>
+    </array>
   </dict>
 </plist>
