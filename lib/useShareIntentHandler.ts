@@ -1,30 +1,32 @@
 import { useEffect } from 'react'
 import { useShareIntentContext } from 'expo-share-intent'
+import { EditorSearchParams } from './editor'
 import { router } from 'expo-router'
 
 export function useShareIntentHandler() {
-  const { hasShareIntent, shareIntent, resetShareIntent } =
-    useShareIntentContext()
+  const { shareIntent, isReady, error } = useShareIntentContext()
 
   useEffect(() => {
-    if (!hasShareIntent) {
-      return
+    if (isReady) {
+      if (error) {
+        console.error('share intent error: ', error)
+      } else if (shareIntent) {
+        let params = {
+          type: 'share',
+          sharedText: shareIntent.text ?? '',
+        } as EditorSearchParams
+        if (shareIntent.type !== 'text') {
+          const file = shareIntent.files?.[0]
+          params = {
+            type: 'share',
+            sharedUrl: file?.path,
+          }
+        }
+        router.navigate({
+          pathname: 'editor',
+          params,
+        })
+      }
     }
-
-    const params: Record<string, string> = { type: 'share' }
-
-    if (shareIntent.webUrl) {
-      params.sharedUrl = shareIntent.webUrl
-    }
-    if (shareIntent.text) {
-      params.sharedText = shareIntent.text
-    }
-
-    router.navigate({
-      pathname: '/editor',
-      params,
-    })
-
-    resetShareIntent()
-  }, [hasShareIntent, shareIntent, resetShareIntent])
+  }, [shareIntent, isReady, error])
 }

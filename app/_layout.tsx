@@ -50,15 +50,15 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ThemeProvider value={DarkTheme}>
-            <GestureHandlerRootView style={styles.root}>
-              <ShareIntentProvider
-                options={{
-                  debug: __DEV__,
-                  resetOnBackground: true,
-                }}
-              >
+        <ShareIntentProvider
+          options={{
+            debug: __DEV__,
+            resetOnBackground: true,
+          }}
+        >
+          <AuthProvider>
+            <ThemeProvider value={DarkTheme}>
+              <GestureHandlerRootView style={styles.root}>
                 <Toasts />
                 <NetInfoRibbon />
                 <MenuProvider backHandler customStyles={styles}>
@@ -66,10 +66,10 @@ export default function RootLayout() {
                     <Slot />
                   </HtmlEngineProvider>
                 </MenuProvider>
-              </ShareIntentProvider>
-            </GestureHandlerRootView>
-          </ThemeProvider>
-        </AuthProvider>
+              </GestureHandlerRootView>
+            </ThemeProvider>
+          </AuthProvider>
+        </ShareIntentProvider>
       </QueryClientProvider>
     </KeyboardProvider>
   )

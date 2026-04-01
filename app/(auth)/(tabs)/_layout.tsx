@@ -2,6 +2,7 @@ import UserMenu from '@/components/dashboard/UserMenu'
 import { getRootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
+import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
 import { View, useColorScheme, useWindowDimensions, Text } from 'react-native'
@@ -30,6 +31,7 @@ export default function TabsLayout() {
   // running this here to only register notifications after auth flow is complete
   usePushNotifications()
   useServiceAnnouncements()
+  useShareIntentHandler()
 
   const { height } = useWindowDimensions()
 

@@ -1,7 +1,6 @@
 // initial reference: https://docs.expo.dev/router/reference/authentication/
 import { getRootStyles } from '@/constants/Colors'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { Redirect, Stack } from 'expo-router'
 import { useColorScheme } from 'react-native'
 
@@ -12,7 +11,6 @@ export const unstable_settings = {
 export default function ProtectedLayout() {
   const { token, env } = useAuth()
   const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
-  useShareIntentHandler()
 
   if (!token || !env) {
     return <Redirect href="/sign-in" />
