@@ -26,6 +26,7 @@ import HtmlEngineProvider from '@/components/posts/HtmlEngineProvider'
 import { useToasts } from '@/lib/toasts'
 import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
+import { ShareIntentProvider } from 'expo-share-intent'
 import NetInfoRibbon from '@/components/NetInfoRibbon'
 
 // This is the default configuration
@@ -52,13 +53,20 @@ export default function RootLayout() {
         <AuthProvider>
           <ThemeProvider value={DarkTheme}>
             <GestureHandlerRootView style={styles.root}>
-              <Toasts />
-              <NetInfoRibbon />
-              <MenuProvider backHandler customStyles={styles}>
-                <HtmlEngineProvider>
-                  <Slot />
-                </HtmlEngineProvider>
-              </MenuProvider>
+              <ShareIntentProvider
+                options={{
+                  debug: __DEV__,
+                  resetOnBackground: true,
+                }}
+              >
+                <Toasts />
+                <NetInfoRibbon />
+                <MenuProvider backHandler customStyles={styles}>
+                  <HtmlEngineProvider>
+                    <Slot />
+                  </HtmlEngineProvider>
+                </MenuProvider>
+              </ShareIntentProvider>
             </GestureHandlerRootView>
           </ThemeProvider>
         </AuthProvider>
