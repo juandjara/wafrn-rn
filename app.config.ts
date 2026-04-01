@@ -40,8 +40,17 @@ try {
 } catch {
   console.error('error loading file instances.json')
 }
+
 const ATPROTO_INTENT_LINKS = ['bsky.app', 'witchsky.app', 'deer.social']
-const INTENT_LINKS = [...ATPROTO_INTENT_LINKS, ...instances]
+
+function intentLink(host: string, autoVerify: boolean) {
+  return {
+    action: 'VIEW',
+    autoVerify,
+    data: [{ scheme: 'https', host }],
+    category: ['BROWSABLE', 'DEFAULT'],
+  }
+}
 
 export default {
   expo: {
@@ -62,6 +71,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: isDev ? 'dev.djara.wafrn-rn.dev' : 'dev.djara.wafrn-rn',
+      associatedDomains: instances.map((l) => `applinks:${l}`),
       infoPlist: {
         UIBackgroundModes: ['audio', 'remote-notification'],
         ITSAppUsesNonExemptEncryption: false,
@@ -78,17 +88,9 @@ export default {
       permissions: [],
       package: appId,
       intentFilters: [
-        {
-          action: 'VIEW',
-          autoVerify: true,
-          data: [{ scheme: 'https', host: 'app.wafrn.net' }],
-          category: ['BROWSABLE', 'DEFAULT'],
-        },
-        ...INTENT_LINKS.map((l) => ({
-          action: 'VIEW',
-          data: [{ scheme: 'https', host: l }],
-          category: ['BROWSABLE', 'DEFAULT'],
-        })),
+        intentLink('app.wafrn.net', true),
+        ...instances.map((host) => intentLink(host, true)),
+        ...ATPROTO_INTENT_LINKS.map((host) => intentLink(host, false)),
       ],
       edgeToEdgeEnabled: true,
     },
