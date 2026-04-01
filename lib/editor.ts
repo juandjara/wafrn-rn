@@ -16,6 +16,7 @@ import {
 } from './api/dashboard'
 import { useAsks } from './asks'
 import { InteractionControl, PostUser } from './api/posts.types'
+import { useShareIntentContext } from 'expo-share-intent'
 
 export type EditorSearchParams =
   | {
@@ -36,8 +37,6 @@ export type EditorSearchParams =
     }
   | {
       type: 'share'
-      sharedText?: string
-      sharedUrl?: string
     }
 
 export type EditorFormState = {
@@ -94,6 +93,8 @@ export function useEditorData() {
   })
   const { env } = useAuth()
   const me = useParsedToken()
+  const { shareIntent: _shareIntent, hasShareIntent } = useShareIntentContext()
+  const shareIntent = hasShareIntent ? _shareIntent : null
 
   const isLoading = useMemo(() => {
     if (!params.type) {
@@ -284,11 +285,22 @@ export function useEditorData() {
       }
     }
 
-    if (params.type === 'share') {
-      if (params.sharedUrl) {
-        formState.content = params.sharedUrl
-      } else if (params.sharedText) {
-        formState.content = params.sharedText
+    if (params.type === 'share' && shareIntent) {
+      if (shareIntent.text) {
+        formState.content = shareIntent.text
+      }
+      if (shareIntent.type === 'media' && shareIntent.files?.length) {
+        formState.medias = shareIntent.files.map((f) => ({
+          height: f.height ?? 0,
+          width: f.width ?? 0,
+          description: shareIntent.meta?.title ?? '',
+          fileName: f.fileName ?? '',
+          mimeType: f.mimeType,
+          uri: f.path,
+        }))
+      }
+      if (shareIntent.type === 'file') {
+        // TODO
       }
     }
 
@@ -304,5 +316,14 @@ export function useEditorData() {
       isLoading,
       privacySelectDisabled,
     }
-  }, [me?.userId, env?.BASE_URL, asks, reply, settings, params, isLoading])
+  }, [
+    me?.userId,
+    env?.BASE_URL,
+    asks,
+    reply,
+    settings,
+    params,
+    isLoading,
+    shareIntent,
+  ])
 }

@@ -53,7 +53,7 @@ export default function RootLayout() {
         <ShareIntentProvider
           options={{
             debug: __DEV__,
-            resetOnBackground: true,
+            resetOnBackground: false,
           }}
         >
           <AuthProvider>
