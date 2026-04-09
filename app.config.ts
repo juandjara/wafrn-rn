@@ -68,7 +68,6 @@ function intentLink(host: string, autoVerify: boolean) {
 
 export default {
   expo: {
-    newArchEnabled: true,
     name,
     slug: 'wafrn-rn',
     version: versionName,
@@ -105,7 +104,6 @@ export default {
         ...instances.map((host) => intentLink(host, true)),
         ...ATPROTO_INTENT_LINKS.map((host) => intentLink(host, false)),
       ],
-      edgeToEdgeEnabled: true,
     },
     plugins,
     experiments: {

@@ -10,7 +10,8 @@ export const unstable_settings = {
 
 export default function ProtectedLayout() {
   const { token, env } = useAuth()
-  const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+  const scheme = useColorScheme()
+  const rootStyles = getRootStyles(scheme === 'light' ? 'light' : 'dark')
 
   if (!token || !env) {
     return <Redirect href="/sign-in" />

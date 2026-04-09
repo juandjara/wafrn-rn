@@ -21,7 +21,8 @@ const ICON_SIZE = 28
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
-  const rootStyles = getRootStyles(useColorScheme() ?? 'dark')
+  const scheme = useColorScheme()
+  const rootStyles = getRootStyles(scheme === 'light' ? 'light' : 'dark')
   const blue950 = useCSSVariable('--color-blue-950') as string
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string

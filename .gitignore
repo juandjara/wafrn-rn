@@ -9,18 +9,24 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+.env*.local
 
 # macOS
 .DS_Store
 
-.env*.local
-
 # credentials
 credentials.json
 google-services.json*
+
+# fastlane
+gc_keys.json
+fastlane/report.xml
+.env
+*.dSYM.zip
 
 # build artifacts (compiled applications from build commands)
 *.apk
 *.aab
 *.ipa
 instances.json
+
