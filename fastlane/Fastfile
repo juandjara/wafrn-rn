@@ -36,7 +36,7 @@ platform :ios do
 
     changelog_from_git_commits
     build_app(
-      workspace: "Wafrn.xcworkspace",
+      workspace: "ios/Wafrn.xcworkspace",
       scheme: "Wafrn",
     )
     upload_to_testflight(
