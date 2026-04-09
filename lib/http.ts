@@ -40,7 +40,7 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1].headers.set('User-Agent', `${pkg.name}/${pkg.version}`)
   const res = await fetch(...params)
   if (!res.ok) {
-    await handleFetchError(params[0], res)
+    await handleFetchError(String(params[0]), res)
   }
   const json = await res.json()
   if (isErrorResponse(json)) {
