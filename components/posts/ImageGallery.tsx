@@ -30,18 +30,33 @@ export default function ImageGallery({
   medias: PostMedia[]
   index: number
 }) {
+  return (
+    <Modal visible={open} onRequestClose={() => setOpen(false)}>
+      <Toasts />
+      {open && (
+        <ImageGalleryContent
+          medias={medias}
+          index={index}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </Modal>
+  )
+}
+
+function ImageGalleryContent({
+  medias,
+  index,
+  onClose,
+}: {
+  medias: PostMedia[]
+  index: number
+  onClose: () => void
+}) {
   const sx = useSafeAreaPadding()
   const [showOverlay, setShowOverlay] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(index)
   const galleryRef = useRef<GalleryRefType>(null)
-
-  // Sync gallery to parent's index when it changes (e.g. user taps a different image)
-  const prevIndexRef = useRef(index)
-  if (prevIndexRef.current !== index) {
-    prevIndexRef.current = index
-    setCurrentIndex(index)
-    galleryRef.current?.setIndex(index)
-  }
 
   const media = medias[currentIndex]
   const downloadMutation = useDownloadToGalleryMutation()
@@ -87,8 +102,7 @@ export default function ImageGallery({
   }
 
   return (
-    <Modal visible={open} onRequestClose={() => setOpen(false)}>
-      <Toasts />
+    <>
       {showOverlay && (
         <View
           style={{ paddingTop: sx.paddingTop }}
@@ -117,7 +131,7 @@ export default function ImageGallery({
           </Pressable>
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
-            onPress={() => setOpen(false)}
+            onPress={onClose}
           >
             <MaterialIcons name="close" size={24} color="white" />
           </Pressable>
@@ -130,7 +144,7 @@ export default function ImageGallery({
         data={data}
         renderItem={ImageRenderer}
         onSwipe={(direction) => {
-          if (direction === 'up' || direction === 'down') setOpen(false)
+          if (direction === 'up' || direction === 'down') onClose()
         }}
         onTap={() => setShowOverlay(!showOverlay)}
         keyExtractor={(item) => item.src}
@@ -151,6 +165,6 @@ export default function ImageGallery({
           </ScrollView>
         </View>
       )}
-    </Modal>
+    </>
   )
 }
