@@ -105,7 +105,7 @@ export default function Video({
         nativeControls={false}
         style={{ width, height }}
         player={player}
-        allowsPictureInPicture
+        allowsPictureInPicture={false}
         fullscreenOptions={{ enable: true }}
       />
       <Pressable
