@@ -37,16 +37,16 @@ export default function ImageGallery({
       onRequestClose={() => setOpen(false)}
       backdropColor="black"
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Toasts />
-        {open && (
+      {open && (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Toasts />
           <ImageGalleryContent
             medias={medias}
             index={index}
             onClose={() => setOpen(false)}
           />
-        )}
-      </GestureHandlerRootView>
+        </GestureHandlerRootView>
+      )}
     </Modal>
   )
 }
