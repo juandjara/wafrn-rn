@@ -1,6 +1,6 @@
 import { Image } from 'expo-image'
-import { useRef, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { useState } from 'react'
+import { Text, useWindowDimensions, View } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Loading from '../Loading'
 import { useImageRetries } from '@/lib/imageRetriesStore'
@@ -10,23 +10,23 @@ export type ImageRendererItem = {
   blurHash: string | undefined
 }
 
-export default function ImageRenderer(item: ImageRendererItem, _index: number) {
+export default function renderImageItem(
+  item: ImageRendererItem,
+  _index: number,
+) {
+  return <ImageRenderer item={item} />
+}
+
+function ImageRenderer({ item }: { item: ImageRendererItem }) {
+  const { width, height } = useWindowDimensions()
   const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>(
     'loading',
   )
   const retries = useImageRetries(item.src)
-
-  // Reset to loading when retries changes (image re-fetch)
-  const prevRetriesRef = useRef(retries)
-  if (prevRetriesRef.current !== retries) {
-    prevRetriesRef.current = retries
-    if (loadState !== 'loading') {
-      setLoadState('loading')
-    }
-  }
+  const cacheKey = retries > 0 ? `${item.src}-${retries}` : item.src
 
   return (
-    <View className="flex-1">
+    <View style={{ width, height }}>
       {loadState === 'loading' && (
         <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
           <Loading />
@@ -43,15 +43,16 @@ export default function ImageRenderer(item: ImageRendererItem, _index: number) {
         </View>
       )}
       <Image
+        key={cacheKey}
         source={{
           uri: item.src,
-          cacheKey: retries > 0 ? `${item.src}-${retries}` : item.src,
+          cacheKey,
         }}
         placeholder={{ blurhash: item.blurHash }}
         placeholderContentFit="contain"
         contentFit="contain"
         cachePolicy={'memory-disk'}
-        style={StyleSheet.absoluteFillObject}
+        style={{ width, height }}
         onLoad={() => setLoadState('loaded')}
         onError={() => {
           console.error('Failed to load image:', item.src)

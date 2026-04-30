@@ -16,8 +16,9 @@ import { Toasts } from '@backpackapp-io/react-native-toast'
 import { formatMediaIdUrl } from '@/lib/formatters'
 import { PostMedia } from '@/lib/api/posts.types'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
-import ImageRenderer from './ImageRenderer'
+import renderImageItem from './ImageRenderer'
 import { bumpImageRetries } from '@/lib/imageRetriesStore'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export default function ImageGallery({
   open,
@@ -31,15 +32,21 @@ export default function ImageGallery({
   index: number
 }) {
   return (
-    <Modal visible={open} onRequestClose={() => setOpen(false)}>
-      <Toasts />
-      {open && (
-        <ImageGalleryContent
-          medias={medias}
-          index={index}
-          onClose={() => setOpen(false)}
-        />
-      )}
+    <Modal
+      visible={open}
+      onRequestClose={() => setOpen(false)}
+      backdropColor="black"
+    >
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Toasts />
+        {open && (
+          <ImageGalleryContent
+            medias={medias}
+            index={index}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </GestureHandlerRootView>
     </Modal>
   )
 }
@@ -105,6 +112,7 @@ function ImageGalleryContent({
     <>
       {showOverlay && (
         <View
+          pointerEvents="box-none"
           style={{ paddingTop: sx.paddingTop }}
           className="bg-black/50 absolute z-10 top-0 right-0 left-0 pb-2 px-3 gap-3 flex-row justify-end"
         >
@@ -142,7 +150,7 @@ function ImageGalleryContent({
         initialIndex={index}
         onIndexChange={setCurrentIndex}
         data={data}
-        renderItem={ImageRenderer}
+        renderItem={renderImageItem}
         onSwipe={(direction) => {
           if (direction === 'up' || direction === 'down') onClose()
         }}
@@ -151,6 +159,7 @@ function ImageGalleryContent({
       />
       {showOverlay && (
         <View
+          pointerEvents="box-none"
           style={{
             maxHeight: '50%',
             paddingBottom: sx.paddingBottom + 4,

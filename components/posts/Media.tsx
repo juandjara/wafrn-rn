@@ -12,7 +12,7 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import MediaCloak from './MediaCloak'
 import Video from '../Video'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import { Image } from 'expo-image'
@@ -36,15 +36,7 @@ function ImageWithLoader({
     'loading',
   )
   const retries = useImageRetries(src)
-
-  // Reset to loading when retries changes (image re-fetch)
-  const prevRetriesRef = useRef(retries)
-  if (prevRetriesRef.current !== retries) {
-    prevRetriesRef.current = retries
-    if (loadState !== 'loading') {
-      setLoadState('loading')
-    }
-  }
+  const cacheKey = retries > 0 ? `${src}-${retries}` : src
 
   const style = useMemo(
     () => StyleSheet.create({ img: { width, height } }).img,
@@ -69,11 +61,12 @@ function ImageWithLoader({
         </View>
       )}
       <Image
+        key={cacheKey}
         enforceEarlyResizing
         recyclingKey={id}
         source={{
           uri: src,
-          cacheKey: retries > 0 ? `${src}-${retries}` : src,
+          cacheKey,
         }}
         cachePolicy={'memory-disk'}
         contentFit="cover"
