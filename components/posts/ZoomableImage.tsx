@@ -4,7 +4,6 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
   ViewStyle,
@@ -19,30 +18,6 @@ import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { useResolveClassNames } from 'uniwind'
 import ImageRenderer from './ImageRenderer'
-
-const styles = StyleSheet.create({
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.1)',
-  },
-  errorOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
 
 export default function ZoomableImage({
   id,
@@ -186,12 +161,12 @@ export default function ZoomableImage({
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <View style={{ width, height, position: 'relative' }}>
           {loadState === 'loading' && (
-            <View style={styles.loadingOverlay}>
+            <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
               <ActivityIndicator size="small" color="#0a7ea4" />
             </View>
           )}
           {loadState === 'error' && (
-            <View style={styles.errorOverlay}>
+            <View className="z-20 absolute inset-0 items-center justify-center">
               <MaterialCommunityIcons
                 name="image-broken-variant"
                 size={24}
