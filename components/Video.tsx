@@ -51,7 +51,6 @@ export default function Video({
     }
     p.loop = true
     p.timeUpdateEventInterval = 1
-    return p
   })
 
   useEventListener(player, 'playingChange', (ev) => setIsPlaying(ev.isPlaying))
@@ -72,7 +71,8 @@ export default function Video({
   }
 
   function toggleMute() {
-    player.emit('mutedChange', { muted: !player.muted, oldMuted: player.muted })
+    // eslint-disable-next-line react-compiler/react-compiler
+    player.muted = !player.muted
   }
 
   function skipForward() {
