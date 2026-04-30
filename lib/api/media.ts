@@ -210,10 +210,10 @@ async function reloadImage({ src }: ReloadImagePayload) {
   if (!isValidURL(src)) {
     throw new Error('src must be a valid URL')
   }
+  // Force image re-download on the server
+  // the native image cache does not go through fetch but through native image libraries
+  // and it is cleaned when bumping the cacheKey
   await fetch(`${src}?force=true`)
-  await fetch(src, {
-    headers: { 'Cache-Control': 'no-cache' },
-  })
 }
 
 export function useReloadImageMutation() {

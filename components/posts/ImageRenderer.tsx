@@ -1,7 +1,8 @@
 import { Image } from 'expo-image'
-import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useRef, useState } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 import type { RenderItemInfo } from 'react-native-awesome-gallery'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Loading from '../Loading'
 import { useImageRetries } from '@/lib/imageRetriesStore'
 
@@ -14,13 +15,35 @@ export default function ImageRenderer({
   item,
   setImageDimensions,
 }: RenderItemInfo<ImageRendererItem>) {
-  const [loading, setLoading] = useState(true)
+  const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>(
+    'loading',
+  )
   const retries = useImageRetries(item.src)
+
+  // Reset to loading when retries changes (image re-fetch)
+  const prevRetriesRef = useRef(retries)
+  if (prevRetriesRef.current !== retries) {
+    prevRetriesRef.current = retries
+    if (loadState !== 'loading') {
+      setLoadState('loading')
+    }
+  }
+
   return (
     <View className="flex-1">
-      {loading && (
+      {loadState === 'loading' && (
         <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
           <Loading />
+        </View>
+      )}
+      {loadState === 'error' && (
+        <View className="z-20 absolute inset-0 items-center justify-center">
+          <MaterialCommunityIcons
+            name="image-broken-variant"
+            size={48}
+            color="#999"
+          />
+          <Text className="text-gray-400 mt-2">Failed to load image</Text>
         </View>
       )}
       <Image
@@ -36,7 +59,11 @@ export default function ImageRenderer({
         onLoad={(e) => {
           const { width, height } = e.source
           setImageDimensions({ width, height })
-          setLoading(false)
+          setLoadState('loaded')
+        }}
+        onError={() => {
+          console.error('Failed to load image:', item.src)
+          setLoadState('error')
         }}
       />
     </View>

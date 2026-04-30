@@ -12,7 +12,7 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import MediaCloak from './MediaCloak'
 import Video from '../Video'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import LinkPreviewCard from './LinkPreviewCard'
 import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import { Image } from 'expo-image'
@@ -32,8 +32,20 @@ function ImageWithLoader({
   height: number
   blurhash: string
 }) {
-  const [loading, setLoading] = useState(true)
+  const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>(
+    'loading',
+  )
   const retries = useImageRetries(src)
+
+  // Reset to loading when retries changes (image re-fetch)
+  const prevRetriesRef = useRef(retries)
+  if (prevRetriesRef.current !== retries) {
+    prevRetriesRef.current = retries
+    if (loadState !== 'loading') {
+      setLoadState('loading')
+    }
+  }
+
   const style = useMemo(
     () => StyleSheet.create({ img: { width, height } }).img,
     [width, height],
@@ -41,9 +53,19 @@ function ImageWithLoader({
 
   return (
     <View className="relative">
-      {loading && (
+      {loadState === 'loading' && (
         <View className="z-20 absolute inset-0 bg-black/20 items-center justify-center">
           <Loading />
+        </View>
+      )}
+      {loadState === 'error' && (
+        <View className="z-20 absolute inset-0 items-center justify-center">
+          <MaterialCommunityIcons
+            name="image-broken-variant"
+            size={32}
+            color="#999"
+          />
+          <Text className="text-gray-400 mt-1 text-xs">Failed to load</Text>
         </View>
       )}
       <Image
@@ -58,7 +80,11 @@ function ImageWithLoader({
         placeholderContentFit="cover"
         placeholder={{ blurhash }}
         style={style}
-        onLoad={() => setLoading(false)}
+        onLoad={() => setLoadState('loaded')}
+        onError={() => {
+          console.error('Failed to load image:', src)
+          setLoadState('error')
+        }}
       />
     </View>
   )

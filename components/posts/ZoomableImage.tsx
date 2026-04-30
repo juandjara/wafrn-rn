@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Image, ImageStyle } from 'expo-image'
 import {
   Modal,
@@ -47,9 +47,22 @@ export default function ZoomableImage({
   const sx = useSafeAreaPadding()
   const [modalOpen, setModalOpen] = useState(false)
   const [showOverlay, setShowOverlay] = useState(true)
+  const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>(
+    'loading',
+  )
+  const resolvedImgClassName = useResolveClassNames(imgClassName ?? '')
   const downloadMutation = useDownloadToGalleryMutation()
   const reloadImageMutation = useReloadImageMutation()
   const retries = useImageRetries(src)
+
+  // Reset to loading when retries changes (image re-fetch)
+  const prevRetriesRef = useRef(retries)
+  if (prevRetriesRef.current !== retries) {
+    prevRetriesRef.current = retries
+    if (loadState !== 'loading') {
+      setLoadState('loading')
+    }
+  }
 
   function download() {
     downloadMutation.mutate({
@@ -144,21 +157,42 @@ export default function ZoomableImage({
         )}
       </Modal>
       <Pressable className={className} onPress={() => setModalOpen(true)}>
-        <Image
-          cachePolicy={'memory-disk'}
-          source={{
-            uri: src,
-            cacheKey: retries > 0 ? `${src}-${retries}` : src,
-          }}
-          placeholderContentFit={contentFit}
-          placeholder={{ blurhash: blurHash, width, height }}
-          contentFit={contentFit}
-          style={[
-            useResolveClassNames(imgClassName ?? ''),
-            style as ImageStyle,
-            { width, height },
-          ]}
-        />
+        <View style={{ width, height, position: 'relative' }}>
+          {loadState === 'loading' && (
+            <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
+              <ActivityIndicator size="small" color="#0a7ea4" />
+            </View>
+          )}
+          {loadState === 'error' && (
+            <View className="z-20 absolute inset-0 items-center justify-center">
+              <MaterialCommunityIcons
+                name="image-broken-variant"
+                size={24}
+                color="#999"
+              />
+            </View>
+          )}
+          <Image
+            cachePolicy={'memory-disk'}
+            source={{
+              uri: src,
+              cacheKey: retries > 0 ? `${src}-${retries}` : src,
+            }}
+            placeholderContentFit={contentFit}
+            placeholder={{ blurhash: blurHash, width, height }}
+            contentFit={contentFit}
+            style={[
+              resolvedImgClassName,
+              style as ImageStyle,
+              { width, height },
+            ]}
+            onLoad={() => setLoadState('loaded')}
+            onError={() => {
+              console.error('Failed to load image:', src)
+              setLoadState('error')
+            }}
+          />
+        </View>
       </Pressable>
     </View>
   )

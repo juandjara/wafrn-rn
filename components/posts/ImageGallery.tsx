@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   Modal,
   Pressable,
@@ -33,6 +33,16 @@ export default function ImageGallery({
   const sx = useSafeAreaPadding()
   const [showOverlay, setShowOverlay] = useState(true)
   const [_index, setIndex] = useState(index)
+
+  // Sync internal index when parent changes which image to open
+  const prevIndexRef = useRef(index)
+  if (prevIndexRef.current !== index) {
+    prevIndexRef.current = index
+    if (_index !== index) {
+      setIndex(index)
+    }
+  }
+
   const media = medias[_index]
   const downloadMutation = useDownloadToGalleryMutation()
   const reloadImageMutation = useReloadImageMutation()
