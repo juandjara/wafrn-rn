@@ -11,6 +11,9 @@ const name = isDev ? 'Wafrn Dev' : 'Wafrn'
 const icon = isDev
   ? './assets/images/logo_w_dev.png'
   : './assets/images/logo_w.png'
+const monochromeIcon = isDev
+  ? './assets/images/logo_w_dev_monochrome.png'
+  : './assets/images/logo_w_monochrome.png'
 
 const plugins = [
   'expo-router',
@@ -96,6 +99,7 @@ export default {
       versionCode: versionNumber,
       adaptiveIcon: {
         foregroundImage: icon,
+        monochromeImage: monochromeIcon,
         backgroundColor: '#151718',
       },
       permissions: [],
