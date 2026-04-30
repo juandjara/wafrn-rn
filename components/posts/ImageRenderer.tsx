@@ -1,20 +1,16 @@
 import { Image } from 'expo-image'
 import { useRef, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import type { RenderItemInfo } from 'react-native-awesome-gallery'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Loading from '../Loading'
 import { useImageRetries } from '@/lib/imageRetriesStore'
 
-type ImageRendererItem = {
+export type ImageRendererItem = {
   src: string
   blurHash: string | undefined
 }
 
-export default function ImageRenderer({
-  item,
-  setImageDimensions,
-}: RenderItemInfo<ImageRendererItem>) {
+export default function ImageRenderer(item: ImageRendererItem, _index: number) {
   const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>(
     'loading',
   )
@@ -56,11 +52,7 @@ export default function ImageRenderer({
         contentFit="contain"
         cachePolicy={'memory-disk'}
         style={StyleSheet.absoluteFillObject}
-        onLoad={(e) => {
-          const { width, height } = e.source
-          setImageDimensions({ width, height })
-          setLoadState('loaded')
-        }}
+        onLoad={() => setLoadState('loaded')}
         onError={() => {
           console.error('Failed to load image:', item.src)
           setLoadState('error')

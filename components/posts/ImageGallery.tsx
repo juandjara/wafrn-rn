@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useReloadImageMutation } from '@/lib/api/media'
-import Gallery from 'react-native-awesome-gallery'
+import { Gallery, type GalleryRefType } from 'react-native-zoom-toolkit'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
@@ -32,18 +32,18 @@ export default function ImageGallery({
 }) {
   const sx = useSafeAreaPadding()
   const [showOverlay, setShowOverlay] = useState(true)
-  const [_index, setIndex] = useState(index)
+  const [currentIndex, setCurrentIndex] = useState(index)
+  const galleryRef = useRef<GalleryRefType>(null)
 
-  // Sync internal index when parent changes which image to open
+  // Sync gallery to parent's index when it changes (e.g. user taps a different image)
   const prevIndexRef = useRef(index)
   if (prevIndexRef.current !== index) {
     prevIndexRef.current = index
-    if (_index !== index) {
-      setIndex(index)
-    }
+    setCurrentIndex(index)
+    galleryRef.current?.setIndex(index)
   }
 
-  const media = medias[_index]
+  const media = medias[currentIndex]
   const downloadMutation = useDownloadToGalleryMutation()
   const reloadImageMutation = useReloadImageMutation()
 
@@ -124,11 +124,14 @@ export default function ImageGallery({
         </View>
       )}
       <Gallery
+        ref={galleryRef}
         initialIndex={index}
-        onIndexChange={setIndex}
+        onIndexChange={setCurrentIndex}
         data={data}
         renderItem={ImageRenderer}
-        onSwipeToClose={() => setOpen(false)}
+        onSwipe={(direction) => {
+          if (direction === 'up' || direction === 'down') setOpen(false)
+        }}
         onTap={() => setShowOverlay(!showOverlay)}
         keyExtractor={(item) => item.src}
       />

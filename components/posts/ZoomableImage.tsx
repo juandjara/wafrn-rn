@@ -4,6 +4,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   View,
   ViewStyle,
@@ -12,12 +13,36 @@ import {
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useReloadImageMutation } from '@/lib/api/media'
 import { bumpImageRetries, useImageRetries } from '@/lib/imageRetriesStore'
-import Gallery from 'react-native-awesome-gallery'
+import { Gallery } from 'react-native-zoom-toolkit'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useDownloadToGalleryMutation } from '@/lib/downloads'
 import { Toasts } from '@backpackapp-io/react-native-toast'
 import { useResolveClassNames } from 'uniwind'
 import ImageRenderer from './ImageRenderer'
+
+const styles = StyleSheet.create({
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  errorOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})
 
 export default function ZoomableImage({
   id,
@@ -97,7 +122,9 @@ export default function ZoomableImage({
           initialIndex={0}
           data={[{ src, blurHash }]}
           renderItem={ImageRenderer}
-          onSwipeToClose={() => setModalOpen(false)}
+          onSwipe={(direction) => {
+            if (direction === 'up' || direction === 'down') setModalOpen(false)
+          }}
           onTap={() => setShowOverlay(!showOverlay)}
         />
         {showOverlay && (
@@ -159,12 +186,12 @@ export default function ZoomableImage({
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <View style={{ width, height, position: 'relative' }}>
           {loadState === 'loading' && (
-            <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
+            <View style={styles.loadingOverlay}>
               <ActivityIndicator size="small" color="#0a7ea4" />
             </View>
           )}
           {loadState === 'error' && (
-            <View className="z-20 absolute inset-0 items-center justify-center">
+            <View style={styles.errorOverlay}>
               <MaterialCommunityIcons
                 name="image-broken-variant"
                 size={24}
