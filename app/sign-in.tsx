@@ -15,6 +15,7 @@ import {
 } from 'react-native'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useThemeColor } from '@/hooks/useThemeColor'
+import { useCSSVariable } from 'uniwind'
 import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
@@ -31,6 +32,7 @@ export default function SignIn() {
   const sx = useSafeAreaPadding()
   const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
+  const placeholderColor = useCSSVariable('--color-gray-400') as string
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
 
@@ -116,8 +118,9 @@ export default function SignIn() {
                     autoCapitalize="none"
                     autoCorrect={false}
                     placeholder="Email"
+                    placeholderTextColor={placeholderColor}
                     style={{ color }}
-                    className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                    className="p-3 my-3 border border-gray-500 rounded"
                     value={email}
                     onChangeText={setEmail}
                   />
@@ -125,8 +128,9 @@ export default function SignIn() {
                     secureTextEntry
                     autoCapitalize="none"
                     placeholder="Password"
+                    placeholderTextColor={placeholderColor}
                     style={{ color }}
-                    className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                    className="p-3 my-3 border border-gray-500 rounded"
                     value={password}
                     onChangeText={setPassword}
                   />
@@ -162,8 +166,9 @@ export default function SignIn() {
                     inputMode="numeric"
                     autoCapitalize="none"
                     placeholder="Token"
+                    placeholderTextColor={placeholderColor}
                     style={{ color }}
-                    className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                    className="p-3 my-3 border border-gray-500 rounded"
                     value={mfaToken}
                     onChangeText={setMfaToken}
                   />

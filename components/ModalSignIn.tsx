@@ -13,6 +13,7 @@ import { useToasts } from '@/lib/toasts'
 import Button from './Button'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { useCSSVariable } from 'uniwind'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -33,6 +34,7 @@ export default function ModalSignIn({
   const { showToastError } = useToasts()
 
   const color = useThemeColor({}, 'text')
+  const placeholderColor = useCSSVariable('--color-gray-400') as string
   const loginMfaMutation = useLoginMfaMutation(env)
   const loginMutation = useLoginMutation(env)
 
@@ -97,8 +99,9 @@ export default function ModalSignIn({
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="Email"
+                  placeholderTextColor={placeholderColor}
                   style={{ color }}
-                  className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                  className="p-3 my-3 border border-gray-500 rounded"
                   value={email}
                   onChangeText={setEmail}
                 />
@@ -106,8 +109,9 @@ export default function ModalSignIn({
                   secureTextEntry
                   autoCapitalize="none"
                   placeholder="Password"
+                  placeholderTextColor={placeholderColor}
                   style={{ color }}
-                  className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                  className="p-3 my-3 border border-gray-500 rounded"
                   value={password}
                   onChangeText={setPassword}
                 />
@@ -143,8 +147,9 @@ export default function ModalSignIn({
                   inputMode="numeric"
                   autoCapitalize="none"
                   placeholder="Token"
+                  placeholderTextColor={placeholderColor}
                   style={{ color }}
-                  className="p-3 my-3 border border-gray-500 rounded placeholder:text-gray-400"
+                  className="p-3 my-3 border border-gray-500 rounded"
                   value={mfaToken}
                   onChangeText={setMfaToken}
                 />

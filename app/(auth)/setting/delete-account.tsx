@@ -10,6 +10,7 @@ export default function DeleteAccount() {
   const [password, setPassword] = useState('')
   const deleteAccountMutation = useDeleteAccountMutation()
   const color = useCSSVariable('--color-red-700') as string
+  const placeholderColor = useCSSVariable('--color-gray-400') as string
 
   return (
     <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
@@ -27,7 +28,8 @@ export default function DeleteAccount() {
           secureTextEntry
           autoCapitalize="none"
           placeholder="Password"
-          className="p-3 my-6 border border-gray-500 rounded placeholder:text-gray-400"
+          placeholderTextColor={placeholderColor}
+          className="p-3 my-6 border border-gray-500 rounded"
           value={password}
           onChangeText={setPassword}
         />

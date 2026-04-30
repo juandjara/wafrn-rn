@@ -15,10 +15,12 @@ import { usePasswordChangeCompleteMutation } from '@/lib/api/user'
 import InstanceProvider from '@/components/InstanceProvider'
 import Button from '@/components/Button'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { useCSSVariable } from 'uniwind'
 
 export default function CompletePasswordReset() {
   const sx = useSafeAreaPadding()
   const color = Colors.dark.text
+  const placeholderColor = useCSSVariable('--color-gray-400') as string
   const [password, setPassword] = useState('')
 
   const { envStatus, instance, setInstance } = useAuth()
@@ -83,8 +85,9 @@ export default function CompletePasswordReset() {
               secureTextEntry
               autoCapitalize="none"
               placeholder="Password"
+              placeholderTextColor={placeholderColor}
               style={{ color }}
-              className="p-3 my-6 border border-gray-500 rounded placeholder:text-gray-400"
+              className="p-3 my-6 border border-gray-500 rounded"
               value={password}
               onChangeText={setPassword}
             />

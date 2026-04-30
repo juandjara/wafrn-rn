@@ -58,6 +58,7 @@ function parseDate(input: string) {
 export default function Register() {
   const sx = useSafeAreaPadding()
   const inputTextColor = Colors.dark.text
+  const placeholderColor = useCSSVariable('--color-gray-400') as string
   const mutation = useRegisterMutation()
   const { showToastSuccess } = useToasts()
   const gray600 = useCSSVariable('--color-gray-600') as string
@@ -149,8 +150,9 @@ export default function Register() {
                               autoCapitalize="none"
                               inputMode="email"
                               placeholder="Email"
+                              placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              className="p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -179,8 +181,9 @@ export default function Register() {
                               autoCorrect={false}
                               autoComplete="new-password"
                               placeholder="Password"
+                              placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              className="p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -205,8 +208,9 @@ export default function Register() {
                               <TextInput
                                 autoCapitalize="none"
                                 placeholder="Invite code"
+                                placeholderTextColor={placeholderColor}
                                 style={{ color: inputTextColor }}
-                                className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                                className="p-3 border border-gray-500 rounded"
                                 value={value}
                                 onChangeText={setValue}
                                 onBlur={onBlur}
@@ -237,8 +241,9 @@ export default function Register() {
                             <TextInput
                               autoCapitalize="none"
                               placeholder="Your username"
+                              placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              className="p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -281,8 +286,9 @@ export default function Register() {
                           <View className="my-3">
                             <TextInput
                               placeholder="Your birth date"
+                              placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              className="p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -314,8 +320,9 @@ export default function Register() {
                               multiline
                               numberOfLines={3}
                               placeholder="Describe yourself (optional)"
+                              placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded placeholder:text-gray-400"
+                              className="p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
