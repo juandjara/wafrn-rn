@@ -16,15 +16,39 @@ export default function Settings() {
 
   const options = useMemo(() => {
     const opts = [
+      // PROFILE
+      { header: 'Profile' },
+      {
+        icon: 'account-edit-outline' as const,
+        label: 'Edit my profile',
+        link: '/setting/edit-profile',
+      },
       {
         icon: 'account-multiple-plus-outline' as const,
         label: 'Import follows',
         link: '/setting/import-follows',
       },
+      // ACCOUNT
+      { header: 'Account' },
       {
-        icon: 'account-edit-outline' as const,
-        label: 'Edit my profile',
-        link: '/setting/edit-profile',
+        icon: 'palette' as const,
+        label: 'Options & Customizations',
+        link: '/setting/options',
+      },
+      {
+        icon: 'server-off' as const,
+        label: 'Mutes & Blocks',
+        link: '/setting/mutes-and-blocks',
+      },
+      {
+        icon: 'bell-outline' as const,
+        label: 'Notifications',
+        link: '/setting/notification-settings',
+      },
+      {
+        icon: 'butterfly-outline' as const,
+        label: 'Bluesky / ATProto',
+        link: '/setting/bluesky-settings',
       },
       {
         icon: 'key' as const,
@@ -33,29 +57,17 @@ export default function Settings() {
       },
       {
         icon: 'two-factor-authentication' as const,
-        label: 'Set up two factor auth',
+        label: 'Multi-factor Authentication',
         link: '/setting/mfa-settings',
       },
       {
-        icon: 'palette' as const,
-        label: 'Options & Customizations',
-        link: '/setting/options',
+        icon: 'shield-outline' as const,
+        label: 'Admin panel',
+        link: '/admin',
+        hidden: !isAdmin,
       },
-      {
-        icon: 'butterfly-outline' as const,
-        label: 'Bluesky settings',
-        link: '/setting/bluesky-settings',
-      },
-      {
-        icon: 'bell-outline' as const,
-        label: 'Notification settings',
-        link: '/setting/notification-settings',
-      },
-      {
-        icon: 'server-off' as const,
-        label: 'Mutes & Blocks',
-        link: '/setting/mutes-and-blocks',
-      },
+      // ABOUT WAFRN
+      { header: 'About Wafrn' },
       {
         icon: 'help-circle-outline' as const,
         label: 'FAQ / User guide',
@@ -64,13 +76,7 @@ export default function Settings() {
       {
         icon: 'eye-off-outline' as const,
         label: 'Privacy policy',
-        link: '/setting/privacy',
-      },
-      {
-        icon: 'shield-outline' as const,
-        label: 'Admin settings',
-        link: '/admin',
-        hidden: !isAdmin,
+        link: '/article/system.privacy-policy', // TODO: support article links
       },
       {
         icon: 'code-braces' as const,
@@ -78,19 +84,23 @@ export default function Settings() {
         link: 'https://codeberg.org/wafrn/wafrn-rn',
       },
       {
+        icon: 'hand-heart-outline' as const,
+        label: 'Support the project',
+        link: 'https://wafrn.net/faq/donate.html',
+      },
+      // DANGER
+      { header: 'Danger Zone' },
+      {
         icon: 'trash-can-outline' as const,
         label: 'Delete my account',
         link: '/setting/delete-account',
+        color: red400,
       },
       {
-        icon: 'cash-multiple' as const,
-        label: 'Give us some money on Patreon',
-        link: 'https://patreon.com/wafrn',
-      },
-      {
-        icon: 'cash-plus' as const,
-        label: 'Give us some money on Ko-fi',
-        link: 'https://ko-fi.com/wafrn',
+        icon: 'logout' as const,
+        label: 'Log out',
+        link: '/sign-out',
+        color: red400,
       },
     ]
     const filteredOptions = opts.filter((option) => {
@@ -100,35 +110,42 @@ export default function Settings() {
       return true
     })
     return filteredOptions
-  }, [isAdmin])
+  }, [isAdmin, red400])
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View
+      style={{
+        ...sx,
+        paddingTop: sx.paddingTop + HEADER_HEIGHT,
+      }}
+    >
       <Header title="Settings" />
-      <ScrollView>
-        <Pressable
-          onPress={() => router.navigate('/sign-out')}
-          className="active:bg-white/10"
-          style={optionStyleDark(0)}
-        >
-          <MaterialCommunityIcons name="logout" size={24} color={red400} />
-          <Text className="text-red-400">Log out</Text>
-        </Pressable>
-        {options.map((option, i) => (
-          <Pressable
-            key={i}
-            className="active:bg-white/10"
-            style={optionStyleDark(i)}
-            onPress={() => router.navigate(option.link)}
-          >
-            <MaterialCommunityIcons
-              name={option.icon}
-              size={24}
-              color={gray200}
-            />
-            <Text className="text-white">{option.label}</Text>
-          </Pressable>
-        ))}
+      <ScrollView contentContainerClassName="pb-6">
+        {options.map((option, i) =>
+          option.header ? (
+            <View key={i}>
+              <Text className="text-gray-300 text-lg border-b border-gray-600 font-bold px-4 pt-6 pb-2 mb-2">
+                {option.header}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              key={i}
+              className="active:bg-white/10"
+              style={optionStyleDark(i)}
+              onPress={() => router.navigate(option.link ?? '/')}
+            >
+              <MaterialCommunityIcons
+                name={option.icon}
+                size={24}
+                color={option.color ?? gray200}
+              />
+              <Text style={{ color: option.color ?? 'white' }}>
+                {option.label}
+              </Text>
+            </Pressable>
+          ),
+        )}
       </ScrollView>
     </View>
   )
