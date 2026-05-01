@@ -27,7 +27,7 @@ function ImageRenderer({ item }: { item: ImageRendererItem }) {
 
   return (
     <View style={{ width, height }}>
-      {loadState === 'loading' && (
+      {!!item.src && loadState === 'loading' && (
         <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
           <Loading />
         </View>

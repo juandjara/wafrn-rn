@@ -52,6 +52,12 @@ export default function ZoomableImage({
   const retries = useImageRetries(src)
   const cacheKey = retries > 0 ? `${src}-${retries}` : src
 
+  function onTapImage() {
+    if (src) {
+      setModalOpen(true)
+    }
+  }
+
   return (
     <View>
       <Modal
@@ -71,7 +77,7 @@ export default function ZoomableImage({
           </GestureHandlerRootView>
         )}
       </Modal>
-      <Pressable className={className} onPress={() => setModalOpen(true)}>
+      <Pressable className={className} onPress={onTapImage}>
         <View style={{ width, height, position: 'relative' }}>
           {!!src && loadState === 'loading' && (
             <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
