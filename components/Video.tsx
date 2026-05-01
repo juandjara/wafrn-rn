@@ -1,9 +1,22 @@
 import { useEventListener } from 'expo'
 import { useVideoPlayer, VideoView } from 'expo-video'
 import { useMemo, useState, useEffect } from 'react'
-import { Pressable, View, Text, TouchableOpacity } from 'react-native'
+import {
+  ActivityIndicator,
+  Pressable,
+  View,
+  Text,
+  TouchableOpacity,
+} from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
+import type { VideoPlayerStatus } from 'expo-video'
+import { Colors } from '@/constants/Colors'
 
 export default function Video({
   title,
@@ -25,6 +38,31 @@ export default function Video({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [status, setStatus] = useState<VideoPlayerStatus>('idle')
+  const [buffering, setBuffering] = useState(false)
+
+  const spinnerOpacity = useSharedValue(0)
+  const bufferBarWidth = useSharedValue(0)
+  const playbackBarWidth = useSharedValue(0)
+
+  // Show spinner when loading initially or buffering mid-playback
+  const showSpinner = status === 'loading' || buffering
+
+  useEffect(() => {
+    spinnerOpacity.value = withTiming(showSpinner ? 1 : 0, { duration: 200 })
+  }, [showSpinner, spinnerOpacity])
+
+  const spinnerStyle = useAnimatedStyle(() => ({
+    opacity: spinnerOpacity.value,
+  }))
+
+  const bufferBarStyle = useAnimatedStyle(() => ({
+    width: `${bufferBarWidth.value}%` as `${number}%`,
+  }))
+
+  const playbackBarStyle = useAnimatedStyle(() => ({
+    width: `${playbackBarWidth.value}%` as `${number}%`,
+  }))
 
   const source = useMemo(
     () => ({
@@ -38,25 +76,43 @@ export default function Video({
 
   const player = useVideoPlayer(source, (p) => {
     p.staysActiveInBackground = true
-    p.addListener('playingChange', (ev) => {
-      if (ev.isPlaying) {
-        p.showNowPlayingNotification = true
-      }
-    })
-    p.addListener('playToEnd', () => {
-      p.showNowPlayingNotification = false
-    })
     p.bufferOptions = {
-      preferredForwardBufferDuration: 2, // only buffer the first 2 seconds
+      preferredForwardBufferDuration: 3, // buffer only (as max) the next 3 seconds
     }
     p.loop = true
     p.timeUpdateEventInterval = 1
   })
 
-  useEventListener(player, 'playingChange', (ev) => setIsPlaying(ev.isPlaying))
+  useEventListener(player, 'statusChange', (ev) => setStatus(ev.status))
+  useEventListener(player, 'playingChange', (ev) => {
+    setIsPlaying(ev.isPlaying)
+    if (ev.isPlaying) {
+      player.showNowPlayingNotification = true
+    }
+  })
+  useEventListener(player, 'playToEnd', () => {
+    player.showNowPlayingNotification = false
+  })
   useEventListener(player, 'timeUpdate', (ev) => {
+    // Only update currentTime state when controls are visible (bars are updated with animations)
     if (showControls) {
       setCurrentTime(ev.currentTime)
+    }
+
+    // Video is buffering mid-playback if buffer position hasn't advanced past current time (with 1s margin)
+    // but there is already some buffering from starting the video
+    setBuffering(
+      ev.bufferedPosition >= 0 && ev.bufferedPosition < ev.currentTime + 1,
+    )
+
+    // If we have an actual video with actual duration
+    // Animate progress bars on the UI thread with no re-renders in React
+    if (duration > 0) {
+      const bufferPct = Math.min((ev.bufferedPosition / duration) * 100, 100)
+      bufferBarWidth.value = withTiming(bufferPct, { duration: 300 })
+
+      const playbackPct = Math.min((ev.currentTime / duration) * 100, 100)
+      playbackBarWidth.value = withTiming(playbackPct, { duration: 300 })
     }
   })
   useEventListener(player, 'sourceLoad', (ev) => setDuration(ev.duration))
@@ -71,7 +127,6 @@ export default function Video({
   }
 
   function toggleMute() {
-    // eslint-disable-next-line react-compiler/react-compiler
     player.muted = !player.muted
   }
 
@@ -84,6 +139,7 @@ export default function Video({
   }
 
   useEffect(() => {
+    // when video is playing, hide controls automatically after 3 seconds
     const timer = setTimeout(() => {
       if (showControls && isPlaying) {
         setShowControls(false)
@@ -108,6 +164,28 @@ export default function Video({
         allowsPictureInPicture={false}
         fullscreenOptions={{ enable: true }}
       />
+
+      <Animated.View
+        pointerEvents="none"
+        style={spinnerStyle}
+        className="z-20 absolute inset-0 bottom-6 items-center justify-center"
+      >
+        <View className="bg-black/30 rounded-full p-3">
+          <ActivityIndicator size={40} color={Colors.loading} />
+        </View>
+      </Animated.View>
+
+      <View className="z-20 absolute bottom-0 left-0 right-0 h-0.5 bg-white/20">
+        <Animated.View
+          style={bufferBarStyle}
+          className="absolute inset-y-0 left-0 bg-white/40 rounded-r-full"
+        />
+        <Animated.View
+          style={playbackBarStyle}
+          className="absolute inset-y-0 left-0 bg-cyan-400/80 rounded-r-full"
+        />
+      </View>
+
       <Pressable
         onPress={() => {
           if (!showControls) {
