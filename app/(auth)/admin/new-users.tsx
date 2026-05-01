@@ -39,8 +39,6 @@ export default function NewUsers() {
           <View key={user.id} className="p-3 bg-gray-800 rounded-lg m-2 mb-6">
             <View className="flex-row items-center gap-3 pb-8">
               <ZoomableImage
-                id={user.id}
-                key={user.id}
                 src={formatMediaUrl(user.avatar)}
                 width={80}
                 height={80}

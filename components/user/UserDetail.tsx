@@ -96,8 +96,6 @@ export default function UserDetail({ user }: { user: User }) {
     <View className="mb-2">
       {user.headerImage ? (
         <ZoomableImage
-          id="header"
-          key={user.headerImage}
           src={formatHeaderUrl(user.id)}
           width={width}
           height={height}
@@ -112,7 +110,6 @@ export default function UserDetail({ user }: { user: User }) {
       )}
       <View className="flex-row justify-center items-center my-4 rounded-md -mt-12">
         <ZoomableImage
-          id="avatar"
           src={formatAvatarUrl(user.id)}
           width={150}
           height={150}

@@ -22,7 +22,6 @@ import renderImageItem from './ImageRenderer'
 import Loading from '../Loading'
 
 export default function ZoomableImage({
-  id,
   src,
   alt,
   style,
@@ -34,7 +33,6 @@ export default function ZoomableImage({
   imgClassName,
   blurHash,
 }: {
-  id: string
   src: string
   alt?: string
   style?: ImageStyle | ViewStyle
