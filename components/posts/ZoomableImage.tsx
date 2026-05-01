@@ -73,7 +73,7 @@ export default function ZoomableImage({
       </Modal>
       <Pressable className={className} onPress={() => setModalOpen(true)}>
         <View style={{ width, height, position: 'relative' }}>
-          {loadState === 'loading' && (
+          {!!src && loadState === 'loading' && (
             <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
               <Loading />
             </View>
