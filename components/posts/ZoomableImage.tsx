@@ -19,6 +19,7 @@ import { Toasts } from '@backpackapp-io/react-native-toast'
 import { useResolveClassNames } from 'uniwind'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import renderImageItem from './ImageRenderer'
+import Loading from '../Loading'
 
 export default function ZoomableImage({
   id,
@@ -76,7 +77,7 @@ export default function ZoomableImage({
         <View style={{ width, height, position: 'relative' }}>
           {loadState === 'loading' && (
             <View className="z-20 absolute inset-0 bg-black/10 items-center justify-center">
-              <ActivityIndicator size="small" color="#0a7ea4" />
+              <Loading />
             </View>
           )}
           {loadState === 'error' && (

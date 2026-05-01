@@ -23,6 +23,7 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+  loading: '#0a7ea4',
 }
 
 export const getRootStyles = (themeName: 'light' | 'dark') => {
