@@ -40,6 +40,37 @@ export const FLATLIST_PERFORMANCE_CONFIG = {
   maxToRenderPerBatch: 6,
 }
 
+export async function getArticlePostId(
+  token: string,
+  signal: AbortSignal,
+  slug: string,
+) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/article/${slug}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  })
+  const data = json as DashboardData
+  const post = data.posts[0]
+  if (!post) {
+    throw statusError(404, `Article "${slug}" not found`)
+  }
+  return post.id
+}
+
+export function useArticlePostId(slug: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['article', slug],
+    queryFn: async ({ signal }) => {
+      return await getArticlePostId(token!, signal, slug)
+    },
+    enabled: !!token && !!slug,
+  })
+}
+
 export async function getPostDetail(
   token: string,
   signal: AbortSignal,

@@ -75,7 +75,7 @@ type PostDetailItemData =
 
 export default function PostDetail() {
   const sx = useSafeAreaPadding()
-  const { postid } = useLocalSearchParams()
+  const { postid, isArticle } = useLocalSearchParams()
   const { data, isFetching, refetch, error } = usePostDetail(postid as string)
 
   const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
@@ -265,7 +265,9 @@ export default function PostDetail() {
       style={{ height: POST_HEADER_HEIGHT }}
       title={
         <View>
-          <Text className="text-white text-2xl font-semibold">Woot</Text>
+          <Text className="text-white text-2xl font-semibold">
+            {isArticle ? 'Article' : 'Woot'}
+          </Text>
           <Text numberOfLines={1} className="text-gray-200 text-base">
             {formatUserUrl(mainUser?.url)}
           </Text>
