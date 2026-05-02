@@ -1,11 +1,11 @@
 import UserMenu from '@/components/dashboard/UserMenu'
-import { getRootStyles } from '@/constants/Colors'
+import { rootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import { View, useColorScheme, useWindowDimensions, Text } from 'react-native'
+import { View, useWindowDimensions, Text } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import { Extrapolation } from 'react-native-reanimated'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
@@ -21,8 +21,6 @@ const ICON_SIZE = 28
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
-  const scheme = useColorScheme()
-  const rootStyles = getRootStyles(scheme === 'light' ? 'light' : 'dark')
   const blue950 = useCSSVariable('--color-blue-950') as string
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
