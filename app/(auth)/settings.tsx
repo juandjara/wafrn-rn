@@ -1,5 +1,6 @@
 import Header, { HEADER_HEIGHT } from '@/components/Header'
-import { useAdminCheck } from '@/lib/contexts/AuthContext'
+import { isValidURL } from '@/lib/api/content'
+import { useAdminCheck, useAuth } from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -11,6 +12,9 @@ import { useCSSVariable } from 'uniwind'
 export default function Settings() {
   const sx = useSafeAreaPadding()
   const isAdmin = useAdminCheck()
+  const { instance } = useAuth()
+  const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
+
   const red400 = useCSSVariable('--color-red-400') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
 
@@ -69,14 +73,29 @@ export default function Settings() {
       // ABOUT WAFRN
       { header: 'About Wafrn' },
       {
-        icon: 'help-circle-outline' as const,
-        label: 'FAQ / User guide',
-        link: 'https://wafrn.net/faq/user.html',
+        icon: 'information-outline' as const,
+        label: (
+          <Text>
+            About{' '}
+            <Text className="text-cyan-300 font-semibold">{instanceHost}</Text>
+          </Text>
+        ),
+        link: '/article/system.about',
       },
       {
         icon: 'eye-off-outline' as const,
-        label: 'Privacy policy',
-        link: '/article/system.privacy-policy', // TODO: support article links
+        label: (
+          <Text>
+            Privacy policy for{' '}
+            <Text className="text-cyan-300 font-semibold">{instanceHost}</Text>
+          </Text>
+        ),
+        link: '/article/system.privacy-policy',
+      },
+      {
+        icon: 'help-circle-outline' as const,
+        label: 'FAQ / User guide',
+        link: 'https://wafrn.net/faq/user.html',
       },
       {
         icon: 'code-braces' as const,
@@ -110,7 +129,7 @@ export default function Settings() {
       return true
     })
     return filteredOptions
-  }, [isAdmin, red400])
+  }, [isAdmin, red400, instanceHost])
 
   return (
     <View
