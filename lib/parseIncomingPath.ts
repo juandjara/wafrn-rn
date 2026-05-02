@@ -14,6 +14,10 @@ export default function parseIncomingPath(_path: string) {
     if (path.includes('fediverse/')) {
       path = path.replace('fediverse/', '')
     }
+    if (path.includes('dashboard/search/')) {
+      const q = path.split('dashboard/search/').pop()
+      return `/search?q=${q}`
+    }
     if (path.includes('blog/')) {
       path = path.replace('blog/', 'user/')
     }
