@@ -4,7 +4,7 @@ import {
   useDashboard,
 } from '@/lib/api/dashboard'
 import { FlatList, Text } from 'react-native'
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useTransition } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
@@ -35,10 +35,14 @@ export default function Dashboard({
   const { data, isLoading, isFetching, fetchNextPage, hasNextPage, refetch } =
     useDashboard(mode)
 
-  async function refresh() {
-    await refetch()
-    requestIdleCallback(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
+  const [isRefreshing, startTransition] = useTransition()
+
+  function refresh() {
+    startTransition(async () => {
+      await refetch()
+      requestIdleCallback(() => {
+        listRef.current?.scrollToOffset({ offset: 0, animated: false })
+      })
     })
   }
 
@@ -69,7 +73,7 @@ export default function Dashboard({
     }
   }
 
-  if (isLoading || !context) {
+  if (isLoading) {
     return <Loading />
   }
 
@@ -77,7 +81,7 @@ export default function Dashboard({
     <DashboardContextProvider data={context}>
       <FlatList
         ref={listRef}
-        refreshing={isFetching}
+        refreshing={isRefreshing}
         onRefresh={refresh}
         extraData={layoutData}
         data={feed}
@@ -89,7 +93,7 @@ export default function Dashboard({
         ListEmptyComponent={ListEmpty}
         contentInset={contentInset}
         maintainVisibleContentPosition={
-          isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+          MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
         }
         {...FLATLIST_PERFORMANCE_CONFIG}
       />

@@ -19,7 +19,7 @@ import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
-import { useRef, useState } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import {
   Text,
   useWindowDimensions,
@@ -61,10 +61,14 @@ export default function NotificationList() {
 
   useScrollToTop(listRef)
 
-  async function refresh() {
-    await refetch()
-    requestIdleCallback(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
+  const [isRefreshing, startTransition] = useTransition()
+
+  function refresh() {
+    startTransition(async () => {
+      await refetch()
+      requestIdleCallback(() => {
+        listRef.current?.scrollToOffset({ offset: 0, animated: false })
+      })
     })
   }
 
@@ -94,7 +98,7 @@ export default function NotificationList() {
       <DashboardContextProvider data={context}>
         <FlatList
           ref={listRef}
-          refreshing={isFetching}
+          refreshing={isRefreshing}
           onRefresh={refresh}
           data={notifications}
           extraData={layoutData}
@@ -105,7 +109,7 @@ export default function NotificationList() {
           ListFooterComponent={isFetching ? <Loading /> : null}
           contentInset={{ bottom: bottomPadding }}
           maintainVisibleContentPosition={
-            isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+            MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
           }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />

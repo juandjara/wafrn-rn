@@ -2,7 +2,7 @@ import { combineDashboardContextPages } from '@/lib/api/dashboard'
 import { SearchType, useSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
 import { useLayoutData } from '@/lib/postStore'
-import { useRef } from 'react'
+import { useRef, useTransition } from 'react'
 import { type FlatList, Pressable, Text, View } from 'react-native'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import Animated from 'react-native-reanimated'
@@ -43,10 +43,14 @@ export default function SearchResultsPosts({
   )
   const feedData = data?.pages.flatMap((p) => p.feed).filter((x) => !!x)
 
-  async function refresh() {
-    await refetch()
-    requestIdleCallback(() => {
-      listRef.current?.scrollToOffset({ offset: 0, animated: false })
+  const [isRefreshing, startTransition] = useTransition()
+
+  function refresh() {
+    startTransition(async () => {
+      await refetch()
+      requestIdleCallback(() => {
+        listRef.current?.scrollToOffset({ offset: 0, animated: false })
+      })
     })
   }
 
@@ -74,7 +78,7 @@ export default function SearchResultsPosts({
           ref={listRef}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
-          refreshing={isFetching}
+          refreshing={isRefreshing}
           onRefresh={refresh}
           data={feedData}
           extraData={layoutData}
@@ -93,7 +97,7 @@ export default function SearchResultsPosts({
             </View>
           }
           maintainVisibleContentPosition={
-            isFetching ? undefined : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+            MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
           }
           {...FLATLIST_PERFORMANCE_CONFIG}
         />
