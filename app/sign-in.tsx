@@ -14,7 +14,6 @@ import {
   KeyboardAvoidingView,
 } from 'react-native'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { useThemeColor } from '@/hooks/useThemeColor'
 import { useCSSVariable } from 'uniwind'
 import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
@@ -24,13 +23,13 @@ import { useToasts } from '@/lib/toasts'
 import Button from '@/components/Button'
 
 export default function SignIn() {
+  const sx = useSafeAreaPadding()
+  const textInputColor = Colors.dark.text
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
   const { token, setToken, env, envStatus, instance, setInstance } = useAuth()
-  const sx = useSafeAreaPadding()
-  const color = useThemeColor({}, 'text')
   const { showToastError } = useToasts()
   const placeholderColor = useCSSVariable('--color-gray-400') as string
   const loginMfaMutation = useLoginMfaMutation(env!)
@@ -43,11 +42,11 @@ export default function SignIn() {
     loginMutation.mutate(
       { email, password },
       {
-        onSuccess: async (firstPassResponse) => {
+        onSuccess: (firstPassResponse) => {
           if (firstPassResponse.mfaRequired) {
             setFirstPassToken(firstPassResponse.token)
           } else {
-            await setToken(firstPassResponse.token)
+            setToken(firstPassResponse.token)
           }
         },
         onError: (error) => {
@@ -119,7 +118,7 @@ export default function SignIn() {
                     autoCorrect={false}
                     placeholder="Email"
                     placeholderTextColor={placeholderColor}
-                    style={{ color }}
+                    style={{ color: textInputColor }}
                     className="p-3 my-3 border border-gray-500 rounded"
                     value={email}
                     onChangeText={setEmail}
@@ -129,7 +128,7 @@ export default function SignIn() {
                     autoCapitalize="none"
                     placeholder="Password"
                     placeholderTextColor={placeholderColor}
-                    style={{ color }}
+                    style={{ color: textInputColor }}
                     className="p-3 my-3 border border-gray-500 rounded"
                     value={password}
                     onChangeText={setPassword}
@@ -167,7 +166,7 @@ export default function SignIn() {
                     autoCapitalize="none"
                     placeholder="Token"
                     placeholderTextColor={placeholderColor}
-                    style={{ color }}
+                    style={{ color: textInputColor }}
                     className="p-3 my-3 border border-gray-500 rounded"
                     value={mfaToken}
                     onChangeText={setMfaToken}

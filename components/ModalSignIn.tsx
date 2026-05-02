@@ -6,7 +6,6 @@ import {
 import { Link } from 'expo-router'
 import { useState } from 'react'
 import { TextInput, View, Text } from 'react-native'
-import { useThemeColor } from '@/hooks/useThemeColor'
 import { Colors } from '@/constants/Colors'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useToasts } from '@/lib/toasts'
@@ -33,7 +32,7 @@ export default function ModalSignIn({
 
   const { showToastError } = useToasts()
 
-  const color = useThemeColor({}, 'text')
+  const textInputColor = Colors.dark.text
   const placeholderColor = useCSSVariable('--color-gray-400') as string
   const loginMfaMutation = useLoginMfaMutation(env)
   const loginMutation = useLoginMutation(env)
@@ -100,7 +99,7 @@ export default function ModalSignIn({
                   autoCorrect={false}
                   placeholder="Email"
                   placeholderTextColor={placeholderColor}
-                  style={{ color }}
+                  style={{ color: textInputColor }}
                   className="p-3 my-3 border border-gray-500 rounded"
                   value={email}
                   onChangeText={setEmail}
@@ -110,7 +109,7 @@ export default function ModalSignIn({
                   autoCapitalize="none"
                   placeholder="Password"
                   placeholderTextColor={placeholderColor}
-                  style={{ color }}
+                  style={{ color: textInputColor }}
                   className="p-3 my-3 border border-gray-500 rounded"
                   value={password}
                   onChangeText={setPassword}
@@ -148,7 +147,7 @@ export default function ModalSignIn({
                   autoCapitalize="none"
                   placeholder="Token"
                   placeholderTextColor={placeholderColor}
-                  style={{ color }}
+                  style={{ color: textInputColor }}
                   className="p-3 my-3 border border-gray-500 rounded"
                   value={mfaToken}
                   onChangeText={setMfaToken}
