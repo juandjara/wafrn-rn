@@ -23,7 +23,10 @@ class MainActivity : ReactActivity() {
     // @generated end expo-splashscreen
     // as suggested by https://github.com/software-mansion/react-native-screens?tab=readme-ov-file#android
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
-    super.onCreate(savedInstanceState)
+    // Pass null to prevent restoring stale fragment state (e.g. DevMenuFragment)
+    // after the process is killed in the background. React Native rebuilds its own
+    // view hierarchy from scratch anyway.
+    super.onCreate(null)
   }
 
   /**
