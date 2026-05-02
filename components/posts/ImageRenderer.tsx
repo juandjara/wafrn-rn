@@ -33,7 +33,7 @@ function ImageRenderer({ item }: { item: ImageRendererItem }) {
         </View>
       )}
       {loadState === 'error' && (
-        <View className="z-20 absolute inset-0 items-center justify-center">
+        <View className="z-20 absolute inset-0 bg-black/50 items-center justify-center">
           <MaterialCommunityIcons
             name="image-broken-variant"
             size={48}
