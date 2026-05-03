@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: 🏗 Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🏗 Install pnpm
         run: corepack enable
@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: '🏗 Checkout repository'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: '📦 Install Java'
         run: |
@@ -123,7 +123,7 @@ jobs:
           buildToolsVersion: '35.0.0'
 
       - name: '📦 Upload build artifacts to Codeberg'
-        uses: https://data.forgejo.org/forgejo/upload-artifact@v4
+        uses: https://data.forgejo.org/forgejo/upload-artifact@v6
         with:
           name: signed-files.zip
           path: |
