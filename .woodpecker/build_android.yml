@@ -1,0 +1,148 @@
+# Woodpecker CI workflow — Build Android App
+# Equivalent of .forgejo/workflows/build_android.yml for https://ci.codeberg.org
+#
+# Trigger: manual only. Set the BUILD_TYPE variable when triggering via
+# the Woodpecker UI or CLI to one of: dev, prod-foss, prod-google, prod-all
+# If not set, defaults to "prod-foss".
+
+when:
+  - event: manual
+
+labels:
+  platform: linux/amd64
+
+steps:
+  # ── Test ──────────────────────────────────────────────────────────────
+  - name: test
+    image: node:24
+    environment:
+      NODE_OPTIONS: "--openssl-legacy-provider --max_old_space_size=4096"
+    commands:
+      - corepack enable
+      - pnpm install --frozen-lockfile
+      - pnpm rebuild lightningcss
+      - pnpm tsc
+      - pnpm lint
+
+  # ── Build ─────────────────────────────────────────────────────────────
+  - name: build
+    image: node:24
+    environment:
+      UNSIGNED_APK: "1"
+      NODE_OPTIONS: "--openssl-legacy-provider --max_old_space_size=4096"
+      BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
+    commands:
+      # ── Java ──
+      - apt-get update -y
+      - apt-get install -y openjdk-21-jdk-headless
+
+      # ── Android SDK ──
+      - curl -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o tools.zip
+      - mkdir -p /opt/android/cmdline-tools/latest /opt/gradle
+      - unzip -q tools.zip
+      - mv cmdline-tools /opt/android/cmdline-tools/latest/tools
+      - export ANDROID_HOME=/opt/android
+      - export GRADLE_USER_HOME=/opt/gradle
+      - export ANDROID_BIN=$ANDROID_HOME/cmdline-tools/latest
+      - export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH"
+      - echo "sdkmanager version:"
+      - $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --version
+      - set +o pipefail
+      - yes | $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
+      - set -o pipefail
+      - $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools"
+      - export PATH=$PATH:$ANDROID_HOME/platform-tools/
+
+      # ── pnpm ──
+      - corepack enable
+      - pnpm install --frozen-lockfile
+      - pnpm rebuild lightningcss
+
+      # ── Determine build type (fallback to prod-foss) ──
+      - export BUILD_TYPE=$${BUILD_TYPE:-prod-foss}
+      - echo "Build type is $BUILD_TYPE"
+
+      # ── Dev build ──
+      - |
+        if [ "$BUILD_TYPE" = "dev" ]; then
+          bash ./scripts/android_build.sh dev
+          mkdir -p ./outputs/dev
+          cp ./android/app/build/outputs/apk/debug/*.apk ./outputs/dev
+        fi
+
+      # ── Prod FOSS build ──
+      - |
+        if [ "$BUILD_TYPE" = "prod-all" ] || [ "$BUILD_TYPE" = "prod-foss" ]; then
+          bash ./scripts/android_build.sh prod-foss
+          mkdir -p ./outputs/prod-foss
+          cp ./android/app/build/outputs/apk/release/*.apk ./outputs/prod-foss
+        fi
+
+      # ── Prod Google build ──
+      - |
+        if [ "$BUILD_TYPE" = "prod-all" ] || [ "$BUILD_TYPE" = "prod-google" ]; then
+          bash ./scripts/android_build.sh prod-google
+          mkdir -p ./outputs/prod-google
+          cp ./android/app/build/outputs/bundle/release/*.aab ./outputs/prod-google
+        fi
+
+  # ── Sign (skipped for dev builds) ─────────────────────────────────────
+  - name: sign
+    image: openjdk:21-slim
+    environment:
+      BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
+      WAFRN_UPLOAD_STORE_FILE_BASE64:
+        from_secret: wafrn_upload_store_file_base64
+      WAFRN_UPLOAD_KEY_ALIAS:
+        from_secret: wafrn_upload_key_alias
+      WAFRN_UPLOAD_STORE_PASSWORD:
+        from_secret: wafrn_upload_store_password
+      WAFRN_UPLOAD_KEY_PASSWORD:
+        from_secret: wafrn_upload_key_password
+    commands:
+      - export BUILD_TYPE=$${BUILD_TYPE:-prod-foss}
+      # Skip signing for dev builds
+      - |
+        if [ "$BUILD_TYPE" = "dev" ]; then
+          echo "Skipping signing for dev build"
+          exit 0
+        fi
+      # Install build-tools for apksigner / zipalign
+      - apt-get update -y && apt-get install -y wget unzip
+      - mkdir -p /opt/android-sdk/cmdline-tools/latest
+      - wget -q "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -O /tmp/tools.zip
+      - unzip -q /tmp/tools.zip -d /tmp/cmdline-tools
+      - mv /tmp/cmdline-tools/cmdline-tools/* /opt/android-sdk/cmdline-tools/latest/
+      - export ANDROID_HOME=/opt/android-sdk
+      - yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
+      - $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;35.0.0"
+      - export PATH=$PATH:$ANDROID_HOME/build-tools/35.0.0
+      # Decode keystore
+      - echo "$$WAFRN_UPLOAD_STORE_FILE_BASE64" | base64 -d > /tmp/keystore.jks
+      # Sign all APKs and AABs in outputs/
+      - |
+        find ./outputs -name '*.apk' ! -name '*-signed*' | while read apk; do
+          echo "Signing $apk"
+          zipalign -v -p 4 "$apk" "${apk%.apk}-aligned.apk"
+          apksigner sign \
+            --ks /tmp/keystore.jks \
+            --ks-key-alias "$$WAFRN_UPLOAD_KEY_ALIAS" \
+            --ks-pass "pass:$$WAFRN_UPLOAD_STORE_PASSWORD" \
+            --key-pass "pass:$$WAFRN_UPLOAD_KEY_PASSWORD" \
+            --out "${apk%.apk}-signed.apk" \
+            "${apk%.apk}-aligned.apk"
+          rm -f "${apk%.apk}-aligned.apk"
+        done
+      - |
+        find ./outputs -name '*.aab' ! -name '*-signed*' | while read aab; do
+          echo "Signing $aab"
+          jarsigner \
+            -keystore /tmp/keystore.jks \
+            -storepass "$$WAFRN_UPLOAD_STORE_PASSWORD" \
+            -keypass "$$WAFRN_UPLOAD_KEY_PASSWORD" \
+            "$aab" \
+            "$$WAFRN_UPLOAD_KEY_ALIAS"
+          mv "$aab" "${aab%.aab}-signed.aab"
+        done
+      # Clean up keystore
+      - rm -f /tmp/keystore.jks
