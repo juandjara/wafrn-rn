@@ -47,9 +47,7 @@ steps:
       - export PATH="$ANDROID_BIN/emulator:$ANDROID_BIN/tools:$ANDROID_BIN/tools/bin:$ANDROID_BIN/platform-tools:$PATH"
       - echo "sdkmanager version:"
       - $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --version
-      - set +o pipefail
       - yes | $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
-      - set -o pipefail
       - $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools"
       - export PATH=$PATH:$ANDROID_HOME/platform-tools/
 
