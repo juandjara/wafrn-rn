@@ -18,7 +18,7 @@ env:
 
 jobs:
   test:
-    runs-on: docker
+    runs-on: docker-x86
     container:
       image: node:24
 
@@ -44,7 +44,7 @@ jobs:
 
   build:
     needs: test
-    runs-on: docker
+    runs-on: docker-x86
     container:
       image: node:24
 
