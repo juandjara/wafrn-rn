@@ -16,7 +16,7 @@ steps:
   - name: test
     image: node:24
     environment:
-      NODE_OPTIONS: "--openssl-legacy-provider --max_old_space_size=4096"
+      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
     commands:
       - corepack enable
       - pnpm install --frozen-lockfile
@@ -28,13 +28,13 @@ steps:
   - name: build
     image: node:24
     environment:
-      UNSIGNED_APK: "1"
-      NODE_OPTIONS: "--openssl-legacy-provider --max_old_space_size=4096"
+      UNSIGNED_APK: '1'
+      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
     commands:
       # ── Java ──
       - apt-get update -y
-      - apt-get install -y openjdk-21-jdk-headless
+      - apt-get install -y openjdk-17-jdk-headless
 
       # ── Android SDK ──
       - curl -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o tools.zip
