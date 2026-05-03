@@ -55,7 +55,7 @@ jobs:
       - name: '📦 Install Java'
         run: |
           apt-get update -y
-          apt-get install -y openjdk-17-jdk-headless
+          apt-get install -y openjdk-21-jdk-headless
 
       - name: '📦 Setup Android environment'
         run: |
