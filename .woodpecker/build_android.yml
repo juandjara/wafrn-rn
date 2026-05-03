@@ -28,6 +28,7 @@ steps:
   - name: build
     image: node:24
     environment:
+      CI: 'true'
       UNSIGNED_APK: '1'
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
