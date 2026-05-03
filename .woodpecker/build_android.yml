@@ -52,6 +52,13 @@ steps:
       - $ANDROID_BIN/tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools"
       - export PATH=$PATH:$ANDROID_HOME/platform-tools/
 
+      # ── Pre-download Gradle (avoids wrapper timeout on flaky networks) ──
+      - export GRADLE_URL=$(grep '^distributionUrl=' android/gradle/wrapper/gradle-wrapper.properties | cut -d= -f2- | sed 's|\\:||g; s|\\||g')
+      - export GRADLE_FILE=$(basename "$GRADLE_URL")
+      - mkdir -p /opt/gradle-dist
+      - curl --retry 3 --retry-delay 5 -fSL "$GRADLE_URL" -o "/opt/gradle-dist/$GRADLE_FILE"
+      - sed -i "s|distributionUrl=.*|distributionUrl=file\\:///opt/gradle-dist/$GRADLE_FILE|" android/gradle/wrapper/gradle-wrapper.properties
+
       # ── pnpm ──
       - corepack enable
       - pnpm install --frozen-lockfile
