@@ -16,7 +16,7 @@ steps:
   - name: test
     image: node:24
     environment:
-      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
+      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=2048'
     commands:
       - corepack enable
       - pnpm install --frozen-lockfile
@@ -31,6 +31,7 @@ steps:
       CI: 'true'
       UNSIGNED_APK: '1'
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
+      GRADLE_OPTS: '-Xmx2g -Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.workers.max=2 -Dkotlin.daemon.jvm.options=-Xmx512m'
       BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
     commands:
       # ── Java ──
@@ -43,11 +44,11 @@ steps:
         echo "Gradle URL: $GRADLE_URL"
         GRADLE_FILE=$(basename "$GRADLE_URL")
         mkdir -p /opt/gradle-dist
-        curl --retry 3 --retry-delay 5 -fSL "$GRADLE_URL" -o "/opt/gradle-dist/$GRADLE_FILE"
+        curl -4 --retry 3 --retry-delay 5 --connect-timeout 30 -fSL "$GRADLE_URL" -o "/opt/gradle-dist/$GRADLE_FILE"
         sed -i "s|distributionUrl=.*|distributionUrl=file\\:///opt/gradle-dist/$GRADLE_FILE|" android/gradle/wrapper/gradle-wrapper.properties
 
       # ── Android SDK ──
-      - curl -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o tools.zip
+      - curl -4 --retry 3 --connect-timeout 30 -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o tools.zip
       - mkdir -p /opt/android/cmdline-tools/latest /opt/gradle
       - unzip -q tools.zip
       - mv cmdline-tools /opt/android/cmdline-tools/latest/tools
@@ -116,9 +117,9 @@ steps:
           exit 0
         fi
       # Install build-tools for apksigner / zipalign
-      - apt-get update -y && apt-get install -y wget unzip
+      - apt-get update -y && apt-get install -y curl unzip
       - mkdir -p /opt/android-sdk/cmdline-tools/latest
-      - wget -q "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -O /tmp/tools.zip
+      - curl -4 --retry 3 --connect-timeout 30 -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o /tmp/tools.zip
       - unzip -q /tmp/tools.zip -d /tmp/cmdline-tools
       - mv /tmp/cmdline-tools/cmdline-tools/* /opt/android-sdk/cmdline-tools/latest/
       - export ANDROID_HOME=/opt/android-sdk
