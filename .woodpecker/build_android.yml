@@ -132,15 +132,15 @@ steps:
       - |
         find ./outputs -name '*.apk' ! -name '*-signed*' | while read apk; do
           echo "Signing $apk"
-          zipalign -v -p 4 "$apk" "${apk%.apk}-aligned.apk"
+          zipalign -v -p 4 "$apk" "$${apk%.apk}-aligned.apk"
           apksigner sign \
             --ks /tmp/keystore.jks \
             --ks-key-alias "$$WAFRN_UPLOAD_KEY_ALIAS" \
             --ks-pass "pass:$$WAFRN_UPLOAD_STORE_PASSWORD" \
             --key-pass "pass:$$WAFRN_UPLOAD_KEY_PASSWORD" \
-            --out "${apk%.apk}-signed.apk" \
-            "${apk%.apk}-aligned.apk"
-          rm -f "${apk%.apk}-aligned.apk"
+            --out "$${apk%.apk}-signed.apk" \
+            "$${apk%.apk}-aligned.apk"
+          rm -f "$${apk%.apk}-aligned.apk"
         done
       - |
         find ./outputs -name '*.aab' ! -name '*-signed*' | while read aab; do
@@ -151,7 +151,7 @@ steps:
             -keypass "$$WAFRN_UPLOAD_KEY_PASSWORD" \
             "$aab" \
             "$$WAFRN_UPLOAD_KEY_ALIAS"
-          mv "$aab" "${aab%.aab}-signed.aab"
+          mv "$aab" "$${aab%.aab}-signed.aab"
         done
       # Clean up keystore
       - rm -f /tmp/keystore.jks
@@ -160,7 +160,6 @@ steps:
   - name: upload-artifacts
     image: alpine
     environment:
-      BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
       CODEBERG_TOKEN:
         from_secret: codeberg_token
     commands:
@@ -169,7 +168,6 @@ steps:
         REPO="wafrn/wafrn-rn"
         API="https://codeberg.org/api/v1/repos/$REPO"
         AUTH="Authorization: token $${CODEBERG_TOKEN}"
-        BUILD_TYPE=$${BUILD_TYPE:-prod-foss}
 
         # Determine tag name: use git tag if present, otherwise "dev-latest"
         if [ -n "$CI_COMMIT_TAG" ]; then
@@ -195,14 +193,14 @@ steps:
           # Update release name and body
           curl -4 -fsSL -X PATCH -H "$AUTH" \
             -H "Content-Type: application/json" \
-            -d "{\"name\": \"$NAME\", \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH ($BUILD_TYPE)\"}" \
+            -d "{\"name\": \"$NAME\", \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH\"}" \
             "$API/releases/$RELEASE_ID" > /dev/null
         elif [ -z "$RELEASE_ID" ]; then
           # Create new release
           echo "Creating release for tag $TAG"
           RELEASE_ID=$(curl -4 -fsSL -X POST -H "$AUTH" \
             -H "Content-Type: application/json" \
-            -d "{\"tag_name\": \"$TAG\", \"name\": \"$NAME\", \"prerelease\": $PRERELEASE, \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH ($BUILD_TYPE)\"}" \
+            -d "{\"tag_name\": \"$TAG\", \"name\": \"$NAME\", \"prerelease\": $PRERELEASE, \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH\"}" \
             "$API/releases" | jq -r '.id')
         fi
 
