@@ -162,10 +162,7 @@ steps:
         BODY="Automated Build generated from WoodPecker CI on [Pipeline #$CI_PIPELINE_NUMBER](https://ci.djara.dev/repos/1/pipeline/$CI_PIPELINE_NUMBER)"
 
         if [ -n "$CI_COMMIT_TAG" ]; then
-          # ── Tag build: create a draft release for review ──
-          # F-Droid uses UpdateCheckMode: Tags, so the tag already exists in git.
-          # Creating a draft release won't affect F-Droid (it reads git tags, not releases).
-          # You publish the release manually after review.
+          # Creating a draft release to publish manually after review
           TAG="$CI_COMMIT_TAG"
           NAME="$TAG"
 
@@ -178,9 +175,7 @@ steps:
               "$API/releases" | jq -r '.id')
           fi
         else
-          # ── Dev build: upload to a generic release, no git tag created ──
-          # We look for an existing release named "dev-build" by listing all releases.
-          # This avoids creating any git tag that F-Droid could discover.
+          # Upload to a generic release name "dev-build", no git tag created
           TAG="dev-build"
           NAME="Development Build ($CI_COMMIT_BRANCH #$CI_PIPELINE_NUMBER)"
 
@@ -208,7 +203,7 @@ steps:
 
         # Upload all signed APKs/AABs, or debug APKs for dev builds
         find ./outputs -name '*-signed.apk' -o -name '*-signed.aab' -o -name '*-debug.apk' | while read f; do
-          FILENAME=$(basename "$f")
+          FILENAME=$(basename "$f" | sed s/release-unsigned-signed/foss/)
           echo "Uploading $FILENAME"
           curl -4 --retry 3 -fsSL -X POST \
             -H "$AUTH" \
