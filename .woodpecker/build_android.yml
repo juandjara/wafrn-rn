@@ -167,7 +167,7 @@ steps:
       - |
         REPO="wafrn/wafrn-rn"
         API="https://codeberg.org/api/v1/repos/$REPO"
-        AUTH="Authorization: token $${CODEBERG_TOKEN}"
+        AUTH="Authorization: Bearer $${CODEBERG_TOKEN}"
 
         # Determine tag name: use git tag if present, otherwise "dev-latest"
         if [ -n "$CI_COMMIT_TAG" ]; then
@@ -207,7 +207,7 @@ steps:
         echo "Uploading to release $RELEASE_ID (tag: $TAG)"
 
         # Upload all signed APKs/AABs, or debug APKs for dev builds
-        find ./outputs -name '*-signed.apk' -o -name '*-signed.aab' -o -name '*-debug.apk' | while read f; do
+        find ./outputs -name '*.apk' -o -name '*.aab' | while read f; do
           FILENAME=$(basename "$f")
           echo "Uploading $FILENAME"
           curl -4 --retry 3 -fsSL -X POST \
@@ -216,4 +216,4 @@ steps:
             "$API/releases/$RELEASE_ID/assets?name=$FILENAME"
         done
 
-        echo "Done! Assets uploaded to https://codeberg.org/$REPO/releases/tag/$TAG"
+        echo "Assets uploaded to https://codeberg.org/$REPO/releases/tag/$TAG"
