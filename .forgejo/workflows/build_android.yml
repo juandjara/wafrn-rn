@@ -79,6 +79,15 @@ jobs:
           echo PATH=$PATH >> $FORGEJO_ENV
           echo GRADLE_USER_HOME=$GRADLE_USER_HOME >> $FORGEJO_ENV
 
+      - name: 📦 Pre-Download Gradle Wrapper
+        run: |
+          GRADLE_URL=$(grep '^distributionUrl=' android/gradle/wrapper/gradle-wrapper.properties | sed 's/^distributionUrl=//' | tr -d '\\' | tr -d '\r')
+          echo "Gradle URL: $GRADLE_URL"
+          GRADLE_FILE=$(basename "$GRADLE_URL")
+          mkdir -p /opt/gradle-dist
+          curl -4 --retry 3 --retry-delay 5 --connect-timeout 30 -fSL "$GRADLE_URL" -o "/opt/gradle-dist/$GRADLE_FILE"
+          sed -i "s|distributionUrl=.*|distributionUrl=file\\:///opt/gradle-dist/$GRADLE_FILE|" android/gradle/wrapper/gradle-wrapper.properties
+
       - name: 🏗 Install pnpm
         run: corepack enable
 
