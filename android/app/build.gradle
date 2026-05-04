@@ -255,29 +255,43 @@ def getLLVMStrip() {
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+
+abstract class StripSoFilesTask extends DefaultTask {
+    @Inject abstract ExecOperations getExecOps()
+
+    @Input String variantName
+    @Input String stripPath
+    @InputDirectory File libDir
+
+    @TaskAction
+    void strip() {
+        def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
+        if (!isLinux) {
+            println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
+            return
+        }
+
+        def soFiles = project.fileTree(dir: libDir, include: '**/*.so')
+        if (!soFiles.isEmpty()) {
+            soFiles.each { soFile ->
+                execOps.exec {
+                    commandLine stripPath, '--remove-section=.note.gnu.build-id', soFile
+                }
+                println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
+            }
+        } else {
+            println "No .so files found to strip for ${variantName}."
+        }
+    }
+}
 
 def createStripTaskForVariant(variantName, libDir) {
-    tasks.register("stripSoFiles${variantName}") {
-        doLast {
-            def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
-            if (!isLinux) {
-                println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
-                return
-            }
-
-            def strip = getLLVMStrip()
-            def soFiles = fileTree(dir: libDir, include: '**/*.so')
-            if (!soFiles.isEmpty()) {
-                soFiles.each { soFile ->
-                    project.exec {
-                        commandLine strip, '--remove-section=.note.gnu.build-id', soFile
-                    }
-                    println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
-                }
-            } else {
-                println "No .so files found to strip for ${variantName}."
-            }
-        }
+    tasks.register("stripSoFiles${variantName}", StripSoFilesTask) {
+        it.variantName = variantName
+        it.stripPath = getLLVMStrip()
+        it.libDir = file(libDir)
     }
 }
 
