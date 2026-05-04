@@ -1,21 +1,17 @@
 #!/usr/bin/env node
 
-// @ts-ignore
 import fs from 'node:fs'
-
-// @ts-ignore
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// @ts-ignore
-const __dirname = import.meta.dirname
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
 const INSTANCES_FILE = path.resolve(ROOT, 'instances.json')
 
 const INSTANCES_URL =
   process.env.INSTANCES_URL || 'https://join.wafrn.net/instances.json'
 
-function parseUrl(fullUrl: string) {
+function parseUrl(fullUrl) {
   try {
     const url = new URL(fullUrl)
     return url.host
@@ -35,9 +31,8 @@ async function main() {
     )
   }
   const json = await res.json()
-  const data = json as { url: string }[]
   const domains = Array.from(
-    new Set(data.map((d) => parseUrl(d.url)).filter((d) => d !== null)),
+    new Set(json.map((d) => parseUrl(d.url)).filter((d) => d !== null)),
   )
   const domainsText = JSON.stringify(domains, null, 2)
   console.log(`Saving instance list to ${INSTANCES_FILE}`)
