@@ -1,29 +1,20 @@
 # Woodpecker CI workflow — Build Android App
-# Equivalent of .forgejo/workflows/build_android.yml for https://ci.codeberg.org
+# Runs on tags and manual triggers. Depends on the test workflow.
 #
-# Trigger: manual only. Set the BUILD_TYPE variable when triggering via
-# the Woodpecker UI or CLI to one of: dev, prod-foss, prod-google, prod-all
+# For manual triggers, set the BUILD_TYPE variable via the Woodpecker UI
+# to one of: dev, prod-foss, prod-google, prod-all
 # If not set, defaults to "prod-foss".
 
 when:
-  - event: manual
+  - event: [tag, manual]
+
+depends_on:
+  - test
 
 labels:
   platform: linux/amd64
 
 steps:
-  # ── Test ──────────────────────────────────────────────────────────────
-  - name: test
-    image: node:24
-    environment:
-      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=2048'
-    commands:
-      - corepack enable
-      - pnpm install --frozen-lockfile
-      - pnpm rebuild lightningcss
-      - pnpm tsc
-      - pnpm lint
-
   # ── Build ─────────────────────────────────────────────────────────────
   - name: build
     image: node:24

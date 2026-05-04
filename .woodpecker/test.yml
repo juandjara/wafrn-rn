@@ -1,0 +1,20 @@
+# Woodpecker CI workflow — Test
+# Runs on every push and tag. The build workflow depends on this.
+
+when:
+  - event: [push, tag, manual]
+
+labels:
+  platform: linux/amd64
+
+steps:
+  - name: test
+    image: node:24
+    environment:
+      NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=2048'
+    commands:
+      - corepack enable
+      - pnpm install --frozen-lockfile
+      - pnpm rebuild lightningcss
+      - pnpm tsc
+      - pnpm lint
