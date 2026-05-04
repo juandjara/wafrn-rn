@@ -167,47 +167,56 @@ steps:
       - |
         REPO="wafrn/wafrn-rn"
         API="https://codeberg.org/api/v1/repos/$REPO"
-        AUTH="Authorization: Bearer $${CODEBERG_TOKEN}"
+        AUTH="Authorization: token $${CODEBERG_TOKEN}"
+        BODY="Automated Build generated from WoodPecker CI on [Pipeline #$CI_PIPELINE_NUMBER](https://ci.djara.dev/repos/1/pipeline/$CI_PIPELINE_NUMBER)"
 
-        # Determine tag name: use git tag if present, otherwise "dev-latest"
         if [ -n "$CI_COMMIT_TAG" ]; then
+          # ── Tag build: create a draft release for review ──
+          # F-Droid uses UpdateCheckMode: Tags, so the tag already exists in git.
+          # Creating a draft release won't affect F-Droid (it reads git tags, not releases).
+          # You publish the release manually after review.
           TAG="$CI_COMMIT_TAG"
-          PRERELEASE=false
           NAME="$TAG"
+
+          RELEASE_ID=$(curl -4 -fsSL -H "$AUTH" "$API/releases/tags/$TAG" 2>/dev/null | jq -r '.id // empty')
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Creating draft release for tag $TAG"
+            RELEASE_ID=$(curl -4 -fsSL -X POST -H "$AUTH" \
+              -H "Content-Type: application/json" \
+              -d "{\"tag_name\": \"$TAG\", \"name\": \"$NAME\", \"draft\": true, \"body\": \"$BODY\"}" \
+              "$API/releases" | jq -r '.id')
+          fi
         else
-          TAG="dev-latest"
-          PRERELEASE=true
+          # ── Dev build: upload to a generic release, no git tag created ──
+          # We look for an existing release named "dev-build" by listing all releases.
+          # This avoids creating any git tag that F-Droid could discover.
+          TAG="dev-build"
           NAME="Development Build ($CI_COMMIT_BRANCH #$CI_PIPELINE_NUMBER)"
+
+          RELEASE_ID=$(curl -4 -fsSL -H "$AUTH" "$API/releases" 2>/dev/null | jq -r ".[] | select(.tag_name == \"$TAG\") | .id // empty" | head -1)
+
+          if [ -n "$RELEASE_ID" ]; then
+            # Delete old assets
+            echo "Cleaning old assets from dev-build release $RELEASE_ID"
+            curl -4 -fsSL -H "$AUTH" "$API/releases/$RELEASE_ID/assets" | \
+              jq -r '.[].id' | while read asset_id; do
+                curl -4 -fsSL -X DELETE -H "$AUTH" "$API/releases/$RELEASE_ID/assets/$asset_id"
+              done
+            # Update name/body
+            curl -4 -fsSL -X PATCH -H "$AUTH" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\": \"$NAME\", \"body\": \"$BODY\"}" \
+              "$API/releases/$RELEASE_ID" > /dev/null
+          else
+            echo "No dev-build release found. Create one manually on Codeberg first (without a git tag)."
+            exit 1
+          fi
         fi
 
-        # Try to find existing release by tag
-        RELEASE_ID=$(curl -4 -fsSL -H "$AUTH" "$API/releases/tags/$TAG" 2>/dev/null | jq -r '.id // empty')
-
-        if [ -n "$RELEASE_ID" ] && [ "$PRERELEASE" = "true" ]; then
-          # For dev-latest: delete old assets before uploading new ones
-          echo "Cleaning old assets from release $RELEASE_ID"
-          curl -4 -fsSL -H "$AUTH" "$API/releases/$RELEASE_ID/assets" | \
-            jq -r '.[].id' | while read asset_id; do
-              curl -4 -fsSL -X DELETE -H "$AUTH" "$API/releases/$RELEASE_ID/assets/$asset_id"
-            done
-          # Update release name and body
-          curl -4 -fsSL -X PATCH -H "$AUTH" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\": \"$NAME\", \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH\"}" \
-            "$API/releases/$RELEASE_ID" > /dev/null
-        elif [ -z "$RELEASE_ID" ]; then
-          # Create new release
-          echo "Creating release for tag $TAG"
-          RELEASE_ID=$(curl -4 -fsSL -X POST -H "$AUTH" \
-            -H "Content-Type: application/json" \
-            -d "{\"tag_name\": \"$TAG\", \"name\": \"$NAME\", \"prerelease\": $PRERELEASE, \"body\": \"Build #$CI_PIPELINE_NUMBER from $CI_COMMIT_BRANCH\"}" \
-            "$API/releases" | jq -r '.id')
-        fi
-
-        echo "Uploading to release $RELEASE_ID (tag: $TAG)"
+        echo "Uploading to release $RELEASE_ID"
 
         # Upload all signed APKs/AABs, or debug APKs for dev builds
-        find ./outputs -name '*.apk' -o -name '*.aab' | while read f; do
+        find ./outputs -name '*-signed.apk' -o -name '*-signed.aab' -o -name '*-debug.apk' | while read f; do
           FILENAME=$(basename "$f")
           echo "Uploading $FILENAME"
           curl -4 --retry 3 -fsSL -X POST \
@@ -216,4 +225,4 @@ steps:
             "$API/releases/$RELEASE_ID/assets?name=$FILENAME"
         done
 
-        echo "Assets uploaded to https://codeberg.org/$REPO/releases/tag/$TAG"
+        echo "Done! Assets uploaded to https://codeberg.org/$REPO/releases/tag/$TAG"
