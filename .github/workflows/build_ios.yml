@@ -43,13 +43,8 @@ jobs:
       - name: 🏗 Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: '3.3'
           bundler-cache: true
-
-      - name: 📦 Install gems for iOS
-        working-directory: ./ios
-        shell: bash
-        run: bundle install
 
       - name: 📦 Install pods for iOS
         working-directory: ./ios
@@ -63,6 +58,5 @@ jobs:
         run: sudo xcode-select -s "/Applications/Xcode_16.4.app"
 
       - name: 📦 Run fastlane
-        working-directory: ./ios
         shell: bash
         run: bundle exec fastlane beta
