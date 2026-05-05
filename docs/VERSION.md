@@ -16,7 +16,7 @@ npm version major  # 1.11.0 -> 2.0.0
 
 This triggers these 3 npm scripts in `package.json`:
 
-- **`preversion`**: Runs `check-env` to make sure the environment is not set to development (this cna be seen as uneccessary but it helps to avoid some git conflicts)
+- **`preversion`**: Runs `check-env` to make sure the environment is not set to development (this can be seen as uneccessary but it helps to avoid some git conflicts) and downloads the list of current active wafrn instances to `instances.json` (for opening instance links)
 - **`version`**: Runs `setup:prod` (which calls `expo prebuild` and syncs the version to `android/app/build.gradle`), then stages all changes.
 - **`postversion`**: Pushes the commit and the newly created git tag to the remote.
 

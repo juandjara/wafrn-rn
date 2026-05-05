@@ -29,5 +29,3 @@ fastlane/report.xml
 *.apk
 *.aab
 *.ipa
-instances.json
-
