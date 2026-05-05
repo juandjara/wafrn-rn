@@ -4,7 +4,7 @@ storage_mode("google_cloud")
 
 type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
 
-app_identifier("dev.djara.wafrn-rn")
+app_identifier(["dev.djara.wafrn-rn", "dev.djara.wafrn-rn.share-extension"])
 username("juanorigami@gmail.com") # Your Apple Developer Portal username
 team_id("837R3VKT4W") # Developer Portal Team ID
 
