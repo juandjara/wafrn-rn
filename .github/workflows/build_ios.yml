@@ -15,20 +15,17 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: 🏗 Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🏗 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
-      - name: 🏗 Install PNPM
-        shell: bash
-        run: corepack enable
-
-      - name: 📦 Install pnpm dependencies
+      - name: 📦 Install PNPM and dependencies
         shell: bash
         run: |
+          corepack enable
           echo "::group::Install dependencies"
           pnpm install --frozen-lockfile
           echo "::endgroup::"
