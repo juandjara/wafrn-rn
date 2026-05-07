@@ -35,6 +35,13 @@ platform :ios do
     build_app(
       workspace: "ios/Wafrn.xcworkspace",
       scheme: "Wafrn",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "dev.djara.wafrn-rn" => "match AppStore dev.djara.wafrn-rn",
+          "dev.djara.wafrn-rn.share-extension" => "match AppStore dev.djara.wafrn-rn.share-extension"
+        }
+      }
     )
     upload_to_testflight(
       distribute_external: true,
