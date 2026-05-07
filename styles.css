@@ -1,11 +1,2 @@
 @import 'tailwindcss';
 @import 'uniwind';
-
-@layer utilities {
-  .h-hairline {
-    height: hairlineWidth();
-  }
-  .w-hairline {
-    width: hairlineWidth();
-  }
-}

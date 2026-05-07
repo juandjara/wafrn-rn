@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Keyboard,
   Pressable,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -153,7 +154,10 @@ export default function MfaSettings() {
             </Pressable>
           </View>
         ))}
-        <View className="h-hairline mt-0 bg-gray-500" />
+        <View
+          className="bg-gray-500"
+          style={{ height: StyleSheet.hairlineWidth }}
+        />
         {newMfa ? (
           <View className="m-3">
             <Text className="text-white mt-3">
