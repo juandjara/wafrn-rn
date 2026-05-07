@@ -37,15 +37,6 @@ steps:
       - apt-get install -y -t bookworm openjdk-17-jdk-headless
       - update-java-alternatives -s java-1.17.0-openjdk-amd64
 
-      # ── Pre-download Gradle (avoids wrapper timeout on flaky networks) ──
-      - |
-        GRADLE_URL=$(grep '^distributionUrl=' android/gradle/wrapper/gradle-wrapper.properties | sed 's/^distributionUrl=//' | tr -d '\\' | tr -d '\r')
-        echo "Gradle URL: $GRADLE_URL"
-        GRADLE_FILE=$(basename "$GRADLE_URL")
-        mkdir -p /opt/gradle-dist
-        curl -4 --retry 3 --retry-delay 5 --connect-timeout 30 -fSL "$GRADLE_URL" -o "/opt/gradle-dist/$GRADLE_FILE"
-        sed -i "s|distributionUrl=.*|distributionUrl=file\\:///opt/gradle-dist/$GRADLE_FILE|" android/gradle/wrapper/gradle-wrapper.properties
-
       # ── Android SDK ──
       - curl -4 --retry 3 --connect-timeout 30 -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o tools.zip
       - mkdir -p /opt/android/cmdline-tools/latest /opt/gradle
