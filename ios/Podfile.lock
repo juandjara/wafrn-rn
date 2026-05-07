@@ -1859,7 +1859,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-skia (2.4.18):
+  - react-native-skia (2.6.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2575,7 +2575,7 @@ DEPENDENCIES:
   - "react-native-pager-view (from `../node_modules/.pnpm/react-native-pager-view@8.0.0_react-native@0.83.4_@babel+core@7.28.5_@react-native-comm_948984f616bad6960b74bbb8484046c3/node_modules/react-native-pager-view`)"
   - "react-native-release-profiler (from `../node_modules/.pnpm/react-native-release-profiler@0.4.4_@react-native-community+cli-tools@20.0.2_react-nati_88ebf4e2eef16201ada07f94fa9fa9db/node_modules/react-native-release-profiler`)"
   - "react-native-safe-area-context (from `../node_modules/.pnpm/react-native-safe-area-context@5.6.2_react-native@0.83.4_@babel+core@7.28.5_@react-nati_727f89a0ba8725b797c45bba7823a7fb/node_modules/react-native-safe-area-context`)"
-  - "react-native-skia (from `../node_modules/.pnpm/@shopify+react-native-skia@2.4.18_react-native-reanimated@4.2.1_react-native-worklets@0_1423a002bfb2ea7cba3283b9757339d7/node_modules/@shopify/react-native-skia`)"
+  - "react-native-skia (from `../node_modules/.pnpm/@shopify+react-native-skia@2.6.2_react-native-reanimated@4.2.1_react-native-worklets@0._cc0fdaea8d623244004af48abe8c6d27/node_modules/@shopify/react-native-skia`)"
   - "React-NativeModulesApple (from `../node_modules/.pnpm/react-native@0.83.4_@babel+core@7.28.5_@react-native-community+cli@20.0.2_typescript@5._527c1bdc200f6367b927d3e2f10c641d/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)"
   - "React-networking (from `../node_modules/.pnpm/react-native@0.83.4_@babel+core@7.28.5_@react-native-community+cli@20.0.2_typescript@5._527c1bdc200f6367b927d3e2f10c641d/node_modules/react-native/ReactCommon/react/networking`)"
   - "React-oscompat (from `../node_modules/.pnpm/react-native@0.83.4_@babel+core@7.28.5_@react-native-community+cli@20.0.2_typescript@5._527c1bdc200f6367b927d3e2f10c641d/node_modules/react-native/ReactCommon/oscompat`)"
@@ -2786,7 +2786,7 @@ EXTERNAL SOURCES:
   react-native-safe-area-context:
     :path: "../node_modules/.pnpm/react-native-safe-area-context@5.6.2_react-native@0.83.4_@babel+core@7.28.5_@react-nati_727f89a0ba8725b797c45bba7823a7fb/node_modules/react-native-safe-area-context"
   react-native-skia:
-    :path: "../node_modules/.pnpm/@shopify+react-native-skia@2.4.18_react-native-reanimated@4.2.1_react-native-worklets@0_1423a002bfb2ea7cba3283b9757339d7/node_modules/@shopify/react-native-skia"
+    :path: "../node_modules/.pnpm/@shopify+react-native-skia@2.6.2_react-native-reanimated@4.2.1_react-native-worklets@0._cc0fdaea8d623244004af48abe8c6d27/node_modules/@shopify/react-native-skia"
   React-NativeModulesApple:
     :path: "../node_modules/.pnpm/react-native@0.83.4_@babel+core@7.28.5_@react-native-community+cli@20.0.2_typescript@5._527c1bdc200f6367b927d3e2f10c641d/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-networking:
@@ -2948,7 +2948,7 @@ SPEC CHECKSUMS:
   react-native-pager-view: adc7d78123fb395e03a70d19e8d75805b49838b5
   react-native-release-profiler: d58590dd433a6db43e02052eeceaf97ffbd26f63
   react-native-safe-area-context: 37e680fc4cace3c0030ee46e8987d24f5d3bdab2
-  react-native-skia: b1ba694c208db8a184ea55fe086a76b4ef0b2493
+  react-native-skia: e8b9354dc16c4099537ba0659cd70ea4adf8efc4
   React-NativeModulesApple: f3eb751b0ea23645a5283ed8c8bb8ebeeda32d15
   React-networking: af5eba8ccda3334cd2f6246b599d3b55bb73eb2e
   React-oscompat: 3774ed6bc0e9866ff7236b94adbc7ad33ceaecdd
@@ -2994,6 +2994,6 @@ SPEC CHECKSUMS:
   SwiftUIIntrospect: fee9aa07293ee280373a591e1824e8ddc869ba5d
   Yoga: acd565934addf7423687593ec490bd4491b2a802
 
-PODFILE CHECKSUM: abe56060b2a57afc667302a418b2af930c82c4d5
+PODFILE CHECKSUM: 1ee828fc999d683711294aad710bd4e08343d857
 
 COCOAPODS: 1.16.2
