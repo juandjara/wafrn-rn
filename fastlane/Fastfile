@@ -41,7 +41,8 @@ platform :ios do
           "dev.djara.wafrn-rn" => "match AppStore dev.djara.wafrn-rn",
           "dev.djara.wafrn-rn.share-extension" => "match AppStore dev.djara.wafrn-rn.share-extension"
         }
-      }
+      },
+      xcargs: "CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER=''"
     )
     upload_to_testflight(
       distribute_external: true,
