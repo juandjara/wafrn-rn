@@ -32,6 +32,25 @@ platform :ios do
     )
 
     changelog_from_git_commits
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/Wafrn.xcodeproj",
+      targets: ["Wafrn"],
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore dev.djara.wafrn-rn",
+      bundle_identifier: "dev.djara.wafrn-rn"
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/Wafrn.xcodeproj",
+      targets: ["ShareExtension"],
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore dev.djara.wafrn-rn.share-extension",
+      bundle_identifier: "dev.djara.wafrn-rn.share-extension"
+    )
+
     build_app(
       workspace: "ios/Wafrn.xcworkspace",
       scheme: "Wafrn",
@@ -41,8 +60,7 @@ platform :ios do
           "dev.djara.wafrn-rn" => "match AppStore dev.djara.wafrn-rn",
           "dev.djara.wafrn-rn.share-extension" => "match AppStore dev.djara.wafrn-rn.share-extension"
         }
-      },
-      xcargs: "CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' PROVISIONING_PROFILE_SPECIFIER=''"
+      }
     )
     upload_to_testflight(
       distribute_external: true,
