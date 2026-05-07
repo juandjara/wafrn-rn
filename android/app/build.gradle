@@ -116,6 +116,18 @@ android {
         versionName "1.13.1"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
+
+        // Remap absolute build paths in __FILE__ macros to relative paths for reproducible builds.
+        // Without this, native .so files embed environment-specific paths (GRADLE_USER_HOME, repo
+        // checkout dir) which differ across CI environments (Woodpecker, F-Droid, IzzyOnDroid).
+        def repoRoot = rootProject.projectDir.parentFile.absolutePath
+        def gradleHome = gradle.gradleUserHomeDir.absolutePath
+        externalNativeBuild {
+            cmake {
+                cppFlags "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
+                cFlags "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
+            }
+        }
     }
     splits {
         abi {
