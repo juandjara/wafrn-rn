@@ -39,7 +39,7 @@ fi
 
 if [ ! -d "$ANDROID_NDK" ]; then
   echo "> NDK $ANDROID_NDK_VERSION not found, installing via sdkmanager"
-  "${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}"
+  "${ANDROID_SDK}/cmdline-tools/latest/tools/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}"
 fi
 
 echo "> using ANDROID_NDK=$ANDROID_NDK"
