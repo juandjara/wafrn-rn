@@ -38,9 +38,8 @@ if [ -z "${ANDROID_NDK:-}" ]; then
 fi
 
 if [ ! -d "$ANDROID_NDK" ]; then
-  echo "Error: ANDROID_NDK directory not found at $ANDROID_NDK"
-  echo "Install NDK $ANDROID_NDK_VERSION via Android Studio SDK Manager or sdkmanager."
-  exit 1
+  echo "> NDK $ANDROID_NDK_VERSION not found, installing via sdkmanager"
+  "${ANDROID_SDK}/cmdline-tools/latest/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}"
 fi
 
 echo "> using ANDROID_NDK=$ANDROID_NDK"
