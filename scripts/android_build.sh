@@ -143,8 +143,8 @@ build_skia() {
 # Move the compiled Skia libs into node_modules where Gradle expects them
 install_skia_libs() {
   echo "> installing compiled Skia libs into node_modules"
-  mkdir -p node_modules/@shopify/react-native-skia/libs
-  mv "$SKIA_SRCLIB_DIR/packages/skia/libs/android" node_modules/@shopify/react-native-skia/libs/android
+  mkdir -p $PROJECT_ROOT/node_modules/@shopify/react-native-skia/libs
+  mv "$SKIA_SRCLIB_DIR/packages/skia/libs/android" $PROJECT_ROOT/node_modules/@shopify/react-native-skia/libs/android
 }
 
 if [ "$env" == "dev" ]; then
