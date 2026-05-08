@@ -1,5 +1,6 @@
 <!-- Badges -->
 
+[<img src"https://ci.djara.dev/api/badges/1/status.svg" alt="Woodpecker CI">](https://ci.djara.dev/repos/1/)
 [<img src="https://shields.rbtlog.dev/simple/dev.djara.wafrn_rn" alt="RB shield">](https://shields.rbtlog.dev/dev.djara.wafrn_rn)
 [<img src="https://github.com/juandjara/wafrn-rn/actions/workflows/build_ios.yml/badge.svg" alt="Build Status" />](https://github.com/juandjara/wafrn-rn/actions/workflows/build_ios.yml)
 
