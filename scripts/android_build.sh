@@ -25,6 +25,26 @@ cd "$(dirname "$0")"
 cd ..
 PROJECT_ROOT="$(pwd)"
 
+# set ANDROID_NDK (needed by Skia build scripts)
+
+ANDROID_NDK_VERSION="27.1.12297006"
+if [ -z "${ANDROID_NDK:-}" ]; then
+  ANDROID_SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+  if [ -z "$ANDROID_SDK" ]; then
+    echo 'Error: ANDROID_HOME (or ANDROID_SDK_ROOT) is not set.'
+    exit 1
+  fi
+  export ANDROID_NDK="${ANDROID_SDK}/ndk/${ANDROID_NDK_VERSION}"
+fi
+
+if [ ! -d "$ANDROID_NDK" ]; then
+  echo "Error: ANDROID_NDK directory not found at $ANDROID_NDK"
+  echo "Install NDK $ANDROID_NDK_VERSION via Android Studio SDK Manager or sdkmanager."
+  exit 1
+fi
+
+echo "> using ANDROID_NDK=$ANDROID_NDK"
+
 if ! command -v pnpm &>/dev/null; then
   echo "> pnpm not found. installing pnpm with npm"
   npm install -g pnpm
