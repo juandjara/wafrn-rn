@@ -78,26 +78,21 @@ SKIA_SRCLIB_DIR="${SKIA_SRCLIB_DIR:-$PROJECT_ROOT/../react-native-skia}"
 # Clone or update the react-native-skia srclib repo for building Skia from source
 # This mirrors what F-Droid does with the srclibs
 setup_skia_srclib() {
-  local skia_version
-  skia_version=$(node -p "require('./package.json').dependencies['@shopify/react-native-skia']" 2>/dev/null || echo "undefined")
+  # local skia_version
+  # skia_version=$(node -p "require('./package.json').dependencies['@shopify/react-native-skia']" 2>/dev/null || echo "undefined")
 
-  if [ "$skia_version" != "undefined" ]; then
-    echo "> react-native-skia version: $skia_version"
-  else
-    echo "Error: could not read @shopify/react-native-skia version from package.json"
+  # if [ "$skia_version" != "undefined" ]; then
+  #   echo "> react-native-skia version: $skia_version"
+  # else
+  #   echo "Error: could not read @shopify/react-native-skia version from package.json"
+  #   exit 1
+  # fi
+
+  # Exit early if missing
+  if [ ! -d "$SKIA_SRCLIB_DIR" ]; then
+    echo "Error: $SKIA_SRCLIB_DIR not existing. Exiting build script"
     exit 1
   fi
-
-  # Clone if missing
-  if [ ! -d "$SKIA_SRCLIB_DIR" ]; then
-    echo "> cloning react-native-skia srclib → $SKIA_SRCLIB_DIR"
-    git clone https://github.com/Shopify/react-native-skia.git "$SKIA_SRCLIB_DIR"
-  fi
-
-  # Checkout the matching tag and init submodules (like depot_tools)
-  git -C "$SKIA_SRCLIB_DIR" fetch --tags
-  git -C "$SKIA_SRCLIB_DIR" checkout -f "v${skia_version}"
-  git -C "$SKIA_SRCLIB_DIR" submodule update --init --recursive
 }
 
 # Remove prebuilt Skia .so files so Gradle picks up the source-built ones
@@ -132,7 +127,6 @@ build_skia() {
 
   cd packages/skia
 
-  local build_cmd
   for target in android-arm android-arm64; do
     yarn build-skia $target
   done

@@ -24,6 +24,7 @@ steps:
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       GRADLE_OPTS: '-Xmx2g -Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.workers.max=2 -Dkotlin.daemon.jvm.options=-Xmx512m'
       BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
+      SKIA_SRCLIB_DIR: '/opt/react-native-skia'
     commands:
       # ── Node + Java (match F-Droid's Trixie build environment) ──
       - apt-get update -y
