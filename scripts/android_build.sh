@@ -121,7 +121,7 @@ build_skia() {
   yarn
 
   # depot_tools must be bootstrapped before the build
-  pushd ./externals/depot_tools
+  pushd $SKIA_SRCLIB_DIR/externals/depot_tools
   ./update_depot_tools
   popd
 
