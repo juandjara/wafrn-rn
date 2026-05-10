@@ -6,7 +6,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
-import { ScrollView, Text, Pressable, View } from 'react-native'
+import { ScrollView, Text, Pressable, View, Platform } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 
 export default function Settings() {
@@ -106,6 +106,7 @@ export default function Settings() {
         icon: 'hand-heart-outline' as const,
         label: 'Support the project',
         link: 'https://wafrn.net/faq/donate.html',
+        hidden: Platform.OS === 'ios' || Platform.OS === 'macos',
       },
       // DANGER
       { header: 'Danger Zone' },
