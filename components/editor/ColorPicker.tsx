@@ -37,12 +37,12 @@ const EXTRA_COLORS = ['#FFFFFF', '#000000']
 
 export default function ColorPicker({
   open,
-  setOpen,
-  selectColor,
+  onClose,
+  onSelect,
 }: {
   open: boolean
-  setOpen: (open: boolean) => void
-  selectColor: (color: string) => void
+  onClose: () => void
+  onSelect: (color: string) => void
 }) {
   const [intensity, setIntensity] = useState<(typeof INTENSITIES)[number]>(500)
 
@@ -58,14 +58,11 @@ export default function ColorPicker({
     <Modal
       visible={open}
       animationType="slide"
-      onRequestClose={() => setOpen(false)}
+      onRequestClose={onClose}
       transparent
     >
       <View className="flex-1">
-        <Pressable
-          className="bg-black/50 grow"
-          onPress={() => setOpen(false)}
-        />
+        <Pressable className="bg-black/50 grow" onPress={onClose} />
         <View className="bg-indigo-950 p-2">
           <Text className="text-white text-sm font-medium">
             Color intensity
@@ -106,8 +103,8 @@ export default function ColorPicker({
                 style={{ backgroundColor: color }}
                 className={`p-2 rounded-full`}
                 onPress={() => {
-                  selectColor(color)
-                  setOpen(false)
+                  onSelect(color)
+                  onClose()
                 }}
               >
                 <MaterialCommunityIcons
@@ -121,8 +118,8 @@ export default function ColorPicker({
               <Pressable
                 key={color}
                 onPress={() => {
-                  selectColor(getColor(color, intensity))
-                  setOpen(false)
+                  onSelect(getColor(color, intensity))
+                  onClose()
                 }}
                 style={{ backgroundColor: getColor(color, intensity) }}
                 className={`p-2 rounded-full`}

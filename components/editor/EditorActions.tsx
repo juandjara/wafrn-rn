@@ -75,8 +75,8 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
       />
       <ColorPicker
         open={showColorPicker}
-        setOpen={setShowColorPicker}
-        selectColor={colorSelection}
+        onClose={() => setShowColorPicker(false)}
+        onSelect={colorSelection}
       />
       <Modal
         visible={showEmojiPicker}

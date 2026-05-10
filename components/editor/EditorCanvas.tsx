@@ -1,21 +1,18 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { useMemo, useRef, useState } from 'react'
 import {
-  Canvas,
-  ImageFormat,
-  Path,
-  Rect,
-  Skia,
-  SkPath,
-  useCanvasRef,
-} from '@shopify/react-native-skia'
-import { useMemo, useState } from 'react'
+  LayoutChangeEvent,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
+import Svg, { Path, Rect } from 'react-native-svg'
 import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons'
+import { luminance } from 'colorizr'
 import ColorPicker from './ColorPicker'
 import { clsx } from 'clsx'
-import Animated, {
-  useDerivedValue,
-  useSharedValue,
-} from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import {
   Gesture,
   GestureDetector,
@@ -34,16 +31,61 @@ type EditorCanvasProps = {
 
 enum EditModes {
   COLOR = 'color',
-  CLEAR = 'clear',
+  ERASER = 'eraser',
 }
 
+type Point = { x: number; y: number }
+
 type PathData = {
-  path: SkPath
+  d: string
   mode: EditModes
   color: string
 }
 
 const DEFAULT_COLOR = '#000000'
+const DEFAULT_BACKGROUND_COLOR = '#ffffff'
+
+function pointsToD(points: Point[]): string {
+  if (points.length === 0) return ''
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`
+
+  let d = `M ${points[0].x} ${points[0].y}`
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1]
+    const curr = points[i]
+    const mx = (prev.x + curr.x) / 2
+    const my = (prev.y + curr.y) / 2
+    d += ` Q ${prev.x} ${prev.y} ${mx} ${my}`
+  }
+  return d
+}
+
+function getContrastColor(hex: string) {
+  return luminance(hex) > 0.179 ? '#000' : '#fff'
+}
+
+const MemoizedPath = React.memo(function MemoizedPath({
+  d,
+  stroke,
+  strokeWidth,
+}: {
+  d: string
+  stroke: string
+  strokeWidth: number
+}) {
+  return (
+    <Path
+      d={d}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  )
+})
+
+type ColorPickerMode = 'foreground' | 'background' | null
 
 export default function EditorCanvas({
   open,
@@ -52,43 +94,53 @@ export default function EditorCanvas({
 }: EditorCanvasProps) {
   const [mode, setMode] = useState<EditModes>(EditModes.COLOR)
   const [color, setColor] = useState(DEFAULT_COLOR)
-  const [colorPickerOpen, setColorPickerOpen] = useState(false)
+  const [backgroundColor, setBackgroundColor] = useState<string>(
+    DEFAULT_BACKGROUND_COLOR,
+  )
+  const [colorPickerOpen, setColorPickerOpen] = useState<ColorPickerMode>(null)
   const [paths, setPaths] = useState<PathData[]>([])
-  const canvasRef = useCanvasRef()
-  const currentPath = useSharedValue<SkPath>(Skia.Path.Make().moveTo(0, 0))
+  const [currentPoints, setCurrentPoints] = useState<Point[]>([])
+  const currentPointsRef = useRef<Point[]>([])
+  const svgRef = useRef<Svg>(null)
   const sx = useSafeAreaPadding()
-  const [background, setBackground] = useState<string | null>(null)
-  // size will be updated as the canvas size changes
-  const size = useSharedValue({ width: 0, height: 0 })
-  const rect = useDerivedValue(() => {
-    const { width, height } = size.value
-    return { x: 0, y: 0, width, height }
-  })
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
 
-  function setBackgroundColor() {
-    setBackground(background ? null : color)
+  const eraserColor = backgroundColor ?? '#FFFFFF'
+
+  function getStrokeColor(pathMode: EditModes, pathColor: string) {
+    return pathMode === EditModes.ERASER ? eraserColor : pathColor
+  }
+
+  function getStrokeWidth(pathMode: EditModes) {
+    return pathMode === EditModes.ERASER ? 25 : 5
   }
 
   async function confirmDrawing() {
-    const image = await canvasRef.current?.makeImageSnapshotAsync()
-    if (image) {
-      const base64Uri = image.encodeToBase64(ImageFormat.WEBP, 50)
-      const filename = `drawing-${Date.now()}.webp`
-      const file = new File(Paths.cache, filename)
-      file.write(base64Uri, { encoding: 'base64' })
-      console.log('Writing image to', file.uri)
-      addImage({
-        uri: file.uri,
-        mimeType: 'image/webp',
-        fileName: filename,
-        width: image.width(),
-        height: image.height(),
-      })
-      close()
-    } else {
+    const svg = svgRef.current
+    if (!svg) {
       console.error('Failed to create image snapshot')
+      return
     }
+    return new Promise<void>((resolve) => {
+      svg.toDataURL((base64: string) => {
+        const filename = `drawing-${Date.now()}.png`
+        const file = new File(Paths.cache, filename)
+        file.write(base64, { encoding: 'base64' })
+        console.log('Writing image to', file.uri)
+        addImage({
+          uri: file.uri,
+          mimeType: 'image/png',
+          fileName: filename,
+          width: canvasSize.width,
+          height: canvasSize.height,
+        })
+        close()
+        resolve()
+      })
+    })
   }
+
+  const currentD = pointsToD(currentPoints)
 
   const gesture = useMemo(
     () =>
@@ -96,71 +148,80 @@ export default function EditorCanvas({
         .minDistance(1)
         .maxPointers(1)
         .onStart((ev) => {
-          currentPath.value = Skia.Path.Make().moveTo(ev.x, ev.y)
+          const pts = [{ x: ev.x, y: ev.y }]
+          currentPointsRef.current = pts
         })
         .onUpdate((ev) => {
-          currentPath.modify((lastPath) => {
-            'worklet'
-            const lastPoint = lastPath.getLastPt()
-            lastPath.quadTo(lastPoint.x, lastPoint.y, ev.x, ev.y)
-            return lastPath
-          }, true)
+          const pts = currentPointsRef.current.concat({ x: ev.x, y: ev.y })
+          currentPointsRef.current = pts
+          setCurrentPoints(pts)
         })
         .onEnd(() => {
-          setPaths((prevPaths) => [
-            ...prevPaths,
-            { path: currentPath.value, mode, color },
-          ])
-          setTimeout(() => {
-            currentPath.value = Skia.Path.Make().moveTo(0, 0)
-          })
+          const d = pointsToD(currentPointsRef.current)
+          if (d) {
+            setPaths((prevPaths) => [...prevPaths, { d, mode, color }])
+          }
+          currentPointsRef.current = []
+          setCurrentPoints([])
         })
         .runOnJS(true),
-    [currentPath, mode, color],
+    [mode, color],
   )
 
   function close() {
     setOpen(false)
     setPaths([])
-    clearCurrentPath()
-  }
-
-  function clearCurrentPath() {
-    currentPath.value = Skia.Path.Make().moveTo(0, 0)
+    setCurrentPoints([])
   }
 
   function undo() {
     setPaths((paths) => paths.slice(0, -1))
-    clearCurrentPath()
+    setCurrentPoints([])
+  }
+
+  function onCanvasLayout(e: LayoutChangeEvent) {
+    setCanvasSize({
+      width: Math.round(e.nativeEvent.layout.width),
+      height: Math.round(e.nativeEvent.layout.height),
+    })
   }
 
   return (
     <Modal animationType="slide" visible={open} onRequestClose={close}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={{ flex: 1, backgroundColor: Colors.dark.background }}>
-          <View collapsable={false} className="rounded-md bg-white flex-1">
-            <Canvas ref={canvasRef} style={{ flex: 1 }} onSize={size}>
-              {background && <Rect rect={rect} color={background} />}
+          <View
+            collapsable={false}
+            className="rounded-md bg-white flex-1"
+            onLayout={onCanvasLayout}
+          >
+            <Svg ref={svgRef} width="100%" height="100%">
+              <Rect
+                x="0"
+                y="0"
+                width="100%"
+                height="100%"
+                fill={backgroundColor}
+              />
               {paths.map((p, index) => (
-                <Path
+                <MemoizedPath
                   key={index}
-                  strokeCap="round"
-                  strokeJoin="round"
-                  strokeWidth={p.mode === EditModes.CLEAR ? 25 : 5}
-                  style="stroke"
-                  path={p.path}
-                  color={p.color}
-                  blendMode={p.mode}
+                  d={p.d}
+                  stroke={getStrokeColor(p.mode, p.color)}
+                  strokeWidth={getStrokeWidth(p.mode)}
                 />
               ))}
-              <Path
-                path={currentPath}
-                strokeWidth={mode === EditModes.CLEAR ? 25 : 5}
-                style="stroke"
-                color={color}
-                blendMode={mode}
-              />
-            </Canvas>
+              {currentD ? (
+                <Path
+                  d={currentD}
+                  stroke={getStrokeColor(mode, color)}
+                  strokeWidth={getStrokeWidth(mode)}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              ) : null}
+            </Svg>
           </View>
           <GestureDetector gesture={gesture}>
             <Animated.View style={StyleSheet.absoluteFill} />
@@ -174,7 +235,7 @@ export default function EditorCanvas({
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
-              onPress={() => setColorPickerOpen(true)}
+              onPress={() => setColorPickerOpen('foreground')}
             />
             <Pressable
               onPress={() => setMode(EditModes.COLOR)}
@@ -192,10 +253,10 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
-              onPress={() => setMode(EditModes.CLEAR)}
+              onPress={() => setMode(EditModes.ERASER)}
               className={clsx(
                 'p-2 rounded-full',
-                mode === EditModes.CLEAR
+                mode === EditModes.ERASER
                   ? 'bg-white'
                   : 'active:bg-white/50 bg-white/15',
               )}
@@ -203,19 +264,17 @@ export default function EditorCanvas({
               <MaterialCommunityIcons
                 size={20}
                 name="eraser"
-                color={mode === EditModes.CLEAR ? 'black' : 'white'}
+                color={mode === EditModes.ERASER ? 'black' : 'white'}
               />
             </Pressable>
             <Pressable
-              onPress={setBackgroundColor}
-              className={clsx(
-                'p-2 rounded-full',
-                background ? 'bg-white' : 'active:bg-white/50 bg-white/15',
-              )}
+              onPress={() => setColorPickerOpen('background')}
+              style={{ backgroundColor }}
+              className="p-2 rounded-full"
             >
               <Foundation
                 name="paint-bucket"
-                color={background ? 'black' : 'white'}
+                color={getContrastColor(backgroundColor)}
                 size={20}
               />
             </Pressable>
@@ -240,16 +299,19 @@ export default function EditorCanvas({
               <Text className="font-medium text-white">OK</Text>
             </Pressable>
           </View>
-          <ColorPicker
-            open={colorPickerOpen}
-            setOpen={setColorPickerOpen}
-            selectColor={(color) => {
-              setColor(color)
-              setColorPickerOpen(false)
-            }}
-          />
         </View>
       </GestureHandlerRootView>
+      <ColorPicker
+        open={!!colorPickerOpen}
+        onClose={() => setColorPickerOpen(null)}
+        onSelect={(color) => {
+          if (colorPickerOpen === 'foreground') {
+            setColor(color)
+          } else {
+            setBackgroundColor(color)
+          }
+        }}
+      />
     </Modal>
   )
 }
