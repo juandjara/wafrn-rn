@@ -328,7 +328,7 @@ def createRewriteExpoManifestTaskForVariant(variantName) {
 afterEvaluate {
     android.applicationVariants.configureEach { variant ->
         def capName = variant.name.capitalize()
-        def libDir = "$buildDir\\intermediates\\merged_native_libs\\${variant.name}\\mergeReleaseNativeLibs\\out\\lib"
+        def libDir = "$buildDir/intermediates/merged_native_libs/${variant.name}/merge${capName}NativeLibs/out/lib"
         createStripTaskForVariant(capName, libDir)
         def stripTask = tasks["stripSoFiles${capName}"]
         if (tasks.findByName("merge${capName}NativeLibs")) {
