@@ -105,10 +105,8 @@ export default function EditorCanvas({
   const sx = useSafeAreaPadding()
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
 
-  const eraserColor = backgroundColor ?? '#FFFFFF'
-
   function getStrokeColor(pathMode: EditModes, pathColor: string) {
-    return pathMode === EditModes.ERASER ? eraserColor : pathColor
+    return pathMode === EditModes.ERASER ? backgroundColor : pathColor
   }
 
   function getStrokeWidth(pathMode: EditModes) {
