@@ -299,17 +299,19 @@ export default function EditorCanvas({
           </View>
         </View>
       </GestureHandlerRootView>
-      <ColorPicker
-        open={!!colorPickerOpen}
-        onClose={() => setColorPickerOpen(null)}
-        onSelect={(color) => {
-          if (colorPickerOpen === 'foreground') {
-            setColor(color)
-          } else {
-            setBackgroundColor(color)
-          }
-        }}
-      />
+      {!!colorPickerOpen && (
+        <ColorPicker
+          open
+          onClose={() => setColorPickerOpen(null)}
+          onSelect={(color) => {
+            if (colorPickerOpen === 'foreground') {
+              setColor(color)
+            } else {
+              setBackgroundColor(color)
+            }
+          }}
+        />
+      )}
     </Modal>
   )
 }

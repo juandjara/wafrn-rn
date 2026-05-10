@@ -68,29 +68,35 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
           onSelect={handleGifSelect}
         />
       )}
-      <EditorCanvas
-        open={showCanvas}
-        setOpen={setShowCanvas}
-        addImage={(image) => actions.addImages([image])}
-      />
-      <ColorPicker
-        open={showColorPicker}
-        onClose={() => setShowColorPicker(false)}
-        onSelect={colorSelection}
-      />
-      <Modal
-        visible={showEmojiPicker}
-        animationType="slide"
-        onRequestClose={() => setShowEmojiPicker(false)}
-      >
-        <EmojiPicker
-          onClose={() => setShowEmojiPicker(false)}
-          onPick={(emoji) => {
-            actions.insertCharacter(emoji.content || emoji.name)
-            setShowEmojiPicker(false)
-          }}
+      {showCanvas && (
+        <EditorCanvas
+          open
+          setOpen={setShowCanvas}
+          addImage={(image) => actions.addImages([image])}
         />
-      </Modal>
+      )}
+      {showColorPicker && (
+        <ColorPicker
+          open
+          onClose={() => setShowColorPicker(false)}
+          onSelect={colorSelection}
+        />
+      )}
+      {showEmojiPicker && (
+        <Modal
+          visible
+          animationType="slide"
+          onRequestClose={() => setShowEmojiPicker(false)}
+        >
+          <EmojiPicker
+            onClose={() => setShowEmojiPicker(false)}
+            onPick={(emoji) => {
+              actions.insertCharacter(emoji.content || emoji.name)
+              setShowEmojiPicker(false)
+            }}
+          />
+        </Modal>
+      )}
       <ScrollView
         contentContainerClassName="gap-3 w-full justify-center p-3"
         className="shrink-0 grow-0"
