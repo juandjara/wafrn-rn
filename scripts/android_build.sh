@@ -4,9 +4,9 @@
 # Build script for Wafrn RN Android.
 #
 # Modes:
-#   prod-foss (default) — FOSS release APKs, compiles Skia from source
-#   prod-google          — Google Play AAB with prebuilt Skia
-#   dev                  — Debug APK with prebuilt Skia
+#   prod-foss (default) — FOSS release APKs
+#   prod-google         — Google Play AAB
+#   dev                 — Debug APK with dev client for testing locally
 #
 # Examples:
 #   ./scripts/android_build.sh               # prod-foss
@@ -24,25 +24,6 @@ fi
 cd "$(dirname "$0")"
 cd ..
 PROJECT_ROOT="$(pwd)"
-
-# set ANDROID_NDK (needed by Skia build scripts)
-
-ANDROID_NDK_VERSION="27.1.12297006"
-if [ -z "${ANDROID_NDK:-}" ]; then
-  ANDROID_SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
-  if [ -z "$ANDROID_SDK" ]; then
-    echo 'Error: ANDROID_HOME (or ANDROID_SDK_ROOT) is not set.'
-    exit 1
-  fi
-  export ANDROID_NDK="${ANDROID_SDK}/ndk/${ANDROID_NDK_VERSION}"
-fi
-
-if [ ! -d "$ANDROID_NDK" ]; then
-  echo "> NDK $ANDROID_NDK_VERSION not found, installing via sdkmanager"
-  "${ANDROID_SDK}/cmdline-tools/latest/tools/bin/sdkmanager" --sdk_root=$ANDROID_SDK "ndk;${ANDROID_NDK_VERSION}"
-fi
-
-echo "> using ANDROID_NDK=$ANDROID_NDK"
 
 if ! command -v pnpm &>/dev/null; then
   echo "> pnpm not found. installing pnpm with npm"
@@ -73,74 +54,6 @@ if [ ! -f 'android/gradlew' ]; then
   exit 1
 fi
 
-SKIA_SRCLIB_DIR="${SKIA_SRCLIB_DIR:-$PROJECT_ROOT/../react-native-skia}"
-
-# Clone or update the react-native-skia srclib repo for building Skia from source
-# This mirrors what F-Droid does with the srclibs
-setup_skia_srclib() {
-  # local skia_version
-  # skia_version=$(node -p "require('./package.json').dependencies['@shopify/react-native-skia']" 2>/dev/null || echo "undefined")
-
-  # if [ "$skia_version" != "undefined" ]; then
-  #   echo "> react-native-skia version: $skia_version"
-  # else
-  #   echo "Error: could not read @shopify/react-native-skia version from package.json"
-  #   exit 1
-  # fi
-
-  # Exit early if missing
-  if [ ! -d "$SKIA_SRCLIB_DIR" ]; then
-    echo "Error: $SKIA_SRCLIB_DIR not existing. Exiting build script"
-    exit 1
-  fi
-}
-
-# Remove prebuilt Skia .so files so Gradle picks up the source-built ones
-remove_prebuilt_skia() {
-  echo "> removing prebuilt Skia libs from node_modules"
-  rm -rf node_modules/@shopify/react-native-skia/libs
-}
-
-# Patch package.json so the Gradle plugin triggers a source build
-patch_build_from_source() {
-  echo "> patching package.json buildFromSource"
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' -e 's/"buildFromSource".*/"buildFromSource":[".*"]/' package.json
-  else
-    sed -i -e 's/"buildFromSource".*/"buildFromSource":[".*"]/' package.json
-  fi
-}
-
-# Compile Skia C++ for Android (both arm and arm64)
-build_skia() {
-  echo "> building Skia from source for Android"
-
-  pushd "$SKIA_SRCLIB_DIR"
-
-  corepack enable
-  yarn
-
-  # depot_tools must be bootstrapped before the build
-  pushd $SKIA_SRCLIB_DIR/externals/depot_tools
-  ./update_depot_tools
-  popd
-
-  cd packages/skia
-
-  for target in android-arm android-arm64; do
-    yarn build-skia $target
-  done
-
-  popd
-}
-
-# Move the compiled Skia libs into node_modules where Gradle expects them
-install_skia_libs() {
-  echo "> installing compiled Skia libs into node_modules"
-  mkdir -p $PROJECT_ROOT/node_modules/@shopify/react-native-skia/libs
-  mv "$SKIA_SRCLIB_DIR/packages/skia/libs/android" $PROJECT_ROOT/node_modules/@shopify/react-native-skia/libs/android
-}
-
 if [ "$env" == "dev" ]; then
   export NODE_ENV=development
   echo '> setting up development environment'
@@ -166,12 +79,6 @@ else
   export NODE_ENV=production
   echo '> setting up production (FOSS) environment'
   pnpm run setup:prod
-
-  setup_skia_srclib
-  remove_prebuilt_skia
-  patch_build_from_source
-  build_skia
-  install_skia_libs
 
   pushd android
   echo '> creating production release build in .apk format'
