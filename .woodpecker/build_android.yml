@@ -24,13 +24,10 @@ steps:
       NODE_OPTIONS: '--openssl-legacy-provider --max_old_space_size=4096'
       GRADLE_OPTS: '-Xmx2g -Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.workers.max=2 -Dkotlin.daemon.jvm.options=-Xmx512m'
       BUILD_TYPE: ${CI_PIPELINE_DEPLOY_TARGET:-prod-foss}
-      SKIA_SRCLIB_DIR: '/opt/react-native-skia'
-    volumes:
-      - /opt/react-native-skia:/opt/react-native-skia
     commands:
       # ── Node + Java (match F-Droid's Trixie build environment) ──
       - apt-get update -y
-      - apt-get install -y curl unzip git ninja-build bzip2 xz-utils python3
+      - apt-get install -y curl unzip
       - curl -Lo node.tar.gz https://nodejs.org/dist/v24.15.0/node-v24.15.0-linux-x64.tar.gz
       - echo "44836872d9aec49f1e6b52a9a922872db9a2b02d235a616a5681b6a85fec8d89 node.tar.gz" | sha256sum -c -
       - tar xzf node.tar.gz --strip-components=1 -C /usr/local/
