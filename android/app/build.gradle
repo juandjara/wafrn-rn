@@ -2,6 +2,10 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+// All build-time tweaks for reproducible APKs (path remap, .so strip,
+// Expo manifest rewrite, Glide KSP normalization). See file for details.
+apply from: rootProject.file('reproducible-builds.gradle')
+
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 /**
@@ -116,18 +120,6 @@ android {
         versionName "1.13.3"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
-
-        // Remap absolute build paths in __FILE__ macros to relative paths for reproducible builds.
-        // Without this, native .so files embed environment-specific paths (GRADLE_USER_HOME, repo
-        // checkout dir) which differ across CI environments (Woodpecker, F-Droid, IzzyOnDroid).
-        def repoRoot = rootProject.projectDir.parentFile.absolutePath
-        def gradleHome = gradle.gradleUserHomeDir.absolutePath
-        externalNativeBuild {
-            cmake {
-                cppFlags "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
-                cFlags "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
-            }
-        }
     }
     splits {
         abi {
@@ -250,100 +242,5 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
-    }
-}
-
-// --- Custom task to strip .so files and remove NT_GNU_BUILD_ID ---
-// adapted from here: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
-
-def getLLVMStrip() {
-    def sdkDir = android.sdkDirectory
-    def ndkVersion = android.ndkVersion
-    if (!sdkDir || !ndkVersion) throw new GradleException("NDK path or version not found. Ensure android.sdkDirectory and android.ndkVersion are set.")
-    def exe = 'llvm-strip'
-    def hostTag = 'linux-x86_64'
-    def ndkPath = "ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostTag}/bin/${exe}"
-    return new File(sdkDir, ndkPath).absolutePath
-}
-
-import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.process.ExecOperations
-import javax.inject.Inject
-
-abstract class StripSoFilesTask extends DefaultTask {
-    @Inject abstract ExecOperations getExecOps()
-
-    @Input String variantName
-    @Input String stripPath
-    @InputDirectory File libDir
-
-    @TaskAction
-    void strip() {
-        def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
-        if (!isLinux) {
-            println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
-            return
-        }
-
-        def soFiles = project.fileTree(dir: libDir, include: '**/*.so')
-        if (!soFiles.isEmpty()) {
-            soFiles.each { soFile ->
-                execOps.exec {
-                    commandLine stripPath, '--remove-section=.note.gnu.build-id', soFile
-                }
-                println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
-            }
-        } else {
-            println "No .so files found to strip for ${variantName}."
-        }
-    }
-}
-
-def createStripTaskForVariant(variantName, libDir) {
-    tasks.register("stripSoFiles${variantName}", StripSoFilesTask) {
-        it.variantName = variantName
-        it.stripPath = getLLVMStrip()
-        it.libDir = file(libDir)
-    }
-}
-
-// Rewrite non-deterministic fields in the Expo Updates app.manifest to ensure reproducible builds.
-// The manifest contains a random "id" and "commitTime" that change on every build,
-// which would cause APK checksums to differ across builds of the same source.
-def createRewriteExpoManifestTaskForVariant(variantName) {
-    tasks.register("rewriteExpoManifest${variantName}") {
-        doLast {
-            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
-            if (!manifestFile.exists()) {
-                println "No app.manifest found for ${variantName}, skipping rewrite."
-                return
-            }
-            def replaced = manifestFile.text.replaceAll(/"id":.*,/, '"id": "9cecc843-557f-42fb-9e69-9d5fae5715fb",')
-            replaced = replaced.replaceAll(/"commitTime":.*,/, '"commitTime": 1750716764178,')
-            manifestFile.write(replaced)
-        }
-    }
-}
-
-afterEvaluate {
-    android.applicationVariants.configureEach { variant ->
-        def capName = variant.name.capitalize()
-        def libDir = "$buildDir/intermediates/merged_native_libs/${variant.name}/merge${capName}NativeLibs/out/lib"
-        createStripTaskForVariant(capName, libDir)
-        def stripTask = tasks["stripSoFiles${capName}"]
-        if (tasks.findByName("merge${capName}NativeLibs")) {
-            tasks["merge${capName}NativeLibs"].finalizedBy(stripTask)
-        }
-        if (tasks.findByName("package${capName}")) {
-            tasks["package${capName}"].mustRunAfter(stripTask)
-        }
-        createRewriteExpoManifestTaskForVariant(capName)
-        def rewriteExpoManifestTask = tasks["rewriteExpoManifest${capName}"]
-        if (tasks.findByName("create${capName}UpdatesResources")) {
-            tasks["create${capName}UpdatesResources"].finalizedBy(rewriteExpoManifestTask)
-        }
-        if (tasks.findByName("package${capName}")) {
-            tasks["package${capName}"].mustRunAfter(rewriteExpoManifestTask)
-        }
     }
 }

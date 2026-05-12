@@ -1,0 +1,113 @@
+// android/reproducible-builds.gradle
+//
+// All build-time tweaks that make APKs byte-identical across machines.
+// Applied from android/app/build.gradle; evaluated in the :app project context.
+// Each section documents the source of non-determinism it fixes.
+//
+// Spec: docs/superpowers/specs/2026-05-12-fdroid-reproducible-builds-design.md
+
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+
+// ─── 1) Native source paths in __FILE__ macros ──────────────────────────────
+// Without -ffile-prefix-map, .so files embed environment-specific absolute
+// paths (GRADLE_USER_HOME, repo checkout dir) that differ across CI hosts
+// (Woodpecker, F-Droid, IzzyOnDroid).
+android {
+    defaultConfig {
+        def repoRoot = rootProject.projectDir.parentFile.absolutePath
+        def gradleHome = gradle.gradleUserHomeDir.absolutePath
+        externalNativeBuild {
+            cmake {
+                cppFlags "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
+                cFlags   "-ffile-prefix-map=${repoRoot}/=", "-ffile-prefix-map=${gradleHome}/=.gradle/"
+            }
+        }
+    }
+}
+
+// ─── 2) Strip NT_GNU_BUILD_ID from native .so files ─────────────────────────
+// The build-id ELF note contains a per-link random/hash that changes every
+// build. llvm-strip removes it. Linux-only; macOS local dev builds skip.
+// Adapted from: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
+def getLLVMStrip() {
+    def sdkDir = android.sdkDirectory
+    def ndkVersion = android.ndkVersion
+    if (!sdkDir || !ndkVersion) throw new GradleException("NDK path or version not found. Ensure android.sdkDirectory and android.ndkVersion are set.")
+    def exe = 'llvm-strip'
+    def hostTag = 'linux-x86_64'
+    def ndkPath = "ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostTag}/bin/${exe}"
+    return new File(sdkDir, ndkPath).absolutePath
+}
+
+abstract class StripSoFilesTask extends DefaultTask {
+    @Inject abstract ExecOperations getExecOps()
+
+    @Input String variantName
+    @Input String stripPath
+    @InputDirectory File libDir
+
+    @TaskAction
+    void strip() {
+        def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
+        if (!isLinux) {
+            println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
+            return
+        }
+
+        def soFiles = project.fileTree(dir: libDir, include: '**/*.so')
+        if (!soFiles.isEmpty()) {
+            soFiles.each { soFile ->
+                execOps.exec {
+                    commandLine stripPath, '--remove-section=.note.gnu.build-id', soFile
+                }
+                println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
+            }
+        } else {
+            println "No .so files found to strip for ${variantName}."
+        }
+    }
+}
+
+def createStripTaskForVariant(variantName, libDir) {
+    tasks.register("stripSoFiles${variantName}", StripSoFilesTask) {
+        it.variantName = variantName
+        it.stripPath = getLLVMStrip()
+        it.libDir = file(libDir)
+    }
+}
+
+// ─── 3) Expo Updates app.manifest determinism ───────────────────────────────
+// The generated app.manifest embeds a random "id" UUID and "commitTime"
+// timestamp. Both change every build. Rewrite both to fixed values.
+def createRewriteExpoManifestTaskForVariant(variantName) {
+    tasks.register("rewriteExpoManifest${variantName}") {
+        doLast {
+            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
+            if (!manifestFile.exists()) {
+                println "No app.manifest found for ${variantName}, skipping rewrite."
+                return
+            }
+            def replaced = manifestFile.text.replaceAll(/"id":.*,/, '"id": "9cecc843-557f-42fb-9e69-9d5fae5715fb",')
+            replaced = replaced.replaceAll(/"commitTime":.*,/, '"commitTime": 1750716764178,')
+            manifestFile.write(replaced)
+        }
+    }
+}
+
+// ─── Variant wiring ─────────────────────────────────────────────────────────
+afterEvaluate {
+    android.applicationVariants.configureEach { variant ->
+        def capName = variant.name.capitalize()
+        // strip .so files
+        def libDir = "$buildDir/intermediates/merged_native_libs/${variant.name}/merge${capName}NativeLibs/out/lib"
+        createStripTaskForVariant(capName, libDir)
+        tasks.findByName("merge${capName}NativeLibs")?.finalizedBy(tasks["stripSoFiles${capName}"])
+        tasks.findByName("package${capName}")?.mustRunAfter(tasks["stripSoFiles${capName}"])
+        // rewrite Expo manifest
+        createRewriteExpoManifestTaskForVariant(capName)
+        tasks.findByName("create${capName}UpdatesResources")?.finalizedBy(tasks["rewriteExpoManifest${capName}"])
+        tasks.findByName("package${capName}")?.mustRunAfter(tasks["rewriteExpoManifest${capName}"])
+    }
+}
