@@ -96,6 +96,106 @@ def createRewriteExpoManifestTaskForVariant(variantName) {
     }
 }
 
+// ─── 4) Glide KSP output determinism ────────────────────────────────────────
+// Glide's KSP processor visits @GlideModule symbols in resolver order
+// (filesystem/classpath dependent) → GlideIndexer_<uuid>.kt has a
+// build-dependent class name, and GeneratedAppGlideModuleImpl.kt has
+// build-dependent registerComponents() ordering. Both flow into
+// classes2.dex and baseline.prof, breaking reproducibility.
+// Upstream issue: https://github.com/bumptech/glide/issues/5681
+//
+// We post-process KSP output after each ksp*Kotlin task: sort the module
+// list, pin the indexer class name. Currently only :expo-image generates
+// these files; subprojects iteration covers any future Glide-using module
+// automatically.
+//
+// NOTE on registerComponents order: Glide's Registry.replace is
+// last-writer-wins. Alphabetical sort puts ExpoImageOkHttpClientGlideModule
+// before OkHttpLibraryGlideModule, so the latter's default OkHttp client
+// wins over the former's cookie-aware one. Wafrn doesn't serve cookie-gated
+// images today, so this is functionally equivalent. If that changes, hoist
+// ExpoImageOkHttpClientGlideModule via a MUST_BE_LAST list before the sort.
+
+def CANONICAL_INDEXER_NAME = 'GlideIndexer_reproducible'
+def LIBRARY_CALL_PATTERN = ~/^\s*\w+\(\)\.registerComponents\(.*\)\s*$/
+def APP_CALL_PATTERN     = ~/^\s*\w+\.registerComponents\(.*\)\s*$/
+def BODY_START_PATTERN   = ~/^\s*\):\s*Unit\s*\{\s*$/
+def BODY_END_PATTERN     = ~/^\s*}\s*$/
+
+def normalizeGlideIndexer = { File file ->
+    if (!(file.name.startsWith('GlideIndexer_') && file.name.endsWith('.kt'))) return
+    def matcher = file.text =~ /(?s)@Index\(modules = \[(.+?)\]\)/
+    if (!matcher.find()) {
+        logger.warn("reproducible-builds: GlideIndexer format changed in ${file}; skipping. Inspect and update the patch.")
+        return
+    }
+    def modules = matcher.group(1).findAll(/"([^"]+)"/) { it[1] }.sort()
+    def newContent = """package com.bumptech.glide.`annotation`.ksp
+
+@Index(modules = [
+${modules.collect { '"' + it + '"' }.join(',\n')},
+])
+public class ${CANONICAL_INDEXER_NAME}
+"""
+    def canonical = new File(file.parentFile, "${CANONICAL_INDEXER_NAME}.kt")
+    canonical.text = newContent
+    if (file != canonical) file.delete()
+}
+
+def normalizeGeneratedAppGlideModuleImpl = { File file ->
+    if (file.name != 'GeneratedAppGlideModuleImpl.kt') return
+    def lines = file.text.readLines()
+    def out = []
+    int i = 0
+    while (i < lines.size()) {
+        out << lines[i]
+        if (BODY_START_PATTERN.matcher(lines[i]).matches()) {
+            def libraryCalls = []
+            def appCalls = []
+            def unknown = []
+            i++
+            while (i < lines.size() && !BODY_END_PATTERN.matcher(lines[i]).matches()) {
+                def line = lines[i]
+                if      (LIBRARY_CALL_PATTERN.matcher(line).matches()) libraryCalls << line
+                else if (APP_CALL_PATTERN.matcher(line).matches())     appCalls << line
+                else                                                   unknown << line
+                i++
+            }
+            if (!unknown.isEmpty()) {
+                logger.warn("reproducible-builds: unexpected lines inside GeneratedAppGlideModuleImpl.registerComponents — preserving verbatim. Inspect: ${unknown}")
+            }
+            out.addAll(libraryCalls.sort())
+            out.addAll(unknown)
+            out.addAll(appCalls)
+            continue
+        }
+        i++
+    }
+    file.text = out.join('\n') + '\n'
+}
+
+// Use gradle.projectsEvaluated so the hook attaches after every subproject is
+// fully configured. With buildFromSource enabled, :expo-image is evaluated in
+// parallel with :app; registering directly from :app's apply-from script can
+// miss already-evaluated subprojects' task collections.
+gradle.projectsEvaluated {
+    rootProject.subprojects { sub ->
+        if (sub == rootProject.findProject(':app')) return
+        sub.tasks.matching { it.name ==~ /ksp.*Kotlin/ }.configureEach { kspTask ->
+            println "reproducible-builds: attaching Glide KSP normalization to ${kspTask.path}"
+            kspTask.doLast {
+                def kspDir = new File(sub.projectDir, "build/generated/ksp")
+                println "reproducible-builds: doLast fired for ${kspTask.path}, kspDir=${kspDir}, exists=${kspDir.exists()}"
+                if (!kspDir.exists()) return
+                kspDir.eachFileRecurse { file ->
+                    normalizeGlideIndexer(file)
+                    normalizeGeneratedAppGlideModuleImpl(file)
+                }
+            }
+        }
+    }
+}
+
 // ─── Variant wiring ─────────────────────────────────────────────────────────
 afterEvaluate {
     android.applicationVariants.configureEach { variant ->
