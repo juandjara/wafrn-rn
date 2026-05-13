@@ -81,9 +81,14 @@ else
   pnpm run setup:prod
 
   pushd android
-  echo '> creating production release build in .apk format'
-  ./gradlew buildRelease
-  ./gradlew app:assembleRelease
+  # Build each ABI in its own Gradle invocation so BuildConfig.VERSION_CODE
+  # (generated once per variant from mainSplit.versionCode) matches the
+  # per-APK manifest versionCode. Mirrors F-Droid's metadata recipe.
+  for abi in armeabi-v7a arm64-v8a; do
+    echo "> creating production release build in .apk format for $abi"
+    ./gradlew buildRelease -PreactNativeArchitectures=$abi
+    ./gradlew app:assembleRelease -PreactNativeArchitectures=$abi
+  done
   popd
 fi
 
