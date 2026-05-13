@@ -179,7 +179,7 @@ export default function BlueskySettings() {
             Keep in mind our bluesky integration is still in active development.
             Some features might not work as expected. You can read more on our{' '}
             <Text className="font-bold underline">
-              <Link href="https://wafrn.net/faq/user.html#blueskyIntegration">
+              <Link href="https://wafrn.net/faq/Bluesky.html">
                 FAQ / User guide
               </Link>
             </Text>

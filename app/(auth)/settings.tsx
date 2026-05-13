@@ -95,7 +95,7 @@ export default function Settings() {
       {
         icon: 'help-circle-outline' as const,
         label: 'FAQ / User guide',
-        link: 'https://wafrn.net/faq/user.html',
+        link: 'https://wafrn.net/faq/GuideIntro.html',
       },
       {
         icon: 'code-braces' as const,
