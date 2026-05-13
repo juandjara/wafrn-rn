@@ -50,6 +50,7 @@ def createStripTaskForVariant(variantName, libDir) {
     tasks.register("stripSoFiles${variantName}") {
         description = "Strip NT_GNU_BUILD_ID from native .so files in variant "${variantName}" for reproducible builds"
         group = 'reproducible-builds'
+        // with this task will show as SKIPPED when not running on a linux system
         onlyIf { Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC) }
         def injected = project.objects.newInstance(InjectedExecOps)
         doLast {
