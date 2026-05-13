@@ -80,6 +80,10 @@ else
   echo '> setting up production (FOSS) environment'
   pnpm run setup:prod
 
+  # AGP wipes app/build/outputs/apk/release/ between assembleRelease runs,
+  # so stash each iteration's APK outside build/ before the next one starts.
+  TMP=$(mktemp -d)
+
   pushd android
   # Build each ABI in its own Gradle invocation so BuildConfig.VERSION_CODE
   # (generated once per variant from mainSplit.versionCode) matches the
@@ -88,7 +92,10 @@ else
     echo "> creating production release build in .apk format for $abi"
     ./gradlew buildRelease -PreactNativeArchitectures=$abi
     ./gradlew app:assembleRelease -PreactNativeArchitectures=$abi
+    mv app/build/outputs/apk/release/*.apk "$TMP"/
   done
+  mv "$TMP"/*.apk app/build/outputs/apk/release/
+  rmdir "$TMP"
   popd
 fi
 
