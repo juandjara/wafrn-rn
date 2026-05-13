@@ -3,17 +3,12 @@
 // All build-time tweaks that make APKs byte-identical across machines.
 // Applied from android/app/build.gradle; evaluated in the :app project context.
 // Each section documents the source of non-determinism it fixes.
-//
-// Spec: docs/superpowers/specs/2026-05-12-fdroid-reproducible-builds-design.md
 
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.process.ExecOperations
-import javax.inject.Inject
 
-// ─── 1) Native source paths in __FILE__ macros ──────────────────────────────
+// 1) Native source paths in __FILE__ macros
 // Without -ffile-prefix-map, .so files embed environment-specific absolute
 // paths (GRADLE_USER_HOME, repo checkout dir) that differ across CI hosts
-// (Woodpecker, F-Droid, IzzyOnDroid).
 android {
     defaultConfig {
         def repoRoot = rootProject.projectDir.parentFile.absolutePath
@@ -27,9 +22,9 @@ android {
     }
 }
 
-// ─── 2) Strip NT_GNU_BUILD_ID from native .so files ─────────────────────────
-// The build-id ELF note contains a per-link random/hash that changes every
-// build. llvm-strip removes it. Linux-only; macOS local dev builds skip.
+// 2) Strip NT_GNU_BUILD_ID from native .so files
+// The build-id ELF note contains a per-link random/hash that changes every build.
+// llvm-strip removes it. Linux-only because it's the only host OS we've verified for this.
 // Adapted from: https://github.com/BioHazard786/Alternate/blob/main/android/app/build.gradle
 def getLLVMStrip() {
     def sdkDir = android.sdkDirectory
@@ -41,80 +36,46 @@ def getLLVMStrip() {
     return new File(sdkDir, ndkPath).absolutePath
 }
 
-abstract class StripSoFilesTask extends DefaultTask {
-    @Inject abstract ExecOperations getExecOps()
-
-    @Input String variantName
-    @Input String stripPath
-    @InputDirectory File libDir
-
-    @TaskAction
-    void strip() {
-        def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
-        if (!isLinux) {
-            println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
-            return
-        }
-
-        def soFiles = project.fileTree(dir: libDir, include: '**/*.so')
-        if (!soFiles.isEmpty()) {
-            soFiles.each { soFile ->
-                execOps.exec {
-                    commandLine stripPath, '--remove-section=.note.gnu.build-id', soFile
-                }
-                println "Stripping NT_GNU_BUILD_ID from: ${soFile}"
-            }
-        } else {
-            println "No .so files found to strip for ${variantName}."
-        }
-    }
-}
-
 def createStripTaskForVariant(variantName, libDir) {
-    tasks.register("stripSoFiles${variantName}", StripSoFilesTask) {
-        it.variantName = variantName
-        it.stripPath = getLLVMStrip()
-        it.libDir = file(libDir)
-    }
-}
-
-// ─── 3) Expo Updates app.manifest determinism ───────────────────────────────
-// The generated app.manifest embeds a random "id" UUID and "commitTime"
-// timestamp. Both change every build. Rewrite both to fixed values.
-def createRewriteExpoManifestTaskForVariant(variantName) {
-    tasks.register("rewriteExpoManifest${variantName}") {
+    tasks.register("stripSoFiles${variantName}") {
         doLast {
-            def manifestFile = file("${buildDir}/generated/assets/create${variantName}UpdatesResources/app.manifest")
-            if (!manifestFile.exists()) {
-                println "No app.manifest found for ${variantName}, skipping rewrite."
+            def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
+            if (!isLinux) {
+                println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
                 return
             }
-            def replaced = manifestFile.text.replaceAll(/"id":.*,/, '"id": "9cecc843-557f-42fb-9e69-9d5fae5715fb",')
-            replaced = replaced.replaceAll(/"commitTime":.*,/, '"commitTime": 1750716764178,')
-            manifestFile.write(replaced)
+            def stripPath = getLLVMStrip()
+            def soFiles = fileTree(dir: file(libDir), include: '**/*.so')
+            if (soFiles.isEmpty()) {
+                println "No .so files found to strip for ${variantName}."
+                return
+            }
+            println "Stripping NT_GNU_BUILD_ID from ${soFiles.files.size()} .so files for ${variantName}"
+            exec {
+                commandLine([stripPath, '--remove-section=.note.gnu.build-id', *soFiles.files])
+            }
         }
     }
 }
 
-// ─── 4) Glide KSP output determinism ────────────────────────────────────────
+// 3) Glide KSP output determinism
 // Glide's KSP processor visits @GlideModule symbols in resolver order
-// (filesystem/classpath dependent) → GlideIndexer_<uuid>.kt has a
-// build-dependent class name, and GeneratedAppGlideModuleImpl.kt has
-// build-dependent registerComponents() ordering. Both flow into
-// classes2.dex and baseline.prof, breaking reproducibility.
-// Upstream issue: https://github.com/bumptech/glide/issues/5681
+// (filesystem dependent, for example depends on ext4 seedhash)
+// GlideIndexer_<uuid>.kt has a build-dependent class name,
+// and GeneratedAppGlideModuleImpl.kt has build-dependent registerComponents() ordering.
+// Both flow into classes2.dex and baseline.prof, breaking reproducibility.
+// This is reported here: https://github.com/bumptech/glide/issues/5681
 //
-// We post-process KSP output after each ksp*Kotlin task: sort the module
-// list, pin the indexer class name. Currently only :expo-image generates
-// these files; subprojects iteration covers any future Glide-using module
-// automatically.
+// To fix this, we post-process KSP output after each `ksp*Kotlin` task:
+// sort the module list, pin the indexer class name.
+// Currently only :expo-image generates these files;
+// subprojects iteration covers any future Glide-using module automatically.
 //
-// NOTE on registerComponents order: Glide's Registry.replace is
-// last-writer-wins. Alphabetical sort puts ExpoImageOkHttpClientGlideModule
-// before OkHttpLibraryGlideModule, so the latter's default OkHttp client
-// wins over the former's cookie-aware one. Wafrn doesn't serve cookie-gated
-// images today, so this is functionally equivalent. If that changes, hoist
-// ExpoImageOkHttpClientGlideModule via a MUST_BE_LAST list before the sort.
+// NOTE on registerComponents order: Glide's Registry.replace is last-writer-wins.
+// Alphabetical sort puts ExpoImageOkHttpClientGlideModule before OkHttpLibraryGlideModule,
+// so the latter's default OkHttp client wins over the former's cookie-aware one.
+// Wafrn doesn't serve cookie-gated images today, so this is functionally equivalent.
+// If that changes, hoist ExpoImageOkHttpClientGlideModule via a MUST_BE_LAST list before the sort.
 
 def CANONICAL_INDEXER_NAME = 'GlideIndexer_reproducible'
 def LIBRARY_CALL_PATTERN = ~/^\s*\w+\(\)\.registerComponents\(.*\)\s*$/
@@ -174,10 +135,9 @@ def normalizeGeneratedAppGlideModuleImpl = { File file ->
     file.text = out.join('\n') + '\n'
 }
 
-// Use gradle.projectsEvaluated so the hook attaches after every subproject is
-// fully configured. With buildFromSource enabled, :expo-image is evaluated in
-// parallel with :app; registering directly from :app's apply-from script can
-// miss already-evaluated subprojects' task collections.
+// Use gradle.projectsEvaluated so the hook attaches after every subproject is fully configured.
+// With buildFromSource enabled, :expo-image is evaluated in parallel with :app,
+// registering directly from :app's apply-from script can miss already-evaluated subprojects' task collections.
 gradle.projectsEvaluated {
     rootProject.subprojects { sub ->
         if (sub == rootProject.findProject(':app')) return
@@ -196,18 +156,13 @@ gradle.projectsEvaluated {
     }
 }
 
-// ─── Variant wiring ─────────────────────────────────────────────────────────
+// Register stripSoFiles task to run after .so files are generated
 afterEvaluate {
     android.applicationVariants.configureEach { variant ->
         def capName = variant.name.capitalize()
-        // strip .so files
         def libDir = "$buildDir/intermediates/merged_native_libs/${variant.name}/merge${capName}NativeLibs/out/lib"
         createStripTaskForVariant(capName, libDir)
         tasks.findByName("merge${capName}NativeLibs")?.finalizedBy(tasks["stripSoFiles${capName}"])
         tasks.findByName("package${capName}")?.mustRunAfter(tasks["stripSoFiles${capName}"])
-        // rewrite Expo manifest
-        createRewriteExpoManifestTaskForVariant(capName)
-        tasks.findByName("create${capName}UpdatesResources")?.finalizedBy(tasks["rewriteExpoManifest${capName}"])
-        tasks.findByName("package${capName}")?.mustRunAfter(tasks["rewriteExpoManifest${capName}"])
     }
 }
