@@ -62,7 +62,7 @@ def createStripTaskForVariant(variantName, libDir) {
             def stripPath = getLLVMStrip()
             println "Stripping NT_GNU_BUILD_ID from ${soFiles.files.size()} .so files for ${variantName}"
             injected.execOps.exec {
-                commandLine([stripPath, '--remove-section=.note.gnu.build-id', *soFiles.files])
+                commandLine([stripPath, '--remove-section=.note.gnu.build-id'] + soFiles.files.toList())
             }
         }
     }
