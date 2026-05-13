@@ -5,6 +5,16 @@
 // Each section documents the source of non-determinism it fixes.
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+
+// Configuration-Cache-safe `exec` access from script-level closures.
+// Pattern from sentry-react-native's sentry.gradle: a lightweight service
+// interface, instantiated via project.objects.newInstance, can be captured by
+// doLast closures without dragging in a full DefaultTask subclass.
+interface InjectedExecOps {
+    @Inject ExecOperations getExecOps()
+}
 
 // 1) Native source paths in __FILE__ macros
 // Without -ffile-prefix-map, .so files embed environment-specific absolute
@@ -38,20 +48,19 @@ def getLLVMStrip() {
 
 def createStripTaskForVariant(variantName, libDir) {
     tasks.register("stripSoFiles${variantName}") {
+        description = "Strip NT_GNU_BUILD_ID from native .so files in variant "${variantName}" for reproducible builds"
+        group = 'reproducible-builds'
+        onlyIf { Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC) }
+        def injected = project.objects.newInstance(InjectedExecOps)
         doLast {
-            def isLinux = Os.isFamily(Os.FAMILY_UNIX) && !Os.isFamily(Os.FAMILY_MAC)
-            if (!isLinux) {
-                println "Skipping stripping NT_GNU_BUILD_ID for ${variantName}. This is only executed on linux systems"
-                return
-            }
-            def stripPath = getLLVMStrip()
             def soFiles = fileTree(dir: file(libDir), include: '**/*.so')
             if (soFiles.isEmpty()) {
                 println "No .so files found to strip for ${variantName}."
                 return
             }
+            def stripPath = getLLVMStrip()
             println "Stripping NT_GNU_BUILD_ID from ${soFiles.files.size()} .so files for ${variantName}"
-            exec {
+            injected.execOps.exec {
                 commandLine([stripPath, '--remove-section=.note.gnu.build-id', *soFiles.files])
             }
         }
@@ -138,6 +147,11 @@ def normalizeGeneratedAppGlideModuleImpl = { File file ->
 // Use gradle.projectsEvaluated so the hook attaches after every subproject is fully configured.
 // With buildFromSource enabled, :expo-image is evaluated in parallel with :app,
 // registering directly from :app's apply-from script can miss already-evaluated subprojects' task collections.
+//
+// Caveat: gradle.projectsEvaluated does NOT fire with --configure-on-demand
+// subprojects are configured lazily on the fly, so this hook silently won't run
+// and the Glide KSP outputs won't be normalized. Neither F-Droid nor our CI pass that flag today;
+// if anyone enables it, revisit this attachment strategy.
 gradle.projectsEvaluated {
     rootProject.subprojects { sub ->
         if (sub == rootProject.findProject(':app')) return
