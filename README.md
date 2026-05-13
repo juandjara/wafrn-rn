@@ -56,15 +56,15 @@ keytool -printcert -jarfile app-arm64-v8a-release.apk
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+```bash
+pnpm install
+```
 
 2. Start the app
 
-   ```bash
-   npm start
-   ```
+```bash
+pnpm start
+```
 
 In the output, you'll find options to open the app in a
 
@@ -112,7 +112,7 @@ The `WAFRN_UPLOAD_STORE_FILE` variable is a path relative to the `android/app/` 
 Then, you can run the following command to build the production release:
 
 ```bash
-npm run build:prod:android
+pnpm run build:prod:android
 ```
 
 This will create a series of APK files in the `android/app/build/outputs/apk/release` directory.
