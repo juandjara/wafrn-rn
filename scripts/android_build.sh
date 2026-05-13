@@ -85,9 +85,9 @@ else
   TMP=$(mktemp -d)
 
   pushd android
-  # Build each ABI in its own Gradle invocation so BuildConfig.VERSION_CODE
-  # (generated once per variant from mainSplit.versionCode) matches the
-  # per-APK manifest versionCode. Mirrors F-Droid's metadata recipe.
+  # Build each ABI in its own Gradle invocation so BuildConfig.VERSION_CODE (needed for reproducibility
+  # and generated once per variant from mainSplit.versionCode) matches the per-APK manifest versionCode.
+  # see more here: https://krossovochkin.com/posts/2019_07_04_android_version_code_tricks/
   for abi in armeabi-v7a arm64-v8a; do
     echo "> creating production release build in .apk format for $abi"
     ./gradlew buildRelease -PreactNativeArchitectures=$abi
