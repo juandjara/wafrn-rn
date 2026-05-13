@@ -118,7 +118,7 @@
     "autolinking": {
       "android": {
         "buildFromSource": [
-          "expo-image"
+          ".*"
         ]
       }
     }
