@@ -123,7 +123,15 @@ steps:
         find ./outputs -name '*.apk' ! -name '*-signed*' | while read apk; do
           echo "Signing $apk"
           zipalign -v -p 4 "$apk" "$${apk%.apk}-aligned.apk"
+          # v1 signing adds META-INF/MANIFEST.MF, .SF, .RSA files.
+          # The content of those files is covered by the v2/v3 chunked-SHA256 digest.
+          # reproducibility checks based on apksigcopier produces an unsigned APK without those files
+          # so v3 verification fails after signature copy with no "wrong content" whatsoever
+          # by turning off v1 signature we make sure those files are not created and the v2/v3 signature is thus not different without them
           apksigner sign \
+            --v1-signing-enabled false \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
             --ks /tmp/keystore.jks \
             --ks-key-alias "$$WAFRN_UPLOAD_KEY_ALIAS" \
             --ks-pass "pass:$$WAFRN_UPLOAD_STORE_PASSWORD" \
