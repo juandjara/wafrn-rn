@@ -106,7 +106,7 @@ steps:
           echo "Skipping signing for dev build"
           exit 0
         fi
-      # Install build-tools for apksigner
+      # Install build-tools for apksigner / zipalign
       - apt-get update -y && apt-get install -y curl unzip
       - mkdir -p /opt/android-sdk/cmdline-tools/latest
       - curl -4 --retry 3 --connect-timeout 30 -fsSL "https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip" -o /tmp/tools.zip
@@ -119,19 +119,23 @@ steps:
       # Decode keystore
       - echo "$$WAFRN_UPLOAD_STORE_FILE_BASE64" | base64 -d > /tmp/keystore.jks
       # Sign all APKs and AABs in outputs/
-      # No standalone zipalign: AGP's assembleRelease already zipaligns the APK.
-      # Running build-tools 35 `zipalign` on top rewrites the padding into the
-      # Android alignment extra field (ID 0xD935), which diverges from AGP's
-      # null-byte padding and breaks apksigcopier-based reproducibility checks.
       - |
         find ./outputs -name '*.apk' ! -name '*-signed*' | while read apk; do
           echo "Signing $apk"
+          zipalign -v -p 4 "$apk" "$${apk%.apk}-aligned.apk"
+          # --alignment-preserved keeps AGP's null-byte padding instead of
+          # rewriting it into the Android alignment extra field (ID 0xD935).
+          # Without this, apksigner re-aligns during signing and the resulting
+          # padding diverges from F-Droid's unsigned APK, breaking the
+          # apksigcopier-based reproducibility check.
+          #
           # v1 signing adds META-INF/MANIFEST.MF, .SF, .RSA files.
           # The content of those files is covered by the v2/v3 chunked-SHA256 digest.
           # reproducibility checks based on apksigcopier produces an unsigned APK without those files
           # so v3 verification fails after signature copy with no "wrong content" whatsoever
           # by turning off v1 signature we make sure those files are not created and the v2/v3 signature is thus not different without them
           apksigner sign \
+            --alignment-preserved \
             --v1-signing-enabled false \
             --v2-signing-enabled true \
             --v3-signing-enabled true \
@@ -140,7 +144,8 @@ steps:
             --ks-pass "pass:$$WAFRN_UPLOAD_STORE_PASSWORD" \
             --key-pass "pass:$$WAFRN_UPLOAD_KEY_PASSWORD" \
             --out "$${apk%.apk}-signed.apk" \
-            "$apk"
+            "$${apk%.apk}-aligned.apk"
+          rm -f "$${apk%.apk}-aligned.apk"
         done
       - |
         find ./outputs -name '*.aab' ! -name '*-signed*' | while read aab; do
