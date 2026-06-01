@@ -83,7 +83,7 @@ export default {
       resizeMode: 'contain',
       backgroundColor: '#151718',
     },
-    platforms: ['ios', 'android'],
+    platforms: ['ios', 'android', 'web'],
     ios: {
       supportsTablet: true,
       bundleIdentifier: isDev ? 'dev.djara.wafrn-rn.dev' : 'dev.djara.wafrn-rn',
