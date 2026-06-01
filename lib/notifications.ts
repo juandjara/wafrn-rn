@@ -15,7 +15,7 @@ import {
 } from './api/posts.types'
 import { Timestamps } from './api/types'
 import { getEnvironmentStatic, parseToken } from './api/auth'
-import { deleteItemAsync, getItemAsync } from 'expo-secure-store'
+import { deleteItemAsync, getItemAsync } from '@/lib/storage'
 
 type NotificationsBadges = {
   asks: number
