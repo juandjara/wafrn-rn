@@ -10,14 +10,14 @@ import { useMutation } from '@tanstack/react-query'
 import { extensionFromMimeType } from './api/media'
 import { getUserAgent, handleFetchError } from './http'
 
-const CACHE_DIR = Paths.join(Paths.cache, 'WAFRN')
-
 function ensureDownloadDirectory() {
-  const dir = new Directory(CACHE_DIR)
+  const cacheDir = Paths.join(Paths.cache, 'WAFRN')
+  const dir = new Directory(cacheDir)
   if (!dir.exists) {
     console.log('WAFRN download directory does not exist, creating...')
     dir.create({ intermediates: true })
   }
+  return cacheDir
 }
 
 export async function saveFileToGallery(localUrl: string) {
@@ -59,12 +59,12 @@ export async function downloadFile(url: string, mime: string) {
   if (!mime) {
     mime = await fetchMimeType(url)
   }
-  ensureDownloadDirectory()
+  const cacheDir = ensureDownloadDirectory()
   const basename = new URL(url).pathname.split('/').at(-1)!
   const name = `${basename}.${extensionFromMimeType(mime)}`
-  let path = new File(CACHE_DIR, name)
+  let path = new File(cacheDir, name)
   if (path.exists) {
-    path = new File(CACHE_DIR, `copy_${Date.now()}_${name}`)
+    path = new File(cacheDir, `copy_${Date.now()}_${name}`)
   }
   const result = await File.downloadFileAsync(url, path)
   return result.uri
