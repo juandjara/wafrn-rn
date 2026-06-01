@@ -3,6 +3,7 @@ import { getJSON } from '../http'
 import { useQuery } from '@tanstack/react-query'
 import { compare } from 'compare-versions'
 import { RELEASES_URL } from '../envVars'
+import { Platform } from 'react-native'
 
 // omited fields: "author", "assets", "archive_download_count"
 type CodebergRelease = {
@@ -54,5 +55,6 @@ export function useVersionCheck() {
     queryKey: ['version-check'],
     queryFn: ({ signal }) => fetchLatestVersion(signal),
     staleTime: 1000 * 60 * 60, // 1 hour
+    enabled: Platform.OS === 'android',
   })
 }
