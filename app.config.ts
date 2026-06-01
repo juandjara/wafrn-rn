@@ -123,5 +123,8 @@ export default {
       },
     },
     runtimeVersion: pkg.version,
+    web: {
+      output: 'server',
+    },
   } satisfies ExpoConfig,
 }
