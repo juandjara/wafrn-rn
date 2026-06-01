@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import DashboardModeMenu, {
   PublicDashboardMode,
 } from '@/components/dashboard/DashboardModeMenu'
-import PagerView from 'react-native-pager-view'
+import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
 import Header from '@/components/Header'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -22,7 +22,7 @@ const MODES = [
 
 export default function Index() {
   const sx = useSafeAreaPadding()
-  const pagerRef = useRef<PagerView>(null)
+  const pagerRef = useRef<PagerViewRef>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
   const blue800 = useCSSVariable('--color-blue-800') as string

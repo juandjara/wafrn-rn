@@ -21,7 +21,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import PagerView from 'react-native-pager-view'
+import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { InstanceListItem, useInstanceList } from '@/lib/api/instances'
 import { DEFAULT_INSTANCE } from '@/lib/api/auth'
@@ -63,7 +63,7 @@ export default function InstancePicker({
 
   const [mode, setMode] = useState<'list' | 'write'>('list')
 
-  const pagerRef = useRef<PagerView>(null)
+  const pagerRef = useRef<PagerViewRef>(null)
   const tabBarWidth = useSharedValue(0)
   const tabPositionX = useSharedValue(0)
   const tabStyles = useAnimatedStyle(() => ({

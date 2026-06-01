@@ -7,12 +7,12 @@ import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useRef, useState } from 'react'
 import { FlatList, Pressable, Text, TouchableOpacity, View } from 'react-native'
-import PagerView from 'react-native-pager-view'
+import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import AskCard from '@/components/posts/Ask'
 
 export default function Asks() {
   const sx = useSafeAreaPadding()
-  const pagerRef = useRef<PagerView>(null)
+  const pagerRef = useRef<PagerViewRef>(null)
   const [page, setPage] = useState(0)
 
   return (
