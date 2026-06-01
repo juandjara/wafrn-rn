@@ -250,9 +250,7 @@ function InstanceList({
                 <FontAwesome6 name="bluesky" />
                 {' Bluesky enabled'}
               </Text>
-            ) : (
-              ''
-            )}
+            ) : null}
           </View>
         </Pressable>
       ))}
