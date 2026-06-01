@@ -3,6 +3,7 @@ import { getJSON } from '../http'
 import { getWellKnownNodeInfo, WellKnownNodeInfo } from './admin'
 import { dedupeById } from './dashboard'
 import { FEDIDB_URL, INSTANCES_URL } from '../envVars'
+import { Platform } from 'react-native'
 
 type FediDBItem = {
   domain: string
@@ -24,17 +25,25 @@ type FediDBResponse = {
   }
 }
 
+export async function getInstances(signal?: AbortSignal) {
+  const json = await getJSON(INSTANCES_URL, {
+    signal,
+  })
+  const data = json as InstanceListItem[]
+  return dedupeById(data.map((d) => ({ ...d, id: d.url }))).sort((a, b) =>
+    a.registrationType.localeCompare(b.registrationType),
+  )
+}
+
 export function useInstanceList() {
   return useQuery({
     queryKey: ['instanceList'],
-    queryFn: async ({ signal }) => {
-      const json = await getJSON(INSTANCES_URL, {
-        signal,
-      })
-      const data = json as InstanceListItem[]
-      return dedupeById(data.map((d) => ({ ...d, id: d.url }))).sort((a, b) =>
-        a.registrationType.localeCompare(b.registrationType),
-      )
+    queryFn: ({ signal }) => {
+      if (Platform.OS === 'web') {
+        return getJSON('/instances', { signal })
+      } else {
+        return getInstances(signal)
+      }
     },
   })
 }
