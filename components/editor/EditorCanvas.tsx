@@ -20,7 +20,7 @@ import {
 } from 'react-native-gesture-handler'
 import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { File, Paths } from 'expo-file-system'
+import { writeBase64ToCache } from '@/lib/files'
 import { EditorImage } from '@/lib/editor'
 
 type EditorCanvasProps = {
@@ -119,21 +119,22 @@ export default function EditorCanvas({
       console.error('Failed to create image snapshot')
       return
     }
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       svg.toDataURL((base64: string) => {
         const filename = `drawing-${Date.now()}.png`
-        const file = new File(Paths.cache, filename)
-        file.write(base64, { encoding: 'base64' })
-        console.log('Writing image to', file.uri)
-        addImage({
-          uri: file.uri,
-          mimeType: 'image/png',
-          fileName: filename,
-          width: canvasSize.width,
-          height: canvasSize.height,
-        })
-        close()
-        resolve()
+        writeBase64ToCache(filename, base64, 'image/png')
+          .then((uri) => {
+            addImage({
+              uri,
+              mimeType: 'image/png',
+              fileName: filename,
+              width: canvasSize.width,
+              height: canvasSize.height,
+            })
+            close()
+            resolve()
+          })
+          .catch(reject)
       })
     })
   }

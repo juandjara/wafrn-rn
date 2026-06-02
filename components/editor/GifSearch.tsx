@@ -14,7 +14,7 @@ import Tenor from 'tenor-gif-api'
 import Loading from '../Loading'
 import { Image } from 'expo-image'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { downloadFile } from '@/lib/downloads'
+import { fetchToLocalUri } from '@/lib/files'
 import { EditorImage } from '@/lib/editor'
 import {
   PrivateOptionNames,
@@ -112,7 +112,10 @@ export default function GifSearch({
     mutationKey: ['download-gif'],
     mutationFn: async (gif: GifResponse) => {
       const filename = `gif-${gif.id}.webp`
-      const localUri = await downloadFile(gif.media_formats.webp.url, filename)
+      const localUri = await fetchToLocalUri(
+        gif.media_formats.webp.url,
+        filename,
+      )
       onSelect({
         uri: localUri,
         width: gif.media_formats.webp.dims[0],

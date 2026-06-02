@@ -7,7 +7,7 @@ import { getJSON } from '../http'
 import { getEnvironmentStatic } from './auth'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import { useToasts } from '../toasts'
-import { File } from 'expo-file-system'
+import { getUploadableFile } from '@/lib/files'
 
 const AUDIO_EXTENSIONS = [
   '.aac',
@@ -100,7 +100,7 @@ export async function uploadMedia(token: string, payload: MediaUploadPayload) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/uploadMedia`
   const fd = new FormData()
-  const file = new File(payload.uri)
+  const file = await getUploadableFile(payload)
   fd.append('image', file)
 
   const json = await getJSON(url, {

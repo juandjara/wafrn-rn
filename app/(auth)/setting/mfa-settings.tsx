@@ -20,8 +20,7 @@ import {
   View,
 } from 'react-native'
 import { encodeQR } from 'qr'
-import { saveFileToGallery } from '@/lib/downloads'
-import { File, Paths } from 'expo-file-system'
+import { saveTextToDevice } from '@/lib/files'
 import { setStringAsync } from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { useToasts } from '@/lib/toasts'
@@ -62,9 +61,7 @@ export default function MfaSettings() {
     mutationFn: async () => {
       if (qrCodeSvg && newMfa?.name) {
         const filename = `qr-${newMfa.name}.svg`
-        const file = new File(Paths.cache, filename)
-        file.write(qrCodeSvg)
-        await saveFileToGallery(file.uri)
+        await saveTextToDevice(filename, qrCodeSvg, 'image/svg+xml')
       }
     },
     onSuccess: () => showToastSuccess('QR code downloaded to your gallery'),
