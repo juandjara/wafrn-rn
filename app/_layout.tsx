@@ -28,12 +28,47 @@ import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { ShareIntentProvider } from 'expo-share-intent'
 import NetInfoRibbon from '@/components/NetInfoRibbon'
+import {
+  AntDesign,
+  Feather,
+  FontAwesome6,
+  Foundation,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+  Octicons,
+} from '@expo/vector-icons'
+import * as Font from 'expo-font'
 
 // This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 })
+
+// On web, every <Icon> mount otherwise calls Font.loadAsync individually,
+// which routes through fontfaceobserver. The observer detects font readiness
+// by measuring canvas glyph widths against the fallback font — but icon-font
+// glyphs render as tofu boxes identical to the fallback's tofu, so the
+// observer can never confirm and times out after 12s. Pre-register the
+// @font-face rules at module load so Font.isLoaded() returns true by the
+// time the first icon mounts and the per-icon load is skipped entirely.
+if (Platform.OS === 'web') {
+  Font.loadAsync({
+    ...AntDesign.font,
+    ...Feather.font,
+    ...FontAwesome6.font,
+    ...Foundation.font,
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+    ...MaterialIcons.font,
+    ...Octicons.font,
+  }).catch(() => {
+    // fontfaceobserver may still reject from this top-level call (icon fonts
+    // are detection-resistant). The @font-face rules are already injected
+    // synchronously, which is all we actually need.
+  })
+}
 
 const styles = StyleSheet.create({
   root: {
@@ -59,13 +94,20 @@ export default function RootLayout() {
           <AuthProvider>
             <ThemeProvider value={DarkTheme}>
               <GestureHandlerRootView style={styles.root}>
-                <Toasts />
                 <NetInfoRibbon />
                 <MenuProvider backHandler customStyles={styles}>
                   <HtmlEngineProvider>
                     <Slot />
                   </HtmlEngineProvider>
                 </MenuProvider>
+                {/* Toasts last so it paints on top on web (RN-Web honors DOM
+                    order for siblings; native is unaffected).
+                    `preventScreenReaderFromHiding` is web-only because RN-Web's
+                    AccessibilityInfo.isScreenReaderEnabled() always resolves
+                    to true — without bypassing it the toast library returns
+                    null and no toast ever renders. On native we keep the
+                    library's default screen-reader behavior. */}
+                <Toasts preventScreenReaderFromHiding={Platform.OS === 'web'} />
               </GestureHandlerRootView>
             </ThemeProvider>
           </AuthProvider>
