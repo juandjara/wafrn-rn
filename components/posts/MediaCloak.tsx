@@ -26,9 +26,7 @@ export default function MediaCloak({
 }) {
   const [hidden, setHidden] = useState(isNSFW)
 
-  // expo-image's web blurhash decoder allocates a Uint8ClampedArray from these dimensions
-  // and writes into a canvas of the same dimensions. Fractional values diverge between the two allocations
-  // and throw "source array is too long" on the imageData.data.set() call when running on a web browser.
+  // reduce load on operations done with width and height by rounding them to the nearest integer
   const width = Math.round(backgroundImage?.width || 0)
   const height = Math.round(width * (backgroundImage?.aspectRatio || 1))
   const shouldUseImgBg = !!blurHash
@@ -48,7 +46,11 @@ export default function MediaCloak({
 
   const cloakWrapper = shouldUseImgBg ? (
     <ImageBackground
-      source={{ blurhash: blurHash, width, height }}
+      // Decode the blurhash at expo-image's default tiny size (32x32).
+      // Passing full media dimensions here makes the web decoder allocate a really big canvas
+      // which is unnecesary and can crash on web.
+      // Display size still comes from the style prop below.
+      source={{ blurhash: blurHash }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
       blurRadius={50}
     >
