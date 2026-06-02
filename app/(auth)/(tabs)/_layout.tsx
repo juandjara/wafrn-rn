@@ -5,7 +5,7 @@ import { usePushNotifications } from '@/lib/push-notifications/push-notification
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import { View, useWindowDimensions, Text } from 'react-native'
+import { View, useWindowDimensions, Text, Platform } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import { Extrapolation } from 'react-native-reanimated'
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
@@ -32,12 +32,16 @@ export default function TabsLayout() {
   useServiceAnnouncements()
   useShareIntentHandler()
 
-  const { height } = useWindowDimensions()
+  const { height, width } = useWindowDimensions()
+  const isSmallScreen = width < 768
+
+  const isWeb = Platform.OS === 'web'
 
   return (
     <Tabs
       screenOptions={{
         ...rootStyles,
+        tabBarPosition: isSmallScreen ? 'bottom' : 'left',
         lazy: true,
         headerShown: false,
         tabBarInactiveTintColor: indigo300,
@@ -46,8 +50,8 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: blue950,
         },
-        tabBarHideOnKeyboard: true,
-        tabBarShowLabel: false,
+        tabBarHideOnKeyboard: !isWeb,
+        tabBarShowLabel: !isSmallScreen,
         tabBarIconStyle: {
           height: 42,
         },
@@ -198,6 +202,7 @@ function TabButton({
 }) {
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
+  console.log('accessibilityLabel', props['aria-label'])
 
   return (
     <>
@@ -211,11 +216,17 @@ function TabButton({
         ref={ref as React.Ref<View>}
         style={{
           flex: 1,
-          justifyContent: 'center',
+          flexDirection: 'row',
+          // justifyContent: 'center',
           alignItems: 'center',
+          gap: 8,
+          marginBottom: 8,
         }}
       >
         {icon({ color: focused ? gray200 : indigo300, focused })}
+        <Text style={{ color: focused ? gray200 : indigo300 }}>
+          {props['aria-label']}
+        </Text>
       </WigglyPressable>
     </>
   )
