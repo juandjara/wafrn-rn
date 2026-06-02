@@ -25,8 +25,12 @@ export default function MediaCloak({
   children: React.ReactNode
 }) {
   const [hidden, setHidden] = useState(isNSFW)
-  const width = backgroundImage?.width || 0
-  const height = width * (backgroundImage?.aspectRatio || 1)
+
+  // expo-image's web blurhash decoder allocates a Uint8ClampedArray from these dimensions
+  // and writes into a canvas of the same dimensions. Fractional values diverge between the two allocations
+  // and throw "source array is too long" on the imageData.data.set() call when running on a web browser.
+  const width = Math.round(backgroundImage?.width || 0)
+  const height = Math.round(width * (backgroundImage?.aspectRatio || 1))
   const shouldUseImgBg = !!blurHash
 
   const cloak = (
