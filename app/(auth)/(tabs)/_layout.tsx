@@ -183,6 +183,7 @@ function TabButton({
   icon,
   badge = 0,
   ref,
+  href,
   ...props
 }: BottomTabBarButtonProps & {
   focused: boolean
