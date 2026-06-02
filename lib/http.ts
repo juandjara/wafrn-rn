@@ -1,4 +1,5 @@
 import { fetch } from 'expo/fetch'
+import { Platform } from 'react-native'
 import pkg from '../package.json'
 
 export type ErrorResponse = {
@@ -12,7 +13,11 @@ export function isErrorResponse<T extends { success: boolean }>(
   return res.success === false
 }
 
-export function getUserAgent() {
+export function getUserAgent(): string | null {
+  // Browsers silently strip User-Agent from fetch(), but still include it in
+  // the CORS preflight's Access-Control-Request-Headers — making the preflight
+  // stricter than necessary. Skip it on web.
+  if (Platform.OS === 'web') return null
   return `${pkg.name}/${pkg.version}`
 }
 
@@ -37,7 +42,10 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   params[1] = params[1] || {}
   params[1].headers = new Headers(params[1].headers || {})
   params[1].headers.set('Accept', 'application/json')
-  params[1].headers.set('User-Agent', `${pkg.name}/${pkg.version}`)
+  const ua = getUserAgent()
+  if (ua) {
+    params[1].headers.set('User-Agent', ua)
+  }
   const res = await fetch(...params)
   if (!res.ok) {
     await handleFetchError(String(params[0]), res)

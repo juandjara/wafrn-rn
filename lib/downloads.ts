@@ -39,11 +39,10 @@ export async function saveFileToGallery(localUrl: string) {
 }
 
 async function fetchMimeType(url: string) {
+  const ua = getUserAgent()
   const res = await fetch(url, {
     method: 'HEAD',
-    headers: {
-      'User-Agent': getUserAgent(),
-    },
+    headers: ua ? { 'User-Agent': ua } : {},
   })
   if (!res.ok) {
     await handleFetchError(url, res)
