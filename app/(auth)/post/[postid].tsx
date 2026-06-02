@@ -29,7 +29,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Dimensions, FlatList, Text, View } from 'react-native'
+import { Dimensions, FlatList, Platform, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
 import { EmojiBase } from '@/lib/api/emojis'
 
@@ -207,6 +207,13 @@ export default function PostDetail() {
   // To work around this, we prepend rows after scroll bumps against the top and rests.
   const needsBumpMaxParents = useRef(false)
 
+  const bumpMaxParentsIfNeeded = useCallback(() => {
+    if (needsBumpMaxParents.current) {
+      needsBumpMaxParents.current = false
+      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
+    }
+  }, [])
+
   const onStartReached = useCallback(() => {
     if (isFetching) {
       return
@@ -215,8 +222,16 @@ export default function PostDetail() {
     const parents = postCount - 1
     if (parents && maxParents < parents) {
       needsBumpMaxParents.current = true
+      // On web, onMomentumScrollEnd never fires (browsers have no momentum
+      // event for wheel/trackpad scrolls), so the ref-gated bump from
+      // onMomentumScrollEnd would never run and ancestors would never load.
+      // Trigger directly here. maintainVisibleContentPosition keeps the
+      // visible anchor in place when rows prepend.
+      if (Platform.OS === 'web') {
+        bumpMaxParentsIfNeeded()
+      }
     }
-  }, [maxParents, postCount, isFetching])
+  }, [maxParents, postCount, isFetching, bumpMaxParentsIfNeeded])
 
   const onEndReached = useCallback(() => {
     if (isFetching || replyCount < maxReplies) {
@@ -224,13 +239,6 @@ export default function PostDetail() {
     }
     setMaxReplies((prev) => prev + REPLIES_CHUNK_SIZE)
   }, [isFetching, maxReplies, replyCount])
-
-  const bumpMaxParentsIfNeeded = useCallback(() => {
-    if (needsBumpMaxParents.current) {
-      needsBumpMaxParents.current = false
-      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
-    }
-  }, [])
 
   const onScrollToTop = bumpMaxParentsIfNeeded
 
