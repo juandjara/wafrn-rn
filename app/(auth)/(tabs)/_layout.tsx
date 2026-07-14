@@ -51,6 +51,7 @@ export default function TabsLayout() {
       }
     : {
         tabBarPosition: 'left',
+        tabBarActiveBackgroundColor: blue950,
         tabBarItemStyle: {
           paddingBottom: 8,
         },
@@ -69,9 +70,6 @@ export default function TabsLayout() {
         lazy: true,
         headerShown: false,
         tabBarHideOnKeyboard: !isWeb,
-        tabBarIconStyle: {
-          height: 42,
-        },
         transitionSpec: {
           animation: 'spring',
           config: {},
@@ -204,6 +202,7 @@ function TabButton({
   icon,
   badge = 0,
   ref,
+  style,
   href,
   ...props
 }: BottomTabBarButtonProps & {
@@ -234,19 +233,13 @@ function TabButton({
       <WigglyPressable
         {...props}
         ref={ref as React.Ref<View>}
-        style={
-          isSmallScreen
-            ? {
-                justifyContent: 'center',
-              }
-            : {
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 8,
-                marginBottom: 8,
-              }
-        }
+        style={[
+          style,
+          {
+            paddingTop: 8,
+          },
+        ]}
+        className="flex-1 gap-2"
       >
         {icon({ color: textColor, focused })}
         {isSmallScreen ? null : (
