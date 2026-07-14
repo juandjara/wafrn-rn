@@ -1,16 +1,24 @@
 import UserMenu from '@/components/dashboard/UserMenu'
-import { rootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { Tabs, usePathname } from 'expo-router'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { Link, Tabs, usePathname } from 'expo-router'
 import { View, useWindowDimensions, Text, Platform } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import { Extrapolation } from 'react-native-reanimated'
-import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
+import {
+  BottomTabBar,
+  type BottomTabBarButtonProps,
+  type BottomTabBarProps,
+  type BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
+import { useSmallScreenCheck } from '@/lib/styles'
+import { Image } from 'expo-image'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { rootStyles } from '@/constants/Colors'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -22,8 +30,6 @@ export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
   const blue950 = useCSSVariable('--color-blue-950') as string
-  const indigo300 = useCSSVariable('--color-indigo-300') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
   const cyan600 = useCSSVariable('--color-cyan-600') as string
   const pathname = usePathname()
 
@@ -32,26 +38,37 @@ export default function TabsLayout() {
   useServiceAnnouncements()
   useShareIntentHandler()
 
-  const { height, width } = useWindowDimensions()
-  const isSmallScreen = width < 768
-
+  const { height } = useWindowDimensions()
+  const isSmallScreen = useSmallScreenCheck()
   const isWeb = Platform.OS === 'web'
-
-  return (
-    <Tabs
-      screenOptions={{
-        ...rootStyles,
-        tabBarPosition: isSmallScreen ? 'bottom' : 'left',
-        lazy: true,
-        headerShown: false,
-        tabBarInactiveTintColor: indigo300,
-        tabBarActiveTintColor: gray200,
-        tabBarInactiveBackgroundColor: blue950,
+  const tabBaProps: BottomTabNavigationOptions = isSmallScreen
+    ? {
+        tabBarPosition: 'bottom',
         tabBarStyle: {
           backgroundColor: blue950,
         },
+        tabBarShowLabel: false,
+      }
+    : {
+        tabBarPosition: 'left',
+        tabBarItemStyle: {
+          paddingBottom: 8,
+        },
+        tabBarStyle: {
+          borderColor: 'transparent',
+        },
+        tabBarShowLabel: true,
+      }
+
+  return (
+    <Tabs
+      tabBar={isSmallScreen ? undefined : (props) => <DesktopTabs {...props} />}
+      screenOptions={{
+        ...rootStyles,
+        ...tabBaProps,
+        lazy: true,
+        headerShown: false,
         tabBarHideOnKeyboard: !isWeb,
-        tabBarShowLabel: !isSmallScreen,
         tabBarIconStyle: {
           height: 42,
         },
@@ -172,7 +189,7 @@ export default function TabsLayout() {
         options={{
           tabBarAccessibilityLabel: 'Main menu',
           tabBarButton: () => (
-            <View className="flex-1 flex-row justify-center items-center">
+            <View className="flex-1 flex-row justify-center md:justify-start items-center">
               <UserMenu size={ICON_SIZE} />
             </View>
           ),
@@ -200,9 +217,12 @@ function TabButton({
     focused: boolean
   }) => React.ReactNode
 }) {
+  const isSmallScreen = useSmallScreenCheck()
   const indigo300 = useCSSVariable('--color-indigo-300') as string
   const gray200 = useCSSVariable('--color-gray-200') as string
-  console.log('accessibilityLabel', props['aria-label'])
+  const gray400 = useCSSVariable('--color-gray-400') as string
+  const notFocusedColor = isSmallScreen ? indigo300 : gray400
+  const textColor = focused ? gray200 : notFocusedColor
 
   return (
     <>
@@ -214,20 +234,54 @@ function TabButton({
       <WigglyPressable
         {...props}
         ref={ref as React.Ref<View>}
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          // justifyContent: 'center',
-          alignItems: 'center',
-          gap: 8,
-          marginBottom: 8,
-        }}
+        style={
+          isSmallScreen
+            ? {
+                justifyContent: 'center',
+              }
+            : {
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 8,
+              }
+        }
       >
-        {icon({ color: focused ? gray200 : indigo300, focused })}
-        <Text style={{ color: focused ? gray200 : indigo300 }}>
-          {props['aria-label']}
-        </Text>
+        {icon({ color: textColor, focused })}
+        {isSmallScreen ? null : (
+          <Text style={{ color: textColor }}>{props['aria-label']}</Text>
+        )}
       </WigglyPressable>
     </>
+  )
+}
+
+function DesktopTabs(props: BottomTabBarProps) {
+  const { env } = useAuth()
+  const bigLogo = `${env?.BASE_URL}/assets/logo.png`
+  const blue800 = useCSSVariable('--color-blue-800') as string
+
+  return (
+    <View>
+      <Image
+        source={bigLogo}
+        style={{
+          height: 120,
+          margin: 16,
+          marginTop: 32,
+        }}
+        contentFit="contain"
+      />
+      <View className="flex-1">
+        <BottomTabBar {...props} />
+        <Link href="/editor" asChild>
+          <WigglyPressable className="mx-3 mt-6 p-4 flex-row items-center gap-3 rounded-full bg-white shadow shadow-blue-800">
+            <MaterialIcons name="mode-edit" size={28} color={blue800} />
+            <Text className="font-medium text-lg text-blue-800">Woot!</Text>
+          </WigglyPressable>
+        </Link>
+      </View>
+    </View>
   )
 }

@@ -13,7 +13,7 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
       <RewootRibbon
         user={item.user}
         emojis={item.emojis}
-        className="border-b border-slate-600"
+        className="border-b border-slate-600 rounded-t-lg"
       />
     )
   }
@@ -23,7 +23,7 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
         postId={item.threadId}
         user={item.user}
         emojis={item.emojis}
-        className="border-b border-slate-600"
+        className="border-b border-slate-600 rounded-t-lg"
       />
     )
   }
@@ -37,13 +37,8 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
     )
   }
   if (item.type === 'post') {
-    return item.border ? (
-      <View className="border-slate-600 border-t">
-        <PostFragment post={item.post} />
-      </View>
-    ) : (
-      <PostFragment post={item.post} />
-    )
+    const className = item.border ? 'border-slate-600 border-t' : 'rounded-t-lg'
+    return <PostFragment post={item.post} className={className} />
   }
   if (item.type === 'interaction-ribbon') {
     return (

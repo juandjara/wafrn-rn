@@ -1,3 +1,5 @@
+import { useWindowDimensions, type ViewStyle } from 'react-native'
+
 export const BOTTOM_BAR_HEIGHT = 72
 
 export const buttonCN =
@@ -31,3 +33,19 @@ export const optionStyleDark = (i: number) => ({
 
 export const interactionIconCn =
   'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'
+
+const SMALL_BREAKPOINT = 768
+
+export function useSmallScreenCheck() {
+  const { width } = useWindowDimensions()
+  return width < SMALL_BREAKPOINT
+}
+
+export function useMaxWidth() {
+  const { width } = useWindowDimensions()
+  return Math.min(width, SMALL_BREAKPOINT)
+}
+
+export const FLATLIST_STYLE: ViewStyle = {
+  maxWidth: SMALL_BREAKPOINT,
+}

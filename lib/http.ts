@@ -13,11 +13,13 @@ export function isErrorResponse<T extends { success: boolean }>(
   return res.success === false
 }
 
+// A request made from a browser cannot modify its User-Agent header
+// the browser will silently strip the header but still include it in
+// the CORS preflight's Access-Control-Request-Headers, making the preflight fail.
 export function getUserAgent(): string | null {
-  // Browsers silently strip User-Agent from fetch(), but still include it in
-  // the CORS preflight's Access-Control-Request-Headers — making the preflight
-  // stricter than necessary. Skip it on web.
-  if (Platform.OS === 'web') return null
+  if (Platform.OS === 'web') {
+    return null
+  }
   return `${pkg.name}/${pkg.version}`
 }
 

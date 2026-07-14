@@ -1,4 +1,4 @@
-import { HEADER_HEIGHT } from '@/components/Header'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
 import PrivacySelect from '@/components/PrivacySelect'
 import { PrivacyLevel } from '@/lib/api/privacy'
 import {
@@ -17,7 +17,7 @@ import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { Link, router } from 'expo-router'
+import { Link } from 'expo-router'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -233,41 +233,32 @@ export default function Options() {
 
   return (
     <View>
-      <View
-        className="absolute z-10 px-3 py-2 flex-row gap-4 items-center"
-        style={{ marginTop: sx.paddingTop }}
-      >
-        <Pressable
-          className="bg-black/30 rounded-full p-2"
-          onPress={() => router.back()}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
-        </Pressable>
-        <Text numberOfLines={1} className="text-white text-lg grow shrink">
-          Options & Customizations
-        </Text>
-        <Pressable
-          onPress={onSubmit}
-          className={clsx(
-            'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-            {
-              'bg-cyan-800 active:bg-cyan-700': canPublish,
-              'bg-gray-400/25 opacity-50': !canPublish,
-            },
-          )}
-        >
-          {editMutation.isPending ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <MaterialCommunityIcons
-              name="content-save-edit"
-              size={20}
-              color="white"
-            />
-          )}
-          <Text className="text-medium text-white">Save</Text>
-        </Pressable>
-      </View>
+      <Header
+        title="Options & Customizations"
+        right={
+          <Pressable
+            onPress={onSubmit}
+            className={clsx(
+              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
+              {
+                'bg-cyan-800 active:bg-cyan-700': canPublish,
+                'bg-gray-400/25 opacity-50': !canPublish,
+              },
+            )}
+          >
+            {editMutation.isPending ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <MaterialCommunityIcons
+                name="content-save-edit"
+                size={20}
+                color="white"
+              />
+            )}
+            <Text className="text-medium text-white">Save</Text>
+          </Pressable>
+        }
+      />
       <KeyboardAwareScrollView
         style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
         keyboardShouldPersistTaps="handled"

@@ -1,12 +1,5 @@
 import type { Post } from '@/lib/api/posts.types'
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { formatUserUrl, formatDate } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import Media from '../posts/Media'
@@ -41,6 +34,7 @@ import {
 } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
+import { useMaxWidth } from '@/lib/styles'
 
 type PostFragmentProps = {
   post: Post
@@ -48,6 +42,7 @@ type PostFragmentProps = {
   hasCornerMenu?: boolean
   collapsible?: boolean
   clickable?: boolean
+  className?: string
 }
 
 export default function PostFragment({ post, ...props }: PostFragmentProps) {
@@ -75,6 +70,7 @@ function PostFragmentInner({
   hasCornerMenu = true,
   collapsible = true,
   clickable = true,
+  className,
 }: Omit<PostFragmentProps, 'post'> & {
   postState: DerivedPostData
 }) {
@@ -98,7 +94,7 @@ function PostFragmentInner({
 
   const showQuotedPost = !!quotedPost && !isQuote
 
-  const { width } = useWindowDimensions()
+  const width = useMaxWidth()
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
 
   const layout = usePostLayout(post.id)
@@ -182,7 +178,7 @@ function PostFragmentInner({
 
   return (
     <Pressable
-      className={clsx('px-3 bg-indigo-950 relative', {
+      className={clsx('px-3 bg-indigo-950 relative', className, {
         'rounded-xl': isQuote,
       })}
       onLongPress={collapsePost}

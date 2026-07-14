@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { DashboardMode } from '@/lib/api/dashboard'
@@ -8,7 +8,9 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useResolveClassNames } from 'uniwind'
+import { useCSSVariable } from 'uniwind'
+import { useSmallScreenCheck } from '@/lib/styles'
+import { clsx } from 'clsx'
 
 const MODES = [
   DashboardMode.FEED,
@@ -49,28 +51,43 @@ export default function DashboardModeMenu({
     ? `${env?.BASE_URL}/assets/classicLogo.png`
     : `${env?.BASE_URL}/assets/logo_w.png`
 
-  const baseCn = useResolveClassNames('text-gray-400 py-1.5')
-  const borderCn = useResolveClassNames('pl-2 border-l border-l-gray-600')
-  const selectedCn = useResolveClassNames('text-white')
+  const isSmallScreen = useSmallScreenCheck()
+  const white = useCSSVariable('--color-white') as string
+  const gray400 = useCSSVariable('--color-gray-400') as string
+  const gray600 = useCSSVariable('--color-gray-600') as string
+  const baseStyles: ViewStyle = { paddingVertical: 6 }
+  const borderStyles: ViewStyle = {
+    paddingVertical: 6,
+    paddingLeft: 8,
+    borderLeftWidth: 1,
+    borderLeftColor: gray600,
+  }
 
   return (
     <View className="flex-row items-center">
-      {__DEV__ && (
-        <MaterialCommunityIcons
-          name="cog"
-          size={20}
-          color="black"
-          className="mr-1 absolute bottom-0 left-5 z-20"
-        />
-      )}
-      <Image
-        source={{ uri: logoUrl }}
-        style={[
-          useResolveClassNames('ml-2 mr-4'),
-          { width: forceClassicLogo ? 64 : 32, height: 32 },
-        ]}
-      />
-      <View className="flex-row gap-2 items-center rounded-full bg-slate-800 px-2">
+      {isSmallScreen ? (
+        <>
+          {__DEV__ && (
+            <MaterialCommunityIcons
+              name="cog"
+              size={20}
+              color="black"
+              className="mr-1 absolute bottom-0 left-5 z-20"
+            />
+          )}
+          <Image
+            source={{ uri: logoUrl }}
+            style={{
+              width: forceClassicLogo ? 64 : 32,
+              height: 32,
+              marginLeft: 4,
+              marginRight: 8,
+            }}
+          />
+        </>
+      ) : null}
+
+      <View className="flex-row gap-2 items-center rounded-full md:rounded-lg bg-slate-800 px-2 md:-mx-2">
         {MODES.map((m, i) => (
           <TouchableOpacity
             key={m}
@@ -81,14 +98,16 @@ export default function DashboardModeMenu({
             <MaterialCommunityIcons
               name={MODE_ICONS[m]}
               size={24}
-              style={[
-                baseCn,
-                i > 0 ? borderCn : undefined,
-                mode === m ? selectedCn : undefined,
-              ]}
+              style={i > 0 ? borderStyles : baseStyles}
+              color={mode === m ? white : gray400}
             />
-            {mode === m ? (
-              <Text className="text-white font-semibold text-base pr-1">
+            {mode === m || !isSmallScreen ? (
+              <Text
+                className={clsx(
+                  'font-semibold text-base pr-1',
+                  mode === m ? 'text-white' : 'text-gray-400',
+                )}
+              >
                 {MODE_LABELS[m]}
               </Text>
             ) : null}

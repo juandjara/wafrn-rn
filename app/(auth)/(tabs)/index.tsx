@@ -13,6 +13,7 @@ import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 import WigglyPressable from '@/components/WigglyPressable'
+import { useSmallScreenCheck } from '@/lib/styles'
 
 const MODES = [
   DashboardMode.FEED,
@@ -26,6 +27,7 @@ export default function Index() {
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
   const blue800 = useCSSVariable('--color-blue-800') as string
+  const isSmallScreen = useSmallScreenCheck()
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
@@ -63,13 +65,15 @@ export default function Index() {
         style={{ minHeight: 60, paddingLeft: 8, gap: 0 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
       />
-      <View key="editor-link" className="absolute bottom-4 right-3 z-20">
-        <Link href="/editor" asChild>
-          <WigglyPressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
-            <MaterialIcons name="mode-edit" size={24} color={blue800} />
-          </WigglyPressable>
-        </Link>
-      </View>
+      {isSmallScreen ? (
+        <View key="editor-link" className="absolute bottom-4 right-3 z-20">
+          <Link href="/editor" asChild>
+            <WigglyPressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
+              <MaterialIcons name="mode-edit" size={24} color={blue800} />
+            </WigglyPressable>
+          </Link>
+        </View>
+      ) : null}
       <PagerView
         ref={pagerRef}
         onPageScroll={onPageScroll}

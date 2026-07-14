@@ -20,13 +20,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
 import { useRef, useState, useTransition } from 'react'
-import {
-  Text,
-  useWindowDimensions,
-  View,
-  FlatList,
-  Pressable,
-} from 'react-native'
+import { Text, View, FlatList, Pressable } from 'react-native'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
@@ -37,7 +31,7 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT, FLATLIST_STYLE, useMaxWidth } from '@/lib/styles'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
@@ -102,6 +96,7 @@ export default function NotificationList() {
           onRefresh={refresh}
           data={notifications}
           extraData={layoutData}
+          style={FLATLIST_STYLE}
           keyExtractor={(n) => String(n.id)}
           renderItem={({ item }) => <NotificationItem notification={item} />}
           onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}
@@ -123,7 +118,7 @@ function NotificationItem({
 }: {
   notification: FullNotification
 }) {
-  const { width } = useWindowDimensions()
+  const width = useMaxWidth()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
   const userEmojis = getUserEmojis(user, context)

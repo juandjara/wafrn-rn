@@ -137,6 +137,7 @@ export default function Settings() {
       style={{
         ...sx,
         paddingTop: sx.paddingTop + HEADER_HEIGHT,
+        flex: 1,
       }}
     >
       <Header title="Settings" />

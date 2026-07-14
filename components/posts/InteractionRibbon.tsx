@@ -35,7 +35,7 @@ export default function InteractionRibbon({ post }: { post: Post }) {
       )}
       <View
         id="interaction-ribbon"
-        className="bg-indigo-950 items-center flex-row py-2 px-3"
+        className="bg-indigo-950 items-center flex-row py-2 px-3 rounded-b-lg"
       >
         {post.notes !== undefined ? (
           <Link id="notes" href={`/post/${post.id}`} asChild>
