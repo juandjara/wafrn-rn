@@ -76,7 +76,10 @@ function BottomSheetContent({
         <Animated.View
           exiting={SlideOutDown}
           style={[animStyle, FLATLIST_STYLE]}
-          className={clsx('bg-white mx-auto w-full rounded-t-xl', className)}
+          className={clsx(
+            'mx-auto w-full rounded-t-xl',
+            className ?? 'bg-white',
+          )}
         >
           <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
           <View onLayout={onLayout}>
