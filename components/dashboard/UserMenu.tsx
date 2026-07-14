@@ -11,7 +11,7 @@ import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
 import { useCSSVariable } from 'uniwind'
-import BottomShhet from '../BottomSheet'
+import BottomSheet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 import WigglyPressable from '../WigglyPressable'
 
@@ -119,7 +119,7 @@ export default function UserMenu({ size }: { size?: number }) {
           </Text>
         )}
       </WigglyPressable>
-      <BottomShhet open={menuOpen} setOpen={setMenuOpen}>
+      <BottomSheet open={menuOpen} setOpen={setMenuOpen}>
         <Pressable
           className="active:bg-gray-300/75 transition-colors"
           onPress={() => navAndClose(`/user/${me?.url}`)}
@@ -204,7 +204,7 @@ export default function UserMenu({ size }: { size?: number }) {
             style={optionStyleBig(i + 1)}
           />
         ))}
-      </BottomShhet>
+      </BottomSheet>
     </>
   )
 }
