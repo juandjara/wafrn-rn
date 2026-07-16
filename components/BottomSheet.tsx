@@ -1,4 +1,4 @@
-import { FLATLIST_STYLE } from '@/lib/styles'
+import { SHEET_MAX_SIZE } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
 import {
@@ -78,7 +78,7 @@ function BottomSheetContent({
         <Animated.View
           entering={SlideInDown}
           exiting={SlideOutDown}
-          style={FLATLIST_STYLE}
+          style={{ maxWidth: SHEET_MAX_SIZE }}
           className={clsx(
             'pt-1 absolute bottom-0 right-0 left-0 flex-1 mx-auto w-full rounded-t-xl max-h-1/2 overflow-auto',
             className ?? 'bg-white',

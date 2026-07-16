@@ -15,7 +15,7 @@ import {
 } from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
-import { useSmallScreenCheck } from '@/lib/styles'
+import { useSmallScreenCheck, VERTICAL_TABBAR_WIDTH } from '@/lib/styles'
 import { Image } from 'expo-image'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { rootStyles } from '@/constants/Colors'
@@ -256,7 +256,7 @@ function DesktopTabs(props: BottomTabBarProps) {
   const blue800 = useCSSVariable('--color-blue-800') as string
 
   return (
-    <View>
+    <View style={{ maxWidth: VERTICAL_TABBAR_WIDTH }}>
       <Image
         source={bigLogo}
         style={{

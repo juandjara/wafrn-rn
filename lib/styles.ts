@@ -34,7 +34,9 @@ export const optionStyleDark = (i: number) => ({
 export const interactionIconCn =
   'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'
 
-const SMALL_BREAKPOINT = 768
+export const VERTICAL_TABBAR_WIDTH = 300
+export const SHEET_MAX_SIZE = 768
+const SMALL_BREAKPOINT = 960
 
 export function useSmallScreenCheck() {
   const { width } = useWindowDimensions()
@@ -43,7 +45,8 @@ export function useSmallScreenCheck() {
 
 export function useMaxWidth() {
   const { width } = useWindowDimensions()
-  return Math.min(width, SMALL_BREAKPOINT)
+  const isSmall = width < SMALL_BREAKPOINT
+  return isSmall ? width : width - VERTICAL_TABBAR_WIDTH
 }
 
 export const FLATLIST_STYLE: ViewStyle = {
