@@ -48,7 +48,7 @@ configureReanimatedLogger({
 
 // On web, every <Icon> mount otherwise calls Font.loadAsync individually,
 // which routes through fontfaceobserver. The observer detects font readiness
-// by measuring canvas glyph widths against the fallback font — but icon-font
+// by measuring canvas glyph widths against the fallback font, but icon-font
 // glyphs render as tofu boxes identical to the fallback's tofu, so the
 // observer can never confirm and times out after 12s. Pre-register the
 // @font-face rules at module load so Font.isLoaded() returns true by the
@@ -100,13 +100,11 @@ export default function RootLayout() {
                     <Slot />
                   </HtmlEngineProvider>
                 </MenuProvider>
-                {/* Toasts last so it paints on top on web (RN-Web honors DOM
-                    order for siblings; native is unaffected).
+                {/* Toasts are put last so it paints on top of everything on web.
+                    RN-Web honors DOM order for siblings; native is unaffected.
                     `preventScreenReaderFromHiding` is web-only because RN-Web's
-                    AccessibilityInfo.isScreenReaderEnabled() always resolves
-                    to true — without bypassing it the toast library returns
-                    null and no toast ever renders. On native we keep the
-                    library's default screen-reader behavior. */}
+                    `AccessibilityInfo.isScreenReaderEnabled()` always resolves to true.
+                    Without bypassing it the toast library returns null and no toast ever renders. */}
                 <Toasts preventScreenReaderFromHiding={Platform.OS === 'web'} />
               </GestureHandlerRootView>
             </ThemeProvider>
