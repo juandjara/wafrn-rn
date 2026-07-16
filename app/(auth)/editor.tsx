@@ -273,7 +273,7 @@ export default function EditorView() {
         />
         <ScrollView
           id="editor-scroll"
-          className="grow-0 pb-1"
+          style={{ flexGrow: 0, paddingBottom: 4 }}
           keyboardShouldPersistTaps="handled"
         >
           {isLoading ? (
