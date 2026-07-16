@@ -8,6 +8,7 @@ import {
   View,
   StyleSheet,
   LayoutChangeEvent,
+  Platform,
 } from 'react-native'
 import {
   Gesture,
@@ -17,6 +18,7 @@ import {
 import Animated, {
   clamp,
   runOnJS,
+  SlideInDown,
   SlideOutDown,
   useAnimatedStyle,
   useSharedValue,
@@ -65,6 +67,32 @@ function BottomSheetContent({
     })
   }
 
+  if (Platform.OS === 'web') {
+    return (
+      <View className="flex-1">
+        <Pressable
+          className="bg-black/50"
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+        />
+        <Animated.View
+          entering={SlideInDown}
+          exiting={SlideOutDown}
+          style={FLATLIST_STYLE}
+          className={clsx(
+            'pt-1 absolute bottom-0 right-0 left-0 flex-1 mx-auto w-full rounded-t-xl max-h-1/2 overflow-auto',
+            className ?? 'bg-white',
+          )}
+        >
+          <View onLayout={onLayout}>
+            {children}
+            <View style={{ height: sx.paddingBottom + 16 }} />
+          </View>
+        </Animated.View>
+      </View>
+    )
+  }
+
   return (
     <GestureHandlerRootView className="flex-1">
       <Pressable
@@ -75,7 +103,7 @@ function BottomSheetContent({
       <GestureDetector gesture={panGesture}>
         <Animated.View
           exiting={SlideOutDown}
-          style={[animStyle, FLATLIST_STYLE]}
+          style={animStyle}
           className={clsx(
             'mx-auto w-full rounded-t-xl',
             className ?? 'bg-white',
