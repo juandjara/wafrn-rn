@@ -135,6 +135,8 @@ export default function EditorInput({
           placeholderTextColorClassName="accent-gray-500"
           className="text-white py-2 px-3"
           style={{
+            outlineWidth: 0,
+            outlineStyle: 'solid',
             minHeight: EDITOR_MIN_HEIGHT,
             height: Math.max(height, EDITOR_MIN_HEIGHT),
           }}
