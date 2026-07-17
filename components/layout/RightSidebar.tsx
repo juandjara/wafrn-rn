@@ -5,16 +5,30 @@ import { SIDEBAR_WIDTH } from '@/lib/styles'
 import { useState } from 'react'
 import { useCSSVariable } from 'uniwind'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import useAsyncStorage from '@/lib/useLocalStorage'
+
+const HISTORY_LIMIT = 20
 
 export default function RightSidebar() {
   const gray300 = useCSSVariable('--color-gray-300') as string
   const [searchTerm, setSearchTerm] = useState('')
   const pathname = usePathname()
 
-  function onSearch(newQuery: string) {
-    const q = newQuery.trim()
-    if (!q) return
-    router.navigate(`/search?q=${encodeURIComponent(q)}`)
+  const {
+    value: recent,
+    setValue: setRecent,
+    loading: loadingRecent,
+  } = useAsyncStorage<string[]>('searchHistory', [])
+
+  // no need for `Keyboard.dismiss` here because this component is only rendered on web
+  async function onSearch(newQuery: string) {
+    if (!newQuery || loadingRecent) {
+      return
+    }
+    const prev = (recent || []).filter((item) => item !== newQuery)
+    const next = [newQuery, ...prev].slice(0, HISTORY_LIMIT)
+    await setRecent(next)
+    router.navigate(`/search?q=${encodeURIComponent(newQuery)}`)
   }
 
   if (pathname.startsWith('/search') || pathname.startsWith('/editor')) {
