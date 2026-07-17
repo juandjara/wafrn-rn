@@ -29,3 +29,5 @@ fastlane/report.xml
 *.apk
 *.aab
 *.ipa
+
+docs/internal/*
