@@ -31,7 +31,7 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
-import { BOTTOM_BAR_HEIGHT, FLATLIST_STYLE, useMaxWidth } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT, useMaxWidth } from '@/lib/styles'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
@@ -96,7 +96,6 @@ export default function NotificationList() {
           onRefresh={refresh}
           data={notifications}
           extraData={layoutData}
-          style={FLATLIST_STYLE}
           keyExtractor={(n) => String(n.id)}
           renderItem={({ item }) => <NotificationItem notification={item} />}
           onEndReached={() => hasNextPage && !isFetching && fetchNextPage()}

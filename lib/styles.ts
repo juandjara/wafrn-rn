@@ -1,6 +1,12 @@
-import { useWindowDimensions, type ViewStyle } from 'react-native'
+import { Platform, useWindowDimensions } from 'react-native'
 
 export const BOTTOM_BAR_HEIGHT = 72
+export const NAV_WIDTH = 320
+export const SIDEBAR_BREAKPOINT = 1280
+export const SIDEBAR_WIDTH = 320
+export const SHEET_MAX_SIZE = 768
+const SMALL_BREAKPOINT = 960
+const MAX_WIDTH = 1400
 
 export const buttonCN =
   'text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full'
@@ -34,21 +40,20 @@ export const optionStyleDark = (i: number) => ({
 export const interactionIconCn =
   'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'
 
-export const VERTICAL_TABBAR_WIDTH = 300
-export const SHEET_MAX_SIZE = 768
-const SMALL_BREAKPOINT = 960
-
 export function useSmallScreenCheck() {
   const { width } = useWindowDimensions()
   return width < SMALL_BREAKPOINT
 }
 
-export function useMaxWidth() {
+export function useShowSidebar() {
   const { width } = useWindowDimensions()
-  const isSmall = width < SMALL_BREAKPOINT
-  return isSmall ? width : width - VERTICAL_TABBAR_WIDTH
+  return Platform.OS === 'web' && width >= SIDEBAR_BREAKPOINT
 }
 
-export const FLATLIST_STYLE: ViewStyle = {
-  maxWidth: SMALL_BREAKPOINT,
+export function useMaxWidth() {
+  const { width } = useWindowDimensions()
+  let w = Math.min(width, MAX_WIDTH)
+  if (width >= SMALL_BREAKPOINT) w -= NAV_WIDTH
+  if (width >= SIDEBAR_BREAKPOINT) w -= SIDEBAR_WIDTH
+  return w
 }

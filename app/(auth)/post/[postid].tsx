@@ -32,7 +32,6 @@ import {
 import { Dimensions, FlatList, Platform, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
 import { EmojiBase } from '@/lib/api/emojis'
-import { FLATLIST_STYLE } from '@/lib/styles'
 
 const POST_HEADER_HEIGHT = 72
 
@@ -319,7 +318,7 @@ export default function PostDetail() {
           data={currentList}
           extraData={layoutData}
           renderItem={renderItem}
-          style={{ flex: 1, ...FLATLIST_STYLE }}
+          style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: 80,
             minHeight: Dimensions.get('screen').height + 80,

@@ -2,22 +2,18 @@ import UserMenu from '@/components/dashboard/UserMenu'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { Link, Tabs, usePathname } from 'expo-router'
-import { View, useWindowDimensions, Text, Platform } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Tabs, usePathname } from 'expo-router'
+import { View, Text, Platform, useWindowDimensions } from 'react-native'
 import { useCSSVariable } from 'uniwind'
 import { Extrapolation } from 'react-native-reanimated'
 import {
-  BottomTabBar,
   type BottomTabBarButtonProps,
-  type BottomTabBarProps,
   type BottomTabNavigationOptions,
 } from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
-import { useSmallScreenCheck, VERTICAL_TABBAR_WIDTH } from '@/lib/styles'
-import { Image } from 'expo-image'
-import { useAuth } from '@/lib/contexts/AuthContext'
+import { useSmallScreenCheck } from '@/lib/styles'
 import { rootStyles } from '@/constants/Colors'
 
 export const unstable_settings = {
@@ -41,6 +37,10 @@ export default function TabsLayout() {
   const { height } = useWindowDimensions()
   const isSmallScreen = useSmallScreenCheck()
   const isWeb = Platform.OS === 'web'
+
+  // On mobile the Tabs navigator renders a bottom bar. On desktop the persistent
+  // left nav is owned by the WebShell (LeftNav), so the Tabs navigator renders no
+  // visible bar of its own.
   const tabBaProps: BottomTabNavigationOptions = isSmallScreen
     ? {
         tabBarPosition: 'bottom',
@@ -50,20 +50,11 @@ export default function TabsLayout() {
         tabBarShowLabel: false,
       }
     : {
-        tabBarPosition: 'left',
-        tabBarActiveBackgroundColor: blue950,
-        tabBarItemStyle: {
-          paddingBottom: 8,
-        },
-        tabBarStyle: {
-          borderColor: 'transparent',
-        },
-        tabBarShowLabel: true,
+        tabBarStyle: { display: 'none' },
       }
 
   return (
     <Tabs
-      tabBar={isSmallScreen ? undefined : (props) => <DesktopTabs {...props} />}
       screenOptions={{
         ...rootStyles,
         ...tabBaProps,
@@ -247,34 +238,5 @@ function TabButton({
         )}
       </WigglyPressable>
     </>
-  )
-}
-
-function DesktopTabs(props: BottomTabBarProps) {
-  const { env } = useAuth()
-  const bigLogo = `${env?.BASE_URL}/assets/logo.png`
-  const blue800 = useCSSVariable('--color-blue-800') as string
-
-  return (
-    <View style={{ maxWidth: VERTICAL_TABBAR_WIDTH }}>
-      <Image
-        source={bigLogo}
-        style={{
-          height: 120,
-          margin: 16,
-          marginTop: 32,
-        }}
-        contentFit="contain"
-      />
-      <View className="flex-1">
-        <BottomTabBar {...props} />
-        <Link href="/editor" asChild>
-          <WigglyPressable className="mx-3 mt-6 p-4 flex-row items-center gap-3 rounded-full bg-white shadow shadow-blue-800">
-            <MaterialIcons name="mode-edit" size={28} color={blue800} />
-            <Text className="font-medium text-lg text-blue-800">Woot!</Text>
-          </WigglyPressable>
-        </Link>
-      </View>
-    </View>
   )
 }

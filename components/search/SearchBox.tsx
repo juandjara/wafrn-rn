@@ -28,7 +28,11 @@ export default function SearchBox({
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Pressable>
       <TextInput
-        style={{ marginRight: 48 }}
+        style={{
+          marginRight: 48,
+          outlineWidth: 0,
+          outlineStyle: 'solid',
+        }}
         placeholderTextColorClassName="accent-gray-500"
         placeholder="Search text or enter URL"
         className="text-white grow"

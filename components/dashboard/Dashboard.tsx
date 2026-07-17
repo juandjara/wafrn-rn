@@ -16,7 +16,6 @@ import {
 } from '@/lib/api/posts'
 import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from './FeedItemRenderer'
-import { FLATLIST_STYLE } from '@/lib/styles'
 
 function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />
@@ -89,7 +88,6 @@ export default function Dashboard({
         keyExtractor={feedKeyExtractor}
         renderItem={itemRenderer}
         onEndReached={onEndReached}
-        style={FLATLIST_STYLE}
         ListFooterComponent={hasNextPage ? <Loading /> : null}
         ListHeaderComponent={header}
         ListEmptyComponent={ListEmpty}
