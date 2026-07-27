@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useAsks, useDeleteAskMutation } from '@/lib/asks'
 import { formatTimeAgo } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -12,11 +12,12 @@ import AskCard from '@/components/posts/Ask'
 
 export default function Asks() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const pagerRef = useRef<PagerViewRef>(null)
   const [page, setPage] = useState(0)
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT, flex: 1 }}>
+    <View style={{ ...sx, paddingTop: headerInset, flex: 1 }}>
       <Header title="Asks" />
       <View className="flex-row" accessibilityRole="tabbar">
         <TouchableOpacity

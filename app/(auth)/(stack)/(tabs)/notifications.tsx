@@ -1,5 +1,5 @@
 import PostFragment from '@/components/dashboard/PostFragment'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import UserCard from '@/components/user/UserCard'
@@ -38,6 +38,7 @@ import { useCSSVariable } from 'uniwind'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const gray300 = useCSSVariable('--color-gray-300') as string
   const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
   const [showDetached, setShowDetached] = useState(false)
@@ -84,7 +85,7 @@ export default function NotificationList() {
   )
 
   return (
-    <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ flex: 1, paddingTop: headerInset }}>
       <Header
         title={showDetached ? 'Unauthorized notifications' : 'Notifications'}
         right={cornerButton}

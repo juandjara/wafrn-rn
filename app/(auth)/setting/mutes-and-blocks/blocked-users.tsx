@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useBlocks } from '@/lib/api/mutes-and-blocks'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
@@ -7,10 +7,11 @@ import { FlatList, Pressable, Text, View } from 'react-native'
 
 export default function BlockedUsers() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, isFetching, refetch } = useBlocks()
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Blocked users" />
       <FlatList
         data={data}

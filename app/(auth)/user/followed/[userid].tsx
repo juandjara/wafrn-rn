@@ -6,10 +6,11 @@ import { FlatList, Text, View } from 'react-native'
 import { formatTimeAgo } from '@/lib/formatters'
 import FollowCard from '@/components/user/FollowCard'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 
 export default function Followed() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowed(userid as string)
   const sorted = useMemo(
@@ -24,7 +25,7 @@ export default function Followed() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Followed users" />
       <FlatList
         data={sorted}

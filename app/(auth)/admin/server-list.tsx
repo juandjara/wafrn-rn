@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useServerList } from '@/lib/api/admin'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -8,6 +8,7 @@ import { useCSSVariable } from 'uniwind'
 
 export default function ServerList() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [showSearch, setShowSearch] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [query, setQuery] = useState('')
@@ -67,7 +68,7 @@ export default function ServerList() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title={showSearch ? headerSearch : headerTitle} />
       <FlatList
         data={data}

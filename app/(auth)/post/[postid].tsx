@@ -1,6 +1,6 @@
 import PostFragment from '@/components/dashboard/PostFragment'
 import ErrorView from '@/components/errors/ErrorView'
-import Header from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
@@ -17,7 +17,6 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { formatUserUrl } from '@/lib/formatters'
 import pluralize from '@/lib/pluralize'
 import { useLayoutData } from '@/lib/postStore'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
@@ -74,7 +73,7 @@ type PostDetailItemData =
     }
 
 export default function PostDetail() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset(POST_HEADER_HEIGHT)
   const { postid, isArticle } = useLocalSearchParams()
   const { data, isFetching, refetch, error } = usePostDetail(postid as string)
 
@@ -289,7 +288,7 @@ export default function PostDetail() {
       <View className="flex-1">
         {header}
         <ErrorView
-          style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT + 8 }}
+          style={{ marginTop: headerInset + 8 }}
           message={error.message}
           onRetry={refetch}
         />
@@ -302,7 +301,7 @@ export default function PostDetail() {
     return (
       <View className="flex-1">
         {header}
-        <View style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT }}>
+        <View style={{ marginTop: headerInset }}>
           <Loading />
         </View>
       </View>
@@ -312,7 +311,7 @@ export default function PostDetail() {
   return (
     <DashboardContextProvider data={context}>
       {header}
-      <View style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT, flex: 1 }}>
+      <View style={{ marginTop: headerInset, flex: 1 }}>
         <Reanimated.FlatList
           ref={listRef}
           data={currentList}

@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useFollowAllMutation, useFollowsParserMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import {
@@ -19,6 +19,7 @@ import { useCSSVariable } from 'uniwind'
 
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const indigo600 = useCSSVariable('--accent-indigo-600') as string
   const mutation = useFollowsParserMutation()
   const followAllMutation = useFollowAllMutation()
@@ -56,7 +57,7 @@ export default function ImportFollows() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header
         title="Import Follows"
         right={

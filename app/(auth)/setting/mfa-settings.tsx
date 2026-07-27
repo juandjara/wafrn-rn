@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import {
   useCreateMfaMutation,
@@ -29,6 +29,7 @@ import { useMutation } from '@tanstack/react-query'
 
 export default function MfaSettings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [name, setName] = useState('')
   const [token, setToken] = useState('')
   const { data, isLoading, isFetching } = useMfaDetails()
@@ -99,7 +100,7 @@ export default function MfaSettings() {
   }
 
   return (
-    <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
       <Header title="Multi-Factor Authentication" />
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"

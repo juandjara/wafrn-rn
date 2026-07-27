@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import {
   AdvancedMutedWord,
   getPrivateOptionValue,
@@ -34,6 +34,7 @@ const DEFAULT_BLOCK = {
 
 export default function MutedWords() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const indigo400 = useCSSVariable('--color-indigo-400') as string
   const { edit } = useLocalSearchParams<{ edit?: string }>()
   const { data: settings } = useSettings()
@@ -144,7 +145,7 @@ export default function MutedWords() {
         right={isEditMode ? renderSaveButton() : undefined}
       />
       <KeyboardAwareScrollView
-        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
+        style={{ marginTop: headerInset }}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 12,

@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import { useNotificationBadges } from '@/lib/notifications'
 import { optionStyleDark } from '@/lib/styles'
@@ -13,6 +13,7 @@ export default function AdminIndex() {
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const gray200 = useCSSVariable('--color-gray-200') as string
 
   const options = [
@@ -70,7 +71,7 @@ export default function AdminIndex() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Admin settings" />
       <ScrollView>
         {options.map((opt, i) => (

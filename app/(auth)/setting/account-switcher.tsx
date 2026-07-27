@@ -1,5 +1,5 @@
 import Button from '@/components/Button'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
 import TextWithEmojis from '@/components/TextWithEmojis'
@@ -23,6 +23,7 @@ import { useCSSVariable } from 'uniwind'
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data: me } = useCurrentUser()
   const {
     accounts,
@@ -47,7 +48,7 @@ export default function AccountSwitcherSettings() {
         ...sx,
         flex: 1,
         position: 'relative',
-        paddingTop: sx.paddingTop + HEADER_HEIGHT,
+        paddingTop: headerInset,
       }}
     >
       <Header title="Account Switcher" />

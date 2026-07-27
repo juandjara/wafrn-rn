@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import FollowCard from '@/components/user/FollowCard'
 import {
@@ -18,6 +18,7 @@ import { Alert, FlatList, Pressable, Text, View } from 'react-native'
 export default function Followers() {
   const me = useParsedToken()
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { userid } = useLocalSearchParams()
   const { data, isFetching, refetch } = useFollowers(userid as string)
   const sorted = useMemo(
@@ -56,7 +57,7 @@ export default function Followers() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Followers" />
       <FlatList
         data={sorted}

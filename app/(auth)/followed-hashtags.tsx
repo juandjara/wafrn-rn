@@ -1,7 +1,6 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useSettings } from '@/lib/api/settings'
 import { useFollowTagMutation } from '@/lib/interaction'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { router } from 'expo-router'
@@ -18,7 +17,7 @@ import {
 import { useCSSVariable } from 'uniwind'
 
 export default function FollowedHashtags() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data: settings } = useSettings()
   const followedHashtags = settings?.followedHashtags || []
   const mutation = useFollowTagMutation()
@@ -45,7 +44,7 @@ export default function FollowedHashtags() {
   return (
     <View className="flex-1">
       <Header title="Followed hashtags" />
-      <View style={{ flex: 1, marginTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <View style={{ flex: 1, marginTop: headerInset }}>
         <View className="p-4">
           <Text className="text-white text-sm mb-1">Follow a new hashtag</Text>
           <View className="flex-row items-center gap-1">

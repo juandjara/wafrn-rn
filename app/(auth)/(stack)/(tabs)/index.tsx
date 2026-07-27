@@ -6,14 +6,17 @@ import DashboardModeMenu, {
 } from '@/components/dashboard/DashboardModeMenu'
 import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
-import Header from '@/components/Header'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useSmallScreenCheck } from '@/lib/styles'
+
+// The feed runs a shorter header than the app default; the inset below is
+// derived from this same value so the two can't drift apart.
+const FEED_HEADER_HEIGHT = 60
 
 const MODES = [
   DashboardMode.FEED,
@@ -22,7 +25,7 @@ const MODES = [
 ] as const
 
 export default function Index() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset(FEED_HEADER_HEIGHT)
   const pagerRef = useRef<PagerViewRef>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
@@ -38,9 +41,9 @@ export default function Index() {
     () =>
       StyleSheet.create({
         flex: { flex: 1 },
-        root: { flex: 1, paddingTop: sx.paddingTop + 60 },
+        root: { flex: 1, paddingTop: headerInset },
       }),
-    [sx.paddingTop],
+    [headerInset],
   )
 
   const pages = useMemo(() => {
@@ -62,7 +65,7 @@ export default function Index() {
   return (
     <View style={styles.flex}>
       <Header
-        style={{ minHeight: 60, paddingLeft: 8, gap: 0 }}
+        style={{ minHeight: FEED_HEADER_HEIGHT, paddingLeft: 8, gap: 0 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
       />
       {isSmallScreen ? (

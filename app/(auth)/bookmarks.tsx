@@ -1,15 +1,14 @@
 import Dashboard from '@/components/dashboard/Dashboard'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { DashboardMode } from '@/lib/api/dashboard'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { View } from 'react-native'
 
 export default function Bookmarks() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   return (
     <View className="flex-1">
       <Header title="Bookmarks" />
-      <View style={{ flex: 1, marginTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <View style={{ flex: 1, marginTop: headerInset }}>
         <Dashboard mode={DashboardMode.BOOKMARKS} />
       </View>
     </View>

@@ -1,14 +1,15 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useServerStats } from '@/lib/api/admin'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { RefreshControl, ScrollView, Text, View } from 'react-native'
 
 export default function ServerStats() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, refetch, isFetching } = useServerStats()
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Server stats" />
       <ScrollView
         refreshControl={

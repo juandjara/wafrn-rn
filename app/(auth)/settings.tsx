@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { isValidURL } from '@/lib/api/content'
 import { useAdminCheck, useAuth } from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
@@ -11,6 +11,7 @@ import { useCSSVariable } from 'uniwind'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const isAdmin = useAdminCheck()
   const { instance } = useAuth()
   const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
@@ -136,7 +137,7 @@ export default function Settings() {
     <View
       style={{
         ...sx,
-        paddingTop: sx.paddingTop + HEADER_HEIGHT,
+        paddingTop: headerInset,
         flex: 1,
       }}
     >

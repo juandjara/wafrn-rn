@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Prompt from '@/components/Prompt'
 import { useCurrentUser, useEnableBlueskyMutation } from '@/lib/api/user'
 import { useAuth } from '@/lib/contexts/AuthContext'
@@ -9,6 +9,7 @@ import { Button, ScrollView, Text, View } from 'react-native'
 
 export default function BlueskySettings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data: me } = useCurrentUser()
   const enabled = !!me?.bskyDid
   const { env } = useAuth()
@@ -26,7 +27,7 @@ export default function BlueskySettings() {
   const [showPrompt, setShowPrompt] = useState(false)
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Bluesky Settings" />
       <Prompt
         visible={showPrompt}

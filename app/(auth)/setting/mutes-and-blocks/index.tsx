@@ -1,6 +1,5 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { optionStyleDark } from '@/lib/styles'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
@@ -35,12 +34,12 @@ const options = [
 ] as const
 
 export default function MutesAndBlock() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const gray200 = useCSSVariable('--color-gray-200') as string
   return (
     <View>
       <Header title="Mutes and Blocks" />
-      <View style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <View style={{ marginTop: headerInset }}>
         <ScrollView>
           {options.map((opt, i) => (
             <Pressable

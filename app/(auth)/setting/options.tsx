@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import PrivacySelect from '@/components/PrivacySelect'
 import { PrivacyLevel } from '@/lib/api/privacy'
 import {
@@ -62,6 +62,7 @@ type FormState = {
 
 export default function Options() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const gray600 = useCSSVariable('--color-gray-600') as string
   const gray700 = useCSSVariable('--color-gray-700') as string
   const cyan900 = useCSSVariable('--color-cyan-900') as string
@@ -260,7 +261,7 @@ export default function Options() {
         }
       />
       <KeyboardAwareScrollView
-        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
+        style={{ marginTop: headerInset }}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 12,

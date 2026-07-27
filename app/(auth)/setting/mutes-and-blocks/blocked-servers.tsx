@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import {
   useServerBlocks,
   useUnblockServerMutation,
@@ -16,11 +16,12 @@ import { clsx } from 'clsx'
 
 export default function BlockedServers() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, isFetching, refetch } = useServerBlocks()
   const mutation = useUnblockServerMutation()
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Blocked servers" />
       <FlatList
         data={data}

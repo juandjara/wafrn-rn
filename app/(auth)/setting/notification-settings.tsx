@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import {
   getPrivateOptionValue,
   NOTIFICATIONS_FROM_LABELS,
@@ -47,6 +47,7 @@ export default function NotificationSettings() {
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const editMutation = useEditProfileMutation()
   const canPublish = !editMutation.isPending
   const gray600 = useCSSVariable('--color-gray-600') as string
@@ -137,7 +138,7 @@ export default function NotificationSettings() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header
         title="Notification settings"
         right={

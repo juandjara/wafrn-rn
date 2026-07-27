@@ -6,6 +6,22 @@ import Animated from 'react-native-reanimated'
 
 export const HEADER_HEIGHT = 64
 
+/**
+ * Top offset a screen must reserve for its `<Header>`.
+ *
+ * The header is a transparent absolute overlay by design, so it occupies no
+ * layout space and every screen that renders one has to leave room for it
+ * itself. Use this instead of restating `sx.paddingTop + HEADER_HEIGHT`.
+ *
+ * Pass a height only when the screen overrides the header's default, e.g.
+ * `useHeaderInset(POST_HEADER_HEIGHT)`. Screens that deliberately let the
+ * header float over their content (a profile banner, say) should not call it.
+ */
+export function useHeaderInset(headerHeight: number = HEADER_HEIGHT) {
+  const { paddingTop } = useSafeAreaPadding()
+  return paddingTop + headerHeight
+}
+
 export default function Header({
   title = '',
   left,

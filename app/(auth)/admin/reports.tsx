@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import ReportRibbon from '@/components/ribbons/ReportRibbon'
 import UserCard from '@/components/user/UserCard'
 import {
@@ -38,6 +38,7 @@ type FilterValue = (typeof FILTER_OPTIONS)[number]['value']
 
 export default function ReportList() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, refetch, isFetching } = useReportList()
   const [filter, setFilter] = useState<FilterValue>('all')
 
@@ -90,7 +91,7 @@ export default function ReportList() {
   )
 
   return (
-    <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
       <Header title="Reports" right={filterMenu} />
       <FlashList
         data={filteredData}
