@@ -312,7 +312,7 @@ export default function PostDetail() {
   return (
     <DashboardContextProvider data={context}>
       {header}
-      <View style={{ marginTop: sx.paddingTop + 72, flex: 1 }}>
+      <View style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT, flex: 1 }}>
         <Reanimated.FlatList
           ref={listRef}
           data={currentList}

@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -40,7 +40,7 @@ export default function MutesAndBlock() {
   return (
     <View>
       <Header title="Mutes and Blocks" />
-      <View style={{ marginTop: sx.paddingTop + 64 }}>
+      <View style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}>
         <ScrollView>
           {options.map((opt, i) => (
             <Pressable

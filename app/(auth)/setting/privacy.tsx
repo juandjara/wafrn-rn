@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { ScrollView, Text, View } from 'react-native'
@@ -11,7 +11,7 @@ export default function Privacy() {
       style={{
         ...sx,
         flex: 1,
-        paddingTop: sx.paddingTop + 60,
+        paddingTop: sx.paddingTop + HEADER_HEIGHT,
         backgroundColor: Colors.dark.background,
       }}
     >

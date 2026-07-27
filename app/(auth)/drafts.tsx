@@ -1,5 +1,5 @@
 import Dashboard from '@/components/dashboard/Dashboard'
-import Header from '@/components/Header'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { DashboardMode } from '@/lib/api/dashboard'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { View } from 'react-native'
@@ -9,7 +9,7 @@ export default function Drafts() {
   return (
     <View className="flex-1">
       <Header title="Drafts" />
-      <View style={{ flex: 1, marginTop: sx.paddingTop + 64 }}>
+      <View style={{ flex: 1, marginTop: sx.paddingTop + HEADER_HEIGHT }}>
         <Dashboard mode={DashboardMode.DRAFTS} />
       </View>
     </View>

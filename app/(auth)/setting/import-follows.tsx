@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header, { HEADER_HEIGHT } from '@/components/Header'
 import { useFollowAllMutation, useFollowsParserMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import {
@@ -56,7 +56,7 @@ export default function ImportFollows() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + 64 }}>
+    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
       <Header
         title="Import Follows"
         right={
