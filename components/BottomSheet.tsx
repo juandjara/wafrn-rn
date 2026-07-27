@@ -1,4 +1,5 @@
 import { SHEET_MAX_SIZE } from '@/lib/styles'
+import { FixedWidthProvider } from '@/lib/contexts/ContainerWidthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
 import {
@@ -36,8 +37,9 @@ function BottomSheetContent({
   className?: string
 }) {
   const sx = useSafeAreaPadding()
-  const { height } = useWindowDimensions()
+  const { width: windowWidth, height } = useWindowDimensions()
   const maxHeight = height * 0.6
+  const sheetWidth = Math.min(windowWidth, SHEET_MAX_SIZE)
   const size = useSharedValue(0)
   const position = useSharedValue(height + sx.paddingBottom)
   const animStyle = useAnimatedStyle(() => ({
@@ -75,20 +77,29 @@ function BottomSheetContent({
           style={StyleSheet.absoluteFill}
           onPress={onClose}
         />
-        <Animated.View
-          entering={SlideInDown}
-          exiting={SlideOutDown}
-          style={{ maxWidth: SHEET_MAX_SIZE }}
-          className={clsx(
-            'pt-1 absolute bottom-0 right-0 left-0 flex-1 mx-auto w-full rounded-t-xl max-h-1/2 overflow-auto',
-            className ?? 'bg-white',
-          )}
+        <FixedWidthProvider
+          width={sheetWidth}
+          style={{
+            ...StyleSheet.absoluteFill,
+            top: 'auto',
+            marginHorizontal: 'auto',
+            maxHeight: '50%',
+          }}
         >
-          <View onLayout={onLayout}>
-            {children}
-            <View style={{ height: sx.paddingBottom + 16 }} />
-          </View>
-        </Animated.View>
+          <Animated.View
+            entering={SlideInDown}
+            exiting={SlideOutDown}
+            className={clsx(
+              'pt-1 flex-1 w-full h-full rounded-t-xl overflow-auto',
+              className ?? 'bg-white',
+            )}
+          >
+            <View onLayout={onLayout}>
+              {children}
+              <View style={{ height: sx.paddingBottom + 16 }} />
+            </View>
+          </Animated.View>
+        </FixedWidthProvider>
       </View>
     )
   }

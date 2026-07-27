@@ -2,11 +2,11 @@ import { Platform, useWindowDimensions } from 'react-native'
 
 export const BOTTOM_BAR_HEIGHT = 72
 export const NAV_WIDTH = 320
-export const SIDEBAR_BREAKPOINT = 1280
 export const SIDEBAR_WIDTH = 320
+export const CONTENT_MAX_WIDTH = 680
+export const SHELL_FULL_WIDTH = NAV_WIDTH + CONTENT_MAX_WIDTH + SIDEBAR_WIDTH
 export const SHEET_MAX_SIZE = 768
 const SMALL_BREAKPOINT = 960
-const MAX_WIDTH = 1400
 
 export const buttonCN =
   'text-indigo-500 py-2 px-3 bg-indigo-500/20 rounded-full'
@@ -47,13 +47,5 @@ export function useSmallScreenCheck() {
 
 export function useShowSidebar() {
   const { width } = useWindowDimensions()
-  return Platform.OS === 'web' && width >= SIDEBAR_BREAKPOINT
-}
-
-export function useMaxWidth() {
-  const { width } = useWindowDimensions()
-  let w = Math.min(width, MAX_WIDTH)
-  if (width >= SMALL_BREAKPOINT) w -= NAV_WIDTH
-  if (width >= SIDEBAR_BREAKPOINT) w -= SIDEBAR_WIDTH
-  return w
+  return Platform.OS === 'web' && width >= SHELL_FULL_WIDTH
 }

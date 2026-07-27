@@ -34,7 +34,7 @@ import {
 } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
-import { useMaxWidth } from '@/lib/styles'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 type PostFragmentProps = {
   post: Post
@@ -94,7 +94,7 @@ function PostFragmentInner({
 
   const showQuotedPost = !!quotedPost && !isQuote
 
-  const width = useMaxWidth()
+  const width = useContainerWidth()
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
 
   const layout = usePostLayout(post.id)

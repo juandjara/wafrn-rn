@@ -10,7 +10,7 @@ import {
   getPublicOptionValue,
   PublicOptionNames,
 } from '@/lib/api/settings'
-import { Pressable, Text, useWindowDimensions, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import {
   formatUserUrl,
   formatHeaderUrl,
@@ -31,12 +31,13 @@ import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
 import { useCSSVariable } from 'uniwind'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 export default function UserDetail({ user }: { user: User }) {
   const gray400 = useCSSVariable('--color-gray-400') as string
   const me = useParsedToken()
   const isMe = me?.userId === user.id
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const height = width / 2
   const { data: settings } = useSettings()
   const { data: myFollowers } = useFollowers(me?.url)

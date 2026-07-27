@@ -31,7 +31,8 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
-import { BOTTOM_BAR_HEIGHT, useMaxWidth } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSVariable } from 'uniwind'
@@ -118,7 +119,7 @@ function NotificationItem({
 }: {
   notification: FullNotification
 }) {
-  const width = useMaxWidth()
+  const width = useContainerWidth()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
   const userEmojis = getUserEmojis(user, context)

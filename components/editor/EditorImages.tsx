@@ -7,6 +7,7 @@ import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
+  useWindowDimensions,
   ActivityIndicator,
   Modal,
   Pressable,
@@ -15,7 +16,6 @@ import {
   Switch,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native'
 import Video from '../Video'
@@ -50,6 +50,7 @@ export default function ImageList({
   const theme = useTheme()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
+  // Only used inside the full-screen preview Modal below.
   const { width } = useWindowDimensions()
   const size = width - 24
 
