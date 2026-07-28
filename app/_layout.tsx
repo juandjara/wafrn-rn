@@ -28,6 +28,7 @@ import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { ShareIntentProvider } from 'expo-share-intent'
 import NetInfoRibbon from '@/components/NetInfoRibbon'
+import { DeviceTextMetricsProbe } from '@/lib/textMetrics'
 import {
   AntDesign,
   Feather,
@@ -92,6 +93,7 @@ export default function RootLayout() {
             <ThemeProvider value={DarkTheme}>
               <GestureHandlerRootView style={styles.root}>
                 <NetInfoRibbon />
+                <DeviceTextMetricsProbe />
                 <MenuProvider backHandler customStyles={styles}>
                   <HtmlEngineProvider>
                     <Slot />

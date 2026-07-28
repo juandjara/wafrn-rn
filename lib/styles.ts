@@ -1,5 +1,8 @@
 import { Platform, useWindowDimensions } from 'react-native'
 
+// Max font size multiplier according to WCAG
+export const MAX_FONT_SCALE = 2
+
 export const BOTTOM_BAR_HEIGHT = 72
 export const NAV_WIDTH = 320
 export const SIDEBAR_WIDTH = 320
@@ -48,4 +51,13 @@ export function useSmallScreenCheck() {
 export function useShowSidebar() {
   const { width } = useWindowDimensions()
   return Platform.OS === 'web' && width >= SHELL_FULL_WIDTH
+}
+
+/**
+ * Accesibility font size multiplier, clamped to MAX_FONT_SCALE.
+ * Size anything that has to grow alongside text from this,
+ */
+export function useFontScale() {
+  const { fontScale } = useWindowDimensions()
+  return Math.min(fontScale, MAX_FONT_SCALE)
 }

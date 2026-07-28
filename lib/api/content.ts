@@ -19,7 +19,6 @@ import {
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
 import { collapseWhitespace, replaceInlineImages } from './html'
-import { Dimensions } from 'react-native'
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -59,7 +58,7 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
     const url = formatEmojiUrl(emoji.uuid)
     text = text.replaceAll(
       `:${name}:`,
-      `<img width="24" height="24" src="${url}" alt="${name}" />`,
+      `<img data-emoji="${name}" width="24" height="24" src="${url}" alt="${name}" />`,
     )
   }
   return text
@@ -583,10 +582,7 @@ export function getDerivedPostState(
   const { medias, inlineMedias } = separateInlineMedias(post, context, options)
 
   if (inlineMedias.length) {
-    const width = Dimensions.get('window').width
-    const isQuote = context.quotedPosts.some((p) => p.id === post.id)
-    const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
-    postContent = replaceInlineImages(postContent, inlineMedias, contentWidth)
+    postContent = replaceInlineImages(postContent, inlineMedias)
   }
 
   const quotedPostId = /* !isQuote &&  */ context.quotes.find(
