@@ -14,8 +14,6 @@ import { useCSSVariable } from 'uniwind'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useSmallScreenCheck } from '@/lib/styles'
 
-// The feed runs a shorter header than the app default; the inset below is
-// derived from this same value so the two can't drift apart.
 const FEED_HEADER_HEIGHT = 60
 
 const MODES = [
