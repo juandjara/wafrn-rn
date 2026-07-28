@@ -40,19 +40,16 @@ import {
 } from '@expo/vector-icons'
 import * as Font from 'expo-font'
 
-// This is the default configuration
+// Default reanimated logger configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 })
 
-// On web, every <Icon> mount otherwise calls Font.loadAsync individually,
-// which routes through fontfaceobserver. The observer detects font readiness
-// by measuring canvas glyph widths against the fallback font, but icon-font
-// glyphs render as tofu boxes identical to the fallback's tofu, so the
-// observer can never confirm and times out after 12s. Pre-register the
-// @font-face rules at module load so Font.isLoaded() returns true by the
-// time the first icon mounts and the per-icon load is skipped entirely.
+// Fonts and @font-face rules most be loaded at app startup on Web
+// because the web fallback fonts block the fontfaceobserver readiness detection
+// and it times out never being set to ready.
+// This makes all icon fonts loaded for the first time an icon is rendered
 if (Platform.OS === 'web') {
   Font.loadAsync({
     ...AntDesign.font,
@@ -64,9 +61,9 @@ if (Platform.OS === 'web') {
     ...MaterialIcons.font,
     ...Octicons.font,
   }).catch(() => {
-    // fontfaceobserver may still reject from this top-level call (icon fonts
-    // are detection-resistant). The @font-face rules are already injected
-    // synchronously, which is all we actually need.
+    // fontfaceobserver may reject because of detection resistance or duplicated font rules
+    // but fonts might still be loaded
+    console.error('Initial font loading for web failed')
   })
 }
 
@@ -100,11 +97,8 @@ export default function RootLayout() {
                     <Slot />
                   </HtmlEngineProvider>
                 </MenuProvider>
-                {/* Toasts are put last so it paints on top of everything on web.
-                    RN-Web honors DOM order for siblings; native is unaffected.
-                    `preventScreenReaderFromHiding` is web-only because RN-Web's
-                    `AccessibilityInfo.isScreenReaderEnabled()` always resolves to true.
-                    Without bypassing it the toast library returns null and no toast ever renders. */}
+                {/* Toasts are put last so it paints on top of everything on web. */}
+                {/* `preventScreenReaderFromHiding` is needed because RN always reports the screen reader is enabled on Web */}
                 <Toasts preventScreenReaderFromHiding={Platform.OS === 'web'} />
               </GestureHandlerRootView>
             </ThemeProvider>
