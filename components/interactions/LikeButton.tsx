@@ -4,7 +4,7 @@ import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useLikeMutation } from '@/lib/interaction'
 import { ViewStyle } from 'react-native'
 import MenuItem from '../MenuItem'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { interactionIconCn } from '@/lib/styles'
 import WigglyPressable from '../WigglyPressable'
@@ -23,8 +23,8 @@ export default function LikeButton({
   const me = useParsedToken()
   const context = useDashboardContext()
   const likeMutation = useLikeMutation(post)
-  const red500 = useCSSVariable('--color-red-500') as string
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const red500 = useCSSString('--color-red-500')
+  const gray600 = useCSSString('--color-gray-600')
 
   const initialIsLiked = (context.likes[post.id] ?? []).includes(
     me?.userId ?? '',

@@ -3,7 +3,7 @@ import MenuItem from '../MenuItem'
 import { type ViewStyle } from 'react-native'
 import { type Post } from '@/lib/api/posts.types'
 import { useBitePostMutation } from '@/lib/interaction'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function BiteButton({
   post,
@@ -14,7 +14,7 @@ export default function BiteButton({
   style?: ViewStyle
   onPress?: () => void
 }) {
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray600 = useCSSString('--color-gray-600')
   const biteMutation = useBitePostMutation()
 
   return (

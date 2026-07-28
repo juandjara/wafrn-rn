@@ -33,7 +33,7 @@ import {
   getDistributors,
   saveDistributor,
 } from '@/lib/push-notifications/push-notifications'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const notificationsCategories = [
   { label: 'Notify mentions', value: 'notifyMentions' },
@@ -50,12 +50,12 @@ export default function NotificationSettings() {
   const headerInset = useHeaderInset()
   const editMutation = useEditProfileMutation()
   const canPublish = !editMutation.isPending
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const yellow600 = useCSSVariable('--color-yellow-600') as string
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray600 = useCSSString('--color-gray-600')
+  const yellow600 = useCSSString('--color-yellow-600')
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
 
   const [form, setForm] = useState(() => {
     return {

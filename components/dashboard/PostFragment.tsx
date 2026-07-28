@@ -24,7 +24,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import InteractionMenu from '../interactions/InteractionMenu'
 import PostReactionList from '../posts/PostReactionList'
 import {
@@ -101,8 +101,8 @@ function PostFragmentInner({
   const cwOpen = layout.cwOpen ?? initialCWOpen
   const collapsed = layout.collapsed ?? false
 
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const yellow500 = useCSSVariable('--color-yellow-500') as string
+  const gray200 = useCSSString('--color-gray-200')
+  const yellow500 = useCSSString('--color-yellow-500')
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id

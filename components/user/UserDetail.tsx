@@ -30,11 +30,11 @@ import { useFollowMutation } from '@/lib/interaction'
 import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 export default function UserDetail({ user }: { user: User }) {
-  const gray400 = useCSSVariable('--color-gray-400') as string
+  const gray400 = useCSSString('--color-gray-400')
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const width = useContainerWidth()

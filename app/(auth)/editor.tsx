@@ -34,7 +34,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
 import { PostUser } from '@/lib/api/posts.types'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { Colors } from '@/constants/Colors'
 import AskCard from '@/components/posts/Ask'
 import PostingAsSelector from '@/components/editor/PostingAsSelector'
@@ -55,7 +55,7 @@ export default function EditorView() {
     replyLabel,
     privacySelectDisabled,
   } = useEditorData()
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [_mentions, setMentions] = useState<PostUser[]>([])

@@ -3,7 +3,7 @@ import { optionStyleDark } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const options = [
   {
@@ -35,7 +35,7 @@ const options = [
 
 export default function MutesAndBlock() {
   const headerInset = useHeaderInset()
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const gray200 = useCSSString('--color-gray-200')
   return (
     <View>
       <Header title="Mutes and Blocks" />

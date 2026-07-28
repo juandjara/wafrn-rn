@@ -19,7 +19,7 @@ import useDebounce from '@/lib/useDebounce'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
 import useAsyncStorage from '@/lib/useLocalStorage'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 
 const ucGroups = getUnicodeEmojiGroups()
@@ -43,7 +43,7 @@ export default function EmojiPicker({
   const debouncedSearch = useDebounce(search, 300)
   const sx = useSafeAreaPadding()
   const me = useParsedToken()
-  const gray400 = useCSSVariable('--color-gray-400') as string
+  const gray400 = useCSSString('--color-gray-400')
 
   const { value: recentEmojis, setValue: setRecentEmojis } = useAsyncStorage<
     Emoji[]

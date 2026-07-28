@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { KeyboardStickyView } from 'react-native-keyboard-controller'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 
@@ -37,7 +37,7 @@ export default function Prompt({
 }: PromptProps) {
   const [inputText, setInputText] = useState(inputProps?.defaultValue || '')
   const isPassword = inputProps?.secureTextEntry
-  const cyan200 = useCSSVariable('--color-cyan-200') as string
+  const cyan200 = useCSSString('--color-cyan-200')
   const sx = useSafeAreaPadding()
 
   function handleConfirm() {

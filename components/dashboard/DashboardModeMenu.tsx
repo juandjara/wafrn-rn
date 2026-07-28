@@ -8,7 +8,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { useSmallScreenCheck } from '@/lib/styles'
 import { clsx } from 'clsx'
 
@@ -52,9 +52,9 @@ export default function DashboardModeMenu({
     : `${env?.BASE_URL}/assets/logo_w.png`
 
   const isSmallScreen = useSmallScreenCheck()
-  const white = useCSSVariable('--color-white') as string
-  const gray400 = useCSSVariable('--color-gray-400') as string
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const white = useCSSString('--color-white')
+  const gray400 = useCSSString('--color-gray-400')
+  const gray600 = useCSSString('--color-gray-600')
   const baseStyles: ViewStyle = { paddingVertical: 6 }
   const borderStyles: ViewStyle = {
     paddingVertical: 6,

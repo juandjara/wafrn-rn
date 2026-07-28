@@ -4,7 +4,7 @@ import { useRewootMutation } from '@/lib/api/posts'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { ViewStyle } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { interactionIconCn } from '@/lib/styles'
 import WigglyPressable from '../WigglyPressable'
 
@@ -21,8 +21,8 @@ export default function RewootButton({
 }) {
   const context = useDashboardContext()
   const rewootMutation = useRewootMutation(post)
-  const green500 = useCSSVariable('--color-green-500') as string
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const green500 = useCSSString('--color-green-500')
+  const gray600 = useCSSString('--color-gray-600')
 
   const initialIsRewooted = !!context.rewootIds[post.id]
   const isRewooted = rewootMutation.isSuccess

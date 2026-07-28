@@ -19,7 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
@@ -34,8 +34,8 @@ export default function AccountSwitcherSettings() {
     removeAll,
   } = useAccounts()
   const [showLogin, setShowLogin] = useState(false)
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const indigo400 = useCSSVariable('--color-indigo-400') as string
+  const gray200 = useCSSString('--color-gray-200')
+  const indigo400 = useCSSString('--color-indigo-400')
 
   function onLoginComplete(token: string, instance: string) {
     setShowLogin(false)

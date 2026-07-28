@@ -14,7 +14,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { EmojiReaction } from '@/lib/api/emojis'
 import { clsx } from 'clsx'
 import {
@@ -40,7 +40,7 @@ export default function ReactionDetailsMenu({
     PrivateOptionNames.LongPressToReact,
   )
   const reactionName = typeof emoji !== 'string' && emoji.name
-  const gray900 = useCSSVariable('--color-gray-900') as string
+  const gray900 = useCSSString('--color-gray-900')
   const menuRef = useRef<Menu>(null)
   const renderItem = useCallback(
     ({ item: user }: { item: PostUser }) => (

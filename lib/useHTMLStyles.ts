@@ -1,23 +1,18 @@
-import { useCSSVariable } from 'uniwind'
+import { useCSSNumber, useCSSString } from '@/lib/cssVariables'
 import { htmlBlockStyles, htmlInlineStyles } from './api/html'
 import { useMemo } from 'react'
 import { useFontScale } from './styles'
 
 export default function useHTMLStyles() {
-  const gray400 = useCSSVariable('--color-gray-300') as string
-  const blue950 = useCSSVariable('--color-blue-950') as string
-  const cyan400 = useCSSVariable('--color-cyan-400') as string
-  const [xsLeading, baseLeading, headingLeading] = useCSSVariable([
+  const gray400 = useCSSString('--color-gray-300')
+  const blue950 = useCSSString('--color-blue-950')
+  const cyan400 = useCSSString('--color-cyan-400')
+  const [leadingXs, leadingBase, leadingHeading] = useCSSNumber([
     '--leading-xs',
     '--leading-base',
     '--leading-post-heading',
   ])
   const fontScale = useFontScale()
-
-  // Numbers on native, strings on web.
-  const leadingXs = Number(xsLeading)
-  const leadingBase = Number(baseLeading)
-  const leadingHeading = Number(headingLeading)
 
   return useMemo(() => {
     const blockStyles = htmlBlockStyles({

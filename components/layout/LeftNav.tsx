@@ -2,7 +2,7 @@ import { Link, usePathname } from 'expo-router'
 import { View, Text } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { NAV_WIDTH, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
@@ -68,11 +68,11 @@ export default function LeftNav() {
   const { env } = useAuth()
   const pathname = usePathname()
   const isSmallScreen = useSmallScreenCheck()
-  const blue950 = useCSSVariable('--color-blue-950') as string
-  const blue800 = useCSSVariable('--color-blue-800') as string
-  const indigo300 = useCSSVariable('--color-indigo-300') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const gray400 = useCSSVariable('--color-gray-400') as string
+  const blue950 = useCSSString('--color-blue-950')
+  const blue800 = useCSSString('--color-blue-800')
+  const indigo300 = useCSSString('--color-indigo-300')
+  const gray200 = useCSSString('--color-gray-200')
+  const gray400 = useCSSString('--color-gray-400')
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
 

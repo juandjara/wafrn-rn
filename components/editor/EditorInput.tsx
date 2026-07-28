@@ -13,7 +13,7 @@ import EditorSuggestions from './EditorSuggestions'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { EditorFormState } from '@/lib/editor'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -44,7 +44,7 @@ export default function EditorInput({
   disabled = false,
   onSelectionChange,
 }: EditorProps) {
-  const yellow500 = useCSSVariable('--color-yellow-500') as string
+  const yellow500 = useCSSString('--color-yellow-500')
   const { env } = useAuth()
   const tagsLine = formState.tags
   const parsedTags = tagsLine

@@ -35,12 +35,12 @@ import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
   const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
   const [showDetached, setShowDetached] = useState(false)
   const { data, fetchNextPage, hasNextPage, isFetching, refetch } =

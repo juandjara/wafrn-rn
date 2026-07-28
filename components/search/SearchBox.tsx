@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, TextInput, TouchableOpacity, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function SearchBox({
   query,
@@ -14,7 +14,7 @@ export default function SearchBox({
 }) {
   const sx = useSafeAreaPadding()
   const [searchTerm, setSearchTerm] = useState(query)
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
 
   return (
     <View

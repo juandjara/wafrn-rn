@@ -5,14 +5,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { Pressable, Text, TouchableOpacity, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function SearchIndex({
   onSearch,
 }: {
   onSearch: (term: string) => void
 }) {
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
   const [showTips, setShowTips] = useState(false)
   const {
     value: recent,

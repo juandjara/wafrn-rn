@@ -5,7 +5,7 @@ import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
 import { View, Text, Platform, useWindowDimensions } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { Extrapolation } from 'react-native-reanimated'
 import {
   type BottomTabBarButtonProps,
@@ -25,8 +25,8 @@ const ICON_SIZE = 28
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
-  const blue950 = useCSSVariable('--color-blue-950') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const blue950 = useCSSString('--color-blue-950')
+  const cyan600 = useCSSString('--color-cyan-600')
   const pathname = usePathname()
 
   // running this here to only register notifications after auth flow is complete
@@ -208,9 +208,9 @@ function TabButton({
   }) => React.ReactNode
 }) {
   const isSmallScreen = useSmallScreenCheck()
-  const indigo300 = useCSSVariable('--color-indigo-300') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const gray400 = useCSSVariable('--color-gray-400') as string
+  const indigo300 = useCSSString('--color-indigo-300')
+  const gray200 = useCSSString('--color-gray-200')
+  const gray400 = useCSSString('--color-gray-400')
   const notFocusedColor = isSmallScreen ? indigo300 : gray400
   const textColor = focused ? gray200 : notFocusedColor
 

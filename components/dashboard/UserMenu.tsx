@@ -10,7 +10,7 @@ import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 import WigglyPressable from '../WigglyPressable'
@@ -27,8 +27,8 @@ export default function UserMenu({ size }: { size?: number }) {
     return accounts.map((a, index) => ({ ...a, index }))
   }, [accounts])
 
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const blue900 = useCSSVariable('--color-blue-900') as string
+  const gray600 = useCSSString('--color-gray-600')
+  const blue900 = useCSSString('--color-blue-900')
   const { badge, menuOptions } = useMemo(() => {
     const options = [
       {

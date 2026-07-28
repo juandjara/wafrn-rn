@@ -22,7 +22,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { Link } from 'expo-router'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 type GifMediaFormat = {
@@ -73,7 +73,7 @@ export default function GifSearch({
   onClose: () => void
   onSelect: (gif: EditorImage) => void
 }) {
-  const gray500 = useCSSVariable('--color-gray-500') as string
+  const gray500 = useCSSString('--color-gray-500')
   const sx = useSafeAreaPadding()
   const { data: settings } = useSettings()
   const gifApiKey = getPrivateOptionValue(

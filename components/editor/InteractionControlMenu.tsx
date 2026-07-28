@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Pressable, Switch, Text, View } from 'react-native'
 import BottomSheet from '../BottomSheet'
 import { useState } from 'react'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { InteractionControl } from '@/lib/api/posts.types'
 import { useLocalSearchParams } from 'expo-router'
 import { EditorSearchParams } from '@/lib/editor'
@@ -30,10 +30,10 @@ export default function InteractionControlMenu({
   const { type } = useLocalSearchParams<EditorSearchParams>()
   const [open, setOpen] = useState(false)
 
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
   const disabled = type === 'edit' || type === 'reply'
 
   const [canQuote, setCanQuote] = useState(true)

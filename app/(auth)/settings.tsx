@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View, Platform } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
@@ -16,8 +16,8 @@ export default function Settings() {
   const { instance } = useAuth()
   const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
 
-  const red400 = useCSSVariable('--color-red-400') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const red400 = useCSSString('--color-red-400')
+  const gray200 = useCSSString('--color-gray-200')
 
   const options = useMemo(() => {
     const opts = [

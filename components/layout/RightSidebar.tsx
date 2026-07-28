@@ -3,14 +3,14 @@ import { router, usePathname } from 'expo-router'
 import SearchIndex from '@/components/search/SearchIndex'
 import { SIDEBAR_WIDTH } from '@/lib/styles'
 import { useState } from 'react'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import useAsyncStorage from '@/lib/useLocalStorage'
 
 const HISTORY_LIMIT = 20
 
 export default function RightSidebar() {
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
   const [searchTerm, setSearchTerm] = useState('')
   const pathname = usePathname()
 

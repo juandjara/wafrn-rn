@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function FollowedHashtags() {
   const headerInset = useHeaderInset()
@@ -22,7 +22,7 @@ export default function FollowedHashtags() {
   const followedHashtags = settings?.followedHashtags || []
   const mutation = useFollowTagMutation()
   const [newHashtag, setNewHashtag] = useState('')
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
 
   function removeTag(tag: string) {
     mutation.mutate({

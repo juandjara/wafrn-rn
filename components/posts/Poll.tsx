@@ -6,7 +6,7 @@ import { clsx } from 'clsx'
 import { router } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function Poll({
   poll,
@@ -18,7 +18,7 @@ export default function Poll({
   postId: string
 }) {
   const me = useParsedToken()
-  const blue500 = useCSSVariable('--color-blue-500') as string
+  const blue500 = useCSSString('--color-blue-500')
   const voteMutation = useVoteMutation(poll.id)
 
   const { totalVotes, haveIVoted, questionMap, sortedQuestions } =

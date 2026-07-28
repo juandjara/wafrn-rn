@@ -6,7 +6,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { startProfiling, stopProfiling } from 'react-native-release-profiler'
 
 export default function AdminIndex() {
@@ -14,7 +14,7 @@ export default function AdminIndex() {
   const isAdmin = useAdminCheck()
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const gray200 = useCSSString('--color-gray-200')
 
   const options = [
     {

@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { Image } from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { ScrollView } from 'react-native-gesture-handler'
@@ -31,7 +31,7 @@ export default function SignIn() {
   const [firstPassToken, setFirstPassToken] = useState('')
   const { token, setToken, env, envStatus, instance, setInstance } = useAuth()
   const { showToastError } = useToasts()
-  const placeholderColor = useCSSVariable('--color-gray-400') as string
+  const placeholderColor = useCSSString('--color-gray-400')
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
 

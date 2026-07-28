@@ -12,7 +12,7 @@ import { useToasts } from '@/lib/toasts'
 import Button from './Button'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -33,7 +33,7 @@ export default function ModalSignIn({
   const { showToastError } = useToasts()
 
   const textInputColor = Colors.dark.text
-  const placeholderColor = useCSSVariable('--color-gray-400') as string
+  const placeholderColor = useCSSString('--color-gray-400')
   const loginMfaMutation = useLoginMfaMutation(env)
   const loginMutation = useLoginMutation(env)
 

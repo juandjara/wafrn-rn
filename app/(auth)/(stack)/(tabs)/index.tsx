@@ -10,7 +10,7 @@ import Header, { useHeaderInset } from '@/components/Header'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useSmallScreenCheck } from '@/lib/styles'
 
@@ -27,7 +27,7 @@ export default function Index() {
   const pagerRef = useRef<PagerViewRef>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
   const bottomTabBarHeight = useBottomTabBarHeight()
-  const blue800 = useCSSVariable('--color-blue-800') as string
+  const blue800 = useCSSString('--color-blue-800')
   const isSmallScreen = useSmallScreenCheck()
 
   function _setMode(mode: PublicDashboardMode) {

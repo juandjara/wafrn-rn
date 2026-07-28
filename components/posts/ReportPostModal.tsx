@@ -21,7 +21,7 @@ import {
   View,
 } from 'react-native'
 import { KeyboardStickyView } from 'react-native-keyboard-controller'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ReportPostModal({
   open,
@@ -32,7 +32,7 @@ export default function ReportPostModal({
   onClose: () => void
   post: Post
 }) {
-  const cyan200 = useCSSVariable('--color-cyan-200') as string
+  const cyan200 = useCSSString('--color-cyan-200')
   const sx = useSafeAreaPadding()
   const [severity, setSeverity] = useState<ReportSeverity>(ReportSeverity.SPAM)
   const [description, setDescription] = useState('')

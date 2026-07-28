@@ -9,7 +9,7 @@ import Reanimated, {
 } from 'react-native-reanimated'
 import { Pressable, ViewStyle } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const ANIMATION_DURATION = 200
 
@@ -72,7 +72,7 @@ export function CornerButton({
   onClick: () => void
   buttonStyle: AnimatedStyle<ViewStyle>
 }) {
-  const blue800 = useCSSVariable('--color-blue-800') as string
+  const blue800 = useCSSString('--color-blue-800')
   return (
     <Reanimated.View
       style={[buttonStyle, { position: 'absolute', bottom: 12, right: 12 }]}

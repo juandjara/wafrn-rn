@@ -4,7 +4,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ServerList() {
   const sx = useSafeAreaPadding()
@@ -13,7 +13,7 @@ export default function ServerList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [query, setQuery] = useState('')
   const { data, refetch, isFetching } = useServerList(query)
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
 
   function search(term: string) {
     setQuery(term)

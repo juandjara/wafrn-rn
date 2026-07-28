@@ -15,12 +15,12 @@ import { formatUserUrl } from '@/lib/formatters'
 import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const indigo600 = useCSSVariable('--color-indigo-600') as string
+  const indigo600 = useCSSString('--color-indigo-600')
   const mutation = useFollowsParserMutation()
   const followAllMutation = useFollowAllMutation()
   const canFollowAll =

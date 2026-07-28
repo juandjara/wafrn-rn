@@ -35,7 +35,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
 
@@ -63,11 +63,11 @@ type FormState = {
 export default function Options() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray600 = useCSSString('--color-gray-600')
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
 
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()

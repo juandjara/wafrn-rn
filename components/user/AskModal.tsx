@@ -22,7 +22,7 @@ import { useAskMutation } from '@/lib/asks'
 import { clsx } from 'clsx'
 import { EmojiBase } from '@/lib/api/emojis'
 import TextWithEmojis from '../TextWithEmojis'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { KeyboardStickyView } from 'react-native-keyboard-controller'
 
 export default function AskModal({
@@ -32,11 +32,11 @@ export default function AskModal({
   user: User
   emojis: EmojiBase[]
 }) {
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
-  const cyan200 = useCSSVariable('--color-cyan-200') as string
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
+  const cyan200 = useCSSString('--color-cyan-200')
 
   const sx = useSafeAreaPadding()
   const askOptionValue = getPublicOptionValue(

@@ -22,7 +22,8 @@ import Video from '../Video'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { formatUserUrl } from '@/lib/formatters'
 import { EditorImage } from '@/lib/editor'
-import { useCSSVariable, useResolveClassNames } from 'uniwind'
+import { useResolveClassNames } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
@@ -54,11 +55,11 @@ export default function ImageList({
   const { width } = useWindowDimensions()
   const size = width - 24
 
-  const red700 = useCSSVariable('--color-red-700') as string
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const red700 = useCSSString('--color-red-700')
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
   const imageCn = useResolveClassNames('rounded-md border border-gray-500 m-2')
 
   if (!images.length) {

@@ -15,14 +15,14 @@ import {
   View,
 } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const bigW = require('@/assets/images/logo_w.png')
 
 export default function RecoverPassword() {
   const sx = useSafeAreaPadding()
   const color = Colors.dark.text
-  const placeholderColor = useCSSVariable('--color-gray-400') as string
+  const placeholderColor = useCSSString('--color-gray-400')
   const [email, setEmail] = useState('')
 
   const { origin } = useLocalSearchParams<{ origin: string }>()

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, TouchableOpacity, Share } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 import { router } from 'expo-router'
@@ -25,8 +25,8 @@ import SilenceButton from './SilenceButton'
 import ReportPostModal from '../posts/ReportPostModal'
 
 export default function InteractionMenu({ post }: { post: Post }) {
-  const gray300 = useCSSVariable('--color-gray-300') as string
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray300 = useCSSString('--color-gray-300')
+  const gray600 = useCSSString('--color-gray-600')
   const [modalOpen, setModalOpen] = useState<'emojis' | 'report' | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
 

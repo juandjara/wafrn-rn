@@ -17,7 +17,7 @@ import {
   MenuTrigger,
   renderers,
 } from 'react-native-popup-menu'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 type PrivacyModalProps = {
   className?: string
@@ -39,7 +39,7 @@ export default function PrivacySelect({
   invertMaxPrivacy = false,
 }: PrivacyModalProps) {
   const sx = useSafeAreaPadding()
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray600 = useCSSString('--color-gray-600')
 
   function isDisabled(p: PrivacyLevel) {
     if (!maxPrivacy) return false
