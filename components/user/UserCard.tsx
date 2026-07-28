@@ -48,7 +48,7 @@ export default function UserCard({
         style={[cn, { width: AVATAR_SIZE, height: AVATAR_SIZE }]}
       />
       <View id="user-name-and-url" className="flex-1">
-        <View className="flex-row gap-1 items-center mt-2 mr-7">
+        <View className="flex-row gap-1 items-center mt-1.5 mr-7">
           {user.name && (
             <View className="overflow-hidden shrink">
               <TextWithEmojis
