@@ -20,7 +20,7 @@ import { useCSSVariable } from 'uniwind'
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const indigo600 = useCSSVariable('--accent-indigo-600') as string
+  const indigo600 = useCSSVariable('--color-indigo-600') as string
   const mutation = useFollowsParserMutation()
   const followAllMutation = useFollowAllMutation()
   const canFollowAll =
