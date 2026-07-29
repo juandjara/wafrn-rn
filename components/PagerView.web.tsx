@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { StyleProp, View, ViewStyle } from 'react-native'
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 
 export type PagerViewRef = {
   setPage: (page: number) => void
@@ -23,6 +23,14 @@ type Props = {
   style?: StyleProp<ViewStyle>
   children?: ReactNode
 }
+
+/** Style for inactive pages so they keep their layout box
+ *  and the scroll offset inside them survives a page change
+ */
+const hiddenPageStyles = [
+  StyleSheet.absoluteFill,
+  { display: 'none' } satisfies ViewStyle,
+]
 
 const PagerView = forwardRef<PagerViewRef, Props>(function PagerView(
   { initialPage = 0, onPageSelected, onPageScroll, style, children },
@@ -53,10 +61,21 @@ const PagerView = forwardRef<PagerViewRef, Props>(function PagerView(
     onScrollRef.current?.(ev)
   }, [page])
 
-  const childArray = React.Children.toArray(children)
-  const active = childArray[page] ?? null
-
-  return <View style={style}>{active}</View>
+  return (
+    <View style={style}>
+      {React.Children.map(children, (child, index) => (
+        <View
+          style={index === page ? StyleSheet.absoluteFill : hiddenPageStyles}
+        >
+          {React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)
+            ? React.cloneElement(child, {
+                style: [child.props.style, StyleSheet.absoluteFill],
+              })
+            : child}
+        </View>
+      ))}
+    </View>
+  )
 })
 
 export default PagerView
