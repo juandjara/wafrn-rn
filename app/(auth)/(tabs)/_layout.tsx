@@ -207,12 +207,9 @@ function TabButton({
     focused: boolean
   }) => React.ReactNode
 }) {
-  const isSmallScreen = useSmallScreenCheck()
   const indigo300 = useCSSString('--color-indigo-300')
   const gray200 = useCSSString('--color-gray-200')
-  const gray400 = useCSSString('--color-gray-400')
-  const notFocusedColor = isSmallScreen ? indigo300 : gray400
-  const textColor = focused ? gray200 : notFocusedColor
+  const textColor = focused ? gray200 : indigo300
 
   return (
     <>
@@ -233,9 +230,6 @@ function TabButton({
         className="flex-1 gap-2"
       >
         {icon({ color: textColor, focused })}
-        {isSmallScreen ? null : (
-          <Text style={{ color: textColor }}>{props['aria-label']}</Text>
-        )}
       </WigglyPressable>
     </>
   )

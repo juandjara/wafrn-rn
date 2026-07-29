@@ -4,7 +4,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { useCSSString } from '@/lib/cssVariables'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { NAV_WIDTH, useSmallScreenCheck } from '@/lib/styles'
+import { NAV_WIDTH } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import UserMenu from '@/components/dashboard/UserMenu'
 import WigglyPressable from '@/components/WigglyPressable'
@@ -67,10 +67,8 @@ const NAV_ITEMS: NavItem[] = [
 export default function LeftNav() {
   const { env } = useAuth()
   const pathname = usePathname()
-  const isSmallScreen = useSmallScreenCheck()
   const blue950 = useCSSString('--color-blue-950')
   const blue800 = useCSSString('--color-blue-800')
-  const indigo300 = useCSSString('--color-indigo-300')
   const gray200 = useCSSString('--color-gray-200')
   const gray400 = useCSSString('--color-gray-400')
   const { data } = useNotificationBadges()
@@ -99,11 +97,7 @@ export default function LeftNav() {
         <View className="gap-1 px-3">
           {NAV_ITEMS.map((item) => {
             const focused = isFocused(item.href)
-            const textColor = focused
-              ? gray200
-              : isSmallScreen
-                ? indigo300
-                : gray400
+            const textColor = focused ? gray200 : gray400
             const badge = item.href === '/notifications' ? notificationCount : 0
             return (
               <Link key={item.href} href={item.href} asChild>
