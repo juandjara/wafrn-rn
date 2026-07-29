@@ -58,7 +58,7 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
     const url = formatEmojiUrl(emoji.uuid)
     text = text.replaceAll(
       `:${name}:`,
-      `<img data-emoji="${name}" width="24" height="24" src="${url}" alt="${name}" />`,
+      `<img data-emoji="${name}" src="${url}" alt="${name}" />`,
     )
   }
   return text
