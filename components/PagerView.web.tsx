@@ -24,9 +24,7 @@ type Props = {
   children?: ReactNode
 }
 
-/** Style for inactive pages so they keep their layout box
- *  and the scroll offset inside them survives a page change
- */
+/** Style for inactive pages, still rendered so they keep their scroll state */
 const hiddenPageStyles = [
   StyleSheet.absoluteFill,
   { display: 'none' } satisfies ViewStyle,
