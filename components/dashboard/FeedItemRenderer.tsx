@@ -6,14 +6,19 @@ import ReplyRibbon from '../ribbons/ReplyRibbon'
 import { Link } from 'expo-router'
 import PostFragment from './PostFragment'
 import InteractionRibbon from '../posts/InteractionRibbon'
+import { useSmallScreenCheck } from '@/lib/styles'
+import { clsx } from 'clsx'
 
-function _FeedItemRenderer({ item }: { item: FeedItem }) {
+function FeedItemRenderer_({ item }: { item: FeedItem }) {
+  const isSmallScreen = useSmallScreenCheck()
+  const roundedCN = isSmallScreen ? '' : 'rounded-t-lg'
+
   if (item.type === 'rewoot-ribbon') {
     return (
       <RewootRibbon
         user={item.user}
         emojis={item.emojis}
-        className="border-b border-slate-600 rounded-t-lg"
+        className={clsx(roundedCN, 'border-b border-slate-600')}
       />
     )
   }
@@ -23,7 +28,7 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
         postId={item.threadId}
         user={item.user}
         emojis={item.emojis}
-        className="border-b border-slate-600 rounded-t-lg"
+        className={clsx(roundedCN, 'border-b border-slate-600')}
       />
     )
   }
@@ -37,7 +42,7 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
     )
   }
   if (item.type === 'post') {
-    const className = item.border ? 'border-slate-600 border-t' : 'rounded-t-lg'
+    const className = item.border ? 'border-slate-600 border-t' : roundedCN
     return <PostFragment post={item.post} className={className} />
   }
   if (item.type === 'interaction-ribbon') {
@@ -50,5 +55,5 @@ function _FeedItemRenderer({ item }: { item: FeedItem }) {
   return null
 }
 
-const FeedItemRenderer = memo(_FeedItemRenderer)
+const FeedItemRenderer = memo(FeedItemRenderer_)
 export default FeedItemRenderer
