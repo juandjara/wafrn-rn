@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Pressable,
   Text,
-  useWindowDimensions,
   View,
   ScrollView,
   Keyboard,
@@ -42,6 +41,7 @@ import {
   KeyboardToolbar,
 } from 'react-native-keyboard-controller'
 import { InteractionControl } from '@/lib/api/posts.types'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 type FormState = {
   name: string
@@ -52,7 +52,7 @@ export default function EditProfile() {
   const sx = useSafeAreaPadding()
   const { data: me } = useCurrentUser()
   const { data: settings } = useSettings()
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const headerImageHeight = width / 2
 
   const animatedRef = useAnimatedRef<ScrollView>()
