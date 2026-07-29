@@ -87,7 +87,12 @@ export default function DashboardModeMenu({
         </>
       ) : null}
 
-      <View className="flex-row gap-2 items-center rounded-full md:rounded-lg bg-slate-800 px-2 md:-mx-2">
+      <View
+        className={clsx(
+          'flex-row gap-2 items-center bg-slate-800 px-2',
+          isSmallScreen ? 'rounded-full' : 'rounded-lg -mx-2',
+        )}
+      >
         {MODES.map((m, i) => (
           <TouchableOpacity
             key={m}
