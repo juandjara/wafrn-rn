@@ -26,7 +26,6 @@ export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
   const blue950 = useCSSString('--color-blue-950')
-  const cyan600 = useCSSString('--color-cyan-600')
   const pathname = usePathname()
 
   // running this here to only register notifications after auth flow is complete
@@ -126,11 +125,6 @@ export default function TabsLayout() {
         name="notifications"
         options={{
           tabBarAccessibilityLabel: 'Notifications',
-          tabBarBadge: notificationCount || undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: cyan600,
-            color: 'white',
-          },
           tabBarButton: (props) => (
             <TabButton
               {...props}
