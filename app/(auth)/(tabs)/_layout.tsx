@@ -13,7 +13,7 @@ import {
 } from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
-import { useSmallScreenCheck } from '@/lib/styles'
+import { useShowBottomBar } from '@/lib/styles'
 import { rootStyles } from '@/constants/Colors'
 
 export const unstable_settings = {
@@ -35,13 +35,10 @@ export default function TabsLayout() {
   useShareIntentHandler()
 
   const { height } = useWindowDimensions()
-  const isSmallScreen = useSmallScreenCheck()
+  const showBottomBar = useShowBottomBar()
   const isWeb = Platform.OS === 'web'
 
-  // On mobile the Tabs navigator renders a bottom bar. On desktop the persistent
-  // left nav is owned by the WebShell (LeftNav), so the Tabs navigator renders no
-  // visible bar of its own.
-  const tabBaProps: BottomTabNavigationOptions = isSmallScreen
+  const tabBaProps: BottomTabNavigationOptions = showBottomBar
     ? {
         tabBarPosition: 'bottom',
         tabBarStyle: {

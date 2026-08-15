@@ -31,7 +31,7 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useBottomBarHeight } from '@/lib/styles'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -41,7 +41,8 @@ export default function NotificationList() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
   const gray300 = useCSSString('--color-gray-300')
-  const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
+  const bottomBarHeight = useBottomBarHeight()
+  const bottomPadding = sx.paddingBottom + bottomBarHeight
   const [showDetached, setShowDetached] = useState(false)
   const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
     useNotifications(showDetached)

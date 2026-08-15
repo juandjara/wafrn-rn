@@ -1,5 +1,5 @@
 import Loading from '@/components/Loading'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useBottomBarHeight } from '@/lib/styles'
 import useAsyncStorage from '@/lib/useLocalStorage'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
@@ -13,6 +13,7 @@ export default function SearchIndex({
   onSearch: (term: string) => void
 }) {
   const gray300 = useCSSString('--color-gray-300')
+  const bottomBarHeight = useBottomBarHeight()
   const [showTips, setShowTips] = useState(false)
   const {
     value: recent,
@@ -32,7 +33,7 @@ export default function SearchIndex({
     <KeyboardAwareScrollView
       keyboardShouldPersistTaps="always"
       contentContainerStyle={{
-        paddingBottom: BOTTOM_BAR_HEIGHT,
+        paddingBottom: bottomBarHeight,
       }}
     >
       <View id="search-tips" className="mb-4 p-3">

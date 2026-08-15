@@ -4,7 +4,7 @@ import { FlashList, FlashListRef } from '@shopify/flash-list'
 import { forwardRef, useMemo, useRef } from 'react'
 import { Text, View, ScrollViewProps, ScrollView } from 'react-native'
 import UserCard from '../user/UserCard'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useBottomBarHeight } from '@/lib/styles'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
@@ -13,6 +13,7 @@ const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
 RenderScrollComponent.displayName = 'RenderScrollComponent'
 
 export default function SearchResultsUsers({ query }: { query: string }) {
+  const bottomBarHeight = useBottomBarHeight()
   const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
     useSearch(query)
 
@@ -49,7 +50,7 @@ export default function SearchResultsUsers({ query }: { query: string }) {
       onRefresh={refresh}
       data={users}
       contentContainerStyle={{
-        paddingBottom: BOTTOM_BAR_HEIGHT,
+        paddingBottom: bottomBarHeight,
       }}
       onEndReachedThreshold={2}
       keyExtractor={(item) => item.user.id}

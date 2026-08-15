@@ -54,6 +54,20 @@ export function useShowSidebar() {
 }
 
 /**
+ * Whether the bottom tab bar is rendered. Only the web shell replaces it with a left nav,
+ * so a wide native screen keeps the bar rather than being left with no navigation at all.
+ */
+export function useShowBottomBar() {
+  const isSmallScreen = useSmallScreenCheck()
+  return Platform.OS !== 'web' || isSmallScreen
+}
+
+/** Space the bottom tab bar occupies, or zero on the screens where it is not rendered. */
+export function useBottomBarHeight() {
+  return useShowBottomBar() ? BOTTOM_BAR_HEIGHT : 0
+}
+
+/**
  * Accesibility font size multiplier, clamped to MAX_FONT_SCALE.
  * Size anything that has to grow alongside text from this,
  */

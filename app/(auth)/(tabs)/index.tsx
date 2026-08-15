@@ -7,12 +7,11 @@ import DashboardModeMenu, {
 import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
 import Header, { useHeaderInset } from '@/components/Header'
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useCSSString } from '@/lib/cssVariables'
 import WigglyPressable from '@/components/WigglyPressable'
-import { useSmallScreenCheck } from '@/lib/styles'
+import { useBottomBarHeight, useSmallScreenCheck } from '@/lib/styles'
 
 const FEED_HEADER_HEIGHT = 60
 
@@ -26,7 +25,7 @@ export default function Index() {
   const headerInset = useHeaderInset(FEED_HEADER_HEIGHT)
   const pagerRef = useRef<PagerViewRef>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
-  const bottomTabBarHeight = useBottomTabBarHeight()
+  const bottomTabBarHeight = useBottomBarHeight()
   const blue800 = useCSSString('--color-blue-800')
   const isSmallScreen = useSmallScreenCheck()
 
