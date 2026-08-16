@@ -51,11 +51,9 @@ export default function UserDetail({ user }: { user: User }) {
         user?.id!,
       )
       const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
+      const followedSet = new Set(settings?.followedUsers)
       const commonFollows = followers
-        ? followers.filter(
-            (f) =>
-              f.id !== me?.userId && settings?.followedUsers.includes(f.id),
-          )
+        ? followers.filter((f) => f.id !== me?.userId && followedSet.has(f.id))
         : []
       return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
     }, [user, me?.userId, settings, myFollowers, followers])
