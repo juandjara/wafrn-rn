@@ -59,6 +59,11 @@ function BottomSheetContent({
   }))
 
   const panGesture = Gesture.Pan()
+    // Constrain to the vertical axis, or a sideways swipe on a horizontal scrollable
+    // activates the drag instead of scrolling it. Does not help a *vertical* scrollable —
+    // that needs the scroll offset, which this component cannot get from arbitrary children.
+    .activeOffsetY([-10, 10])
+    .failOffsetX([-10, 10])
     .onChange((ev) => {
       const newPos = position.value + ev.changeY
       position.value = clamp(newPos, height - size.value, height)
