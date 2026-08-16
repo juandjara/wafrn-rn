@@ -234,9 +234,12 @@ export default function EditorCanvas({
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
+              accessibilityLabel="Pen color"
               onPress={() => setColorPickerOpen('foreground')}
             />
             <Pressable
+              accessibilityLabel="Draw"
+              accessibilityState={{ selected: mode === EditModes.COLOR }}
               onPress={() => setMode(EditModes.COLOR)}
               className={clsx(
                 'p-2 rounded-full',
@@ -252,6 +255,8 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Erase"
+              accessibilityState={{ selected: mode === EditModes.ERASER }}
               onPress={() => setMode(EditModes.ERASER)}
               className={clsx(
                 'p-2 rounded-full',
@@ -267,6 +272,7 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Background color"
               onPress={() => setColorPickerOpen('background')}
               style={{ backgroundColor }}
               className="p-2 rounded-full"
@@ -278,6 +284,7 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Undo"
               onPress={undo}
               className="p-2 rounded-full active:bg-white/50 bg-white/15"
             >
@@ -286,6 +293,7 @@ export default function EditorCanvas({
             <View className="grow"></View>
             <Pressable
               className="bg-red-800 active:bg-red-700 p-2 my-2 rounded-md flex-row items-center gap-2"
+              accessibilityLabel="Cancel"
               onPress={() => setOpen(false)}
             >
               <MaterialCommunityIcons name="close" color="white" size={20} />

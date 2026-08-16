@@ -118,6 +118,7 @@ function ImageGalleryContent({
         >
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
+            accessibilityLabel="Reload image"
             disabled={reloadImageMutation.isPending}
             onPress={reloadImage}
           >
@@ -129,6 +130,8 @@ function ImageGalleryContent({
           </Pressable>
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
+            accessibilityLabel="Download image"
+            disabled={downloadMutation.isPending}
             onPress={() => download(media)}
           >
             {downloadMutation.isPending ? (
@@ -139,6 +142,7 @@ function ImageGalleryContent({
           </Pressable>
           <Pressable
             className="p-2 rounded-full active:bg-white/20"
+            accessibilityLabel="Close"
             onPress={onClose}
           >
             <MaterialIcons name="close" size={24} color="white" />

@@ -57,6 +57,7 @@ export default function RightSidebar() {
         />
         <TouchableOpacity
           className="absolute top-0.5 right-0.5 z-10 p-2 rounded-full"
+          accessibilityLabel="Clear search"
           onPress={() => setSearchTerm('')}
         >
           <MaterialCommunityIcons

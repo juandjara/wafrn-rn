@@ -95,6 +95,7 @@ export default function AskModal({
                 </Text>
                 <Pressable
                   className="shrink-0 active:bg-white/10 rounded-full p-2"
+                  accessibilityLabel="Close"
                   onPress={() => setOpen(false)}
                 >
                   <MaterialCommunityIcons

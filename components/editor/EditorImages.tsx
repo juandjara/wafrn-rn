@@ -102,6 +102,7 @@ export default function ImageList({
             <View className="flex-row items-center pb-3">
               <Pressable
                 className="p-1 bg-white/10 rounded-full mr-3"
+                accessibilityLabel="Go back"
                 onPress={() => setOpenIndex(null)}
               >
                 <MaterialIcons
@@ -211,6 +212,7 @@ export default function ImageList({
                   'absolute top-0 right-0 bg-white rounded-full p-1',
                   { 'opacity-0': isLoading(img) },
                 )}
+                accessibilityLabel="Remove image"
                 onPress={() => removeImage(index)}
               >
                 <MaterialIcons name="close" color="black" size={20} />

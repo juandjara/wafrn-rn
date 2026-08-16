@@ -68,7 +68,10 @@ export default function Index() {
       {isSmallScreen ? (
         <View key="editor-link" className="absolute bottom-4 right-3 z-20">
           <Link href="/editor" asChild>
-            <WigglyPressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
+            <WigglyPressable
+              accessibilityLabel="Woot!"
+              className="p-4 rounded-full bg-white shadow shadow-blue-800"
+            >
               <MaterialIcons name="mode-edit" size={24} color={blue800} />
             </WigglyPressable>
           </Link>

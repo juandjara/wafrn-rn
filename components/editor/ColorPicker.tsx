@@ -33,7 +33,10 @@ const COLORS = [
 const INTENSITIES = [
   50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
 ] as const
-const EXTRA_COLORS = ['#FFFFFF', '#000000']
+const EXTRA_COLORS = [
+  { value: '#FFFFFF', label: 'White' },
+  { value: '#000000', label: 'Black' },
+]
 
 export default function ColorPicker({
   open,
@@ -97,13 +100,14 @@ export default function ColorPicker({
             keyboardShouldPersistTaps="always"
             horizontal
           >
-            {EXTRA_COLORS.map((color) => (
+            {EXTRA_COLORS.map(({ value, label }) => (
               <Pressable
-                key={color}
-                style={{ backgroundColor: color }}
+                key={value}
+                style={{ backgroundColor: value }}
                 className={`p-2 rounded-full`}
+                accessibilityLabel={label}
                 onPress={() => {
-                  onSelect(color)
+                  onSelect(value)
                   onClose()
                 }}
               >
@@ -117,6 +121,7 @@ export default function ColorPicker({
             {COLORS.map((color) => (
               <Pressable
                 key={color}
+                accessibilityLabel={color}
                 onPress={() => {
                   onSelect(getColor(color, intensity))
                   onClose()

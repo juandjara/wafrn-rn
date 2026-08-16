@@ -52,6 +52,7 @@ export default function Header({
       {left ?? (
         <Pressable
           className="bg-black/30 rounded-full p-2"
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
         >
           <MaterialCommunityIcons name="arrow-left" size={20} color="white" />

@@ -152,7 +152,11 @@ export default function GifSearch({
             enterKeyHint="search"
             readOnly={!gifApiKey}
           />
-          <Pressable onPress={onClose} className="p-2">
+          <Pressable
+            accessibilityLabel="Close"
+            onPress={onClose}
+            className="p-2"
+          >
             <MaterialIcons name="close" size={24} color="white" />
           </Pressable>
         </View>

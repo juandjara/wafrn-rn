@@ -75,6 +75,7 @@ export default function NotificationList() {
 
   const cornerButton = (
     <Pressable
+      accessibilityLabel={`Unauthorized notifications: ${showDetached ? 'shown' : 'hidden'}`}
       onPress={toggleDetached}
       className="p-1.5 rounded-full active:bg-gray-300/30"
     >

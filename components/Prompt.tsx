@@ -75,7 +75,11 @@ export default function Prompt({
                 <Text className="text-gray-300 text-sm mt-1">{message}</Text>
               )}
             </View>
-            <Pressable className="shrink-0" onPress={handleClose}>
+            <Pressable
+              className="shrink-0"
+              accessibilityLabel="Close"
+              onPress={handleClose}
+            >
               <MaterialCommunityIcons name="close" size={24} color="white" />
             </Pressable>
           </View>

@@ -78,7 +78,11 @@ export default function ReportPostModal({
             <View className="flex-row flex-wrap grow shrink">
               <Text className="text-white text-lg">Report post</Text>
             </View>
-            <Pressable className="shrink-0" onPress={onClose}>
+            <Pressable
+              className="shrink-0"
+              accessibilityLabel="Close"
+              onPress={onClose}
+            >
               <MaterialCommunityIcons name="close" size={24} color="white" />
             </Pressable>
           </View>
