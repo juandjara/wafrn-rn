@@ -6,18 +6,12 @@ import {
   PRIVACY_ORDER,
   PrivacyLevel,
 } from '@/lib/api/privacy'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { Keyboard, Text, TouchableHighlight, View } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import { useState } from 'react'
+import { Keyboard, Pressable, Text, View } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
+import BottomSheet from './BottomSheet'
 
 type PrivacyModalProps = {
   className?: string
@@ -38,7 +32,7 @@ export default function PrivacySelect({
   disabled = false,
   invertMaxPrivacy = false,
 }: PrivacyModalProps) {
-  const sx = useSafeAreaPadding()
+  const [open, setOpen] = useState(false)
   const gray600 = useCSSString('--color-gray-600')
 
   function isDisabled(p: PrivacyLevel) {
@@ -49,57 +43,45 @@ export default function PrivacySelect({
     return isLessPrivateThan(p, maxPrivacy)
   }
 
+  function select(p: PrivacyLevel) {
+    setPrivacy(p)
+    setOpen(false)
+  }
+
   return (
-    <Menu renderer={renderers.SlideInMenu}>
-      <MenuTrigger
-        customStyles={{ TriggerTouchableComponent: TouchableHighlight }}
+    <>
+      <Pressable
+        className={clsx(
+          'flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600 active:bg-gray-500/20',
+          {
+            'opacity-50 pointer-events-none': disabled,
+          },
+          className,
+        )}
+        accessibilityLabel={`Posting mode: ${PRIVACY_LABELS[privacy]}`}
         onPress={() => {
           Keyboard.dismiss()
+          setOpen(true)
         }}
       >
-        <View
-          className={clsx(
-            'flex-row items-center gap-1 rounded-xl pl-2 p-1 border border-gray-600',
-            {
-              'opacity-50 pointer-events-none': disabled,
-            },
-            className,
-          )}
-        >
-          <MaterialCommunityIcons
-            name={PRIVACY_ICONS[privacy]}
-            color="white"
-            size={20}
-          />
-          <Text
-            numberOfLines={1}
-            className="text-white text-sm px-1 grow shrink"
-          >
-            {PRIVACY_LABELS[privacy]}
-          </Text>
-          <MaterialCommunityIcons
-            name="chevron-down"
-            color={gray600}
-            size={20}
-          />
-        </View>
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          OptionTouchableComponent: TouchableHighlight,
-          optionsContainer: {
-            paddingBottom: sx.paddingBottom,
-            borderRadius: 16,
-          },
-        }}
-      >
+        <MaterialCommunityIcons
+          name={PRIVACY_ICONS[privacy]}
+          color="white"
+          size={20}
+        />
+        <Text numberOfLines={1} className="text-white text-sm px-1 grow shrink">
+          {PRIVACY_LABELS[privacy]}
+        </Text>
+        <MaterialCommunityIcons name="chevron-down" color={gray600} size={20} />
+      </Pressable>
+      <BottomSheet initialFullHeight open={open} setOpen={setOpen}>
         <Text className="p-4 text-lg font-medium">Select posting mode</Text>
         {options.map((p) => (
-          <MenuOption
-            disabled={isDisabled(p)}
+          <Pressable
             key={p}
-            onSelect={() => setPrivacy(p)}
-            style={{ padding: 0 }}
+            disabled={isDisabled(p)}
+            onPress={() => select(p)}
+            className="active:bg-gray-200"
           >
             <View
               className={clsx('p-4 flex-row gap-4', {
@@ -120,9 +102,9 @@ export default function PrivacySelect({
                 <Ionicons name="checkmark" color="black" size={24} />
               )}
             </View>
-          </MenuOption>
+          </Pressable>
         ))}
-      </MenuOptions>
-    </Menu>
+      </BottomSheet>
+    </>
   )
 }

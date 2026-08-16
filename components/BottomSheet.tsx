@@ -33,10 +33,12 @@ function BottomSheetContent({
   children,
   onClose,
   className,
+  initialFullHeight,
 }: {
   children: React.ReactNode
   onClose: () => void
   className?: string
+  initialFullHeight: boolean
 }) {
   const sx = useSafeAreaPadding()
   const { width: windowWidth, height } = useWindowDimensions()
@@ -59,9 +61,6 @@ function BottomSheetContent({
   }))
 
   const panGesture = Gesture.Pan()
-    // Constrain to the vertical axis, or a sideways swipe on a horizontal scrollable
-    // activates the drag instead of scrolling it. Does not help a *vertical* scrollable —
-    // that needs the scroll offset, which this component cannot get from arbitrary children.
     .activeOffsetY([-10, 10])
     .failOffsetX([-10, 10])
     .onChange((ev) => {
@@ -81,9 +80,12 @@ function BottomSheetContent({
   function onLayout(ev: LayoutChangeEvent) {
     const contentHeight = ev.nativeEvent.layout.height
     size.value = contentHeight
-    position.value = withTiming(height - Math.min(contentHeight, maxHeight), {
-      duration: 300,
-    })
+    position.value = withTiming(
+      height - Math.min(contentHeight, initialFullHeight ? height : maxHeight),
+      {
+        duration: 300,
+      },
+    )
   }
 
   if (Platform.OS === 'web') {
@@ -100,7 +102,7 @@ function BottomSheetContent({
             ...StyleSheet.absoluteFill,
             top: 'auto',
             marginHorizontal: 'auto',
-            maxHeight: '50%',
+            maxHeight: initialFullHeight ? undefined : '50%',
           }}
         >
           <Animated.View
@@ -156,15 +158,21 @@ export default function BottomSheet({
   setOpen,
   children,
   className,
+  initialFullHeight = false,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   children: React.ReactNode
   className?: string
+  initialFullHeight?: boolean
 }) {
   return (
     <Modal transparent visible={open} onRequestClose={() => setOpen(false)}>
-      <BottomSheetContent className={className} onClose={() => setOpen(false)}>
+      <BottomSheetContent
+        initialFullHeight={initialFullHeight}
+        className={className}
+        onClose={() => setOpen(false)}
+      >
         {children}
       </BottomSheetContent>
     </Modal>
