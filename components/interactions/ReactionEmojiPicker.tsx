@@ -40,6 +40,7 @@ export default function ReactionEmojiPicker({
 
   return (
     <EmojiPicker
+      title="React with an emoji"
       onClose={() => onClose(false)}
       onPick={onPickEmoji}
       reactions={extendedReactions}

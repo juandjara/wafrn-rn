@@ -31,10 +31,12 @@ const RECENT_EMOJI_LIMIT = 7
 const EMPTY_ARRAY = [] as never[]
 
 export default function EmojiPicker({
+  title,
   onPick,
   onClose,
   reactions = EMPTY_ARRAY,
 }: {
+  title: string
   onPick: (emoji: Emoji) => void
   onClose: () => void
   reactions?: EmojiGroup[]
@@ -158,9 +160,7 @@ export default function EmojiPicker({
             style={{ height, maxWidth: width, paddingBottom: sx.paddingBottom }}
           >
             <View className="p-4 flex-row items-center justify-between">
-              <Text className="text-white text-lg font-medium">
-                React with an emoji
-              </Text>
+              <Text className="text-white text-lg font-medium">{title}</Text>
               <Pressable accessibilityLabel="Close" onPress={onClose}>
                 <MaterialCommunityIcons
                   name="close"
