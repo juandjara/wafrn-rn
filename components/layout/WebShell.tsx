@@ -11,8 +11,8 @@ import RightSidebar from './RightSidebar'
 
 export default function WebShell({ children }: { children: React.ReactNode }) {
   const isSmallScreen = useSmallScreenCheck()
-  const showSidebar = useShowSidebar()
   const isWeb = Platform.OS === 'web'
+  const showSidebar = useShowSidebar() && isWeb
   const showNav = isWeb && !isSmallScreen
 
   if (!showNav) {

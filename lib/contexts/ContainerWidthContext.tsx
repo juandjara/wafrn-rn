@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react'
-import { useWindowDimensions, View, ViewProps } from 'react-native'
+import { View, ViewProps } from 'react-native'
+import { useWindowWidth } from '@/lib/styles'
 
 const ContainerWidthContext = createContext<number | null>(null)
 
@@ -15,7 +16,7 @@ const ContainerWidthContext = createContext<number | null>(null)
  */
 export function useContainerWidth() {
   const declared = useContext(ContainerWidthContext)
-  const { width } = useWindowDimensions()
+  const width = useWindowWidth()
   return declared ?? width
 }
 

@@ -54,14 +54,17 @@ Dimensions.addEventListener('change', ({ window }) => {
   windowAtom.set(window)
 })
 
-export function useSmallScreenCheck() {
+export function useWindowWidth() {
   const { width } = useAtom(windowAtom)
-  return width < SMALL_BREAKPOINT
+  return width
+}
+
+export function useSmallScreenCheck() {
+  return useWindowWidth() < SMALL_BREAKPOINT
 }
 
 export function useShowSidebar() {
-  const { width } = useAtom(windowAtom)
-  return Platform.OS === 'web' && width >= SHELL_FULL_WIDTH
+  return useWindowWidth() >= SHELL_FULL_WIDTH
 }
 
 /**
