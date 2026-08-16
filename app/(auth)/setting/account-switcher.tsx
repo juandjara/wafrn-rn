@@ -6,6 +6,7 @@ import TextWithEmojis from '@/components/TextWithEmojis'
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { CONTENT_MAX_WIDTH } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
@@ -153,8 +154,13 @@ export default function AccountSwitcherSettings() {
             className="bg-black/50 flex-1 max-h-40"
             onPress={() => setShowLogin(false)}
           />
-          <View className="flex-1">
-            <ModalSignIn onLoginComplete={onLoginComplete} />
+          <View className="flex-1 bg-black/50">
+            <View
+              className="flex-1 w-full"
+              style={{ maxWidth: CONTENT_MAX_WIDTH, marginHorizontal: 'auto' }}
+            >
+              <ModalSignIn onLoginComplete={onLoginComplete} />
+            </View>
           </View>
         </Modal>
       </View>
