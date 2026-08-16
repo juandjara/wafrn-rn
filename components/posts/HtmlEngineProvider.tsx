@@ -65,34 +65,56 @@ function PRERenderer({
 
 const BASE_FONT_SIZE = 16
 
+type IMGProps = ReturnType<typeof useIMGElementProps>
+
+function AspectIMG({
+  imgProps,
+  aspect,
+}: {
+  imgProps: IMGProps
+  aspect: number
+}) {
+  const contentWidth = useContentWidth()
+  const width = contentWidth - 12
+  return <IMGElement {...imgProps} width={width} height={width * aspect} />
+}
+
+function EmojiIMG({
+  imgProps,
+  fontSize,
+}: {
+  imgProps: IMGProps
+  fontSize: number
+}) {
+  const { height, baselineOffset } = useTextMetrics(fontSize)
+  return (
+    <IMGElement
+      {...imgProps}
+      width={height}
+      height={height}
+      style={[imgProps.style, { transform: [{ translateY: baselineOffset }] }]}
+    />
+  )
+}
+
 // image props are received here as `TText` because `img` is set to `HTMLContentModel.mixed` above
 function IMGRenderer(props: CustomRendererProps<TText | TPhrasing>) {
   // but the library types use `TBlock` regardless
   const imgProps = useIMGElementProps(
     props as unknown as InternalRendererProps<TBlock>,
   )
-  const contentWidth = useContentWidth()
-  const fontSize = props.style?.fontSize ?? BASE_FONT_SIZE
-  const { height, baselineOffset } = useTextMetrics(fontSize)
+
+  // we use different image components so they can use different hooks and subscriptions
+  // to optimize performance since there are many instances of this component rendered
+  if (props.tnode.attributes['data-emoji']) {
+    const fontSize = props.style?.fontSize ?? BASE_FONT_SIZE
+    return <EmojiIMG imgProps={imgProps} fontSize={fontSize} />
+  }
+
   const aspect = Number(props.tnode.attributes['data-aspect'])
 
   if (aspect > 0) {
-    const width = contentWidth - 12
-    return <IMGElement {...imgProps} width={width} height={width * aspect} />
-  }
-
-  if (props.tnode.attributes['data-emoji']) {
-    return (
-      <IMGElement
-        {...imgProps}
-        width={height}
-        height={height}
-        style={[
-          imgProps.style,
-          { transform: [{ translateY: baselineOffset }] },
-        ]}
-      />
-    )
+    return <AspectIMG imgProps={imgProps} aspect={aspect} />
   }
 
   return <IMGElement {...imgProps} />

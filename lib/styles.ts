@@ -1,4 +1,6 @@
-import { Platform, useWindowDimensions } from 'react-native'
+import { Dimensions, Platform } from 'react-native'
+import { createAtom } from '@xstate/store'
+import { useAtom } from '@xstate/store/react'
 
 // Max font size multiplier according to WCAG
 export const MAX_FONT_SCALE = 2
@@ -43,13 +45,22 @@ export const optionStyleDark = (i: number) => ({
 export const interactionIconCn =
   'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'
 
+/** perfomance improvement:
+ * single event listener for the whole app so per-item consumers (emojis, feed item)
+ * dont'each register an event listener the way `useWindowDimensions` does.
+ */
+const windowAtom = createAtom(Dimensions.get('window'))
+Dimensions.addEventListener('change', ({ window }) => {
+  windowAtom.set(window)
+})
+
 export function useSmallScreenCheck() {
-  const { width } = useWindowDimensions()
+  const { width } = useAtom(windowAtom)
   return width < SMALL_BREAKPOINT
 }
 
 export function useShowSidebar() {
-  const { width } = useWindowDimensions()
+  const { width } = useAtom(windowAtom)
   return Platform.OS === 'web' && width >= SHELL_FULL_WIDTH
 }
 
@@ -72,6 +83,10 @@ export function useBottomBarHeight() {
  * Size anything that has to grow alongside text from this,
  */
 export function useFontScale() {
-  const { fontScale } = useWindowDimensions()
+  const { fontScale } = useAtom(windowAtom)
   return Math.min(fontScale, MAX_FONT_SCALE)
+}
+
+export function getFontScale() {
+  return Math.min(Dimensions.get('window').fontScale, MAX_FONT_SCALE)
 }

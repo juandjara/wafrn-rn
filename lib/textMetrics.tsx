@@ -1,7 +1,7 @@
 import { createAtom } from '@xstate/store'
 import { useAtom } from '@xstate/store/react'
 import { Text, TextLayoutEvent } from 'react-native'
-import { MAX_FONT_SCALE, useFontScale } from './styles'
+import { getFontScale, MAX_FONT_SCALE } from './styles'
 
 type TextMetrics = {
   /** ascender + descender at PROBE_FONT_SIZE, already device-scaled. */
@@ -65,9 +65,9 @@ export function DeviceTextMetricsProbe() {
  */
 export function useTextMetrics(fontSize: number) {
   const measured = useAtom(textMetricsAtom)
-  const fontScale = useFontScale()
 
   if (!measured) {
+    const fontScale = getFontScale()
     return {
       height: fontSize * FALLBACK_HEIGHT * fontScale,
       baselineOffset: fontSize * FALLBACK_DESCENDER * fontScale,
