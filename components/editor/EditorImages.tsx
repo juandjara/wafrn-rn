@@ -26,7 +26,7 @@ import { useResolveClassNames } from 'uniwind'
 import { useCSSString } from '@/lib/cssVariables'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT, CONTENT_MAX_WIDTH } from '@/lib/styles'
 
 const COMMON_MEDIA_LIMIT = 4
 
@@ -53,7 +53,7 @@ export default function ImageList({
   const selectedImage = images[openIndex ?? 0]
   // Only used inside the full-screen preview Modal below.
   const { width } = useWindowDimensions()
-  const size = width - 24
+  const size = Math.min(width, CONTENT_MAX_WIDTH) - 24
 
   const red700 = useCSSString('--color-red-700')
   const gray700 = useCSSString('--color-gray-700')
@@ -97,6 +97,10 @@ export default function ImageList({
             }}
             contentContainerStyle={{
               paddingBottom: sx.paddingBottom + BOTTOM_BAR_HEIGHT,
+              // The scroll view keeps painting edge to edge; only the form is capped.
+              width: '100%',
+              maxWidth: CONTENT_MAX_WIDTH,
+              marginHorizontal: 'auto',
             }}
           >
             <View className="flex-row items-center pb-3">
