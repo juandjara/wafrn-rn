@@ -100,6 +100,7 @@ export default function ZoomableImage({
               uri: src,
               cacheKey,
             }}
+            loading="lazy"
             placeholderContentFit={contentFit}
             placeholder={{ blurhash: blurHash, width, height }}
             contentFit={contentFit}

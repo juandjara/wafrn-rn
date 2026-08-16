@@ -189,6 +189,7 @@ export default function EmojiPicker({
               <Image
                 contentFit="contain"
                 enforceEarlyResizing
+                loading="lazy"
                 source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
                 style={{ width: 24, height: 24 }}
               />

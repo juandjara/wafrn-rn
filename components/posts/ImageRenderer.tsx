@@ -48,6 +48,7 @@ function ImageRenderer({ item }: { item: ImageRendererItem }) {
           uri: item.src,
           cacheKey,
         }}
+        loading="lazy"
         placeholder={{ blurhash: item.blurHash }}
         placeholderContentFit="contain"
         contentFit="contain"
