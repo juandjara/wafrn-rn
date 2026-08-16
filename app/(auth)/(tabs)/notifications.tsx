@@ -75,7 +75,7 @@ export default function NotificationList() {
 
   const cornerButton = (
     <Pressable
-      accessibilityLabel={`Unauthorized notifications: ${showDetached ? 'shown' : 'hidden'}`}
+      accessibilityLabel={`Unapproved notifications: ${showDetached ? 'shown' : 'hidden'}`}
       onPress={toggleDetached}
       className="p-1.5 rounded-full active:bg-gray-300/30"
     >
@@ -90,7 +90,7 @@ export default function NotificationList() {
   return (
     <View style={{ flex: 1, paddingTop: headerInset }}>
       <Header
-        title={showDetached ? 'Unauthorized notifications' : 'Notifications'}
+        title={showDetached ? 'Unapproved notifications' : 'Notifications'}
         right={cornerButton}
       />
       <DashboardContextProvider data={context}>
