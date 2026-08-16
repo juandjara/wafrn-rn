@@ -4,7 +4,7 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { useState } from 'react'
-import { Modal, Pressable, ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import EditorCanvas from './EditorCanvas'
@@ -83,19 +83,13 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         />
       )}
       {showEmojiPicker && (
-        <Modal
-          visible
-          animationType="slide"
-          onRequestClose={() => setShowEmojiPicker(false)}
-        >
-          <EmojiPicker
-            onClose={() => setShowEmojiPicker(false)}
-            onPick={(emoji) => {
-              actions.insertCharacter(emoji.content || emoji.name)
-              setShowEmojiPicker(false)
-            }}
-          />
-        </Modal>
+        <EmojiPicker
+          onClose={() => setShowEmojiPicker(false)}
+          onPick={(emoji) => {
+            actions.insertCharacter(emoji.content || emoji.name)
+            setShowEmojiPicker(false)
+          }}
+        />
       )}
       <ScrollView
         contentContainerClassName="gap-3 w-full justify-center p-3"

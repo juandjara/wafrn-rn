@@ -59,6 +59,11 @@ export function useWindowWidth() {
   return width
 }
 
+export function useWindowHeight() {
+  const { height } = useAtom(windowAtom)
+  return height
+}
+
 export function useSmallScreenCheck() {
   return useWindowWidth() < SMALL_BREAKPOINT
 }
