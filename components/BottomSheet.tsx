@@ -2,6 +2,7 @@ import { SHEET_MAX_SIZE } from '@/lib/styles'
 import { FixedWidthProvider } from '@/lib/contexts/ContainerWidthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
+import { Toasts } from '@backpackapp-io/react-native-toast'
 import {
   Modal,
   Pressable,
@@ -26,6 +27,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated'
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller'
 
 function BottomSheetContent({
   children,
@@ -42,8 +44,18 @@ function BottomSheetContent({
   const sheetWidth = Math.min(windowWidth, SHEET_MAX_SIZE)
   const size = useSharedValue(0)
   const position = useSharedValue(height + sx.paddingBottom)
+
+  const keyboard = useReanimatedKeyboardAnimation()
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: position.value }],
+    transform: [
+      {
+        translateY:
+          position.value +
+          keyboard.height.value +
+          // `progress.value` moves from 0 to 1 as the animation completes
+          keyboard.progress.value * sx.paddingBottom,
+      },
+    ],
   }))
 
   const panGesture = Gesture.Pan()
@@ -100,6 +112,7 @@ function BottomSheetContent({
             </View>
           </Animated.View>
         </FixedWidthProvider>
+        <Toasts />
       </View>
     )
   }
@@ -127,6 +140,7 @@ function BottomSheetContent({
           </View>
         </Animated.View>
       </GestureDetector>
+      <Toasts />
     </GestureHandlerRootView>
   )
 }
