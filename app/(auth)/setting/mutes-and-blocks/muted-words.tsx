@@ -231,6 +231,7 @@ function MutedWordListItem({
             {block.words}
           </Text>
           <Pressable
+            accessibilityLabel={`Delete muted words: ${block.words}`}
             disabled={isLoading}
             onPress={onDelete}
             className="p-2 shrink-0"

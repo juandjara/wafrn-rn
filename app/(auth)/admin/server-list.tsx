@@ -29,6 +29,7 @@ export default function ServerList() {
       <Text className="text-white text-lg grow shrink">Server list</Text>
       <Pressable
         className="shrink-0 bg-black/30 rounded-full p-2"
+        accessibilityLabel="Search servers"
         onPress={() => setShowSearch(true)}
       >
         <MaterialCommunityIcons name="magnify" size={20} color="white" />
@@ -55,7 +56,7 @@ export default function ServerList() {
           inputMode="search"
           onSubmitEditing={(e) => search(e.nativeEvent.text)}
         />
-        <Pressable onPress={clear}>
+        <Pressable accessibilityLabel="Clear search" onPress={clear}>
           <MaterialCommunityIcons
             className="px-3"
             name="close"

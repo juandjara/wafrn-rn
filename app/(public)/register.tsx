@@ -446,6 +446,7 @@ export default function Register() {
                               {value && (
                                 <Pressable
                                   className="absolute z-20 right-0.5 top-0.5 bg-black/40 rounded-full p-1"
+                                  accessibilityLabel="Remove image"
                                   onPress={() => setValue(null)}
                                 >
                                   <MaterialCommunityIcons

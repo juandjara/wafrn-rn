@@ -81,6 +81,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
   return (
     <>
       <TouchableOpacity
+        accessibilityLabel="User actions"
         onPress={() => setOpen(true)}
         style={{
           padding: 6,

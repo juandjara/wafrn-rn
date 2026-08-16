@@ -71,6 +71,7 @@ export default function MediaCloak({
     <View className="relative">
       {children}
       <Pressable
+        accessibilityLabel="Hide media"
         onPress={() => setHidden(true)}
         className="absolute top-1 right-2 rounded-md bg-indigo-950/75 p-2"
       >

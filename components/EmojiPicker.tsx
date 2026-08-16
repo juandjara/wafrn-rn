@@ -150,7 +150,7 @@ export default function EmojiPicker({
         <Text className="text-white text-lg font-medium">
           React with an emoji
         </Text>
-        <Pressable onPress={onClose}>
+        <Pressable accessibilityLabel="Close" onPress={onClose}>
           <MaterialCommunityIcons name="close" size={24} color={'white'} />
         </Pressable>
       </View>

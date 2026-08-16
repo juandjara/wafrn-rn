@@ -105,6 +105,7 @@ export default function SearchIndex({
             >
               <Text className="text-white py-2 grow shrink">{item}</Text>
               <Pressable
+                accessibilityLabel={`Remove ${item} from search history`}
                 onPress={() => removeRecent(item)}
                 className="p-2 shrink-0"
               >

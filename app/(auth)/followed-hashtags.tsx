@@ -89,6 +89,7 @@ export default function FollowedHashtags() {
                   #{hashtag}
                 </Text>
                 <Pressable
+                  accessibilityLabel={`Unfollow #${hashtag}`}
                   onPress={() => removeTag(hashtag)}
                   className="p-2 shrink-0 rounded-full active:bg-gray-700"
                 >

@@ -79,6 +79,7 @@ export function CornerButton({
     >
       <Pressable
         className="p-3 rounded-full bg-white border border-gray-300 shadow shadow-blue-600"
+        accessibilityLabel="Scroll to top"
         onPress={onClick}
       >
         <MaterialIcons name="arrow-upward" size={24} color={blue800} />

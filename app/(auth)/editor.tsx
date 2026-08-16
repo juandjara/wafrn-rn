@@ -295,6 +295,7 @@ export default function EditorView() {
                   <Text className="text-sm text-cyan-500">{u.url}</Text>
                   <Pressable
                     className="rounded-md bg-white/5 p-1"
+                    accessibilityLabel={`Remove mention of ${u.url}`}
                     onPress={() => deleteMention(u.id)}
                   >
                     <MaterialIcons name="close" size={20} color={gray300} />

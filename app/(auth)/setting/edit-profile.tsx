@@ -277,6 +277,7 @@ export default function EditProfile() {
         keyboardShouldPersistTaps="handled"
       >
         <Pressable
+          accessibilityLabel="Change header image"
           onPress={pickHeaderImage}
           className="w-full bg-gray-800 border-b border-gray-500"
           style={{ minHeight: headerImageHeight }}
@@ -295,6 +296,7 @@ export default function EditProfile() {
         <View className="items-center my-4 rounded-md -mt-12">
           <Pressable
             className="relative bg-black rounded-lg border border-gray-500"
+            accessibilityLabel="Change avatar"
             onPress={pickAvatar}
           >
             <Image
@@ -364,6 +366,7 @@ export default function EditProfile() {
                   className="grow text-lg text-white rounded-md p-2 pr-12 border border-gray-600"
                 />
                 <Pressable
+                  accessibilityLabel="Remove custom field"
                   onPress={() =>
                     setCustomFields((prev) =>
                       prev.filter((_, i) => i !== index),
