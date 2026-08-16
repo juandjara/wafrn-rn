@@ -52,10 +52,11 @@ export default function PostFragment({ post, ...props }: PostFragmentProps) {
 
   useEffect(() => {
     if (settings && !derivedState) {
-      requestIdleCallback(() => {
+      const handle = requestIdleCallback(() => {
         const derivedState = getDerivedPostState(post, context, settings)
         setDerivedPostState(post.id, derivedState)
       })
+      return () => cancelIdleCallback(handle)
     }
   }, [post, derivedState, context, settings])
 
