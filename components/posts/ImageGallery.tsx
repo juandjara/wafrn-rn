@@ -19,6 +19,7 @@ import { isGiphyLink, isTenorLink } from '@/lib/api/content'
 import renderImageItem from './ImageRenderer'
 import { bumpImageRetries } from '@/lib/imageRetriesStore'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { CONTENT_MAX_WIDTH } from '@/lib/styles'
 
 export default function ImageGallery({
   open,
@@ -165,14 +166,17 @@ function ImageGalleryContent({
         <View
           pointerEvents="box-none"
           style={{
-            maxHeight: '50%',
+            maxHeight: '25%',
             paddingBottom: sx.paddingBottom + 4,
             backgroundColor: 'rgba(0,0,0,0.5)',
           }}
           className="absolute z-10 bottom-0 left-0 right-0 pt-2 px-3"
         >
           <ScrollView>
-            <Text className="text-white text-center">
+            <Text
+              className="text-white mx-auto w-full"
+              style={{ maxWidth: CONTENT_MAX_WIDTH - 16 }}
+            >
               {media.description || 'No alt text'}
             </Text>
           </ScrollView>
