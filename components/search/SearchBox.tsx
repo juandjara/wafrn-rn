@@ -23,6 +23,7 @@ export default function SearchBox({
     >
       <Pressable
         className="mx-2 bg-black/30 rounded-full p-2"
+        accessibilityLabel="Go back"
         onPress={() => router.back()}
       >
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
@@ -43,7 +44,14 @@ export default function SearchBox({
       />
       <TouchableOpacity
         className="absolute top-3 right-2 z-10 p-2 rounded-full"
-        onPress={() => onSearch('')}
+        accessibilityLabel="Clear search"
+        onPress={() => {
+          if (query) {
+            onSearch('')
+          } else {
+            setSearchTerm('')
+          }
+        }}
       >
         <MaterialCommunityIcons
           color={gray300}
