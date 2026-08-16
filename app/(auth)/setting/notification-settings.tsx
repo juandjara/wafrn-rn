@@ -20,13 +20,7 @@ import {
   View,
 } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import BottomSheet from '@/components/BottomSheet'
 import { Image } from 'expo-image'
 import {
   getSavedDistributor,
@@ -57,6 +51,8 @@ export default function NotificationSettings() {
   const cyan600 = useCSSString('--color-cyan-600')
   const gray300 = useCSSString('--color-gray-300')
 
+  const [distributorOpen, setDistributorOpen] = useState(false)
+  const [notifFromOpen, setNotifFromOpen] = useState(false)
   const [form, setForm] = useState(() => {
     return {
       distributorId: getSavedDistributor(),
@@ -174,58 +170,54 @@ export default function NotificationSettings() {
         {Platform.OS === 'android' && (
           <View className="p-4">
             <Text className="text-white mb-2">Unified push distributor:</Text>
-            <Menu renderer={renderers.SlideInMenu}>
-              <MenuTrigger>
-                <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
+            <Pressable onPress={() => setDistributorOpen(true)}>
+              <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
+                <Image
+                  source={savedDistributor?.icon}
+                  style={{ width: 32, height: 32 }}
+                />
+                <Text className="text-white text-sm px-1 grow shrink">
+                  {savedDistributor?.name}
+                </Text>
+                <MaterialCommunityIcons
+                  name="chevron-down"
+                  color={gray600}
+                  size={20}
+                />
+              </View>
+            </Pressable>
+            <BottomSheet open={distributorOpen} setOpen={setDistributorOpen}>
+              {distributors.map((d) => (
+                <Pressable
+                  key={d.id}
+                  className="active:bg-gray-200"
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 16,
+                    padding: 16,
+                  }}
+                  onPress={() => {
+                    update('distributorId', d.id)
+                    setDistributorOpen(false)
+                  }}
+                >
                   <Image
                     source={savedDistributor?.icon}
                     style={{ width: 32, height: 32 }}
                   />
-                  <Text className="text-white text-sm px-1 grow shrink">
-                    {savedDistributor?.name}
-                  </Text>
-                  <MaterialCommunityIcons
-                    name="chevron-down"
-                    color={gray600}
-                    size={20}
-                  />
-                </View>
-              </MenuTrigger>
-              <MenuOptions
-                customStyles={{
-                  optionsContainer: {
-                    paddingBottom: sx.paddingBottom,
-                  },
-                }}
-              >
-                {distributors.map((d) => (
-                  <MenuOption
-                    key={d.id}
-                    onSelect={() => update('distributorId', d.id)}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 16,
-                      padding: 16,
-                    }}
-                  >
-                    <Image
-                      source={savedDistributor?.icon}
-                      style={{ width: 32, height: 32 }}
+                  <Text className="font-semibold shrink grow">{d.name}</Text>
+                  {d.id === form.distributorId && (
+                    <Ionicons
+                      className="shrink-0"
+                      name="checkmark-sharp"
+                      color="black"
+                      size={24}
                     />
-                    <Text className="font-semibold shrink grow">{d.name}</Text>
-                    {d.id === form.distributorId && (
-                      <Ionicons
-                        className="shrink-0"
-                        name="checkmark-sharp"
-                        color="black"
-                        size={24}
-                      />
-                    )}
-                  </MenuOption>
-                ))}
-              </MenuOptions>
-            </Menu>
+                  )}
+                </Pressable>
+              ))}
+            </BottomSheet>
           </View>
         )}
         <View className="flex-row gap-2 p-4">
@@ -250,57 +242,53 @@ export default function NotificationSettings() {
         </View>
         <View className="p-4">
           <Text className="text-white mb-2">Show notifications from:</Text>
-          <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger>
-              <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
-                <Text className="text-white text-sm px-1 grow shrink">
-                  {NOTIFICATIONS_FROM_LABELS[form.showNotificationsFrom]}
+          <Pressable onPress={() => setNotifFromOpen(true)}>
+            <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
+              <Text className="text-white text-sm px-1 grow shrink">
+                {NOTIFICATIONS_FROM_LABELS[form.showNotificationsFrom]}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-down"
+                color={gray600}
+                size={20}
+              />
+            </View>
+          </Pressable>
+          <BottomSheet open={notifFromOpen} setOpen={setNotifFromOpen}>
+            {[
+              NotificationsFrom.Everyone,
+              NotificationsFrom.PeopleFollowingMe,
+              NotificationsFrom.PeopleIFollow,
+              NotificationsFrom.Mutuals,
+            ].map((value) => (
+              <Pressable
+                key={value}
+                className="active:bg-gray-200"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: 16,
+                }}
+                onPress={() => {
+                  update('showNotificationsFrom', value)
+                  setNotifFromOpen(false)
+                }}
+              >
+                <Text className="font-semibold shrink grow">
+                  {NOTIFICATIONS_FROM_LABELS[value]}
                 </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  color={gray600}
-                  size={20}
-                />
-              </View>
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{
-                optionsContainer: {
-                  paddingBottom: sx.paddingBottom,
-                },
-              }}
-            >
-              {[
-                NotificationsFrom.Everyone,
-                NotificationsFrom.PeopleFollowingMe,
-                NotificationsFrom.PeopleIFollow,
-                NotificationsFrom.Mutuals,
-              ].map((value) => (
-                <MenuOption
-                  key={value}
-                  onSelect={() => update('showNotificationsFrom', value)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text className="font-semibold shrink grow">
-                    {NOTIFICATIONS_FROM_LABELS[value]}
-                  </Text>
-                  {value === form.showNotificationsFrom && (
-                    <Ionicons
-                      className="shrink-0"
-                      name="checkmark-sharp"
-                      color="black"
-                      size={24}
-                    />
-                  )}
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
+                {value === form.showNotificationsFrom && (
+                  <Ionicons
+                    className="shrink-0"
+                    name="checkmark-sharp"
+                    color="black"
+                    size={24}
+                  />
+                )}
+              </Pressable>
+            ))}
+          </BottomSheet>
         </View>
         {notificationsCategories.map((cat) => (
           <Pressable

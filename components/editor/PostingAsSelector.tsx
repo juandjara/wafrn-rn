@@ -1,18 +1,11 @@
 import { useAccounts } from '@/lib/api/user'
 import { formatUserUrl } from '@/lib/formatters'
 import { optionStyleBig } from '@/lib/styles'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
-import { useMemo } from 'react'
-import { Keyboard, Text, TouchableHighlight, View } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import { useMemo, useState } from 'react'
+import { Keyboard, Pressable, Text, View } from 'react-native'
 import TextWithEmojis from '../TextWithEmojis'
+import BottomSheet from '../BottomSheet'
 
 export default function PostingAsSelector({
   selectedUserId,
@@ -21,47 +14,39 @@ export default function PostingAsSelector({
   selectedUserId: string
   setSelectedUserId: (userId: string) => void
 }) {
-  const sx = useSafeAreaPadding()
+  const [open, setOpen] = useState(false)
   const { accounts } = useAccounts()
   const selectedAccount = useMemo(() => {
     return accounts.find((a) => a.id === selectedUserId)
   }, [accounts, selectedUserId])
 
   return (
-    <Menu renderer={renderers.SlideInMenu}>
-      <MenuTrigger
-        customStyles={{
-          TriggerTouchableComponent: TouchableHighlight,
-          triggerTouchable: {
-            accessibilityLabel: `Posting as ${formatUserUrl(selectedAccount?.url)}`,
-          },
-        }}
+    <>
+      <Pressable
+        accessibilityLabel={`Posting as ${formatUserUrl(selectedAccount?.url)}`}
         onPress={() => {
           Keyboard.dismiss()
+          setOpen(true)
         }}
       >
         <Image
           source={selectedAccount?.avatar}
           style={{ width: 40, height: 40, borderRadius: 100 }}
         />
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          OptionTouchableComponent: TouchableHighlight,
-          optionsContainer: {
-            paddingBottom: sx.paddingBottom + 12,
-            borderRadius: 16,
-          },
-        }}
-      >
+      </Pressable>
+      <BottomSheet initialFullHeight open={open} setOpen={setOpen}>
         <Text numberOfLines={1} className="p-4 text-lg font-medium">
           Select the account you are posting as
         </Text>
         {accounts.map((acc, i) => (
-          <MenuOption
+          <Pressable
             key={acc.id}
-            onSelect={() => setSelectedUserId(acc.id)}
+            className="active:bg-gray-200"
             style={{ ...optionStyleBig(i), paddingVertical: 8 }}
+            onPress={() => {
+              setSelectedUserId(acc.id)
+              setOpen(false)
+            }}
           >
             <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
@@ -84,9 +69,9 @@ export default function PostingAsSelector({
                 {formatUserUrl(acc.url)}
               </Text>
             </View>
-          </MenuOption>
+          </Pressable>
         ))}
-      </MenuOptions>
-    </Menu>
+      </BottomSheet>
+    </>
   )
 }

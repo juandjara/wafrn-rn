@@ -19,13 +19,7 @@ import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import BottomSheet from '@/components/BottomSheet'
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'all' },
@@ -41,6 +35,7 @@ export default function ReportList() {
   const headerInset = useHeaderInset()
   const { data, refetch, isFetching } = useReportList()
   const [filter, setFilter] = useState<FilterValue>('all')
+  const [filterOpen, setFilterOpen] = useState(false)
 
   const filteredData = useMemo(() => {
     return (data ?? []).filter((report) => {
@@ -53,29 +48,30 @@ export default function ReportList() {
   }, [data, filter])
 
   const filterMenu = (
-    <Menu renderer={renderers.SlideInMenu}>
-      <MenuTrigger>
-        <MaterialCommunityIcons name="filter-menu" size={20} color="white" />
-      </MenuTrigger>
-      <MenuOptions
-        customStyles={{
-          optionsContainer: {
-            paddingBottom: sx.paddingBottom,
-          },
-        }}
+    <>
+      <Pressable
+        accessibilityLabel="Filter reports"
+        onPress={() => setFilterOpen(true)}
       >
+        <MaterialCommunityIcons name="filter-menu" size={20} color="white" />
+      </Pressable>
+      <BottomSheet open={filterOpen} setOpen={setFilterOpen}>
         <Text className="text-gray-700 text-lg font-medium p-4 pb-2">
           Filter
         </Text>
         {FILTER_OPTIONS.map((option) => (
-          <MenuOption
+          <Pressable
             key={option.value}
-            onSelect={() => setFilter(option.value)}
+            className="active:bg-gray-200"
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: 16,
               padding: 16,
+            }}
+            onPress={() => {
+              setFilter(option.value)
+              setFilterOpen(false)
             }}
           >
             {filter === option.value ? (
@@ -84,10 +80,10 @@ export default function ReportList() {
               <MaterialIcons name="radio-button-off" size={20} color="black" />
             )}
             <Text>{option.label}</Text>
-          </MenuOption>
+          </Pressable>
         ))}
-      </MenuOptions>
-    </Menu>
+      </BottomSheet>
+    </>
   )
 
   return (

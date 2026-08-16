@@ -28,13 +28,7 @@ import {
   View,
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
+import BottomSheet from '@/components/BottomSheet'
 import { useCSSString } from '@/lib/cssVariables'
 
 const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
@@ -71,6 +65,7 @@ export default function Options() {
 
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
+  const [asksOpen, setAsksOpen] = useState(false)
   const [form, setForm] = useState<FormState>(() => {
     const opts = settings?.options || []
     const gifApiKey = getPrivateOptionValue(opts, PrivateOptionNames.GifApiKey)
@@ -292,60 +287,56 @@ export default function Options() {
         )}
         <View className="p-4">
           <Text className="text-white mb-2">Ask privacy</Text>
-          <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger>
-              <View
-                className={clsx(
-                  'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
-                )}
-              >
-                <Text className="text-white text-sm px-1 grow shrink">
-                  {ASKS_LABELS[form.asks]}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  color={gray600}
-                  size={20}
-                />
-              </View>
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{
-                optionsContainer: {
-                  paddingBottom: sx.paddingBottom,
-                },
-              }}
+          <Pressable onPress={() => setAsksOpen(true)}>
+            <View
+              className={clsx(
+                'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
+              )}
             >
-              {[
-                AskOptionValue.AllowIdentifiedAsks,
-                AskOptionValue.AllowAnonAsks,
-                AskOptionValue.AllowNoAsks,
-              ].map((value) => (
-                <MenuOption
-                  key={value}
-                  onSelect={() => update('asks', value)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text className="font-semibold shrink grow">
-                    {ASKS_LABELS[value]}
-                  </Text>
-                  {value === form.asks && (
-                    <Ionicons
-                      className="shrink-0"
-                      name="checkmark-sharp"
-                      color="black"
-                      size={24}
-                    />
-                  )}
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
+              <Text className="text-white text-sm px-1 grow shrink">
+                {ASKS_LABELS[form.asks]}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-down"
+                color={gray600}
+                size={20}
+              />
+            </View>
+          </Pressable>
+          <BottomSheet open={asksOpen} setOpen={setAsksOpen}>
+            {[
+              AskOptionValue.AllowIdentifiedAsks,
+              AskOptionValue.AllowAnonAsks,
+              AskOptionValue.AllowNoAsks,
+            ].map((value) => (
+              <Pressable
+                key={value}
+                className="active:bg-gray-200"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: 16,
+                }}
+                onPress={() => {
+                  update('asks', value)
+                  setAsksOpen(false)
+                }}
+              >
+                <Text className="font-semibold shrink grow">
+                  {ASKS_LABELS[value]}
+                </Text>
+                {value === form.asks && (
+                  <Ionicons
+                    className="shrink-0"
+                    name="checkmark-sharp"
+                    color="black"
+                    size={24}
+                  />
+                )}
+              </Pressable>
+            ))}
+          </BottomSheet>
         </View>
         <View className="p-4">
           <Text className="text-white mb-2">Default post privacy</Text>
