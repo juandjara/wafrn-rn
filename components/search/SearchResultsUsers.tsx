@@ -6,6 +6,7 @@ import { Text, View, ScrollViewProps, ScrollView } from 'react-native'
 import UserCard from '../user/UserCard'
 import { useBottomBarHeight } from '@/lib/styles'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
+import { requestIdle } from '@/lib/idle'
 
 const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
   (props, ref) => <KeyboardAwareScrollView {...props} ref={ref as any} />,
@@ -38,7 +39,7 @@ export default function SearchResultsUsers({ query }: { query: string }) {
 
   async function refresh() {
     await refetch()
-    requestIdleCallback(() => {
+    requestIdle(() => {
       listRef.current?.scrollToOffset({ offset: 0, animated: false })
     })
   }

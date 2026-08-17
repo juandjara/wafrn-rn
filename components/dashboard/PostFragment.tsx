@@ -35,6 +35,7 @@ import {
 import { useSettings } from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
+import { requestIdle } from '@/lib/idle'
 
 type PostFragmentProps = {
   post: Post
@@ -52,11 +53,10 @@ export default function PostFragment({ post, ...props }: PostFragmentProps) {
 
   useEffect(() => {
     if (settings && !derivedState) {
-      const handle = requestIdleCallback(() => {
+      return requestIdle(() => {
         const derivedState = getDerivedPostState(post, context, settings)
         setDerivedPostState(post.id, derivedState)
       })
-      return () => cancelIdleCallback(handle)
     }
   }, [post, derivedState, context, settings])
 

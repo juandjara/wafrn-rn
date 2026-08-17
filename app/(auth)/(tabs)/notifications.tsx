@@ -36,6 +36,7 @@ import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSString } from '@/lib/cssVariables'
+import { requestIdle } from '@/lib/idle'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
@@ -63,7 +64,7 @@ export default function NotificationList() {
   function refresh() {
     startTransition(async () => {
       await refetch()
-      requestIdleCallback(() => {
+      requestIdle(() => {
         listRef.current?.scrollToOffset({ offset: 0, animated: false })
       })
     })

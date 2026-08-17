@@ -7,6 +7,7 @@ import { Post, PostThread } from './api/posts.types'
 import { Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 import { setDerivedPostState } from './postStore'
+import { requestIdle } from '@/lib/idle'
 
 export async function processPost(
   post: Post,
@@ -14,7 +15,7 @@ export async function processPost(
   settings?: Settings,
 ) {
   return new Promise<void>((resolve) => {
-    requestIdleCallback(() => {
+    requestIdle(() => {
       const state = getDerivedPostState(post, context, settings)
       setDerivedPostState(post.id, state)
       resolve()
