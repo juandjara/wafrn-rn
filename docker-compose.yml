@@ -1,5 +1,6 @@
 services:
-  web:
+  wafrn-rn-web:
+    init: true
     build: .
     image: wafrn-rn-web
     restart: unless-stopped
