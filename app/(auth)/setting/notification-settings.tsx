@@ -202,10 +202,7 @@ export default function NotificationSettings() {
                     setDistributorOpen(false)
                   }}
                 >
-                  <Image
-                    source={savedDistributor?.icon}
-                    style={{ width: 32, height: 32 }}
-                  />
+                  <Image source={d.icon} style={{ width: 32, height: 32 }} />
                   <Text className="font-semibold shrink grow">{d.name}</Text>
                   {d.id === form.distributorId && (
                     <Ionicons
