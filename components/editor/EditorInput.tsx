@@ -125,6 +125,7 @@ export default function EditorInput({
           )}
           <TextInput
             numberOfLines={1}
+            style={inputProps.style}
             placeholderTextColorClassName="accent-gray-500"
             className="text-white py-2 px-3"
             placeholder="Content warning"
