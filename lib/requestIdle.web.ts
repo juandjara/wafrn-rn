@@ -12,9 +12,8 @@ export function requestIdle(callback: () => void) {
     return () => cancelIdleCallback(handle)
   }
 
-  // Safari. React's scheduler runs queued work in 5ms slices and posts the next slice
-  // through a MessageChannel, so paint and input still get a turn between them. A plain
-  // setTimeout would run the whole callback regardless of what the frame is doing.
+  // React scheduler runs queued work in 5ms slices and posts the next slice
+  // through a MessageChannel, so paint and input still get a turn between them.
   const task = unstable_scheduleCallback(unstable_IdlePriority, callback)
   return () => unstable_cancelCallback(task)
 }
