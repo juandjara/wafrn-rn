@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    image: wafrn-rn-web
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      caddy: wafrn-rn.app
+      caddy.reverse_proxy: '{{upstreams 3000}}'
+      # important to enable encoding because expo-server can serve a 6.3 MB JS bundle
+      caddy.encode: zstd gzip
+
+networks:
+  caddy:
+    external: true

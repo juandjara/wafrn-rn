@@ -119,7 +119,8 @@ export default {
     },
     extra: {
       router: {
-        origin: false,
+        // only for the web build
+        origin: process.env.EXPO_ROUTER_ORIGIN || false,
       },
       eas: {
         projectId: '8453855c-b400-4d59-bd72-0ebfa1a95eb2',

@@ -1,0 +1,29 @@
+# big build artifacts ignored to keep the image lean
+node_modules
+ios
+android
+apks
+dist
+.git
+.expo
+
+# exclude secrets
+.env
+.env.*
+credentials
+credentials.json
+gc_keys.json
+google-services.json
+
+# Other unrelevant files copied from .gitignore
+fastlane
+Gemfile
+Gemfile.lock
+docs
+.github
+.woodpecker
+.forgejo
+.claude
+.zed
+.pi
+.DS_Store

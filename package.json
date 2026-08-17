@@ -10,6 +10,7 @@
     "build:prod:ios": "fastlane beta",
     "build:prod:android": "bash ./scripts/android_build.sh prod-foss",
     "build:prod:google": "bash ./scripts/android_build.sh prod-google",
+    "build:web": "expo export -p web",
     "setup:dev": "NODE_ENV=development expo prebuild",
     "setup:prod": "NODE_ENV=production expo prebuild && bash ./scripts/sed_gradle_version.sh",
     "start": "NODE_ENV=development expo start",
