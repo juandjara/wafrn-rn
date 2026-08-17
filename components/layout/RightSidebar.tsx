@@ -38,7 +38,7 @@ export default function RightSidebar() {
   return (
     <View
       style={{ width: SIDEBAR_WIDTH, maxWidth: SIDEBAR_WIDTH }}
-      className="h-full py-8 mt-6"
+      className="py-8 mt-6"
     >
       <View className="mx-2 flex-row items-center rounded-lg border-2 border-gray-600">
         <TextInput
@@ -67,7 +67,9 @@ export default function RightSidebar() {
           />
         </TouchableOpacity>
       </View>
-      <SearchIndex onSearch={onSearch} />
+      <View className="flex-1">
+        <SearchIndex onSearch={onSearch} />
+      </View>
     </View>
   )
 }
