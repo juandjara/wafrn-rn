@@ -2,7 +2,6 @@ services:
   wafrn-rn-web:
     init: true
     build: .
-    image: wafrn-rn-web
     restart: unless-stopped
     networks:
       - web
