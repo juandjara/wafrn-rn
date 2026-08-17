@@ -1,7 +1,7 @@
 // initial reference: https://docs.expo.dev/router/reference/authentication/
 import { rootStyles } from '@/constants/Colors'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { Redirect, Stack } from 'expo-router'
+import { Redirect, Stack, usePathname } from 'expo-router'
 import WebShell from '@/components/layout/WebShell'
 
 export const unstable_settings = {
@@ -10,9 +10,14 @@ export const unstable_settings = {
 
 export default function ProtectedLayout() {
   const { token, env } = useAuth()
+  const pathname = usePathname()
 
   if (!token || !env) {
-    return <Redirect href="/sign-in" />
+    // Carry the destination so a link opened while signed out survives the sign-in detour.
+    // Path only: expo-router exposes no full-href hook, and route params are already in the
+    // path while query params cannot be told apart from them.
+    const next = pathname === '/' ? '' : `?next=${encodeURIComponent(pathname)}`
+    return <Redirect href={`/sign-in${next}`} />
   }
 
   return (

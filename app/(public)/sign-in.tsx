@@ -4,7 +4,7 @@ import {
   parseToken,
 } from '@/lib/api/auth'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { Link, Redirect } from 'expo-router'
+import { Link, Redirect, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import {
   TextInput,
@@ -22,6 +22,22 @@ import InstanceProvider from '@/components/InstanceProvider'
 import { useToasts } from '@/lib/toasts'
 import Button from '@/components/Button'
 
+/**
+ * Sanitize `next` param coming from url search params.
+ * Make sure it is always a same-origin path and return null if not
+ * to protect from open redirection in login
+ */
+function internalPath(next?: string) {
+  if (!next || !next.startsWith('/')) {
+    return null
+  }
+  // browsers normalise `\` to `/`, so `/\host` would reach another origin too
+  if (next.startsWith('//') || next.includes('\\')) {
+    return null
+  }
+  return next
+}
+
 export default function SignIn() {
   const sx = useSafeAreaPadding()
   const textInputColor = Colors.dark.text
@@ -30,6 +46,7 @@ export default function SignIn() {
   const [mfaToken, setMfaToken] = useState('')
   const [firstPassToken, setFirstPassToken] = useState('')
   const { token, setToken, env, envStatus, instance, setInstance } = useAuth()
+  const { next } = useLocalSearchParams<{ next?: string }>()
   const { showToastError } = useToasts()
   const placeholderColor = useCSSString('--color-gray-400')
   const loginMfaMutation = useLoginMfaMutation(env!)
@@ -76,7 +93,7 @@ export default function SignIn() {
   }
 
   if (env && parseToken(token)) {
-    return <Redirect href="/" />
+    return <Redirect href={internalPath(next) ?? '/'} />
   }
 
   return (
