@@ -6,7 +6,7 @@ import { Text, View, ScrollViewProps, ScrollView } from 'react-native'
 import UserCard from '../user/UserCard'
 import { useBottomBarHeight } from '@/lib/styles'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 const RenderScrollComponent = forwardRef<ScrollView, ScrollViewProps>(
   (props, ref) => <KeyboardAwareScrollView {...props} ref={ref as any} />,

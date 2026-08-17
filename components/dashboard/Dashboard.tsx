@@ -16,7 +16,7 @@ import {
 } from '@/lib/api/posts'
 import { FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from './FeedItemRenderer'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />

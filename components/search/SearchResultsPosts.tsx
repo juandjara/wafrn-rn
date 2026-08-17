@@ -17,7 +17,7 @@ import { KeyboardStickyView } from 'react-native-keyboard-controller'
 import { type FeedItem, feedKeyExtractor } from '@/lib/feeds'
 import FeedItemRenderer from '../dashboard/FeedItemRenderer'
 import { useScrollToTop } from '@react-navigation/native'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 function renderItem({ item }: { item: any }) {
   return <FeedItemRenderer item={item} />

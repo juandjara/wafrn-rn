@@ -36,7 +36,7 @@ import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSString } from '@/lib/cssVariables'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()

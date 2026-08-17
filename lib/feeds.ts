@@ -7,7 +7,7 @@ import { Post, PostThread } from './api/posts.types'
 import { Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 import { setDerivedPostState } from './postStore'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 export async function processPost(
   post: Post,

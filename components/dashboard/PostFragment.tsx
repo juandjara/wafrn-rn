@@ -35,7 +35,7 @@ import {
 import { useSettings } from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
-import { requestIdle } from '@/lib/idle'
+import { requestIdle } from '@/lib/requestIdle'
 
 type PostFragmentProps = {
   post: Post
