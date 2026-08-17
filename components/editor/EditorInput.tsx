@@ -14,6 +14,8 @@ import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { EditorFormState } from '@/lib/editor'
 import { useCSSString } from '@/lib/cssVariables'
+import { useFocusRing } from '@/lib/styles'
+import { clsx } from 'clsx'
 
 type MentionApi = ReturnType<typeof useMentions>
 
@@ -45,6 +47,7 @@ export default function EditorInput({
   onSelectionChange,
 }: EditorProps) {
   const yellow500 = useCSSString('--color-yellow-500')
+  const { ringClassName, inputProps } = useFocusRing()
   const { env } = useAuth()
   const tagsLine = formState.tags
   const parsedTags = tagsLine
@@ -99,7 +102,10 @@ export default function EditorInput({
   }
 
   return (
-    <View id="editor" className="border border-gray-600 rounded-lg mx-2">
+    <View
+      id="editor"
+      className={clsx('border border-gray-600 rounded-lg mx-2', ringClassName)}
+    >
       {formState.contentWarningOpen && (
         <View className="border border-yellow-500 pl-8 rounded-md m-0.5">
           {formState.contentWarning?.toLowerCase().includes('fedi meta') ? (
@@ -129,14 +135,14 @@ export default function EditorInput({
       )}
       <View className="flex-1 shrink-0">
         <TextInput
+          {...inputProps}
           readOnly={disabled}
           multiline
           textAlignVertical="top"
           placeholderTextColorClassName="accent-gray-500"
           className="text-white py-2 px-3"
           style={{
-            outlineWidth: 0,
-            outlineStyle: 'solid',
+            ...inputProps.style,
             minHeight: EDITOR_MIN_HEIGHT,
             height: Math.max(height, EDITOR_MIN_HEIGHT),
           }}

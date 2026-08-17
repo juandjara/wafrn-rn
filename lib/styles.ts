@@ -1,6 +1,7 @@
-import { Dimensions, Platform } from 'react-native'
+import { Dimensions, Platform, ViewStyle } from 'react-native'
 import { createAtom } from '@xstate/store'
 import { useAtom } from '@xstate/store/react'
+import { useState } from 'react'
 
 // Max font size multiplier according to WCAG
 export const MAX_FONT_SCALE = 2
@@ -41,6 +42,24 @@ export const optionStyleDark = (i: number) => ({
   flexDirection: 'row' as const,
   gap: 16,
 })
+
+const FOCUS_RING = 'outline-solid outline-2 outline-offset-2 outline-cyan-500'
+
+export function useFocusRing() {
+  const [focused, setFocused] = useState(false)
+  const isWeb = Platform.OS === 'web'
+  return {
+    ringClassName: focused && isWeb ? FOCUS_RING : '',
+    inputProps: {
+      onFocus: () => setFocused(true),
+      onBlur: () => setFocused(false),
+      style: {
+        outlineWidth: 0,
+        outlineStyle: 'none', // for firefox
+      } as unknown as ViewStyle, // NOTE: `outlineStyle: 'none'` is not included in RN types but it is on web
+    },
+  }
+}
 
 export const interactionIconCn =
   'w-9 flex-row items-center justify-center p-1.5 active:bg-gray-300/30 rounded-full'

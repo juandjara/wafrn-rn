@@ -4,6 +4,8 @@ import { router } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, TextInput, TouchableOpacity, View } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
+import { useFocusRing } from '@/lib/styles'
+import { clsx } from 'clsx'
 
 export default function SearchBox({
   query,
@@ -14,12 +16,16 @@ export default function SearchBox({
 }) {
   const sx = useSafeAreaPadding()
   const [searchTerm, setSearchTerm] = useState(query)
+  const { ringClassName, inputProps } = useFocusRing()
   const gray300 = useCSSString('--color-gray-300')
 
   return (
     <View
       style={{ marginTop: sx.paddingTop }}
-      className="flex-row items-center border-b border-gray-600 h-16 pr-12"
+      className={clsx(
+        'flex-row items-center border-b border-gray-600 h-16 pr-2',
+        ringClassName,
+      )}
     >
       <Pressable
         className="mx-2 bg-black/30 rounded-full p-2"
@@ -29,11 +35,7 @@ export default function SearchBox({
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Pressable>
       <TextInput
-        style={{
-          marginRight: 48,
-          outlineWidth: 0,
-          outlineStyle: 'solid',
-        }}
+        {...inputProps}
         placeholderTextColorClassName="accent-gray-500"
         placeholder="Search text or enter URL"
         className="text-white grow"

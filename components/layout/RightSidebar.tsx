@@ -1,7 +1,8 @@
 import { TextInput, TouchableOpacity, View } from 'react-native'
 import { router, usePathname } from 'expo-router'
 import SearchIndex from '@/components/search/SearchIndex'
-import { SIDEBAR_WIDTH } from '@/lib/styles'
+import { SIDEBAR_WIDTH, useFocusRing } from '@/lib/styles'
+import { clsx } from 'clsx'
 import { useState } from 'react'
 import { useCSSString } from '@/lib/cssVariables'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -12,6 +13,7 @@ const HISTORY_LIMIT = 20
 export default function RightSidebar() {
   const gray300 = useCSSString('--color-gray-300')
   const [searchTerm, setSearchTerm] = useState('')
+  const { ringClassName, inputProps } = useFocusRing()
   const pathname = usePathname()
 
   const {
@@ -40,13 +42,15 @@ export default function RightSidebar() {
       style={{ width: SIDEBAR_WIDTH, maxWidth: SIDEBAR_WIDTH }}
       className="py-8 mt-6"
     >
-      <View className="mx-2 flex-row items-center rounded-lg border-2 border-gray-600">
+      <View
+        className={clsx(
+          'mx-2 flex-row items-center rounded-lg border-2 border-gray-600',
+          ringClassName,
+        )}
+      >
         <TextInput
-          style={{
-            marginRight: 48,
-            outlineWidth: 0,
-            outlineStyle: 'solid',
-          }}
+          {...inputProps}
+          style={{ ...inputProps.style, marginRight: 48 }}
           placeholderTextColorClassName="accent-gray-500"
           placeholder="Search text or enter URL"
           className="text-white grow text-lg p-2"
