@@ -13,5 +13,5 @@ services:
       caddy.encode: zstd gzip
 
 networks:
-  caddy:
+  web:
     external: true
