@@ -221,11 +221,8 @@ export default function PostDetail() {
     const parents = postCount - 1
     if (parents && maxParents < parents) {
       needsBumpMaxParents.current = true
-      // On web, onMomentumScrollEnd never fires (browsers have no momentum
-      // event for wheel/trackpad scrolls), so the ref-gated bump from
-      // onMomentumScrollEnd would never run and ancestors would never load.
-      // Trigger directly here. maintainVisibleContentPosition keeps the
-      // visible anchor in place when rows prepend.
+
+      // On web, onMomentumScrollEnd never fires because browsers expose no momentum events
       if (Platform.OS === 'web') {
         bumpMaxParentsIfNeeded()
       }
