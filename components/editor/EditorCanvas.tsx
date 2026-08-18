@@ -20,7 +20,7 @@ import {
 } from 'react-native-gesture-handler'
 import { Colors } from '@/constants/Colors'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { File, Paths } from 'expo-file-system'
+import { writeBase64ToCache } from '@/lib/files'
 import { EditorImage } from '@/lib/editor'
 
 type EditorCanvasProps = {
@@ -119,21 +119,22 @@ export default function EditorCanvas({
       console.error('Failed to create image snapshot')
       return
     }
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       svg.toDataURL((base64: string) => {
         const filename = `drawing-${Date.now()}.png`
-        const file = new File(Paths.cache, filename)
-        file.write(base64, { encoding: 'base64' })
-        console.log('Writing image to', file.uri)
-        addImage({
-          uri: file.uri,
-          mimeType: 'image/png',
-          fileName: filename,
-          width: canvasSize.width,
-          height: canvasSize.height,
-        })
-        close()
-        resolve()
+        writeBase64ToCache(filename, base64, 'image/png')
+          .then((uri) => {
+            addImage({
+              uri,
+              mimeType: 'image/png',
+              fileName: filename,
+              width: canvasSize.width,
+              height: canvasSize.height,
+            })
+            close()
+            resolve()
+          })
+          .catch(reject)
       })
     })
   }
@@ -233,9 +234,12 @@ export default function EditorCanvas({
             <Pressable
               className="p-2 rounded-full border-2 border-white w-8 h-8"
               style={{ backgroundColor: color || DEFAULT_COLOR }}
+              accessibilityLabel="Pen color"
               onPress={() => setColorPickerOpen('foreground')}
             />
             <Pressable
+              accessibilityLabel="Draw"
+              accessibilityState={{ selected: mode === EditModes.COLOR }}
               onPress={() => setMode(EditModes.COLOR)}
               className={clsx(
                 'p-2 rounded-full',
@@ -251,6 +255,8 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Erase"
+              accessibilityState={{ selected: mode === EditModes.ERASER }}
               onPress={() => setMode(EditModes.ERASER)}
               className={clsx(
                 'p-2 rounded-full',
@@ -266,6 +272,7 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Background color"
               onPress={() => setColorPickerOpen('background')}
               style={{ backgroundColor }}
               className="p-2 rounded-full"
@@ -277,6 +284,7 @@ export default function EditorCanvas({
               />
             </Pressable>
             <Pressable
+              accessibilityLabel="Undo"
               onPress={undo}
               className="p-2 rounded-full active:bg-white/50 bg-white/15"
             >
@@ -285,6 +293,7 @@ export default function EditorCanvas({
             <View className="grow"></View>
             <Pressable
               className="bg-red-800 active:bg-red-700 p-2 my-2 rounded-md flex-row items-center gap-2"
+              accessibilityLabel="Cancel"
               onPress={() => setOpen(false)}
             >
               <MaterialCommunityIcons name="close" color="white" size={20} />

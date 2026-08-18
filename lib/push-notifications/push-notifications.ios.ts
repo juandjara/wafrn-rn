@@ -11,7 +11,7 @@ import {
 } from '../notifications'
 import { router } from 'expo-router'
 import { useToasts } from '../toasts'
-import { setItemAsync } from 'expo-secure-store'
+import { setItemAsync } from '@/lib/storage'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

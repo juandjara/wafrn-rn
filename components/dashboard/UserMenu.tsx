@@ -4,20 +4,21 @@ import { router } from 'expo-router'
 import { Text, TouchableOpacity, View, Pressable } from 'react-native'
 import { Image } from 'expo-image'
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
-import { optionStyleBig } from '@/lib/styles'
+import { optionStyleBig, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
-import { useCSSVariable } from 'uniwind'
-import BottomShhet from '../BottomSheet'
+import { useCSSString } from '@/lib/cssVariables'
+import BottomSheet from '../BottomSheet'
 import MenuItem from '../MenuItem'
 import WigglyPressable from '../WigglyPressable'
 
 export default function UserMenu({ size }: { size?: number }) {
   const { data: me } = useCurrentUser()
   const { data: badges } = useNotificationBadges()
+  const isSmallScreen = useSmallScreenCheck()
   const isAdmin = useAdminCheck()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -26,8 +27,8 @@ export default function UserMenu({ size }: { size?: number }) {
     return accounts.map((a, index) => ({ ...a, index }))
   }, [accounts])
 
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const blue900 = useCSSVariable('--color-blue-900') as string
+  const gray600 = useCSSString('--color-gray-600')
+  const blue900 = useCSSString('--color-blue-900')
   const { badge, menuOptions } = useMemo(() => {
     const options = [
       {
@@ -94,11 +95,18 @@ export default function UserMenu({ size }: { size?: number }) {
         accessibilityLabel="Main Menu"
         onPress={() => setMenuOpen(true)}
       >
-        <View className="border border-gray-700 bg-gray-700 rounded-full">
+        <View className="border flex-row items-center gap-3 border-gray-700 bg-gray-700 rounded-full">
           <Image
             source={{ uri: formatAvatarUrl(me?.id ?? '') }}
             style={{ width: size ?? 40, height: size ?? 40, borderRadius: 100 }}
           />
+          {isSmallScreen ? null : (
+            <TextWithEmojis
+              className="text-white mr-2"
+              text={me?.name ?? ''}
+              emojis={me?.emojis}
+            />
+          )}
         </View>
         {badge > 0 ? (
           <Text className="absolute -top-1.5 -right-1.5 text-xs font-medium bg-cyan-600 text-white rounded-full px-1.5 py-0.5">
@@ -111,7 +119,7 @@ export default function UserMenu({ size }: { size?: number }) {
           </Text>
         )}
       </WigglyPressable>
-      <BottomShhet open={menuOpen} setOpen={setMenuOpen}>
+      <BottomSheet open={menuOpen} setOpen={setMenuOpen}>
         <Pressable
           className="active:bg-gray-300/75 transition-colors"
           onPress={() => navAndClose(`/user/${me?.url}`)}
@@ -196,7 +204,7 @@ export default function UserMenu({ size }: { size?: number }) {
             style={optionStyleBig(i + 1)}
           />
         ))}
-      </BottomShhet>
+      </BottomSheet>
     </>
   )
 }

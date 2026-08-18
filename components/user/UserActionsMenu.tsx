@@ -10,14 +10,14 @@ import { optionStyleBig } from '@/lib/styles'
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
 import { Share, TouchableOpacity } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import MenuItem from '../MenuItem'
 import BottomSheet from '../BottomSheet'
 
 export default function UserActionsMenu({ user }: { user: User }) {
-  const gray400 = useCSSVariable('--color-gray-400') as string
-  const gray500 = useCSSVariable('--color-gray-500') as string
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray400 = useCSSString('--color-gray-400')
+  const gray500 = useCSSString('--color-gray-500')
+  const gray600 = useCSSString('--color-gray-600')
 
   const { env } = useAuth()
   const me = useParsedToken()
@@ -81,6 +81,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
   return (
     <>
       <TouchableOpacity
+        accessibilityLabel="User actions"
         onPress={() => setOpen(true)}
         style={{
           padding: 6,

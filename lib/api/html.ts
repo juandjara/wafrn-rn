@@ -7,12 +7,29 @@ import { crush } from 'html-crush'
 export const BSKY_URL = 'https://bsky.app'
 export const BR = '\n'
 
+/**
+ * Compute styles for content headings.
+ * Leading sizes come from CSS variables at `@theme static` in styles.css.
+ * `fontScale` multiplier is used to keep line height growing the same as font size with accesibility settings.
+ */
+const heading = (fontSize: number, leading: number, fontScale: number) => ({
+  marginTop: 4,
+  marginBottom: 12,
+  fontWeight: 'bold' as const,
+  fontSize,
+  lineHeight: fontSize * leading * fontScale,
+})
+
 export const htmlBlockStyles = ({
   gray400,
   blue950,
+  fontScale,
+  leadingHeading,
 }: {
   gray400: string
   blue950: string
+  fontScale: number
+  leadingHeading: number
 }) =>
   ({
     blockquote: {
@@ -21,61 +38,12 @@ export const htmlBlockStyles = ({
       borderLeftWidth: 2,
       borderLeftColor: gray400,
     },
-    ul: {
-      //marginLeft: 12,
-      // paddingBottom: 16,
-      // listStyleType: 'none',
-    },
-    ol: {
-      // marginLeft: 12,
-      // paddingBottom: 16,
-      // listStyleType: 'none',
-    },
-    // li: {
-    //   paddingLeft: 8,
-    // },
-    h1: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 47.78,
-      lineHeight: 54.94,
-    },
-    h2: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 39.81,
-      lineHeight: 45.78,
-    },
-    h3: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 33.18,
-      lineHeight: 38.15,
-    },
-    h4: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 27.65,
-      lineHeight: 31.79,
-    },
-    h5: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 23.04,
-      lineHeight: 26.49,
-    },
-    h6: {
-      marginTop: 4,
-      marginBottom: 12,
-      fontWeight: 'bold',
-      fontSize: 19.2,
-      lineHeight: 22.08,
-    },
+    h1: heading(47.78, leadingHeading, fontScale),
+    h2: heading(39.81, leadingHeading, fontScale),
+    h3: heading(33.18, leadingHeading, fontScale),
+    h4: heading(27.65, leadingHeading, fontScale),
+    h5: heading(23.04, leadingHeading, fontScale),
+    h6: heading(19.2, leadingHeading, fontScale),
     p: {
       marginTop: 0,
       marginBottom: 16,
@@ -92,7 +60,6 @@ export const htmlBlockStyles = ({
       marginBottom: 8,
     },
     img: {
-      transform: 'translateY(6px)',
       alignSelf: 'flex-start',
     },
     pre: {
@@ -108,7 +75,17 @@ const underlineStyle = { textDecorationLine: 'underline' as const }
 const strikethroughStyle = { textDecorationLine: 'line-through' as const }
 const codeStyle = { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }
 
-export const htmlInlineStyles = ({ cyan400 }: { cyan400: string }) =>
+export const htmlInlineStyles = ({
+  cyan400,
+  fontScale,
+  leadingXs,
+  leadingBase,
+}: {
+  cyan400: string
+  fontScale: number
+  leadingXs: number
+  leadingBase: number
+}) =>
   ({
     b: boldStyle,
     strong: boldStyle,
@@ -124,11 +101,11 @@ export const htmlInlineStyles = ({ cyan400 }: { cyan400: string }) =>
       color: cyan400,
       textDecorationLine: 'none',
     },
-    small: { fontSize: 12, lineHeight: 18 },
+    small: { fontSize: 12, lineHeight: 12 * leadingXs * fontScale },
     text: {
       color: 'white',
       fontSize: 16,
-      lineHeight: 24,
+      lineHeight: 16 * leadingBase * fontScale,
     },
   }) as const
 
@@ -139,19 +116,18 @@ export function normalizeTagName(tagName: string) {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-export function replaceInlineImages(
-  html: string,
-  medias: PostMedia[],
-  contentWidth: number,
-) {
+/**
+ * Extract html fragment for each media,
+ * marking it with aspect ratio instead of explicit dimensions
+ * so the renderer in HtmlEngineProvider can provide the real container width at render time
+ */
+export function replaceInlineImages(html: string, medias: PostMedia[]) {
   medias.forEach((media, index) => {
     const ratio = (media.height || 1) / (media.width || 1)
     const src = formatMediaIdUrl(media.id)
-    const width = contentWidth - 12
-    const height = width * ratio
     html = html.replace(
       `![media-${index + 1}]`,
-      `<figure><img data-index="${index}" src="${src}" width="${width}" height="${height}" alt="${media.description}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
+      `<figure><img data-index="${index}" data-aspect="${ratio}" src="${src}" alt="${media.description}" /></figure><figcaption><small>${media.description}</small></figcaption>`,
     )
   })
   return html

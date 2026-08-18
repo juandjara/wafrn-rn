@@ -1,16 +1,20 @@
 import UserMenu from '@/components/dashboard/UserMenu'
-import { rootStyles } from '@/constants/Colors'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
-import { View, useWindowDimensions, Text } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { View, Text, Platform, useWindowDimensions } from 'react-native'
+import { useCSSString } from '@/lib/cssVariables'
 import { Extrapolation } from 'react-native-reanimated'
-import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs'
+import {
+  type BottomTabBarButtonProps,
+  type BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs'
 import WigglyPressable from '@/components/WigglyPressable'
 import { useServiceAnnouncements } from '@/lib/serviceAnnouncements'
+import { useShowBottomBar } from '@/lib/styles'
+import { rootStyles } from '@/constants/Colors'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -21,10 +25,7 @@ const ICON_SIZE = 28
 export default function TabsLayout() {
   const { data } = useNotificationBadges()
   const notificationCount = data?.notifications || 0
-  const blue950 = useCSSVariable('--color-blue-950') as string
-  const indigo300 = useCSSVariable('--color-indigo-300') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const blue950 = useCSSString('--color-blue-950')
   const pathname = usePathname()
 
   // running this here to only register notifications after auth flow is complete
@@ -33,24 +34,29 @@ export default function TabsLayout() {
   useShareIntentHandler()
 
   const { height } = useWindowDimensions()
+  const showBottomBar = useShowBottomBar()
+  const isWeb = Platform.OS === 'web'
+
+  const tabBaProps: BottomTabNavigationOptions = showBottomBar
+    ? {
+        tabBarPosition: 'bottom',
+        tabBarStyle: {
+          backgroundColor: blue950,
+        },
+        tabBarShowLabel: false,
+      }
+    : {
+        tabBarStyle: { display: 'none' },
+      }
 
   return (
     <Tabs
       screenOptions={{
         ...rootStyles,
+        ...tabBaProps,
         lazy: true,
         headerShown: false,
-        tabBarInactiveTintColor: indigo300,
-        tabBarActiveTintColor: gray200,
-        tabBarInactiveBackgroundColor: blue950,
-        tabBarStyle: {
-          backgroundColor: blue950,
-        },
-        tabBarHideOnKeyboard: true,
-        tabBarShowLabel: false,
-        tabBarIconStyle: {
-          height: 42,
-        },
+        tabBarHideOnKeyboard: !isWeb,
         transitionSpec: {
           animation: 'spring',
           config: {},
@@ -119,11 +125,6 @@ export default function TabsLayout() {
         name="notifications"
         options={{
           tabBarAccessibilityLabel: 'Notifications',
-          tabBarBadge: notificationCount || undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: cyan600,
-            color: 'white',
-          },
           tabBarButton: (props) => (
             <TabButton
               {...props}
@@ -183,6 +184,8 @@ function TabButton({
   icon,
   badge = 0,
   ref,
+  style,
+  href,
   ...props
 }: BottomTabBarButtonProps & {
   focused: boolean
@@ -195,8 +198,9 @@ function TabButton({
     focused: boolean
   }) => React.ReactNode
 }) {
-  const indigo300 = useCSSVariable('--color-indigo-300') as string
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const indigo300 = useCSSString('--color-indigo-300')
+  const gray200 = useCSSString('--color-gray-200')
+  const textColor = focused ? gray200 : indigo300
 
   return (
     <>
@@ -208,13 +212,15 @@ function TabButton({
       <WigglyPressable
         {...props}
         ref={ref as React.Ref<View>}
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+        style={[
+          style,
+          {
+            paddingTop: 8,
+          },
+        ]}
+        className="flex-1 gap-2"
       >
-        {icon({ color: focused ? gray200 : indigo300, focused })}
+        {icon({ color: textColor, focused })}
       </WigglyPressable>
     </>
   )

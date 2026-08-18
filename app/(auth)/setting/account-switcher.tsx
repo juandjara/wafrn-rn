@@ -1,11 +1,12 @@
 import Button from '@/components/Button'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
 import TextWithEmojis from '@/components/TextWithEmojis'
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { CONTENT_MAX_WIDTH } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Image } from 'expo-image'
@@ -19,10 +20,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data: me } = useCurrentUser()
   const {
     accounts,
@@ -33,8 +35,8 @@ export default function AccountSwitcherSettings() {
     removeAll,
   } = useAccounts()
   const [showLogin, setShowLogin] = useState(false)
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const indigo400 = useCSSVariable('--color-indigo-400') as string
+  const gray200 = useCSSString('--color-gray-200')
+  const indigo400 = useCSSString('--color-indigo-400')
 
   function onLoginComplete(token: string, instance: string) {
     setShowLogin(false)
@@ -47,7 +49,7 @@ export default function AccountSwitcherSettings() {
         ...sx,
         flex: 1,
         position: 'relative',
-        paddingTop: sx.paddingTop + HEADER_HEIGHT,
+        paddingTop: headerInset,
       }}
     >
       <Header title="Account Switcher" />
@@ -152,8 +154,13 @@ export default function AccountSwitcherSettings() {
             className="bg-black/50 flex-1 max-h-40"
             onPress={() => setShowLogin(false)}
           />
-          <View className="flex-1">
-            <ModalSignIn onLoginComplete={onLoginComplete} />
+          <View className="flex-1 bg-black/50">
+            <View
+              className="flex-1 w-full"
+              style={{ maxWidth: CONTENT_MAX_WIDTH, marginHorizontal: 'auto' }}
+            >
+              <ModalSignIn onLoginComplete={onLoginComplete} />
+            </View>
           </View>
         </Modal>
       </View>

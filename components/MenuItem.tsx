@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type ReactElement } from 'react'
 import { ViewStyle, Pressable, Text } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 type MaterialIconName = keyof (typeof MaterialCommunityIcons)['glyphMap']
 
@@ -22,7 +22,7 @@ export default function MenuItem({
   action,
   style,
 }: MenuItemProps) {
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray600 = useCSSString('--color-gray-600')
   return (
     <Pressable
       disabled={disabled}

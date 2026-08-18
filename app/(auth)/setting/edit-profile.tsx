@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Pressable,
   Text,
-  useWindowDimensions,
   View,
   ScrollView,
   Keyboard,
@@ -42,6 +41,7 @@ import {
   KeyboardToolbar,
 } from 'react-native-keyboard-controller'
 import { InteractionControl } from '@/lib/api/posts.types'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 type FormState = {
   name: string
@@ -52,7 +52,7 @@ export default function EditProfile() {
   const sx = useSafeAreaPadding()
   const { data: me } = useCurrentUser()
   const { data: settings } = useSettings()
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const headerImageHeight = width / 2
 
   const animatedRef = useAnimatedRef<ScrollView>()
@@ -277,6 +277,7 @@ export default function EditProfile() {
         keyboardShouldPersistTaps="handled"
       >
         <Pressable
+          accessibilityLabel="Change header image"
           onPress={pickHeaderImage}
           className="w-full bg-gray-800 border-b border-gray-500"
           style={{ minHeight: headerImageHeight }}
@@ -295,6 +296,7 @@ export default function EditProfile() {
         <View className="items-center my-4 rounded-md -mt-12">
           <Pressable
             className="relative bg-black rounded-lg border border-gray-500"
+            accessibilityLabel="Change avatar"
             onPress={pickAvatar}
           >
             <Image
@@ -364,6 +366,7 @@ export default function EditProfile() {
                   className="grow text-lg text-white rounded-md p-2 pr-12 border border-gray-600"
                 />
                 <Pressable
+                  accessibilityLabel="Remove custom field"
                   onPress={() =>
                     setCustomFields((prev) =>
                       prev.filter((_, i) => i !== index),

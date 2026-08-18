@@ -8,6 +8,8 @@ const {
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname)
 
+config.resolver.platforms = ['ios', 'android', 'web']
+
 module.exports = wrapWithReanimatedMetroConfig(
   withUniwindConfig(config, {
     cssEntryFile: './styles.css',

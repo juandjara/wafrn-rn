@@ -28,12 +28,45 @@ import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { ShareIntentProvider } from 'expo-share-intent'
 import NetInfoRibbon from '@/components/NetInfoRibbon'
+import { DeviceTextMetricsProbe } from '@/lib/textMetrics'
+import {
+  AntDesign,
+  Feather,
+  FontAwesome6,
+  Foundation,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+  Octicons,
+} from '@expo/vector-icons'
+import * as Font from 'expo-font'
 
-// This is the default configuration
+// Default reanimated logger configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 })
+
+// Fonts and @font-face rules most be loaded at app startup on Web
+// because the web fallback fonts block the fontfaceobserver readiness detection
+// and it times out never being set to ready.
+// This makes all icon fonts loaded for the first time an icon is rendered
+if (Platform.OS === 'web') {
+  Font.loadAsync({
+    ...AntDesign.font,
+    ...Feather.font,
+    ...FontAwesome6.font,
+    ...Foundation.font,
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+    ...MaterialIcons.font,
+    ...Octicons.font,
+  }).catch(() => {
+    // fontfaceobserver may reject because of detection resistance or duplicated font rules
+    // but fonts might still be loaded
+    console.error('Initial font loading for web failed')
+  })
+}
 
 const styles = StyleSheet.create({
   root: {
@@ -59,13 +92,16 @@ export default function RootLayout() {
           <AuthProvider>
             <ThemeProvider value={DarkTheme}>
               <GestureHandlerRootView style={styles.root}>
-                <Toasts />
                 <NetInfoRibbon />
+                <DeviceTextMetricsProbe />
                 <MenuProvider backHandler customStyles={styles}>
                   <HtmlEngineProvider>
                     <Slot />
                   </HtmlEngineProvider>
                 </MenuProvider>
+                {/* Toasts are put last so it paints on top of everything on web. */}
+                {/* `preventScreenReaderFromHiding` is needed because RN always reports the screen reader is enabled on Web */}
+                <Toasts preventScreenReaderFromHiding={Platform.OS === 'web'} />
               </GestureHandlerRootView>
             </ThemeProvider>
           </AuthProvider>

@@ -1,15 +1,14 @@
 import ErrorView from '@/components/errors/ErrorView'
-import Header from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import { useArticlePostId } from '@/lib/api/posts'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Redirect, useLocalSearchParams } from 'expo-router'
 import { View } from 'react-native'
 
 const HEADER_HEIGHT = 72
 
 export default function ArticleRedirect() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { slug } = useLocalSearchParams()
   const segments = Array.isArray(slug) ? slug.join('/') : slug
   const { data: postId, error, refetch } = useArticlePostId(segments)
@@ -25,7 +24,7 @@ export default function ArticleRedirect() {
       <View className="flex-1">
         {header}
         <ErrorView
-          style={{ marginTop: sx.paddingTop + HEADER_HEIGHT + 8 }}
+          style={{ marginTop: headerInset + 8 }}
           message={error.message}
           onRetry={refetch}
         />
@@ -36,7 +35,7 @@ export default function ArticleRedirect() {
   return (
     <View className="flex-1">
       {header}
-      <View style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}>
+      <View style={{ marginTop: headerInset }}>
         <Loading />
       </View>
     </View>

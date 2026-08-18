@@ -1,4 +1,4 @@
-import { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import PrivacySelect from '@/components/PrivacySelect'
 import { PrivacyLevel } from '@/lib/api/privacy'
 import {
@@ -17,7 +17,7 @@ import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { Link, router } from 'expo-router'
+import { Link } from 'expo-router'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -28,14 +28,8 @@ import {
   View,
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-  renderers,
-} from 'react-native-popup-menu'
-import { useCSSVariable } from 'uniwind'
+import BottomSheet from '@/components/BottomSheet'
+import { useCSSString } from '@/lib/cssVariables'
 
 const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
 
@@ -62,14 +56,16 @@ type FormState = {
 
 export default function Options() {
   const sx = useSafeAreaPadding()
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const headerInset = useHeaderInset()
+  const gray600 = useCSSString('--color-gray-600')
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
 
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
+  const [asksOpen, setAsksOpen] = useState(false)
   const [form, setForm] = useState<FormState>(() => {
     const opts = settings?.options || []
     const gifApiKey = getPrivateOptionValue(opts, PrivateOptionNames.GifApiKey)
@@ -233,43 +229,34 @@ export default function Options() {
 
   return (
     <View>
-      <View
-        className="absolute z-10 px-3 py-2 flex-row gap-4 items-center"
-        style={{ marginTop: sx.paddingTop }}
-      >
-        <Pressable
-          className="bg-black/30 rounded-full p-2"
-          onPress={() => router.back()}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
-        </Pressable>
-        <Text numberOfLines={1} className="text-white text-lg grow shrink">
-          Options & Customizations
-        </Text>
-        <Pressable
-          onPress={onSubmit}
-          className={clsx(
-            'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-            {
-              'bg-cyan-800 active:bg-cyan-700': canPublish,
-              'bg-gray-400/25 opacity-50': !canPublish,
-            },
-          )}
-        >
-          {editMutation.isPending ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <MaterialCommunityIcons
-              name="content-save-edit"
-              size={20}
-              color="white"
-            />
-          )}
-          <Text className="text-medium text-white">Save</Text>
-        </Pressable>
-      </View>
+      <Header
+        title="Options & Customizations"
+        right={
+          <Pressable
+            onPress={onSubmit}
+            className={clsx(
+              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
+              {
+                'bg-cyan-800 active:bg-cyan-700': canPublish,
+                'bg-gray-400/25 opacity-50': !canPublish,
+              },
+            )}
+          >
+            {editMutation.isPending ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <MaterialCommunityIcons
+                name="content-save-edit"
+                size={20}
+                color="white"
+              />
+            )}
+            <Text className="text-medium text-white">Save</Text>
+          </Pressable>
+        }
+      />
       <KeyboardAwareScrollView
-        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
+        style={{ marginTop: headerInset }}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 12,
@@ -300,60 +287,56 @@ export default function Options() {
         )}
         <View className="p-4">
           <Text className="text-white mb-2">Ask privacy</Text>
-          <Menu renderer={renderers.SlideInMenu}>
-            <MenuTrigger>
-              <View
-                className={clsx(
-                  'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
-                )}
-              >
-                <Text className="text-white text-sm px-1 grow shrink">
-                  {ASKS_LABELS[form.asks]}
-                </Text>
-                <MaterialCommunityIcons
-                  name="chevron-down"
-                  color={gray600}
-                  size={20}
-                />
-              </View>
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{
-                optionsContainer: {
-                  paddingBottom: sx.paddingBottom,
-                },
-              }}
+          <Pressable onPress={() => setAsksOpen(true)}>
+            <View
+              className={clsx(
+                'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
+              )}
             >
-              {[
-                AskOptionValue.AllowIdentifiedAsks,
-                AskOptionValue.AllowAnonAsks,
-                AskOptionValue.AllowNoAsks,
-              ].map((value) => (
-                <MenuOption
-                  key={value}
-                  onSelect={() => update('asks', value)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 16,
-                    padding: 16,
-                  }}
-                >
-                  <Text className="font-semibold shrink grow">
-                    {ASKS_LABELS[value]}
-                  </Text>
-                  {value === form.asks && (
-                    <Ionicons
-                      className="shrink-0"
-                      name="checkmark-sharp"
-                      color="black"
-                      size={24}
-                    />
-                  )}
-                </MenuOption>
-              ))}
-            </MenuOptions>
-          </Menu>
+              <Text className="text-white text-sm px-1 grow shrink">
+                {ASKS_LABELS[form.asks]}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-down"
+                color={gray600}
+                size={20}
+              />
+            </View>
+          </Pressable>
+          <BottomSheet open={asksOpen} setOpen={setAsksOpen}>
+            {[
+              AskOptionValue.AllowIdentifiedAsks,
+              AskOptionValue.AllowAnonAsks,
+              AskOptionValue.AllowNoAsks,
+            ].map((value) => (
+              <Pressable
+                key={value}
+                className="active:bg-gray-200"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: 16,
+                }}
+                onPress={() => {
+                  update('asks', value)
+                  setAsksOpen(false)
+                }}
+              >
+                <Text className="font-semibold shrink grow">
+                  {ASKS_LABELS[value]}
+                </Text>
+                {value === form.asks && (
+                  <Ionicons
+                    className="shrink-0"
+                    name="checkmark-sharp"
+                    color="black"
+                    size={24}
+                  />
+                )}
+              </Pressable>
+            ))}
+          </BottomSheet>
         </View>
         <View className="p-4">
           <Text className="text-white mb-2">Default post privacy</Text>

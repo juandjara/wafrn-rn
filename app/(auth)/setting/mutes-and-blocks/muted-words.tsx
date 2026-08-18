@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import {
   AdvancedMutedWord,
   getPrivateOptionValue,
@@ -24,7 +24,7 @@ import {
   View,
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 const DEFAULT_BLOCK = {
   words: '',
@@ -34,7 +34,8 @@ const DEFAULT_BLOCK = {
 
 export default function MutedWords() {
   const sx = useSafeAreaPadding()
-  const indigo400 = useCSSVariable('--color-indigo-400') as string
+  const headerInset = useHeaderInset()
+  const indigo400 = useCSSString('--color-indigo-400')
   const { edit } = useLocalSearchParams<{ edit?: string }>()
   const { data: settings } = useSettings()
   const blocks = useMemo(() => {
@@ -144,7 +145,7 @@ export default function MutedWords() {
         right={isEditMode ? renderSaveButton() : undefined}
       />
       <KeyboardAwareScrollView
-        style={{ marginTop: sx.paddingTop + HEADER_HEIGHT }}
+        style={{ marginTop: headerInset }}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 12,
@@ -211,7 +212,7 @@ function MutedWordListItem({
   onDelete: () => void
   isLoading: boolean
 }) {
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
   return (
     <Link
       push
@@ -230,6 +231,7 @@ function MutedWordListItem({
             {block.words}
           </Text>
           <Pressable
+            accessibilityLabel={`Delete muted words: ${block.words}`}
             disabled={isLoading}
             onPress={onDelete}
             className="p-2 shrink-0"
@@ -271,9 +273,9 @@ function MutedWordForm({
   form: AdvancedMutedWord
   setForm: (form: AdvancedMutedWord) => void
 }) {
-  const gray300 = useCSSVariable('--color-gray-300') as string
-  const gray400 = useCSSVariable('--color-gray-400') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
+  const gray300 = useCSSString('--color-gray-300')
+  const gray400 = useCSSString('--color-gray-400')
+  const cyan600 = useCSSString('--color-cyan-600')
 
   function updateForm(field: keyof AdvancedMutedWord, value: string) {
     const newForm = { ...form, [field]: value }

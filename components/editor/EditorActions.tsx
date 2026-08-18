@@ -4,14 +4,14 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { useState } from 'react'
-import { Modal, Pressable, ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
 import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorFormState, EditorImage } from '@/lib/editor'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import InteractionControlMenu, {
   InteractionControlChange,
 } from './InteractionControlMenu'
@@ -34,7 +34,7 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showGifPicker, setShowGifPicker] = useState(false)
-  const yellow500 = useCSSVariable('--color-yellow-500') as string
+  const yellow500 = useCSSString('--color-yellow-500')
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -83,19 +83,14 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         />
       )}
       {showEmojiPicker && (
-        <Modal
-          visible
-          animationType="slide"
-          onRequestClose={() => setShowEmojiPicker(false)}
-        >
-          <EmojiPicker
-            onClose={() => setShowEmojiPicker(false)}
-            onPick={(emoji) => {
-              actions.insertCharacter(emoji.content || emoji.name)
-              setShowEmojiPicker(false)
-            }}
-          />
-        </Modal>
+        <EmojiPicker
+          title="Add an emoji"
+          onClose={() => setShowEmojiPicker(false)}
+          onPick={(emoji) => {
+            actions.insertCharacter(emoji.content || emoji.name)
+            setShowEmojiPicker(false)
+          }}
+        />
       )}
       <ScrollView
         contentContainerClassName="gap-3 w-full justify-center p-3"

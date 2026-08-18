@@ -4,8 +4,12 @@ import { formatEmojiUrl } from '@/lib/formatters'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
 import { Image, Text, TextProps } from 'react-native'
+import { MAX_FONT_SCALE, useFontScale } from '@/lib/styles'
+import { useTextMetrics } from '@/lib/textMetrics'
 
 const EMOJI_REGEX = /:[a-zA-Z0-9_]+:/g
+const FONT_SIZE = 14
+const LINE_HEIGHT = FONT_SIZE * 1.75
 
 export default function TextWithEmojis({
   text,
@@ -19,6 +23,10 @@ export default function TextWithEmojis({
   innerTextProps?: TextProps
 } & TextProps) {
   const { data: settings } = useSettings()
+
+  const fontScale = useFontScale()
+  const { height: emojiSize, baselineOffset: emojiOffset } =
+    useTextMetrics(FONT_SIZE)
 
   const emojiMap = useMemo(() => {
     const list =
@@ -51,13 +59,13 @@ export default function TextWithEmojis({
             key={`${matchIndex}-${emoji.name}`}
             source={{
               uri: formatEmojiUrl(emoji.uuid),
-              width: 20,
-              height: 20,
+              width: emojiSize,
+              height: emojiSize,
             }}
             alt={emoji.name.replaceAll(':', '')}
             style={{
               overflow: 'hidden',
-              transform: [{ translateY: (20 - 14) / 2 + 2 }],
+              transform: [{ translateY: emojiOffset }],
               marginHorizontal: 1,
             }}
           />,
@@ -68,7 +76,7 @@ export default function TextWithEmojis({
             key={`${matchIndex}--empty-emoji`}
             name="check-box-outline-blank"
             color="white"
-            size={20}
+            size={emojiSize}
           />,
         )
       }
@@ -81,13 +89,18 @@ export default function TextWithEmojis({
       </Text>,
     )
     return elements
-  }, [text, emojiMap, innerTextProps])
+  }, [text, emojiMap, innerTextProps, emojiSize, emojiOffset])
 
   return (
     <Text
       {...props}
       className={className}
-      style={[props.style, { fontSize: 14, lineHeight: 28 }]}
+      maxFontSizeMultiplier={MAX_FONT_SCALE}
+      style={[
+        props.style,
+        // scale the line height so it keeps in check with the font size scaled by accesibility settings
+        { fontSize: FONT_SIZE, lineHeight: LINE_HEIGHT * fontScale },
+      ]}
       textBreakStrategy="simple"
       id="text-with-emojis"
     >

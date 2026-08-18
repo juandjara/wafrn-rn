@@ -10,18 +10,23 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { FontAwesome6, Ionicons } from '@expo/vector-icons'
+import {
+  FontAwesome6,
+  Ionicons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { clsx } from 'clsx'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Colors } from '@/constants/Colors'
+import { CONTENT_MAX_WIDTH } from '@/lib/styles'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import PagerView from 'react-native-pager-view'
+import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { InstanceListItem, useInstanceList } from '@/lib/api/instances'
 import { DEFAULT_INSTANCE } from '@/lib/api/auth'
@@ -63,7 +68,7 @@ export default function InstancePicker({
 
   const [mode, setMode] = useState<'list' | 'write'>('list')
 
-  const pagerRef = useRef<PagerView>(null)
+  const pagerRef = useRef<PagerViewRef>(null)
   const tabBarWidth = useSharedValue(0)
   const tabPositionX = useSharedValue(0)
   const tabStyles = useAnimatedStyle(() => ({
@@ -95,68 +100,82 @@ export default function InstancePicker({
           backgroundColor: Colors.dark.background,
         }}
       >
-        <View className="grow-0">
-          <Text className="text-sm text-gray-200 mb-2 p-3">
-            Connect to WAFRN with...
-          </Text>
-          <View
-            className="relative flex-row gap-2 shrink-0 rounded-2xl border border-gray-600 justify-center mx-3 mb-2"
-            onLayout={onLayout}
-          >
-            <Animated.View
-              style={tabStyles}
-              className="absolute inset-0 w-1/2 bg-gray-200 rounded-xl m-1"
-            />
-            <TouchableOpacity
-              onPress={() => setTab('list')}
-              className="p-3 w-1/2 flex-1 shrink"
-            >
-              <Text
-                className={clsx(
-                  mode === 'list'
-                    ? 'text-gray-900 font-medium'
-                    : 'text-gray-500',
-                  'text-center',
-                )}
-              >
-                Known servers
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setTab('write')}
-              className="p-3 w-1/2 flex-1 shrink"
-            >
-              <Text
-                className={clsx(
-                  mode === 'write'
-                    ? 'text-gray-900 font-medium'
-                    : 'text-gray-500',
-                  'text-center',
-                )}
-              >
-                Custom server
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <PagerView
-          ref={pagerRef}
-          initialPage={0}
-          onPageSelected={(ev) => {
-            const page = ev.nativeEvent.position
-            setMode(page === 0 ? 'list' : 'write')
-          }}
-          style={{ flex: 1 }}
+        <View
+          className="flex-1 w-full mx-auto"
+          style={{ maxWidth: CONTENT_MAX_WIDTH }}
         >
-          <InstanceList
-            instances={instances}
-            selected={selected}
-            onSelect={onSelect}
-            isLoading={isFetching}
-            onRefresh={refetch}
-          />
-          <InstanceInput onSelect={onSelect} />
-        </PagerView>
+          <View className="grow-0">
+            <View className="flex-row items-center justify-between p-3">
+              <Text className="text-sm text-gray-200 grow shrink">
+                Connect to WAFRN with...
+              </Text>
+              <Pressable
+                className="shrink-0 active:bg-white/10 rounded-full p-1.5"
+                accessibilityLabel="Close"
+                onPress={onClose}
+              >
+                <MaterialCommunityIcons name="close" size={20} color="white" />
+              </Pressable>
+            </View>
+            <View
+              className="relative flex-row gap-2 shrink-0 rounded-2xl border border-gray-600 justify-center mx-3 mb-2"
+              onLayout={onLayout}
+            >
+              <Animated.View
+                style={tabStyles}
+                className="absolute inset-0 w-1/2 bg-gray-200 rounded-xl m-1"
+              />
+              <TouchableOpacity
+                onPress={() => setTab('list')}
+                className="p-3 w-1/2 flex-1 shrink"
+              >
+                <Text
+                  className={clsx(
+                    mode === 'list'
+                      ? 'text-gray-900 font-medium'
+                      : 'text-gray-500',
+                    'text-center',
+                  )}
+                >
+                  Known servers
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setTab('write')}
+                className="p-3 w-1/2 flex-1 shrink"
+              >
+                <Text
+                  className={clsx(
+                    mode === 'write'
+                      ? 'text-gray-900 font-medium'
+                      : 'text-gray-500',
+                    'text-center',
+                  )}
+                >
+                  Custom server
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <PagerView
+            ref={pagerRef}
+            initialPage={0}
+            onPageSelected={(ev) => {
+              const page = ev.nativeEvent.position
+              setMode(page === 0 ? 'list' : 'write')
+            }}
+            style={{ flex: 1 }}
+          >
+            <InstanceList
+              instances={instances}
+              selected={selected}
+              onSelect={onSelect}
+              isLoading={isFetching}
+              onRefresh={refetch}
+            />
+            <InstanceInput onSelect={onSelect} />
+          </PagerView>
+        </View>
       </View>
     </Modal>
   )
@@ -250,9 +269,7 @@ function InstanceList({
                 <FontAwesome6 name="bluesky" />
                 {' Bluesky enabled'}
               </Text>
-            ) : (
-              ''
-            )}
+            ) : null}
           </View>
         </Pressable>
       ))}

@@ -3,7 +3,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, TextInput, TouchableOpacity, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
+import { useFocusRing } from '@/lib/styles'
+import { clsx } from 'clsx'
 
 export default function SearchBox({
   query,
@@ -14,21 +16,26 @@ export default function SearchBox({
 }) {
   const sx = useSafeAreaPadding()
   const [searchTerm, setSearchTerm] = useState(query)
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const { ringClassName, inputProps } = useFocusRing()
+  const gray300 = useCSSString('--color-gray-300')
 
   return (
     <View
       style={{ marginTop: sx.paddingTop }}
-      className="flex-row items-center border-b border-gray-600 h-16 pr-12"
+      className={clsx(
+        'flex-row items-center border-b border-gray-600 h-16 pr-2',
+        ringClassName,
+      )}
     >
       <Pressable
         className="mx-2 bg-black/30 rounded-full p-2"
+        accessibilityLabel="Go back"
         onPress={() => router.back()}
       >
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Pressable>
       <TextInput
-        style={{ marginRight: 48 }}
+        {...inputProps}
         placeholderTextColorClassName="accent-gray-500"
         placeholder="Search text or enter URL"
         className="text-white grow"
@@ -39,7 +46,14 @@ export default function SearchBox({
       />
       <TouchableOpacity
         className="absolute top-3 right-2 z-10 p-2 rounded-full"
-        onPress={() => onSearch('')}
+        accessibilityLabel="Clear search"
+        onPress={() => {
+          if (query) {
+            onSearch('')
+          } else {
+            setSearchTerm('')
+          }
+        }}
       >
         <MaterialCommunityIcons
           color={gray300}

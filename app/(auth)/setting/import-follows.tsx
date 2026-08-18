@@ -1,4 +1,4 @@
-import Header from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useFollowAllMutation, useFollowsParserMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import {
@@ -15,11 +15,12 @@ import { formatUserUrl } from '@/lib/formatters'
 import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ImportFollows() {
   const sx = useSafeAreaPadding()
-  const indigo600 = useCSSVariable('--accent-indigo-600') as string
+  const headerInset = useHeaderInset()
+  const indigo600 = useCSSString('--color-indigo-600')
   const mutation = useFollowsParserMutation()
   const followAllMutation = useFollowAllMutation()
   const canFollowAll =
@@ -56,7 +57,7 @@ export default function ImportFollows() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + 64 }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header
         title="Import Follows"
         right={

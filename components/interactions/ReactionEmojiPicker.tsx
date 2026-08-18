@@ -7,7 +7,6 @@ import {
   useEmojiReactMutation,
   useExtendedReactions,
 } from '@/lib/api/emojis'
-import { Modal } from 'react-native'
 
 export default function ReactionEmojiPicker({
   post,
@@ -40,12 +39,11 @@ export default function ReactionEmojiPicker({
   }
 
   return (
-    <Modal visible animationType="slide" onRequestClose={() => onClose(false)}>
-      <EmojiPicker
-        onClose={() => onClose(false)}
-        onPick={onPickEmoji}
-        reactions={extendedReactions}
-      />
-    </Modal>
+    <EmojiPicker
+      title="React with an emoji"
+      onClose={() => onClose(false)}
+      onPick={onPickEmoji}
+      reactions={extendedReactions}
+    />
   )
 }

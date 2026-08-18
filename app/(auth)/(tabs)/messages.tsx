@@ -1,14 +1,13 @@
 import Dashboard from '@/components/dashboard/Dashboard'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { DashboardMode } from '@/lib/api/dashboard'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Text, View } from 'react-native'
 
 export default function Messages() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
 
   return (
-    <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ flex: 1, paddingTop: headerInset }}>
       <Header title="Direct Messages" />
       <Dashboard
         mode={DashboardMode.PRIVATE}

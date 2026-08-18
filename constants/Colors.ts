@@ -3,7 +3,9 @@ const tintColorDark = '#fff'
 export const Colors = {
   dark: {
     text: '#ECEDEE',
+    // color for the continuous surface behind all content. Posts are cards floating on top of it.
     background: '#151718',
+    // colors for the mobile bottom tab bar
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',

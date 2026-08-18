@@ -1,19 +1,20 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useDeleteAccountMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useState } from 'react'
 import { Button, Text, TextInput, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function DeleteAccount() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [password, setPassword] = useState('')
   const deleteAccountMutation = useDeleteAccountMutation()
-  const color = useCSSVariable('--color-red-700') as string
-  const placeholderColor = useCSSVariable('--color-gray-400') as string
+  const color = useCSSString('--color-red-700')
+  const placeholderColor = useCSSString('--color-gray-400')
 
   return (
-    <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
       <Header title="Delete my account" />
       <View className="p-4">
         <Text className="text-white">

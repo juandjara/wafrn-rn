@@ -203,12 +203,14 @@ export default function Video({
               <View className="flex-row items-center gap-5">
                 <TouchableOpacity
                   onPress={skipBackward}
+                  accessibilityLabel="Skip back 5 seconds"
                   className="bg-black/70 rounded-full p-4"
                 >
                   <Ionicons name="play-back" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={togglePlay}
+                  accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
                   className="bg-black/70 rounded-full p-5"
                 >
                   <Ionicons
@@ -219,6 +221,7 @@ export default function Video({
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={skipForward}
+                  accessibilityLabel="Skip forward 5 seconds"
                   className="bg-black/70 rounded-full p-4"
                 >
                   <Ionicons name="play-forward" size={24} color="white" />
@@ -230,7 +233,10 @@ export default function Video({
                 {formatTime(currentTime)} / {formatTime(duration)}
               </Text>
               <View className="flex-row gap-4">
-                <TouchableOpacity onPress={toggleMute}>
+                <TouchableOpacity
+                  onPress={toggleMute}
+                  accessibilityLabel={muted ? 'Unmute' : 'Mute'}
+                >
                   <Ionicons
                     name={muted ? 'volume-mute' : 'volume-high'}
                     size={20}

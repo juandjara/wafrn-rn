@@ -25,7 +25,7 @@ import { GENDERS } from '@/lib/genders'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import { router } from 'expo-router'
 import { useRegisterMutation } from '@/lib/api/user'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { useToasts } from '@/lib/toasts'
 import { useAuth } from '@/lib/contexts/AuthContext'
 
@@ -58,10 +58,10 @@ function parseDate(input: string) {
 export default function Register() {
   const sx = useSafeAreaPadding()
   const inputTextColor = Colors.dark.text
-  const placeholderColor = useCSSVariable('--color-gray-400') as string
+  const placeholderColor = useCSSString('--color-gray-400')
   const mutation = useRegisterMutation()
   const { showToastSuccess } = useToasts()
-  const gray600 = useCSSVariable('--color-gray-600') as string
+  const gray600 = useCSSString('--color-gray-600')
   const { env } = useAuth()
 
   function onSubmit(values: RegisterFormState) {
@@ -446,6 +446,7 @@ export default function Register() {
                               {value && (
                                 <Pressable
                                   className="absolute z-20 right-0.5 top-0.5 bg-black/40 rounded-full p-1"
+                                  accessibilityLabel="Remove image"
                                   onPress={() => setValue(null)}
                                 >
                                   <MaterialCommunityIcons

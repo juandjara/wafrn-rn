@@ -25,8 +25,10 @@ export default function MediaCloak({
   children: React.ReactNode
 }) {
   const [hidden, setHidden] = useState(isNSFW)
-  const width = backgroundImage?.width || 0
-  const height = width * (backgroundImage?.aspectRatio || 1)
+
+  // reduce load on operations done with width and height by rounding them to the nearest integer
+  const width = Math.round(backgroundImage?.width || 0)
+  const height = Math.round(width * (backgroundImage?.aspectRatio || 1))
   const shouldUseImgBg = !!blurHash
 
   const cloak = (
@@ -44,7 +46,11 @@ export default function MediaCloak({
 
   const cloakWrapper = shouldUseImgBg ? (
     <ImageBackground
-      source={{ blurhash: blurHash, width, height }}
+      // Decode the blurhash at expo-image's default tiny size (32x32).
+      // Passing full media dimensions here makes the web decoder allocate a really big canvas
+      // which is unnecesary and can crash on web.
+      // Display size still comes from the style prop below.
+      source={{ blurhash: blurHash }}
       style={[style, { width, height, minHeight: CLOAK_MIN_HEIGHT }]}
       blurRadius={50}
     >
@@ -65,6 +71,7 @@ export default function MediaCloak({
     <View className="relative">
       {children}
       <Pressable
+        accessibilityLabel="Hide media"
         onPress={() => setHidden(true)}
         className="absolute top-1 right-2 rounded-md bg-indigo-950/75 p-2"
       >

@@ -1,2 +1,30 @@
 @import 'tailwindcss';
 @import 'uniwind';
+
+/* Unscaled ratios to be used in runtime TS compute */
+@theme static {
+  /* Base ratios shared by content and UI styles */
+  --leading-xs: 1.3333; /* 16 / 12 */
+  --leading-base: 1.5; /* 24 / 16 */
+  --leading-post-heading: 1.15; /* post h1-h6 only: a 1.2 modular scale with no UI equivalent */
+}
+
+/*
+ * Tailwind ratios wrapped in native font scaling so it supports accesibility text scaling.
+ * React Native has no relative line-height, and applies font-scaling only to font-size automatically.
+ * Using `fontScale` here makes sure that font-scaling is also applied to line-height (at runtime)
+ * so no text is rendered with a font-size greater than its line-height,
+ * which would cause clipping.
+ */
+@theme {
+  --text-xs--line-height: calc(var(--leading-xs) * fontScale(1)); /* 16 / 12 */
+  --text-sm--line-height: fontScale(1.4286); /* 20 / 14 */
+  --text-base--line-height: calc(
+    var(--leading-base) * fontScale(1)
+  ); /* 24 / 16 */
+  --text-lg--line-height: fontScale(1.5556); /* 28 / 18 */
+  --text-xl--line-height: fontScale(1.4); /* 28 / 20 */
+  --text-2xl--line-height: fontScale(1.3333); /* 32 / 24 */
+  --text-3xl--line-height: fontScale(1.2); /* 36 / 30 */
+  --text-4xl--line-height: fontScale(1.1111); /* 40 / 36 */
+}

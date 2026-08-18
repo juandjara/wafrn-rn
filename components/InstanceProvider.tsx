@@ -3,7 +3,7 @@ import InstancePicker from './InstancePicker'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { type PropsWithChildren, useState } from 'react'
 import { Image } from 'expo-image'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { isValidURL } from '@/lib/api/content'
 import { useToasts } from '@/lib/toasts'
 
@@ -17,8 +17,8 @@ export default function InstanceProvider({
   setSavedInstance: (url: string) => void
   envStatus: 'pending' | 'error' | 'success'
 }) {
-  const gray600 = useCSSVariable('--color-gray-600') as string
-  const red700 = useCSSVariable('--color-red-700') as string
+  const gray600 = useCSSString('--color-gray-600')
+  const red700 = useCSSString('--color-red-700')
   const [modalOpen, setModalOpen] = useState(false)
   const { showToastError } = useToasts()
   const isFetching = envStatus === 'pending'

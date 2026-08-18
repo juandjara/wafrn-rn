@@ -55,11 +55,17 @@ export function formatTimeAgo(date: string) {
 }
 
 export function formatHeaderUrl(userId: string, instanceUrl?: string) {
+  if (!userId) {
+    return ''
+  }
   const env = getEnvironmentStatic()
   const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
   return `${baseUrl}/api/v2/cache/header/${userId}`
 }
 export function formatAvatarUrl(userId: string, instanceUrl?: string) {
+  if (!userId) {
+    return ''
+  }
   const env = getEnvironmentStatic()
   const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
   return `${baseUrl}/api/v2/cache/avatar/${userId}`

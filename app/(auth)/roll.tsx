@@ -7,7 +7,7 @@ import {
   BackHandler,
 } from 'react-native'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useRef, useState } from 'react'
 import { useToasts } from '@/lib/toasts'
 
@@ -31,6 +31,7 @@ const SUCCESS_MESSAGES = [
 
 export default function RollScreen() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [rolls, setRolls] = useState<number[]>([])
   const [isRolling, setIsRolling] = useState(false)
   const [isDead, setIsDead] = useState(false)
@@ -99,7 +100,7 @@ export default function RollScreen() {
   const lastDice = dices[lastRoll - 1]
 
   return (
-    <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
       <Header title="Try your luck" />
       <Pressable
         onPress={rollDice}

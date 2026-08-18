@@ -3,6 +3,7 @@ import { parseDocument, ElementType } from 'htmlparser2'
 import React from 'react'
 import { Text, TextStyle, View, ViewStyle } from 'react-native'
 import { Image } from 'expo-image'
+import { useTextMetrics } from '@/lib/textMetrics'
 
 // const IGNORED_TAGS = [
 //   'head',
@@ -84,11 +85,10 @@ type ElementNode = DomNode & {
   }
 }
 /**
-This renderer is only used for simple inline html rendering
-for things such as usernames and rewoot ribbons.
-It does not support the complex html rendering needed for post contents.
-For that, use the HtmlEngineRenderer component.
-*/
+ * This renderer is only used for small inline html rendering.
+ * It does not support the complex html rendering needed for post contents.
+ * For that, use the HtmlEngineRenderer component.
+ */
 const HtmlSimpleRenderer = React.memo(_HtmlSimpleRenderer)
 export default HtmlSimpleRenderer
 
@@ -128,6 +128,25 @@ function renderTextNode(node: DataNode, index: number, color?: string) {
     </Text>
   )
 }
+
+/**
+ * Neither caller sets a font size, so this renderer draws text at the RN default.
+ * Emojis are measured against that size to match characters around them.
+ */
+const INLINE_FONT_SIZE = 14
+
+function EmojiImage({ src, alt }: { src: string; alt?: string }) {
+  const { height } = useTextMetrics(INLINE_FONT_SIZE)
+  return (
+    <Image
+      source={src}
+      alt={alt}
+      contentFit="contain"
+      style={{ width: height, height }}
+    />
+  )
+}
+
 function renderElement(node: ElementNode, index: number, color?: string) {
   if (node.name === LINK_TAG) {
     const children = node.children.map((c, i) => renderNode(c, i, color))
@@ -139,7 +158,13 @@ function renderElement(node: ElementNode, index: number, color?: string) {
   }
   if (node.name === IMG_TAG) {
     const { src, width, height } = node.attribs
-    if (!src || !width || !height) {
+    if (!src) {
+      return null
+    }
+    if (node.attribs['data-emoji']) {
+      return <EmojiImage key={index} src={src} alt={node.attribs.alt} />
+    }
+    if (!width || !height) {
       return null
     }
     return (

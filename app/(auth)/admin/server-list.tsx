@@ -1,18 +1,19 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useServerList } from '@/lib/api/admin'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ServerList() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [showSearch, setShowSearch] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [query, setQuery] = useState('')
   const { data, refetch, isFetching } = useServerList(query)
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
 
   function search(term: string) {
     setQuery(term)
@@ -28,6 +29,7 @@ export default function ServerList() {
       <Text className="text-white text-lg grow shrink">Server list</Text>
       <Pressable
         className="shrink-0 bg-black/30 rounded-full p-2"
+        accessibilityLabel="Search servers"
         onPress={() => setShowSearch(true)}
       >
         <MaterialCommunityIcons name="magnify" size={20} color="white" />
@@ -54,7 +56,7 @@ export default function ServerList() {
           inputMode="search"
           onSubmitEditing={(e) => search(e.nativeEvent.text)}
         />
-        <Pressable onPress={clear}>
+        <Pressable accessibilityLabel="Clear search" onPress={clear}>
           <MaterialCommunityIcons
             className="px-3"
             name="close"
@@ -67,7 +69,7 @@ export default function ServerList() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title={showSearch ? headerSearch : headerTitle} />
       <FlatList
         data={data}

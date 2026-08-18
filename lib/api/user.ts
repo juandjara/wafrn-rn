@@ -17,7 +17,7 @@ import type { MediaUploadPayload } from './media'
 import { formatAvatarUrl, formatCachedUrl, formatUserUrl } from '../formatters'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
-import { File } from 'expo-file-system'
+import { getUploadableFile } from '@/lib/files'
 import { router } from 'expo-router'
 import { startTransition } from 'react'
 
@@ -351,10 +351,10 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
   )
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
-    formData.append('avatar', new File(payload.avatar.uri))
+    formData.append('avatar', await getUploadableFile(payload.avatar))
   }
   if (payload.headerImage) {
-    formData.append('headerImage', new File(payload.headerImage.uri))
+    formData.append('headerImage', await getUploadableFile(payload.headerImage))
   }
 
   const env = getEnvironmentStatic()
@@ -495,7 +495,7 @@ async function loadMastodonFollowersCSV(token: string, localFileUri: string) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/loadFollowList`
   const fd = new FormData()
-  const file = new File(localFileUri)
+  const file = await getUploadableFile({ uri: localFileUri })
   fd.append('follows', file)
 
   const json = await getJSON(url, {
@@ -627,7 +627,7 @@ export async function register(token: string, payload: RegisterPayload) {
   formData.append('birthDate', payload.birthDate)
   formData.append('description', payload.description)
   if (payload.avatar) {
-    formData.append('avatar', new File(payload.avatar.uri))
+    formData.append('avatar', await getUploadableFile(payload.avatar))
   }
 
   const env = getEnvironmentStatic()

@@ -1,7 +1,7 @@
 import { Image, ImageBackground } from 'expo-image'
 import { Link } from 'expo-router'
 import { TouchableOpacity, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function YTPreviewCard({
   href,
@@ -12,7 +12,7 @@ export default function YTPreviewCard({
   image: string
   width: number
 }) {
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const gray200 = useCSSString('--color-gray-200')
   return (
     <Link href={href} asChild>
       <TouchableOpacity className="mt-4">

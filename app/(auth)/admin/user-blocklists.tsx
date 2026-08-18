@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import BlockRibbon from '@/components/ribbons/BlockRibbon'
 import { useBlocklists } from '@/lib/api/admin'
 import { formatAvatarUrl } from '@/lib/formatters'
@@ -10,13 +10,14 @@ import { useResolveClassNames } from 'uniwind'
 
 export default function UserBlocklists() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, refetch, isFetching } = useBlocklists()
   const imageCn = useResolveClassNames(
     'w-10 h-10 rounded-lg border border-gray-500',
   )
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="User blocklists" />
       <FlatList
         data={data}

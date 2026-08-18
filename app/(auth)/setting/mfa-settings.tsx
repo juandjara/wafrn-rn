@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import {
   useCreateMfaMutation,
@@ -20,8 +20,7 @@ import {
   View,
 } from 'react-native'
 import { encodeQR } from 'qr'
-import { saveFileToGallery } from '@/lib/downloads'
-import { File, Paths } from 'expo-file-system'
+import { saveTextToDevice } from '@/lib/files'
 import { setStringAsync } from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { useToasts } from '@/lib/toasts'
@@ -30,6 +29,7 @@ import { useMutation } from '@tanstack/react-query'
 
 export default function MfaSettings() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const [name, setName] = useState('')
   const [token, setToken] = useState('')
   const { data, isLoading, isFetching } = useMfaDetails()
@@ -62,9 +62,7 @@ export default function MfaSettings() {
     mutationFn: async () => {
       if (qrCodeSvg && newMfa?.name) {
         const filename = `qr-${newMfa.name}.svg`
-        const file = new File(Paths.cache, filename)
-        file.write(qrCodeSvg)
-        await saveFileToGallery(file.uri)
+        await saveTextToDevice(filename, qrCodeSvg, 'image/svg+xml')
       }
     },
     onSuccess: () => showToastSuccess('QR code downloaded to your gallery'),
@@ -102,7 +100,7 @@ export default function MfaSettings() {
   }
 
   return (
-    <View style={{ ...sx, flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
       <Header title="Multi-Factor Authentication" />
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"

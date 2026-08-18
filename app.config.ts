@@ -8,6 +8,8 @@ const versionNumber = major * 1000000 + minor * 1000 + patch
 const isDev = process.env.NODE_ENV === 'development'
 const appId = isDev ? 'dev.djara.wafrn_rn.dev' : 'dev.djara.wafrn_rn'
 const name = isDev ? 'Wafrn Dev' : 'Wafrn'
+const description =
+  'A multi-instance client for wafrn, the tumblr-like fediverse network.'
 const icon = isDev
   ? './assets/images/logo_w_dev.png'
   : './assets/images/logo_w.png'
@@ -72,6 +74,7 @@ function intentLink(host: string, autoVerify: boolean) {
 export default {
   expo: {
     name,
+    description,
     slug: 'wafrn-rn',
     version: versionName,
     orientation: 'portrait',
@@ -83,7 +86,7 @@ export default {
       resizeMode: 'contain',
       backgroundColor: '#151718',
     },
-    platforms: ['ios', 'android'],
+    platforms: ['ios', 'android', 'web'],
     ios: {
       supportsTablet: true,
       bundleIdentifier: isDev ? 'dev.djara.wafrn-rn.dev' : 'dev.djara.wafrn-rn',
@@ -116,12 +119,25 @@ export default {
     },
     extra: {
       router: {
-        origin: false,
+        // only for the web build
+        origin: process.env.EXPO_ROUTER_ORIGIN || false,
       },
       eas: {
         projectId: '8453855c-b400-4d59-bd72-0ebfa1a95eb2',
       },
     },
     runtimeVersion: pkg.version,
+    web: {
+      output: 'server',
+      favicon: './assets/images/favicon.png',
+      // `name` here is the PWA manifest name, separate from the native app name above.
+      name,
+      shortName: name,
+      description,
+      lang: 'en',
+      themeColor: '#151718',
+      backgroundColor: '#151718',
+      display: 'standalone',
+    },
   } satisfies ExpoConfig,
 }

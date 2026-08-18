@@ -1,7 +1,7 @@
 import { toast, Toast } from '@backpackapp-io/react-native-toast'
 import { Pressable, Text, View } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function ErrorCopyToast({
   toast: _toast,
@@ -11,9 +11,9 @@ export default function ErrorCopyToast({
   error: Error
 }) {
   const { id, width } = _toast
-  const red800 = useCSSVariable('--color-red-800') as string
-  const green900 = useCSSVariable('--color-green-900') as string
-  const green100 = useCSSVariable('--color-green-100') as string
+  const red800 = useCSSString('--color-red-800')
+  const green900 = useCSSString('--color-green-900')
+  const green100 = useCSSString('--color-green-100')
   return (
     <View
       key={id}

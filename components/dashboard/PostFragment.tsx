@@ -1,12 +1,5 @@
 import type { Post } from '@/lib/api/posts.types'
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { formatUserUrl, formatDate } from '@/lib/formatters'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import Media from '../posts/Media'
@@ -31,7 +24,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import ImageGallery from '../posts/ImageGallery'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import InteractionMenu from '../interactions/InteractionMenu'
 import PostReactionList from '../posts/PostReactionList'
 import {
@@ -41,6 +34,8 @@ import {
 } from '@/lib/api/content'
 import { useSettings } from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
+import { requestIdle } from '@/lib/requestIdle'
 
 type PostFragmentProps = {
   post: Post
@@ -48,6 +43,7 @@ type PostFragmentProps = {
   hasCornerMenu?: boolean
   collapsible?: boolean
   clickable?: boolean
+  className?: string
 }
 
 export default function PostFragment({ post, ...props }: PostFragmentProps) {
@@ -57,7 +53,7 @@ export default function PostFragment({ post, ...props }: PostFragmentProps) {
 
   useEffect(() => {
     if (settings && !derivedState) {
-      requestIdleCallback(() => {
+      return requestIdle(() => {
         const derivedState = getDerivedPostState(post, context, settings)
         setDerivedPostState(post.id, derivedState)
       })
@@ -75,6 +71,7 @@ function PostFragmentInner({
   hasCornerMenu = true,
   collapsible = true,
   clickable = true,
+  className,
 }: Omit<PostFragmentProps, 'post'> & {
   postState: DerivedPostData
 }) {
@@ -98,15 +95,15 @@ function PostFragmentInner({
 
   const showQuotedPost = !!quotedPost && !isQuote
 
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const contentWidth = width - POST_MARGIN - (isQuote ? POST_MARGIN : 0)
 
   const layout = usePostLayout(post.id)
   const cwOpen = layout.cwOpen ?? initialCWOpen
   const collapsed = layout.collapsed ?? false
 
-  const gray200 = useCSSVariable('--color-gray-200') as string
-  const yellow500 = useCSSVariable('--color-yellow-500') as string
+  const gray200 = useCSSString('--color-gray-200')
+  const yellow500 = useCSSString('--color-yellow-500')
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
@@ -182,7 +179,7 @@ function PostFragmentInner({
 
   return (
     <Pressable
-      className={clsx('px-3 bg-indigo-950 relative', {
+      className={clsx('px-3 bg-indigo-950 relative', className, {
         'rounded-xl': isQuote,
       })}
       onLongPress={collapsePost}
@@ -228,130 +225,134 @@ function PostFragmentInner({
               'border border-yellow-500 rounded-xl my-4': !!contentWarning,
             })}
           >
-            {contentWarning && (
-              <View
-                id="content-warning-indicator"
-                className="flex-row items-start gap-3 p-2"
-              >
-                <View className="ml-1 gap-1">
-                  {contentWarning.toLowerCase().includes('fedi meta') ? (
-                    <MaterialCommunityIcons
-                      name="skull"
-                      size={24}
-                      color={yellow500}
-                    />
-                  ) : (
-                    <Ionicons name="warning" size={24} color={yellow500} />
+            <>
+              {contentWarning && (
+                <View
+                  id="content-warning-indicator"
+                  className="flex-row items-start gap-3 p-2"
+                >
+                  <View className="ml-1 gap-1">
+                    {contentWarning.toLowerCase().includes('fedi meta') ? (
+                      <MaterialCommunityIcons
+                        name="skull"
+                        size={24}
+                        color={yellow500}
+                      />
+                    ) : (
+                      <Ionicons name="warning" size={24} color={yellow500} />
+                    )}
+                    {medias.length > 0 && (
+                      <MaterialCommunityIcons
+                        name="image"
+                        color="white"
+                        size={24}
+                      />
+                    )}
+                    {showQuotedPost && (
+                      <MaterialIcons
+                        name="format-quote"
+                        size={24}
+                        color={gray200}
+                      />
+                    )}
+                  </View>
+                  <View className="shrink grow gap-2">
+                    <Text className="text-yellow-100 leading-5">
+                      {contentWarning}
+                    </Text>
+                    <Pressable
+                      id="content-warning-toggle"
+                      className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
+                      onPress={toggleCW}
+                    >
+                      <Text className="text-indigo-500 text-center text-base">
+                        {cwOpen ? 'Hide' : 'Show'} content
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+              {cwOpen ? (
+                <View id="content-inner" style={contentInnerStyle}>
+                  {ask && <AskCard className="mt-4 mb-2" ask={ask} />}
+                  {mentionedUsers.length > 0 && (
+                    <ScrollView
+                      horizontal
+                      contentContainerClassName="gap-2"
+                      className="shrink-0 grow-0 mt-2"
+                    >
+                      {mentionedUsers.map((u) => (
+                        <Link key={u.id} href={`/user/${u.url}`}>
+                          <Text className="text-cyan-200 text-sm">
+                            {formatUserUrl(u.url)}
+                          </Text>
+                        </Link>
+                      ))}
+                    </ScrollView>
                   )}
-                  {medias.length > 0 && (
-                    <MaterialCommunityIcons
-                      name="image"
-                      color="white"
-                      size={24}
+                  <View collapsable={false} className="py-2">
+                    <HtmlEngineRenderer
+                      html={postContent}
+                      contentWidth={contentWidth}
+                      hiddenLinks={hiddenLinks}
                     />
+                  </View>
+                  {medias.length > 0 && (
+                    <View id="media-list" className="pt-4 pb-2">
+                      <ImageGallery
+                        open={imageGalleryOpen !== null}
+                        setOpen={(open) => setImageGalleryOpen(open ? 0 : null)}
+                        medias={medias}
+                        index={imageGalleryOpen ?? 0}
+                      />
+                      {medias.map((media, index) => (
+                        <Media
+                          key={`${media.id}-${index}`}
+                          media={media}
+                          contentWidth={contentWidth}
+                          userUrl={formatUserUrl(user?.url)}
+                          onPress={() => setImageGalleryOpen(index)}
+                        />
+                      ))}
+                    </View>
+                  )}
+                  {poll && (
+                    <Poll
+                      key={post.id}
+                      postId={post.id}
+                      poll={poll}
+                      interactable={isDetailView}
+                    />
+                  )}
+                  {tags.length > 0 && (
+                    <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
+                      {tags.map((tag, index) => (
+                        <Link
+                          key={`${tag}-${index}`}
+                          href={`/search?q=${tag}`}
+                          className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
+                          asChild
+                        >
+                          <Pressable>
+                            <Text className="text-cyan-200 text-sm">
+                              #{tag}
+                            </Text>
+                          </Pressable>
+                        </Link>
+                      ))}
+                    </View>
                   )}
                   {showQuotedPost && (
-                    <MaterialIcons
-                      name="format-quote"
-                      size={24}
-                      color={gray200}
-                    />
+                    <View
+                      id="quoted-post"
+                      className="my-2 border border-gray-500 rounded-xl bg-gray-500/10"
+                    >
+                      <PostFragment isQuote post={quotedPost} />
+                    </View>
                   )}
                 </View>
-                <View className="shrink grow gap-2">
-                  <Text className="text-yellow-100 leading-5">
-                    {contentWarning}
-                  </Text>
-                  <Pressable
-                    id="content-warning-toggle"
-                    className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
-                    onPress={toggleCW}
-                  >
-                    <Text className="text-indigo-500 text-center text-base">
-                      {cwOpen ? 'Hide' : 'Show'} content
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
-            {cwOpen ? (
-              <View id="content-inner" style={contentInnerStyle}>
-                {ask && <AskCard className="mt-4 mb-2" ask={ask} />}
-                {mentionedUsers.length > 0 && (
-                  <ScrollView
-                    horizontal
-                    contentContainerClassName="gap-2"
-                    className="shrink-0 grow-0 mt-2"
-                  >
-                    {mentionedUsers.map((u) => (
-                      <Link key={u.id} href={`/user/${u.url}`}>
-                        <Text className="text-cyan-200 text-sm">
-                          {formatUserUrl(u.url)}
-                        </Text>
-                      </Link>
-                    ))}
-                  </ScrollView>
-                )}
-                <View collapsable={false} className="py-2">
-                  <HtmlEngineRenderer
-                    html={postContent}
-                    contentWidth={contentWidth}
-                    hiddenLinks={hiddenLinks}
-                  />
-                </View>
-                {medias.length > 0 && (
-                  <View id="media-list" className="pt-4 pb-2">
-                    <ImageGallery
-                      open={imageGalleryOpen !== null}
-                      setOpen={(open) => setImageGalleryOpen(open ? 0 : null)}
-                      medias={medias}
-                      index={imageGalleryOpen ?? 0}
-                    />
-                    {medias.map((media, index) => (
-                      <Media
-                        key={`${media.id}-${index}`}
-                        media={media}
-                        contentWidth={contentWidth}
-                        userUrl={formatUserUrl(user?.url)}
-                        onPress={() => setImageGalleryOpen(index)}
-                      />
-                    ))}
-                  </View>
-                )}
-                {poll && (
-                  <Poll
-                    key={post.id}
-                    postId={post.id}
-                    poll={poll}
-                    interactable={isDetailView}
-                  />
-                )}
-                {tags.length > 0 && (
-                  <View className="flex-row flex-wrap gap-2 py-2 z-40 mb-3 border-t border-cyan-700">
-                    {tags.map((tag, index) => (
-                      <Link
-                        key={`${tag}-${index}`}
-                        href={`/search?q=${tag}`}
-                        className="bg-cyan-600/20 py-0.5 px-1.5 rounded-md"
-                        asChild
-                      >
-                        <Pressable>
-                          <Text className="text-cyan-200 text-sm">#{tag}</Text>
-                        </Pressable>
-                      </Link>
-                    ))}
-                  </View>
-                )}
-                {showQuotedPost && (
-                  <View
-                    id="quoted-post"
-                    className="my-2 border border-gray-500 rounded-xl bg-gray-500/10"
-                  >
-                    <PostFragment isQuote post={quotedPost} />
-                  </View>
-                )}
-              </View>
-            ) : null}
+              ) : null}
+            </>
           </View>
           <PostReactionList post={post} />
         </>

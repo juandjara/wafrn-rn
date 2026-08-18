@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useAdminCheck } from '@/lib/contexts/AuthContext'
 import { useNotificationBadges } from '@/lib/notifications'
 import { optionStyleDark } from '@/lib/styles'
@@ -6,14 +6,15 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { startProfiling, stopProfiling } from 'react-native-release-profiler'
 
 export default function AdminIndex() {
   const { data: badges } = useNotificationBadges()
   const isAdmin = useAdminCheck()
   const sx = useSafeAreaPadding()
-  const gray200 = useCSSVariable('--color-gray-200') as string
+  const headerInset = useHeaderInset()
+  const gray200 = useCSSString('--color-gray-200')
 
   const options = [
     {
@@ -70,7 +71,7 @@ export default function AdminIndex() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Admin settings" />
       <ScrollView>
         {options.map((opt, i) => (

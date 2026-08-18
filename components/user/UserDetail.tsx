@@ -10,7 +10,7 @@ import {
   getPublicOptionValue,
   PublicOptionNames,
 } from '@/lib/api/settings'
-import { Pressable, Text, useWindowDimensions, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import {
   formatUserUrl,
   formatHeaderUrl,
@@ -30,34 +30,44 @@ import { useFollowMutation } from '@/lib/interaction'
 import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 export default function UserDetail({ user }: { user: User }) {
-  const gray400 = useCSSVariable('--color-gray-400') as string
+  const gray400 = useCSSString('--color-gray-400')
   const me = useParsedToken()
   const isMe = me?.userId === user.id
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const height = width / 2
   const { data: settings } = useSettings()
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
   const followMutation = useFollowMutation(user)
 
-  const { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows } =
-    useMemo(() => {
-      const amIFollowing = settings?.followedUsers.includes(user?.id!)
-      const amIAwaitingApproval = settings?.notAcceptedFollows.includes(
-        user?.id!,
-      )
-      const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
-      const commonFollows = followers
-        ? followers.filter(
-            (f) =>
-              f.id !== me?.userId && settings?.followedUsers.includes(f.id),
-          )
-        : []
-      return { amIFollowing, amIAwaitingApproval, isFollowingMe, commonFollows }
-    }, [user, me?.userId, settings, myFollowers, followers])
+  const {
+    amIFollowing,
+    amIAwaitingApproval,
+    isFollowingMe,
+    commonFollows,
+    commonExtraCount,
+  } = useMemo(() => {
+    const amIFollowing = settings?.followedUsers.includes(user?.id!)
+    const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
+    const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
+    const followedSet = new Set(settings?.followedUsers)
+    const commonFollows = followers
+      ? followers.filter((f) => f.id !== me?.userId && followedSet.has(f.id))
+      : []
+    const commonExtraCount =
+      commonFollows.length > 3 ? commonFollows.length - 3 : 0
+    return {
+      amIFollowing,
+      amIAwaitingApproval,
+      isFollowingMe,
+      commonFollows: commonFollows.slice(0, 3),
+      commonExtraCount,
+    }
+  }, [user, me?.userId, settings, myFollowers, followers])
 
   const description = useMemo(() => {
     return collapseWhitespace(replaceEmojis(user.description, user.emojis))
@@ -185,7 +195,7 @@ export default function UserDetail({ user }: { user: User }) {
               Followed by people you follow
             </Text>
             <View className="flex-row items-center gap-1 mt-2">
-              {commonFollows.slice(0, 3).map((f) => (
+              {commonFollows.map((f) => (
                 <Link key={f.id} href={`/user/${f.url}`}>
                   <Image
                     key={f.id}
@@ -194,9 +204,9 @@ export default function UserDetail({ user }: { user: User }) {
                   />
                 </Link>
               ))}
-              {commonFollows.length > 3 && (
+              {commonExtraCount > 0 && (
                 <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg text-sm">
-                  +{commonFollows.length - 3}
+                  +{commonExtraCount}
                 </Text>
               )}
             </View>

@@ -1,5 +1,8 @@
+import { SHEET_MAX_SIZE } from '@/lib/styles'
+import { FixedWidthProvider } from '@/lib/contexts/ContainerWidthContext'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { clsx } from 'clsx'
+import { Toasts } from '@backpackapp-io/react-native-toast'
 import {
   Modal,
   Pressable,
@@ -7,6 +10,7 @@ import {
   View,
   StyleSheet,
   LayoutChangeEvent,
+  Platform,
 } from 'react-native'
 import {
   Gesture,
@@ -16,32 +20,49 @@ import {
 import Animated, {
   clamp,
   runOnJS,
+  SlideInDown,
   SlideOutDown,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated'
+import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller'
 
 function BottomSheetContent({
   children,
   onClose,
   className,
+  initialFullHeight,
 }: {
   children: React.ReactNode
   onClose: () => void
   className?: string
+  initialFullHeight: boolean
 }) {
   const sx = useSafeAreaPadding()
-  const { height } = useWindowDimensions()
+  const { width: windowWidth, height } = useWindowDimensions()
   const maxHeight = height * 0.6
+  const sheetWidth = Math.min(windowWidth, SHEET_MAX_SIZE)
   const size = useSharedValue(0)
   const position = useSharedValue(height + sx.paddingBottom)
+
+  const keyboard = useReanimatedKeyboardAnimation()
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: position.value }],
+    transform: [
+      {
+        translateY:
+          position.value +
+          keyboard.height.value +
+          // `progress.value` moves from 0 to 1 as the animation completes
+          keyboard.progress.value * sx.paddingBottom,
+      },
+    ],
   }))
 
   const panGesture = Gesture.Pan()
+    .activeOffsetY([-10, 10])
+    .failOffsetX([-10, 10])
     .onChange((ev) => {
       const newPos = position.value + ev.changeY
       position.value = clamp(newPos, height - size.value, height)
@@ -59,9 +80,48 @@ function BottomSheetContent({
   function onLayout(ev: LayoutChangeEvent) {
     const contentHeight = ev.nativeEvent.layout.height
     size.value = contentHeight
-    position.value = withTiming(height - Math.min(contentHeight, maxHeight), {
-      duration: 300,
-    })
+    position.value = withTiming(
+      height - Math.min(contentHeight, initialFullHeight ? height : maxHeight),
+      {
+        duration: 300,
+      },
+    )
+  }
+
+  if (Platform.OS === 'web') {
+    return (
+      <View className="flex-1">
+        <Pressable
+          className="bg-black/50"
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+        />
+        <FixedWidthProvider
+          width={sheetWidth}
+          style={{
+            ...StyleSheet.absoluteFill,
+            top: 'auto',
+            marginHorizontal: 'auto',
+            maxHeight: initialFullHeight ? undefined : '50%',
+          }}
+        >
+          <Animated.View
+            entering={SlideInDown}
+            exiting={SlideOutDown}
+            className={clsx(
+              'pt-1 flex-1 w-full h-full rounded-t-xl overflow-auto',
+              className ?? 'bg-white',
+            )}
+          >
+            <View onLayout={onLayout}>
+              {children}
+              <View style={{ height: sx.paddingBottom + 16 }} />
+            </View>
+          </Animated.View>
+        </FixedWidthProvider>
+        <Toasts />
+      </View>
+    )
   }
 
   return (
@@ -74,16 +134,20 @@ function BottomSheetContent({
       <GestureDetector gesture={panGesture}>
         <Animated.View
           exiting={SlideOutDown}
-          style={[animStyle]}
-          className={clsx('bg-white rounded-t-xl', className)}
+          style={animStyle}
+          className={clsx(
+            'mx-auto w-full rounded-t-xl',
+            className ?? 'bg-white',
+          )}
         >
           <View className="my-1.5 mx-auto w-8 rounded-full bg-gray-400 h-1" />
           <View onLayout={onLayout}>
             {children}
-            <View style={{ height: sx.paddingBottom * 2 }} />
+            <View style={{ height: sx.paddingBottom + 16 }} />
           </View>
         </Animated.View>
       </GestureDetector>
+      <Toasts />
     </GestureHandlerRootView>
   )
 }
@@ -94,15 +158,21 @@ export default function BottomSheet({
   setOpen,
   children,
   className,
+  initialFullHeight = false,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   children: React.ReactNode
   className?: string
+  initialFullHeight?: boolean
 }) {
   return (
     <Modal transparent visible={open} onRequestClose={() => setOpen(false)}>
-      <BottomSheetContent className={className} onClose={() => setOpen(false)}>
+      <BottomSheetContent
+        initialFullHeight={initialFullHeight}
+        className={className}
+        onClose={() => setOpen(false)}
+      >
         {children}
       </BottomSheetContent>
     </Modal>

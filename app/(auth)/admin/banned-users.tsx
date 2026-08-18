@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import { useBanList, useToggleBanUserMutation } from '@/lib/api/admin'
 import { formatAvatarUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -9,6 +9,7 @@ import { useResolveClassNames } from 'uniwind'
 
 export default function BanList() {
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
   const { data, refetch, isFetching } = useBanList()
   const mutation = useToggleBanUserMutation()
   const cn = useResolveClassNames(
@@ -16,7 +17,7 @@ export default function BanList() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="Banned users" />
       <FlatList
         data={data}

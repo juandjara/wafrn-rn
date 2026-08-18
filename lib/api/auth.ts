@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { createAtom } from '@xstate/store'
-import { getItem } from 'expo-secure-store'
+import { getItem } from '@/lib/storage'
 
 export const AUTH_TOKEN_KEY = 'wafrn_token'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'

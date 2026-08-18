@@ -1,5 +1,5 @@
 import PostFragment from '@/components/dashboard/PostFragment'
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import UserCard from '@/components/user/UserCard'
@@ -20,13 +20,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
 import { useRef, useState, useTransition } from 'react'
-import {
-  Text,
-  useWindowDimensions,
-  View,
-  FlatList,
-  Pressable,
-} from 'react-native'
+import { Text, View, FlatList, Pressable } from 'react-native'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
 import EmojiReactRibbon from '@/components/ribbons/EmojiReactRibbon'
@@ -37,15 +31,19 @@ import {
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
 } from '@/lib/api/posts'
 import BiteRibbon from '@/components/ribbons/BiteRibbon'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { useBottomBarHeight } from '@/lib/styles'
+import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { clsx } from 'clsx'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
+import { requestIdle } from '@/lib/requestIdle'
 
 export default function NotificationList() {
   const sx = useSafeAreaPadding()
-  const gray300 = useCSSVariable('--color-gray-300') as string
-  const bottomPadding = sx.paddingBottom + BOTTOM_BAR_HEIGHT
+  const headerInset = useHeaderInset()
+  const gray300 = useCSSString('--color-gray-300')
+  const bottomBarHeight = useBottomBarHeight()
+  const bottomPadding = sx.paddingBottom + bottomBarHeight
   const [showDetached, setShowDetached] = useState(false)
   const { data, fetchNextPage, hasNextPage, isFetching, refetch } =
     useNotifications(showDetached)
@@ -66,7 +64,7 @@ export default function NotificationList() {
   function refresh() {
     startTransition(async () => {
       await refetch()
-      requestIdleCallback(() => {
+      requestIdle(() => {
         listRef.current?.scrollToOffset({ offset: 0, animated: false })
       })
     })
@@ -78,6 +76,7 @@ export default function NotificationList() {
 
   const cornerButton = (
     <Pressable
+      accessibilityLabel={`Unapproved notifications: ${showDetached ? 'shown' : 'hidden'}`}
       onPress={toggleDetached}
       className="p-1.5 rounded-full active:bg-gray-300/30"
     >
@@ -90,9 +89,9 @@ export default function NotificationList() {
   )
 
   return (
-    <View style={{ flex: 1, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ flex: 1, paddingTop: headerInset }}>
       <Header
-        title={showDetached ? 'Unauthorized notifications' : 'Notifications'}
+        title={showDetached ? 'Unapproved notifications' : 'Notifications'}
         right={cornerButton}
       />
       <DashboardContextProvider data={context}>
@@ -123,7 +122,7 @@ function NotificationItem({
 }: {
   notification: FullNotification
 }) {
-  const { width } = useWindowDimensions()
+  const width = useContainerWidth()
   const context = useDashboardContext()
   const user = { ...notification.user, remoteId: null }
   const userEmojis = getUserEmojis(user, context)

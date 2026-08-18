@@ -1,19 +1,19 @@
 import { toast, ToastOptions } from '@backpackapp-io/react-native-toast'
 import { useMemo } from 'react'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export function useToasts() {
-  const green900 = useCSSVariable('--color-green-900') as string
-  const green100 = useCSSVariable('--color-green-100') as string
+  const green900 = useCSSString('--color-green-900')
+  const green100 = useCSSString('--color-green-100')
 
-  const red900 = useCSSVariable('--color-red-900') as string
-  const red100 = useCSSVariable('--color-red-100') as string
+  const red900 = useCSSString('--color-red-900')
+  const red100 = useCSSString('--color-red-100')
 
-  const blue900 = useCSSVariable('--color-blue-900') as string
-  const white = useCSSVariable('--color-white') as string
+  const blue900 = useCSSString('--color-blue-900')
+  const white = useCSSString('--color-white')
 
-  const red500 = useCSSVariable('--color-red-500') as string
-  const black = useCSSVariable('--color-black') as string
+  const red500 = useCSSString('--color-red-500')
+  const black = useCSSString('--color-black')
 
   return useMemo(() => {
     function showToastSuccess(message: string) {

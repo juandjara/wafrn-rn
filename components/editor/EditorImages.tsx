@@ -7,6 +7,7 @@ import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
+  useWindowDimensions,
   ActivityIndicator,
   Modal,
   Pressable,
@@ -15,17 +16,17 @@ import {
   Switch,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native'
 import Video from '../Video'
 import { useParsedToken } from '@/lib/contexts/AuthContext'
 import { formatUserUrl } from '@/lib/formatters'
 import { EditorImage } from '@/lib/editor'
-import { useCSSVariable, useResolveClassNames } from 'uniwind'
+import { useResolveClassNames } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import { BOTTOM_BAR_HEIGHT } from '@/lib/styles'
+import { BOTTOM_BAR_HEIGHT, CONTENT_MAX_WIDTH } from '@/lib/styles'
 
 const COMMON_MEDIA_LIMIT = 4
 
@@ -50,14 +51,15 @@ export default function ImageList({
   const theme = useTheme()
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const selectedImage = images[openIndex ?? 0]
+  // Only used inside the full-screen preview Modal below.
   const { width } = useWindowDimensions()
-  const size = width - 24
+  const size = Math.min(width, CONTENT_MAX_WIDTH) - 24
 
-  const red700 = useCSSVariable('--color-red-700') as string
-  const gray700 = useCSSVariable('--color-gray-700') as string
-  const cyan900 = useCSSVariable('--color-cyan-900') as string
-  const cyan600 = useCSSVariable('--color-cyan-600') as string
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const red700 = useCSSString('--color-red-700')
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
   const imageCn = useResolveClassNames('rounded-md border border-gray-500 m-2')
 
   if (!images.length) {
@@ -95,11 +97,16 @@ export default function ImageList({
             }}
             contentContainerStyle={{
               paddingBottom: sx.paddingBottom + BOTTOM_BAR_HEIGHT,
+              // The scroll view keeps painting edge to edge; only the form is capped.
+              width: '100%',
+              maxWidth: CONTENT_MAX_WIDTH,
+              marginHorizontal: 'auto',
             }}
           >
             <View className="flex-row items-center pb-3">
               <Pressable
                 className="p-1 bg-white/10 rounded-full mr-3"
+                accessibilityLabel="Go back"
                 onPress={() => setOpenIndex(null)}
               >
                 <MaterialIcons
@@ -209,6 +216,7 @@ export default function ImageList({
                   'absolute top-0 right-0 bg-white rounded-full p-1',
                   { 'opacity-0': isLoading(img) },
                 )}
+                accessibilityLabel="Remove image"
                 onPress={() => removeImage(index)}
               >
                 <MaterialIcons name="close" color="black" size={20} />

@@ -4,15 +4,16 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import DashboardModeMenu, {
   PublicDashboardMode,
 } from '@/components/dashboard/DashboardModeMenu'
-import PagerView from 'react-native-pager-view'
+import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { NativeSyntheticEvent, StyleSheet, View } from 'react-native'
-import Header from '@/components/Header'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import Header, { useHeaderInset } from '@/components/Header'
 import { Link } from 'expo-router'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import WigglyPressable from '@/components/WigglyPressable'
+import { useBottomBarHeight, useSmallScreenCheck } from '@/lib/styles'
+
+const FEED_HEADER_HEIGHT = 60
 
 const MODES = [
   DashboardMode.FEED,
@@ -21,11 +22,12 @@ const MODES = [
 ] as const
 
 export default function Index() {
-  const sx = useSafeAreaPadding()
-  const pagerRef = useRef<PagerView>(null)
+  const headerInset = useHeaderInset(FEED_HEADER_HEIGHT)
+  const pagerRef = useRef<PagerViewRef>(null)
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
-  const bottomTabBarHeight = useBottomTabBarHeight()
-  const blue800 = useCSSVariable('--color-blue-800') as string
+  const bottomTabBarHeight = useBottomBarHeight()
+  const blue800 = useCSSString('--color-blue-800')
+  const isSmallScreen = useSmallScreenCheck()
 
   function _setMode(mode: PublicDashboardMode) {
     // NOTE: calling this will call the `onPageScroll` event handler that will call the `setMode` function
@@ -36,9 +38,9 @@ export default function Index() {
     () =>
       StyleSheet.create({
         flex: { flex: 1 },
-        root: { flex: 1, paddingTop: sx.paddingTop + 60 },
+        root: { flex: 1, paddingTop: headerInset },
       }),
-    [sx.paddingTop],
+    [headerInset],
   )
 
   const pages = useMemo(() => {
@@ -60,16 +62,21 @@ export default function Index() {
   return (
     <View style={styles.flex}>
       <Header
-        style={{ minHeight: 60, paddingLeft: 8, gap: 0 }}
+        style={{ minHeight: FEED_HEADER_HEIGHT, paddingLeft: 8, gap: 0 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
       />
-      <View key="editor-link" className="absolute bottom-4 right-3 z-20">
-        <Link href="/editor" asChild>
-          <WigglyPressable className="p-4 rounded-full bg-white shadow shadow-blue-800">
-            <MaterialIcons name="mode-edit" size={24} color={blue800} />
-          </WigglyPressable>
-        </Link>
-      </View>
+      {isSmallScreen ? (
+        <View key="editor-link" className="absolute bottom-4 right-3 z-20">
+          <Link href="/editor" asChild>
+            <WigglyPressable
+              accessibilityLabel="Woot!"
+              className="p-4 rounded-full bg-white shadow shadow-blue-800"
+            >
+              <MaterialIcons name="mode-edit" size={24} color={blue800} />
+            </WigglyPressable>
+          </Link>
+        </View>
+      ) : null}
       <PagerView
         ref={pagerRef}
         onPageScroll={onPageScroll}

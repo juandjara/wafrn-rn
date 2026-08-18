@@ -100,6 +100,7 @@ export default function ZoomableImage({
               uri: src,
               cacheKey,
             }}
+            loading="lazy"
             placeholderContentFit={contentFit}
             placeholder={{ blurhash: blurHash, width, height }}
             contentFit={contentFit}
@@ -182,6 +183,7 @@ function ZoomableImageModalContent({
           >
             <Pressable
               className="p-2 rounded-full active:bg-white/20"
+              accessibilityLabel="Reload image"
               disabled={reloadImageMutation.isPending}
               onPress={reloadImage}
             >
@@ -193,6 +195,7 @@ function ZoomableImageModalContent({
             </Pressable>
             <Pressable
               className="p-2 rounded-full active:bg-white/20"
+              accessibilityLabel="Download image"
               disabled={downloadMutation.isPending}
               onPress={download}
             >
@@ -204,6 +207,7 @@ function ZoomableImageModalContent({
             </Pressable>
             <Pressable
               className="p-2 rounded-full active:bg-white/20"
+              accessibilityLabel="Close"
               onPress={onClose}
             >
               <MaterialIcons name="close" size={24} color="white" />

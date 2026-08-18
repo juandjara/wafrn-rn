@@ -1,6 +1,6 @@
 import PostFragment from '@/components/dashboard/PostFragment'
 import ErrorView from '@/components/errors/ErrorView'
-import Header from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
@@ -17,7 +17,6 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { formatUserUrl } from '@/lib/formatters'
 import pluralize from '@/lib/pluralize'
 import { useLayoutData } from '@/lib/postStore'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Link, useLocalSearchParams } from 'expo-router'
@@ -29,7 +28,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Dimensions, FlatList, Text, View } from 'react-native'
+import { Dimensions, FlatList, Platform, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
 import { EmojiBase } from '@/lib/api/emojis'
 
@@ -74,7 +73,7 @@ type PostDetailItemData =
     }
 
 export default function PostDetail() {
-  const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset(POST_HEADER_HEIGHT)
   const { postid, isArticle } = useLocalSearchParams()
   const { data, isFetching, refetch, error } = usePostDetail(postid as string)
 
@@ -207,6 +206,13 @@ export default function PostDetail() {
   // To work around this, we prepend rows after scroll bumps against the top and rests.
   const needsBumpMaxParents = useRef(false)
 
+  const bumpMaxParentsIfNeeded = useCallback(() => {
+    if (needsBumpMaxParents.current) {
+      needsBumpMaxParents.current = false
+      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
+    }
+  }, [])
+
   const onStartReached = useCallback(() => {
     if (isFetching) {
       return
@@ -215,8 +221,13 @@ export default function PostDetail() {
     const parents = postCount - 1
     if (parents && maxParents < parents) {
       needsBumpMaxParents.current = true
+
+      // On web, onMomentumScrollEnd never fires because browsers expose no momentum events
+      if (Platform.OS === 'web') {
+        bumpMaxParentsIfNeeded()
+      }
     }
-  }, [maxParents, postCount, isFetching])
+  }, [maxParents, postCount, isFetching, bumpMaxParentsIfNeeded])
 
   const onEndReached = useCallback(() => {
     if (isFetching || replyCount < maxReplies) {
@@ -224,13 +235,6 @@ export default function PostDetail() {
     }
     setMaxReplies((prev) => prev + REPLIES_CHUNK_SIZE)
   }, [isFetching, maxReplies, replyCount])
-
-  const bumpMaxParentsIfNeeded = useCallback(() => {
-    if (needsBumpMaxParents.current) {
-      needsBumpMaxParents.current = false
-      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
-    }
-  }, [])
 
   const onScrollToTop = bumpMaxParentsIfNeeded
 
@@ -281,7 +285,7 @@ export default function PostDetail() {
       <View className="flex-1">
         {header}
         <ErrorView
-          style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT + 8 }}
+          style={{ marginTop: headerInset + 8 }}
           message={error.message}
           onRetry={refetch}
         />
@@ -294,7 +298,7 @@ export default function PostDetail() {
     return (
       <View className="flex-1">
         {header}
-        <View style={{ marginTop: sx.paddingTop + POST_HEADER_HEIGHT }}>
+        <View style={{ marginTop: headerInset }}>
           <Loading />
         </View>
       </View>
@@ -304,7 +308,7 @@ export default function PostDetail() {
   return (
     <DashboardContextProvider data={context}>
       {header}
-      <View style={{ marginTop: sx.paddingTop + 72, flex: 1 }}>
+      <View style={{ marginTop: headerInset, flex: 1 }}>
         <Reanimated.FlatList
           ref={listRef}
           data={currentList}

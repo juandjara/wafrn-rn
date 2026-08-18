@@ -1,4 +1,4 @@
-import Header, { HEADER_HEIGHT } from '@/components/Header'
+import Header, { useHeaderInset } from '@/components/Header'
 import ZoomableImage from '@/components/posts/ZoomableImage'
 import { useNewUserMutation, useUsersForApproval } from '@/lib/api/admin'
 import { formatUserUrl, formatMediaUrl } from '@/lib/formatters'
@@ -13,6 +13,7 @@ export default function NewUsers() {
   const { refetch: refetchBadge } = useNotificationBadges()
   const mutation = useNewUserMutation()
   const sx = useSafeAreaPadding()
+  const headerInset = useHeaderInset()
 
   async function approveUser(userId: string, activate: boolean) {
     await mutation.mutateAsync({ activate, userId })
@@ -20,7 +21,7 @@ export default function NewUsers() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: sx.paddingTop + HEADER_HEIGHT }}>
+    <View style={{ ...sx, paddingTop: headerInset }}>
       <Header title="New users" />
       <ScrollView
         style={{ opacity: isFetching ? 0.5 : 1 }}

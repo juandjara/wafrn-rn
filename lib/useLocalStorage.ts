@@ -1,4 +1,4 @@
-import { getItemAsync, deleteItemAsync, setItemAsync } from 'expo-secure-store'
+import { getItemAsync, deleteItemAsync, setItemAsync } from '@/lib/storage'
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 

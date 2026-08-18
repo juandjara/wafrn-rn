@@ -14,7 +14,7 @@ import Tenor from 'tenor-gif-api'
 import Loading from '../Loading'
 import { Image } from 'expo-image'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { downloadFile } from '@/lib/downloads'
+import { fetchToLocalUri } from '@/lib/files'
 import { EditorImage } from '@/lib/editor'
 import {
   PrivateOptionNames,
@@ -22,7 +22,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { Link } from 'expo-router'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 
 type GifMediaFormat = {
@@ -73,7 +73,7 @@ export default function GifSearch({
   onClose: () => void
   onSelect: (gif: EditorImage) => void
 }) {
-  const gray500 = useCSSVariable('--color-gray-500') as string
+  const gray500 = useCSSString('--color-gray-500')
   const sx = useSafeAreaPadding()
   const { data: settings } = useSettings()
   const gifApiKey = getPrivateOptionValue(
@@ -112,7 +112,10 @@ export default function GifSearch({
     mutationKey: ['download-gif'],
     mutationFn: async (gif: GifResponse) => {
       const filename = `gif-${gif.id}.webp`
-      const localUri = await downloadFile(gif.media_formats.webp.url, filename)
+      const localUri = await fetchToLocalUri(
+        gif.media_formats.webp.url,
+        filename,
+      )
       onSelect({
         uri: localUri,
         width: gif.media_formats.webp.dims[0],
@@ -149,7 +152,11 @@ export default function GifSearch({
             enterKeyHint="search"
             readOnly={!gifApiKey}
           />
-          <Pressable onPress={onClose} className="p-2">
+          <Pressable
+            accessibilityLabel="Close"
+            onPress={onClose}
+            className="p-2"
+          >
             <MaterialIcons name="close" size={24} color="white" />
           </Pressable>
         </View>

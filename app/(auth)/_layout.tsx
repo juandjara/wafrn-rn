@@ -1,7 +1,8 @@
 // initial reference: https://docs.expo.dev/router/reference/authentication/
 import { rootStyles } from '@/constants/Colors'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { Redirect, Stack } from 'expo-router'
+import { Redirect, Stack, useUnstableGlobalHref } from 'expo-router'
+import WebShell from '@/components/layout/WebShell'
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -9,26 +10,29 @@ export const unstable_settings = {
 
 export default function ProtectedLayout() {
   const { token, env } = useAuth()
+  const href = useUnstableGlobalHref()
 
   if (!token || !env) {
-    return <Redirect href="/sign-in" />
+    const next = href === '/' ? '' : `?next=${encodeURIComponent(href)}`
+    return <Redirect href={`/sign-in${next}`} />
   }
 
-  // This layout can be deferred because it's not the root layout.
   return (
-    <Stack
-      screenOptions={{
-        ...rootStyles,
-        headerShown: false,
-      }}
-    >
-      {/* this is the root route, so it must be always declared */}
-      <Stack.Screen name="(tabs)" />
-      {/* is better in terms of performance to declare the animation config here than inside of the component */}
-      <Stack.Screen
-        name="editor"
-        options={{ animation: 'slide_from_bottom' }}
-      />
-    </Stack>
+    <WebShell>
+      <Stack
+        screenOptions={{
+          ...rootStyles,
+          headerShown: false,
+        }}
+      >
+        {/* this is the root route, so it must be always declared */}
+        <Stack.Screen name="(tabs)" />
+        {/* is better in terms of performance to declare the animation config here than inside of the component */}
+        <Stack.Screen
+          name="editor"
+          options={{ animation: 'slide_from_bottom' }}
+        />
+      </Stack>
+    </WebShell>
   )
 }

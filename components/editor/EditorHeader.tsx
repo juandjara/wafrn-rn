@@ -2,7 +2,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
-import { useCSSVariable } from 'uniwind'
+import { useCSSString } from '@/lib/cssVariables'
 
 export default function EditorHeader({
   isLoading,
@@ -13,7 +13,7 @@ export default function EditorHeader({
   canPublish: boolean
   onPublish: () => void
 }) {
-  const gray300 = useCSSVariable('--color-gray-300') as string
+  const gray300 = useCSSString('--color-gray-300')
 
   return (
     <View className="flex-row gap-2 justify-between items-center px-2">
