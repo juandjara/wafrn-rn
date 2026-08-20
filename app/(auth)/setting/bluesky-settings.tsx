@@ -58,7 +58,10 @@ export default function BlueskySettings() {
               <Text className="text-white text-lg">
                 Click{' '}
                 <Text className="font-bold underline">
-                  <Link href={`https://bsky.app/profile/${me?.bskyDid}`}>
+                  <Link
+                    target="_blank"
+                    href={`https://bsky.app/profile/${me?.bskyDid}`}
+                  >
                     here
                   </Link>
                 </Text>{' '}
@@ -180,7 +183,7 @@ export default function BlueskySettings() {
             Keep in mind our bluesky integration is still in active development.
             Some features might not work as expected. You can read more on our{' '}
             <Text className="font-bold underline">
-              <Link href="https://wafrn.net/faq/Bluesky.html">
+              <Link target="_blank" href="https://wafrn.net/faq/Bluesky.html">
                 FAQ / User guide
               </Link>
             </Text>

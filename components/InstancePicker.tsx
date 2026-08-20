@@ -247,7 +247,11 @@ function InstanceList({
             <Text className="text-white text-xs mb-2">
               Registrations:{' '}
               {instance.registrationUrl ? (
-                <Link className="text-blue-500" href={instance.registrationUrl}>
+                <Link
+                  target="_blank"
+                  className="text-blue-500"
+                  href={instance.registrationUrl}
+                >
                   {instance.registrationType}
                 </Link>
               ) : (

@@ -14,7 +14,7 @@ export default function YTPreviewCard({
 }) {
   const gray200 = useCSSString('--color-gray-200')
   return (
-    <Link href={href} asChild>
+    <Link target="_blank" href={href} asChild>
       <TouchableOpacity className="mt-4">
         <ImageBackground
           source={{ uri: image }}

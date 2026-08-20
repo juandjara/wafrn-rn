@@ -59,7 +59,7 @@ export default function LinkPreviewCard({
   }
 
   return (
-    <Link asChild href={url}>
+    <Link asChild href={url} target="_blank">
       <Pressable
         onLongPress={copyLink}
         className={clsx(

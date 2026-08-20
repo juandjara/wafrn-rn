@@ -57,6 +57,7 @@ export default function NewUsers() {
               IP: {user.registerIp}{' '}
               <Link
                 className="text-blue-400"
+                target="_blank"
                 href={`https://ipinfo.io/${user.registerIp}`}
               >
                 Check on ipinfo.io

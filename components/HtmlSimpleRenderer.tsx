@@ -151,7 +151,12 @@ function renderElement(node: ElementNode, index: number, color?: string) {
   if (node.name === LINK_TAG) {
     const children = node.children.map((c, i) => renderNode(c, i, color))
     return (
-      <Link href={node.attribs.href} key={index} style={TAG_STYLES.a}>
+      <Link
+        target="_blank"
+        href={node.attribs.href}
+        key={index}
+        style={TAG_STYLES.a}
+      >
         {children}
       </Link>
     )

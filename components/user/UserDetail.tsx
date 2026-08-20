@@ -270,6 +270,7 @@ export default function UserDetail({ user }: { user: User }) {
                 <View className="mt-3 items-start">
                   {isValidURL(field.value) ? (
                     <Link
+                      target="_blank"
                       href={
                         field.value.startsWith('http')
                           ? field.value
@@ -294,7 +295,11 @@ export default function UserDetail({ user }: { user: User }) {
             First seen {new Date(user.createdAt).toLocaleDateString()}
           </Text>
           {remoteInfo && (
-            <Link href={remoteInfo.href} className="my-2 text-center">
+            <Link
+              target="_blank"
+              href={remoteInfo.href}
+              className="my-2 text-center"
+            >
               <Text className="text-cyan-500 text-sm">
                 See complete profile on {remoteInfo.name}
               </Text>

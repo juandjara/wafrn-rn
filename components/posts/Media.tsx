@@ -165,7 +165,11 @@ export default function Media({
           color="white"
           size={32}
         />
-        <Link href={media.url} className="text-cyan-400 my-2 grow shrink">
+        <Link
+          target="_blank"
+          href={media.url}
+          className="text-cyan-400 my-2 grow shrink"
+        >
           {media.url}
         </Link>
       </View>
@@ -188,7 +192,11 @@ export default function Media({
         >
           <Text className="text-white text-xs font-semibold">ALT</Text>
         </Pressable>
-        <Link href={src} className="rounded-md bg-indigo-950/75 p-1.5">
+        <Link
+          target="_blank"
+          href={src}
+          className="rounded-md bg-indigo-950/75 p-1.5"
+        >
           <Feather name="external-link" color="white" size={16} />
         </Link>
       </View>
