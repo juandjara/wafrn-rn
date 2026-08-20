@@ -12,9 +12,6 @@ export default function Root({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <noscript>
-          Please enable Javascript in order to use this webapp
-        </noscript>
         <ScrollViewStyleReset />
         <style
           dangerouslySetInnerHTML={{
@@ -25,7 +22,12 @@ export default function Root({ children }: PropsWithChildren) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <noscript>
+          Please enable Javascript in order to use this webapp
+        </noscript>
+        {children}
+      </body>
     </html>
   )
 }
