@@ -4,7 +4,7 @@ import { MAX_FONT_SCALE } from '@/lib/styles'
 import { useTextMetrics } from '@/lib/textMetrics'
 import { router } from 'expo-router'
 import { PropsWithChildren } from 'react'
-import { Pressable } from 'react-native'
+import { Linking, Platform, Pressable } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import {
   CSSLongNativeTranslatableBlockPropKey,
@@ -128,6 +128,11 @@ const renderers = {
 const rendererProps = {
   a: {
     onPress(event, href, htmlAttribs, target) {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(href, target)
+        return
+      }
+
       const link = handleLinkClick(href, htmlAttribs)
       if (link) {
         router.navigate(link)
