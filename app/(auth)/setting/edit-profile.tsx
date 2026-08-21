@@ -415,9 +415,17 @@ export default function EditProfile() {
           onPress={() => update('isBot', (prev) => !prev)}
           className="m-4 mt-0 flex-row items-center gap-4 py-2 active:bg-white/10"
         >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Mark user as a bot account
-          </Text>
+          <View className="grow shrink">
+            <Text className="text-white text-base leading-6">
+              Mark user as a bot account
+            </Text>
+            <Text className="text-gray-300 text-sm mt-2">
+              Shows a bot badge on your profile and announces your account to
+              the fediverse as automated. Other servers may treat bots
+              differently, for example by keeping their public posts out of
+              public feeds.
+            </Text>
+          </View>
           <Switch
             value={form.isBot}
             onValueChange={(flag) => update('isBot', flag)}
