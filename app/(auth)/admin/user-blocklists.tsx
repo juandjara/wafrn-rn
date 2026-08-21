@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import BlockRibbon from '@/components/ribbons/BlockRibbon'
 import { useBlocklists } from '@/lib/api/admin'
 import { formatAvatarUrl } from '@/lib/formatters'
@@ -17,12 +18,16 @@ export default function UserBlocklists() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="User blocklists" />
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
+      <Header
+        title="User blocklists"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}
         refreshing={isFetching}
+        style={{ flex: 1 }}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
           if (item.type === 'user') {

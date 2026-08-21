@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import ReportRibbon from '@/components/ribbons/ReportRibbon'
 import UserCard from '@/components/user/UserCard'
 import {
@@ -88,7 +89,15 @@ export default function ReportList() {
 
   return (
     <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
-      <Header title="Reports" right={filterMenu} />
+      <Header
+        title="Reports"
+        right={
+          <>
+            <RefreshButton onPress={refetch} refreshing={isFetching} />
+            {filterMenu}
+          </>
+        }
+      />
       <FlashList
         data={filteredData}
         onRefresh={refetch}

@@ -7,6 +7,7 @@ import { formatTimeAgo } from '@/lib/formatters'
 import FollowCard from '@/components/user/FollowCard'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 
 export default function Followed() {
   const sx = useSafeAreaPadding()
@@ -25,11 +26,15 @@ export default function Followed() {
   )
 
   return (
-    <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Followed users" />
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
+      <Header
+        title="Followed users"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={sorted}
         onRefresh={refetch}
+        style={{ flex: 1 }}
         refreshing={isFetching}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {

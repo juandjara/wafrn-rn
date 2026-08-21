@@ -1,5 +1,7 @@
 import Header, { useHeaderInset } from '@/components/Header'
-import { useAsks, useDeleteAskMutation } from '@/lib/asks'
+import RefreshButton from '@/components/RefreshButton'
+import { asksQueryKey, useAsks, useDeleteAskMutation } from '@/lib/asks'
+import { useIsFetching, useQueryClient } from '@tanstack/react-query'
 import { formatTimeAgo } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
@@ -16,9 +18,23 @@ export default function Asks() {
   const pagerRef = useRef<PagerViewRef>(null)
   const [page, setPage] = useState(0)
 
+  const qc = useQueryClient()
+  const answered = page === 1
+  const isFetching = useIsFetching({ queryKey: asksQueryKey(answered) }) > 0
+
   return (
     <View style={{ ...sx, paddingTop: headerInset, flex: 1 }}>
-      <Header title="Asks" />
+      <Header
+        title="Asks"
+        right={
+          <RefreshButton
+            onPress={() =>
+              qc.refetchQueries({ queryKey: asksQueryKey(answered) })
+            }
+            refreshing={isFetching}
+          />
+        }
+      />
       <View className="flex-row" accessibilityRole="tabbar">
         <TouchableOpacity
           onPress={() => pagerRef.current?.setPage(0)}

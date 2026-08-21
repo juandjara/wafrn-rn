@@ -41,6 +41,10 @@ export async function getAsks(
   })
 }
 
+export function asksQueryKey(answered: boolean) {
+  return ['asks', answered] as const
+}
+
 export function useAsks({
   answered,
   enabled = true,
@@ -50,7 +54,7 @@ export function useAsks({
 }) {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['asks', answered],
+    queryKey: asksQueryKey(answered),
     queryFn: ({ signal }) => getAsks(token!, signal, answered),
     enabled: !!token && enabled,
   })

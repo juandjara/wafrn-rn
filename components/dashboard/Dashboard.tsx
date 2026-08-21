@@ -1,10 +1,11 @@
 import {
   combineDashboardContextPages,
   DashboardMode,
+  dashboardQueryKey,
   useDashboard,
 } from '@/lib/api/dashboard'
 import { FlatList, Text } from 'react-native'
-import { useCallback, useRef, useTransition } from 'react'
+import { useCallback, useImperativeHandle, useRef, useTransition } from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
@@ -22,14 +23,20 @@ function itemRenderer({ item }: { item: FeedItem }) {
   return <FeedItemRenderer item={item} />
 }
 
+export type DashboardRef = {
+  refresh: () => void
+}
+
 export default function Dashboard({
   mode = DashboardMode.FEED,
   header,
   bottomPadding,
+  ref,
 }: {
   mode: DashboardMode
   header?: React.ReactElement
   bottomPadding?: number
+  ref?: React.Ref<DashboardRef>
 }) {
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<FeedItem>>(null)
@@ -47,13 +54,15 @@ export default function Dashboard({
     })
   }
 
+  useImperativeHandle(ref, () => ({ refresh }))
+
   const qc = useQueryClient()
   const focusEffect = useCallback(() => {
     // If we are beyond the first page, when screen loses focus (navigation away), cancel in-flight queries
     // `isLoading` is good here because it will only be true when we are loading with no previous data or pages
     return () => {
       if (!isLoading) {
-        qc.cancelQueries({ queryKey: ['dashboard', mode] })
+        qc.cancelQueries({ queryKey: dashboardQueryKey(mode) })
       }
     }
   }, [qc, mode, isLoading])

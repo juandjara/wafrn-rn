@@ -1,4 +1,5 @@
 import Loading from '@/components/Loading'
+import RefreshButton from '@/components/RefreshButton'
 import {
   CornerButton,
   useCornerButtonAnimation,
@@ -133,6 +134,13 @@ export default function UserFeed() {
       >
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Link>
+      <RefreshButton
+        style={styles.mt}
+        className="bg-black/30 rounded-full absolute top-2 right-2 z-10 p-2"
+        color="white"
+        onPress={refetchFeed}
+        refreshing={feedFetching || userFetching}
+      />
       <View style={styles.flexPt}>
         <Animated.FlatList
           ref={listRef}

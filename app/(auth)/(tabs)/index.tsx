@@ -1,5 +1,7 @@
-import Dashboard from '@/components/dashboard/Dashboard'
-import { DashboardMode } from '@/lib/api/dashboard'
+import Dashboard, { DashboardRef } from '@/components/dashboard/Dashboard'
+import RefreshButton from '@/components/RefreshButton'
+import { DashboardMode, dashboardQueryKey } from '@/lib/api/dashboard'
+import { useIsFetching } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import DashboardModeMenu, {
   PublicDashboardMode,
@@ -24,7 +26,11 @@ const MODES = [
 export default function Index() {
   const headerInset = useHeaderInset(FEED_HEADER_HEIGHT)
   const pagerRef = useRef<PagerViewRef>(null)
+  const dashboardRefs = useRef<
+    Partial<Record<PublicDashboardMode, DashboardRef | null>>
+  >({})
   const [mode, setMode] = useState<PublicDashboardMode>(DashboardMode.FEED)
+  const isRefreshing = useIsFetching({ queryKey: dashboardQueryKey(mode) }) > 0
   const bottomTabBarHeight = useBottomBarHeight()
   const blue800 = useCSSString('--color-blue-800')
   const isSmallScreen = useSmallScreenCheck()
@@ -46,7 +52,13 @@ export default function Index() {
   const pages = useMemo(() => {
     return MODES.map((mode, index) => (
       <View key={index} style={styles.root}>
-        <Dashboard mode={mode} bottomPadding={bottomTabBarHeight} />
+        <Dashboard
+          ref={(r) => {
+            dashboardRefs.current[mode] = r
+          }}
+          mode={mode}
+          bottomPadding={bottomTabBarHeight}
+        />
       </View>
     ))
   }, [bottomTabBarHeight, styles])
@@ -64,6 +76,12 @@ export default function Index() {
       <Header
         style={{ minHeight: FEED_HEADER_HEIGHT, paddingLeft: 8, gap: 0 }}
         left={<DashboardModeMenu mode={mode} setMode={_setMode} />}
+        right={
+          <RefreshButton
+            onPress={() => dashboardRefs.current[mode]?.refresh()}
+            refreshing={isRefreshing}
+          />
+        }
       />
       {isSmallScreen ? (
         <View key="editor-link" className="absolute bottom-4 right-3 z-20">

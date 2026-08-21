@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import { useMutes } from '@/lib/api/mutes-and-blocks'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
@@ -12,7 +13,10 @@ export default function MutedUsers() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Muted users" />
+      <Header
+        title="Muted users"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}

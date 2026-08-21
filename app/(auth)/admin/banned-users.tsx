@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import { useBanList, useToggleBanUserMutation } from '@/lib/api/admin'
 import { formatAvatarUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -18,7 +19,10 @@ export default function BanList() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Banned users" />
+      <Header
+        title="Banned users"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}

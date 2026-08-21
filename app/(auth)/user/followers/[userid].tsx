@@ -1,5 +1,6 @@
 import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
+import RefreshButton from '@/components/RefreshButton'
 import FollowCard from '@/components/user/FollowCard'
 import {
   useApproveFollowMutation,
@@ -57,11 +58,15 @@ export default function Followers() {
   }
 
   return (
-    <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Followers" />
+    <View style={{ ...sx, flex: 1, paddingTop: headerInset }}>
+      <Header
+        title="Followers"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={sorted}
         onRefresh={refetch}
+        style={{ flex: 1 }}
         refreshing={isFetching}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {

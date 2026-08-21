@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import { useServerStats } from '@/lib/api/admin'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { RefreshControl, ScrollView, Text, View } from 'react-native'
@@ -10,7 +11,10 @@ export default function ServerStats() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Server stats" />
+      <Header
+        title="Server stats"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />

@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import ZoomableImage from '@/components/posts/ZoomableImage'
 import { useNewUserMutation, useUsersForApproval } from '@/lib/api/admin'
 import { formatUserUrl, formatMediaUrl } from '@/lib/formatters'
@@ -22,7 +23,10 @@ export default function NewUsers() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="New users" />
+      <Header
+        title="New users"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <ScrollView
         style={{ opacity: isFetching ? 0.5 : 1 }}
         refreshControl={

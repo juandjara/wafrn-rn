@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import {
   useServerBlocks,
   useUnblockServerMutation,
@@ -22,7 +23,10 @@ export default function BlockedServers() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Blocked servers" />
+      <Header
+        title="Blocked servers"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}

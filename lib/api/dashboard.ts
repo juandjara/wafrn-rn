@@ -50,13 +50,17 @@ export async function getDashboard({
   return data
 }
 
+export function dashboardQueryKey(mode: DashboardMode) {
+  return ['dashboard', mode] as const
+}
+
 export function useDashboard(mode: DashboardMode) {
   const { token } = useAuth()
   const { refetch: refetchBadge } = useNotificationBadges()
   const { data: settings } = useSettings()
 
   return useInfiniteQuery({
-    queryKey: ['dashboard', mode],
+    queryKey: dashboardQueryKey(mode),
     queryFn: async ({ pageParam, signal }) => {
       const list = await getDashboard({
         mode,

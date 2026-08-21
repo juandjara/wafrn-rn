@@ -1,6 +1,7 @@
 import PostFragment from '@/components/dashboard/PostFragment'
 import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
+import RefreshButton from '@/components/RefreshButton'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import UserCard from '@/components/user/UserCard'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
@@ -92,7 +93,12 @@ export default function NotificationList() {
     <View style={{ flex: 1, paddingTop: headerInset }}>
       <Header
         title={showDetached ? 'Unapproved notifications' : 'Notifications'}
-        right={cornerButton}
+        right={
+          <>
+            <RefreshButton onPress={refresh} refreshing={isRefreshing} />
+            {cornerButton}
+          </>
+        }
       />
       <DashboardContextProvider data={context}>
         <FlatList

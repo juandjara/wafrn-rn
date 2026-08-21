@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import { useServerList } from '@/lib/api/admin'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -70,7 +71,10 @@ export default function ServerList() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title={showSearch ? headerSearch : headerTitle} />
+      <Header
+        title={showSearch ? headerSearch : headerTitle}
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}

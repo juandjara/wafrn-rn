@@ -2,6 +2,7 @@ import PostFragment from '@/components/dashboard/PostFragment'
 import ErrorView from '@/components/errors/ErrorView'
 import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
+import RefreshButton from '@/components/RefreshButton'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
@@ -267,6 +268,7 @@ export default function PostDetail() {
   const header = (
     <Header
       style={{ height: POST_HEADER_HEIGHT }}
+      right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
       title={
         <View>
           <Text className="text-white text-2xl font-semibold">

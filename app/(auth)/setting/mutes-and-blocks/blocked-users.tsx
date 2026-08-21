@@ -1,4 +1,5 @@
 import Header, { useHeaderInset } from '@/components/Header'
+import RefreshButton from '@/components/RefreshButton'
 import { useBlocks } from '@/lib/api/mutes-and-blocks'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Image } from 'expo-image'
@@ -12,7 +13,10 @@ export default function BlockedUsers() {
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
-      <Header title="Blocked users" />
+      <Header
+        title="Blocked users"
+        right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      />
       <FlatList
         data={data}
         onRefresh={refetch}
