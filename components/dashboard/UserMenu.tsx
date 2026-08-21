@@ -6,7 +6,7 @@ import { Image } from 'expo-image'
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
 import { optionStyleBig, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
-import { useAdminCheck } from '@/lib/contexts/AuthContext'
+import { useAdminCheck, useAuth } from '@/lib/contexts/AuthContext'
 import TextWithEmojis from '../TextWithEmojis'
 import { useMemo, useState } from 'react'
 import { clsx } from 'clsx'
@@ -20,6 +20,7 @@ export default function UserMenu({ size }: { size?: number }) {
   const { data: badges } = useNotificationBadges()
   const isSmallScreen = useSmallScreenCheck()
   const isAdmin = useAdminCheck()
+  const { env } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const { accounts, loading, selectAccount } = useAccounts()
@@ -55,6 +56,12 @@ export default function UserMenu({ size }: { size?: number }) {
         action: () => router.navigate('/bookmarks'),
       },
       {
+        icon: 'archive-edit-outline' as const,
+        label: 'Drafts',
+        action: () => router.navigate('/drafts'),
+        hidden: !env?.ENABLE_DRAFTS,
+      },
+      {
         icon: <Octicons name="hash" size={20} color={gray600} />,
         label: 'Followed hashtags',
         action: () => router.navigate('/followed-hashtags'),
@@ -81,7 +88,7 @@ export default function UserMenu({ size }: { size?: number }) {
     })
 
     return { badge, menuOptions: filteredOptions }
-  }, [badges, gray600, me, isAdmin])
+  }, [badges, gray600, me, isAdmin, env])
 
   function navAndClose(href: string) {
     router.navigate(href)
