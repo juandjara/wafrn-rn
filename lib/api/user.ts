@@ -57,6 +57,7 @@ export type User = {
   isBlueskyUser?: boolean
   isFediverseUser?: boolean
   isAdmin?: boolean
+  isBot?: boolean
   hideFollows?: boolean
   hideProfileNotLoggedIn?: boolean
   disableEmailNotifications?: boolean

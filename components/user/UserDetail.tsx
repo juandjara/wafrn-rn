@@ -212,6 +212,11 @@ export default function UserDetail({ user }: { user: User }) {
             </View>
           </>
         )}
+        {user.isBot && (
+          <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+            Bot account
+          </Text>
+        )}
         {isFollowingMe && (
           <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
             Follows you
