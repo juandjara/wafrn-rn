@@ -57,6 +57,7 @@ export enum PrivateOptionNames {
   NotifyQuotes = 'wafrn.notifyQuotes',
   NotifyFollows = 'wafrn.notifyFollows',
   NotifyRewoots = 'wafrn.notifyRewoots',
+  NotifyBites = 'wafrn.notifyBites',
   EnableReplaceAIWord = 'wafrn.replaceAIWithCocaine',
   ReplaceAIWord = 'wafrn.replaceAIWord',
   AdvancedMutedWords = 'wafrn.advancedMutedWords',
@@ -82,6 +83,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.NotifyQuotes]: boolean
   [PrivateOptionNames.NotifyFollows]: boolean
   [PrivateOptionNames.NotifyRewoots]: boolean
+  [PrivateOptionNames.NotifyBites]: boolean
   [PrivateOptionNames.EnableReplaceAIWord]: boolean
   [PrivateOptionNames.ReplaceAIWord]: string
   [PrivateOptionNames.AdvancedMutedWords]: AdvancedMutedWord[]
@@ -129,6 +131,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.NotifyQuotes]: true,
   [PrivateOptionNames.NotifyFollows]: true,
   [PrivateOptionNames.NotifyRewoots]: true,
+  [PrivateOptionNames.NotifyBites]: true,
   [PrivateOptionNames.EnableReplaceAIWord]: false,
   [PrivateOptionNames.ReplaceAIWord]: 'cocaine',
   [PrivateOptionNames.AdvancedMutedWords]: [] as AdvancedMutedWord[],

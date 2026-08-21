@@ -35,6 +35,7 @@ const notificationsCategories = [
   { label: 'Notify quotes', value: 'notifyQuotes' },
   { label: 'Notify follows', value: 'notifyFollows' },
   { label: 'Notify rewoots', value: 'notifyRewoots' },
+  { label: 'Notify bites', value: 'notifyBites' },
 ] as const
 
 export default function NotificationSettings() {
@@ -79,6 +80,10 @@ export default function NotificationSettings() {
       notifyRewoots: getPrivateOptionValue(
         settings?.options ?? [],
         PrivateOptionNames.NotifyRewoots,
+      ),
+      notifyBites: getPrivateOptionValue(
+        settings?.options ?? [],
+        PrivateOptionNames.NotifyBites,
       ),
     }
   })
@@ -125,6 +130,10 @@ export default function NotificationSettings() {
         {
           name: PrivateOptionNames.NotifyRewoots,
           value: JSON.stringify(form.notifyRewoots),
+        },
+        {
+          name: PrivateOptionNames.NotifyBites,
+          value: JSON.stringify(form.notifyBites),
         },
       ],
       manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
