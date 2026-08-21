@@ -327,6 +327,7 @@ export type EditProfilePayload = {
   hideFollows?: boolean
   hideProfileNotLoggedIn?: boolean
   disableEmailNotifications?: boolean
+  isBot?: boolean
   options?: {
     name: PrivateOptionNames | PublicOptionNames
     value: string // result of JSON.stringify
@@ -350,6 +351,7 @@ async function updateProfile(token: string, payload: EditProfilePayload) {
     'disableEmailNotifications',
     payload.disableEmailNotifications ? 'true' : 'false',
   )
+  formData.append('isBot', payload.isBot ? 'true' : 'false')
   formData.append('options', JSON.stringify(payload.options || []))
   if (payload.avatar) {
     formData.append('avatar', await getUploadableFile(payload.avatar))
@@ -383,12 +385,13 @@ export function useEditProfileMutation() {
         name: payload.name || me?.name,
         description: payload.description || me?.description,
         manuallyAcceptsFollows:
-          payload.manuallyAcceptsFollows || me?.manuallyAcceptsFollows,
-        hideFollows: payload.hideFollows || me?.hideFollows,
+          payload.manuallyAcceptsFollows ?? me?.manuallyAcceptsFollows,
+        hideFollows: payload.hideFollows ?? me?.hideFollows,
         hideProfileNotLoggedIn:
-          payload.hideProfileNotLoggedIn || me?.hideProfileNotLoggedIn,
+          payload.hideProfileNotLoggedIn ?? me?.hideProfileNotLoggedIn,
         disableEmailNotifications:
-          payload.disableEmailNotifications || me?.disableEmailNotifications,
+          payload.disableEmailNotifications ?? me?.disableEmailNotifications,
+        isBot: payload.isBot ?? me?.isBot,
       }),
     onError: (err, variables, context) => {
       console.error(err)

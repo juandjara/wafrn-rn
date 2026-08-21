@@ -2,6 +2,7 @@ import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import {
   ActivityIndicator,
   Pressable,
+  Switch,
   Text,
   View,
   ScrollView,
@@ -42,10 +43,12 @@ import {
 } from 'react-native-keyboard-controller'
 import { InteractionControl } from '@/lib/api/posts.types'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
+import { useCSSString } from '@/lib/cssVariables'
 
 type FormState = {
   name: string
   content: string
+  isBot: boolean
 }
 
 export default function EditProfile() {
@@ -69,6 +72,7 @@ export default function EditProfile() {
   const [form, setForm] = useState<FormState>({
     name: me?.name || '',
     content: me?.description || '',
+    isBot: me?.isBot || false,
   })
   const [avatar, setAvatar] = useState<string | MediaUploadPayload>(
     formatAvatarUrl(me?.id || ''),
@@ -76,6 +80,10 @@ export default function EditProfile() {
   const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
     formatHeaderUrl(me?.id || ''),
   )
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
 
   const savedCustomFields = useMemo(() => {
     const options = getPublicOptionValue(
@@ -136,14 +144,13 @@ export default function EditProfile() {
   })
 
   const editMutation = useEditProfileMutation()
-
   const canPublish = form.name.trim().length > 0 && !editMutation.isPending
 
   type FormKey = keyof typeof form
   type FormValue = (typeof form)[FormKey]
 
-  function update(
-    key: FormKey,
+  function update<T extends FormKey>(
+    key: T,
     value: FormValue | ((prev: FormValue) => FormValue),
   ) {
     setForm((prev) => {
@@ -174,6 +181,7 @@ export default function EditProfile() {
         avatar: typeof avatar === 'string' ? undefined : avatar,
         headerImage: typeof headerImage === 'string' ? undefined : headerImage,
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
+        isBot: form.isBot,
         options: settings?.options,
       }
       const htmlDescription = payload.description
@@ -403,6 +411,20 @@ export default function EditProfile() {
             <Text className="text-white text-sm">Add field</Text>
           </Pressable>
         </View>
+        <Pressable
+          onPress={() => update('isBot', (prev) => !prev)}
+          className="m-4 mt-0 flex-row items-center gap-4 py-2 active:bg-white/10"
+        >
+          <Text className="text-white text-base leading-6 grow shrink">
+            Mark user as a bot account
+          </Text>
+          <Switch
+            value={form.isBot}
+            onValueChange={(flag) => update('isBot', flag)}
+            trackColor={{ false: gray700, true: cyan900 }}
+            thumbColor={form.isBot ? cyan600 : gray300}
+          />
+        </Pressable>
         <Link href="/setting/options" asChild>
           <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
             <MaterialCommunityIcons name="cog" size={24} color="white" />
