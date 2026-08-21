@@ -13,6 +13,7 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
+import { useAuth } from '@/lib/contexts/AuthContext'
 import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -63,6 +64,7 @@ export default function Options() {
   const cyan600 = useCSSString('--color-cyan-600')
   const gray300 = useCSSString('--color-gray-300')
 
+  const { env } = useAuth()
   const { data: settings } = useSettings()
   const { data: me } = useCurrentUser()
   const [asksOpen, setAsksOpen] = useState(false)
@@ -228,7 +230,7 @@ export default function Options() {
   }
 
   return (
-    <View>
+    <View className="flex-1">
       <Header
         title="Options & Customizations"
         right={
@@ -256,7 +258,7 @@ export default function Options() {
         }
       />
       <KeyboardAwareScrollView
-        style={{ marginTop: headerInset }}
+        style={{ marginTop: headerInset, flex: 1 }}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: 12,
@@ -573,6 +575,30 @@ export default function Options() {
             thumbColor={form.hideProfileNotLoggedIn ? cyan600 : gray300}
           />
         </Pressable>
+        {env?.ENABLE_THREADS_FEDERATION && (
+          <Pressable
+            onPress={() => update('federateWithThreads', (prev) => !prev)}
+            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+          >
+            <View className="grow shrink">
+              <Text className="text-white text-base leading-6 flex-1">
+                Enable federation with Threads from Meta (facebook)
+              </Text>
+              <Text className="text-gray-300 text-sm mt-2 flex-1">
+                Threads is a microblogging platform by Meta (formerly Facebook).
+                We understand not everyone will want to make their content
+                available there. By default meta will not see you, unless you
+                enable this option.
+              </Text>
+            </View>
+            <Switch
+              value={form.federateWithThreads}
+              onValueChange={(flag) => update('federateWithThreads', flag)}
+              trackColor={{ false: gray700, true: cyan900 }}
+              thumbColor={form.federateWithThreads ? cyan600 : gray300}
+            />
+          </Pressable>
+        )}
       </KeyboardAwareScrollView>
     </View>
   )

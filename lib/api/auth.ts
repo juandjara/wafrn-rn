@@ -87,6 +87,7 @@ type EnvironmenResponse = {
   maintenance: boolean
   maintenanceMessage: string
   webpushPublicKey: string
+  enableOptInFederationToThreads?: boolean
   featureFlags?: {
     drafts?: boolean
   }
@@ -99,6 +100,7 @@ export type Environment = {
   CACHE_HOST: string
   SERVER_VAPID_KEY: string
   ENABLE_DRAFTS?: boolean
+  ENABLE_THREADS_FEDERATION?: boolean
   REGISTER_HAS_REVIEW: boolean
   REGISTER_TYPE: RegisterType
 }
@@ -132,6 +134,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const BASE_URL = new URL(env.baseUrl, instanceURL).origin
   const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
   const ENABLE_DRAFTS = !!env.featureFlags?.drafts
+  const ENABLE_THREADS_FEDERATION = !!env.enableOptInFederationToThreads
   const REGISTER_HAS_REVIEW = env.reviewRegistrations
   const REGISTER_TYPE = env.registrationLevel
 
@@ -143,6 +146,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
     CACHE_HOST,
     SERVER_VAPID_KEY,
     ENABLE_DRAFTS,
+    ENABLE_THREADS_FEDERATION,
     REGISTER_HAS_REVIEW,
     REGISTER_TYPE,
   }
