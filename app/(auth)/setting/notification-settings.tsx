@@ -45,7 +45,9 @@ export default function NotificationSettings() {
   const gray600 = useCSSString('--color-gray-600')
   const yellow600 = useCSSString('--color-yellow-600')
 
-  const { form, update, submit, isPending } = useOptionsForm(OPTION_KEYS)
+  const { form, update, submit, isPending } = useOptionsForm(OPTION_KEYS, [
+    'disableEmailNotifications',
+  ] as const)
 
   const [distributorOpen, setDistributorOpen] = useState(false)
   const [distributorId, setDistributorId] = useState(getSavedDistributor)
@@ -165,6 +167,11 @@ export default function NotificationSettings() {
             onChange={(flag) => update(cat.key, flag)}
           />
         ))}
+        <SettingRow
+          label="Disable email campaign notifications"
+          value={form.disableEmailNotifications}
+          onChange={(flag) => update('disableEmailNotifications', flag)}
+        />
       </ScrollView>
     </View>
   )

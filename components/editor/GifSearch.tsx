@@ -182,7 +182,7 @@ export default function GifSearch({
               </Link>{' '}
               to give you one to write it in your{' '}
               <Link
-                href="wafrn://setting/options"
+                href="wafrn://setting/posting"
                 className="text-cyan-500 underline"
               >
                 app settings

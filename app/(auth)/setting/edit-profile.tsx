@@ -388,10 +388,10 @@ export default function EditProfile() {
           value={form.isBot}
           onChange={(flag) => update('isBot', flag)}
         />
-        <Link href="/setting/options" asChild>
+        <Link href="/settings" asChild>
           <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
             <MaterialCommunityIcons name="cog" size={24} color="white" />
-            <Text className="text-white">More customization options</Text>
+            <Text className="text-white">More settings</Text>
           </Pressable>
         </Link>
       </KeyboardAwareScrollView>

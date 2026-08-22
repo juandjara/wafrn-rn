@@ -7,11 +7,6 @@ import { useCSSString } from '@/lib/cssVariables'
 
 const options = [
   {
-    label: 'Muted words',
-    link: '/setting/mutes-and-blocks/muted-words',
-    icon: 'card-bulleted-off-outline',
-  },
-  {
     label: 'Muted posts',
     link: '/setting/mutes-and-blocks/muted-posts',
     icon: 'bell-off-outline',

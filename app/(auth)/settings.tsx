@@ -29,26 +29,48 @@ export default function Settings() {
         link: '/setting/edit-profile',
       },
       {
-        icon: 'account-multiple-plus-outline' as const,
-        label: 'Import follows',
-        link: '/setting/import-follows',
+        icon: 'account-cog-outline' as const,
+        label: 'Profile settings',
+        link: '/setting/profile-settings',
       },
-      // ACCOUNT
-      { header: 'Account' },
+      // PREFERENCES
+      { header: 'Preferences' },
       {
-        icon: 'palette' as const,
-        label: 'Options & Customizations',
-        link: '/setting/options',
+        icon: 'pencil-outline' as const,
+        label: 'Posting',
+        link: '/setting/posting',
       },
       {
-        icon: 'server-off' as const,
-        label: 'Mutes & Blocks',
-        link: '/setting/mutes-and-blocks',
+        icon: 'view-day-outline' as const,
+        label: 'Feeds settings',
+        link: '/setting/feeds',
+      },
+      {
+        icon: 'heart-outline' as const,
+        label: 'Sensitive content & wellbeing',
+        link: '/setting/sensitive-content',
       },
       {
         icon: 'bell-outline' as const,
         label: 'Notifications',
         link: '/setting/notification-settings',
+      },
+      {
+        icon: 'card-bulleted-off-outline' as const,
+        label: 'Muted words',
+        link: '/setting/muted-words',
+      },
+      {
+        icon: 'cancel' as const,
+        label: 'Mutes & blocks',
+        link: '/setting/mutes-and-blocks',
+      },
+      // ACCOUNT
+      { header: 'Account' },
+      {
+        icon: 'account-multiple-plus-outline' as const,
+        label: 'Import follows',
+        link: '/setting/import-follows',
       },
       {
         icon: 'butterfly-outline' as const,
