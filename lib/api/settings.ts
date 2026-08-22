@@ -62,6 +62,8 @@ export enum PrivateOptionNames {
   ReplaceAIWord = 'wafrn.replaceAIWord',
   AdvancedMutedWords = 'wafrn.advancedMutedWords',
   LongPressToReact = 'wafrn.longPressToReact',
+  AutoAcceptFollowsFromFollowing = 'wafrn.autoAcceptFollowsFromFollowing',
+  AutoRejectFollowsFromUsersYouDoNotFollow = 'wafrn.autoRejectFollowsFromUsersYouDoNotFollow',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -88,6 +90,8 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.ReplaceAIWord]: string
   [PrivateOptionNames.AdvancedMutedWords]: AdvancedMutedWord[]
   [PrivateOptionNames.LongPressToReact]: boolean
+  [PrivateOptionNames.AutoAcceptFollowsFromFollowing]: boolean
+  [PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow]: boolean
 }
 
 export enum MuteSource {
@@ -136,6 +140,8 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.ReplaceAIWord]: 'cocaine',
   [PrivateOptionNames.AdvancedMutedWords]: [] as AdvancedMutedWord[],
   [PrivateOptionNames.LongPressToReact]: false,
+  [PrivateOptionNames.AutoAcceptFollowsFromFollowing]: false,
+  [PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow]: false,
 }
 
 export type PrivateOption = SettingsOption & {
@@ -167,7 +173,20 @@ export function getPrivateOptionValue<
 export enum PublicOptionNames {
   CustomFields = 'fediverse.public.attachment',
   Asks = 'wafrn.public.asks',
+  AllowBitesFrom = 'wafrn.public.allowBitesFrom',
 }
+
+export enum BitesFrom {
+  Everyone = 1,
+  Followers = 2,
+  Following = 3,
+}
+export const BITES_FROM_LABELS = {
+  [BitesFrom.Everyone]: 'Everyone',
+  [BitesFrom.Followers]: 'Followers',
+  [BitesFrom.Following]: 'People I follow',
+} as const
+
 export enum AskOptionValue {
   AllowAnonAsks = 1,
   AllowIdentifiedAsks = 2,
@@ -192,11 +211,13 @@ export type PublicOptionTypeMap = {
     value: string // HTML (with emojis)
   }[]
   [PublicOptionNames.Asks]: AskOptionValue
+  [PublicOptionNames.AllowBitesFrom]: BitesFrom
 }
 
 export const DEFAULT_PUBLIC_OPTIONS = {
   [PublicOptionNames.CustomFields]: [],
   [PublicOptionNames.Asks]: AskOptionValue.AllowIdentifiedAsks,
+  [PublicOptionNames.AllowBitesFrom]: BitesFrom.Everyone,
 }
 
 export function getPublicOptionValue<

@@ -2,6 +2,9 @@ import Header, { useHeaderInset } from '@/components/Header'
 import {
   AskOptionValue,
   ASKS_LABELS,
+  BITES_FROM_LABELS,
+  BitesFrom,
+  PrivateOptionNames,
   PublicOptionNames,
 } from '@/lib/api/settings'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -12,7 +15,12 @@ import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
 import SettingSelectRow from '@/components/settings/SettingSelectRow'
 
-const OPTION_KEYS = [PublicOptionNames.Asks] as const
+const OPTION_KEYS = [
+  PublicOptionNames.Asks,
+  PublicOptionNames.AllowBitesFrom,
+  PrivateOptionNames.AutoAcceptFollowsFromFollowing,
+  PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow,
+] as const
 
 const PROFILE_FLAGS = [
   'manuallyAcceptsFollows',
@@ -50,10 +58,44 @@ export default function ProfileSettings() {
             AskOptionValue.AllowNoAsks,
           ].map((value) => ({ value, label: ASKS_LABELS[value] }))}
         />
+        <SettingSelectRow
+          label="Who can bite me"
+          value={form[PublicOptionNames.AllowBitesFrom]}
+          onChange={(value) => update(PublicOptionNames.AllowBitesFrom, value)}
+          options={[
+            BitesFrom.Everyone,
+            BitesFrom.Followers,
+            BitesFrom.Following,
+          ].map((value) => ({ value, label: BITES_FROM_LABELS[value] }))}
+        />
         <SettingRow
           label="Manually accept follow requests"
           value={form.manuallyAcceptsFollows}
           onChange={(flag) => update('manuallyAcceptsFollows', flag)}
+        />
+        <SettingRow
+          label="Automatically accept follow requests from followed users"
+          value={form[PrivateOptionNames.AutoAcceptFollowsFromFollowing]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.AutoAcceptFollowsFromFollowing, flag)
+          }
+          disabled={!form.manuallyAcceptsFollows}
+        />
+        <SettingRow
+          label="Automatically reject follow requests from users you don't follow"
+          value={
+            form[PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow]
+          }
+          onChange={(flag) =>
+            update(
+              PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow,
+              flag,
+            )
+          }
+          disabled={
+            !form.manuallyAcceptsFollows ||
+            !form[PrivateOptionNames.AutoAcceptFollowsFromFollowing]
+          }
         />
         <SettingRow
           label="Hide my profile in search and to not logged in users in web"
