@@ -15,6 +15,7 @@ import { Share, TouchableOpacity } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
 import MenuItem from '../MenuItem'
 import BottomSheet from '../BottomSheet'
+import ReportPostModal from '../posts/ReportPostModal'
 
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSString('--color-gray-400')
@@ -43,6 +44,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const repliesHidden = !!settings?.hiddenReplies?.includes(user.id)
 
   const [open, setOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const options = useMemo(
     () =>
@@ -109,6 +111,12 @@ export default function UserActionsMenu({ user }: { user: User }) {
           action: () => serverBlockMutation.mutate(user.serverBlocked),
         },
         {
+          name: 'Report user',
+          icon: 'alert-outline' as const,
+          action: () => setReportOpen(true),
+          hidden: isMe,
+        },
+        {
           name: 'Refetch remote user data',
           icon: 'cloud-refresh-outline' as const,
           disabled: refetchMutation.isPending,
@@ -167,6 +175,11 @@ export default function UserActionsMenu({ user }: { user: User }) {
           />
         ))}
       </BottomSheet>
+      <ReportPostModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        user={user}
+      />
     </>
   )
 }

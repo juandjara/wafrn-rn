@@ -1,10 +1,10 @@
-import { Post } from '@/lib/api/posts.types'
+import { Post, PostUser } from '@/lib/api/posts.types'
 import {
   REPORT_SEVERITY_DESCRIPTIONS,
   REPORT_SEVERITY_LABELS,
   REPORT_SEVERITY_ORDER,
   ReportSeverity,
-  useReportPostMutation,
+  useReportMutation,
 } from '@/lib/api/reports'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
@@ -20,24 +20,29 @@ import {
 import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
 
+type ReportTarget =
+  | { post: Post; user?: never }
+  | { user: Pick<PostUser, 'id'>; post?: never }
+
 export default function ReportPostModal({
   open,
   onClose,
   post,
+  user,
 }: {
   open: boolean
   onClose: () => void
-  post: Post
-}) {
+} & ReportTarget) {
   const cyan200 = useCSSString('--color-cyan-200')
   const [severity, setSeverity] = useState<ReportSeverity>(ReportSeverity.SPAM)
   const [description, setDescription] = useState('')
-  const mutation = useReportPostMutation()
+  const mutation = useReportMutation()
 
   function onSubmit() {
     mutation.mutate(
       {
-        postId: post.id,
+        postId: post?.id,
+        userId: post ? post.userId : user.id,
         severity,
         description,
       },
@@ -58,7 +63,9 @@ export default function ReportPostModal({
       <ScrollView>
         <View className="p-4 pb-0 flex-row items-center justify-between">
           <View className="flex-row flex-wrap grow shrink">
-            <Text className="text-white text-lg">Report post</Text>
+            <Text className="text-white text-lg">
+              Report {post ? 'post' : 'user'}
+            </Text>
           </View>
           <Pressable
             className="shrink-0"

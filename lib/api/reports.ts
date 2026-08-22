@@ -28,12 +28,12 @@ export const REPORT_SEVERITY_LABELS = {
 } as const
 
 export const REPORT_SEVERITY_DESCRIPTIONS = {
-  [ReportSeverity.SPAM]: 'This post is spam, unwanted commercial content',
+  [ReportSeverity.SPAM]: 'Spam, unwanted commercial content',
   [ReportSeverity.UNLABELED_NSFW]:
-    'This post contains NSFW media and is not labelled as such',
+    'Contains NSFW media that is not labelled as such',
   [ReportSeverity.HATEFUL_CONTENT]:
-    'This post is inciting hate against a person or collective',
-  [ReportSeverity.ILLEGAL_CONTENT]: 'This post contains illegal content',
+    'Inciting hate against a person or collective',
+  [ReportSeverity.ILLEGAL_CONTENT]: 'Contains illegal content',
 } as const
 
 export type Report = Timestamps & {
@@ -49,14 +49,15 @@ export type Report = Timestamps & {
   post?: Post & { user: PostUser } // user who wrote the post
 }
 
-// postId: string, severity: ReportSeverity, description: string
 type ReportPayload = {
-  postId: string
+  postId?: string
+  // For user reports, the user being reported. For post reports, the post author
+  userId: string
   severity: ReportSeverity
   description: string
 }
 
-async function reportPost(token: string, payload: ReportPayload) {
+async function sendReport(token: string, payload: ReportPayload) {
   const env = getEnvironmentStatic()
   const url = `${env?.API_URL}/reportPost`
   await getJSON(url, {
@@ -69,17 +70,17 @@ async function reportPost(token: string, payload: ReportPayload) {
   })
 }
 
-export function useReportPostMutation() {
+export function useReportMutation() {
   const { token } = useAuth()
   const qc = useQueryClient()
   const { showToastSuccess, showToastError } = useToasts()
 
   return useMutation({
-    mutationKey: ['report-post'],
-    mutationFn: async (payload: ReportPayload) => reportPost(token!, payload),
+    mutationKey: ['report'],
+    mutationFn: async (payload: ReportPayload) => sendReport(token!, payload),
     onError: (err, variables, context) => {
       console.error(err)
-      showToastError(`Failed to report post: ${err.message}`)
+      showToastError(`Failed to send report: ${err.message}`)
     },
     onSuccess: (data, variables) => {
       showToastSuccess(`Report created`)
