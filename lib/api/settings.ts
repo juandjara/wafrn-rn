@@ -114,7 +114,7 @@ export const ALL_MUTE_SOURCES = [
 export const MINIMUM_THREAD_ANCESTOR_LIMIT = 1
 
 export const DEFAULT_PRIVATE_OPTIONS = {
-  [PrivateOptionNames.GifApiKey]: EXPO_PUBLIC_TENOR_KEY,
+  [PrivateOptionNames.GifApiKey]: EXPO_PUBLIC_TENOR_KEY as string,
   [PrivateOptionNames.DefaultPostPrivacy]: PrivacyLevel.PUBLIC,
   [PrivateOptionNames.DisableForceAltText]: false,
   [PrivateOptionNames.FederateWithThreads]: true,
