@@ -1,24 +1,13 @@
-import { clsx } from 'clsx'
 import Header, { useHeaderInset } from '@/components/Header'
 import {
-  getPrivateOptionValue,
   NOTIFICATIONS_FROM_LABELS,
   NotificationsFrom,
   PrivateOptionNames,
-  useSettings,
 } from '@/lib/api/settings'
-import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  Switch,
-  Text,
-  View,
-} from 'react-native'
+import { Platform, Pressable, Text, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import BottomSheet from '@/components/BottomSheet'
 import { Image } from 'expo-image'
@@ -28,147 +17,53 @@ import {
   saveDistributor,
 } from '@/lib/push-notifications/push-notifications'
 import { useCSSString } from '@/lib/cssVariables'
+import { useOptionsForm } from '@/lib/useOptionsForm'
+import SaveButton from '@/components/settings/SaveButton'
+import SettingRow from '@/components/settings/SettingRow'
+import SettingSelectRow from '@/components/settings/SettingSelectRow'
 
 const notificationsCategories = [
-  { label: 'Notify mentions', value: 'notifyMentions' },
-  { label: 'Notify likes and reactions', value: 'notifyReactions' },
-  { label: 'Notify quotes', value: 'notifyQuotes' },
-  { label: 'Notify follows', value: 'notifyFollows' },
-  { label: 'Notify rewoots', value: 'notifyRewoots' },
-  { label: 'Notify bites', value: 'notifyBites' },
+  { label: 'Notify mentions', key: PrivateOptionNames.NotifyMentions },
+  {
+    label: 'Notify likes and reactions',
+    key: PrivateOptionNames.NotifyReactions,
+  },
+  { label: 'Notify quotes', key: PrivateOptionNames.NotifyQuotes },
+  { label: 'Notify follows', key: PrivateOptionNames.NotifyFollows },
+  { label: 'Notify rewoots', key: PrivateOptionNames.NotifyRewoots },
+  { label: 'Notify bites', key: PrivateOptionNames.NotifyBites },
+] as const
+
+const OPTION_KEYS = [
+  PrivateOptionNames.NotificationsFrom,
+  ...notificationsCategories.map((c) => c.key),
 ] as const
 
 export default function NotificationSettings() {
-  const { data: settings } = useSettings()
-  const { data: me } = useCurrentUser()
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const editMutation = useEditProfileMutation()
-  const canPublish = !editMutation.isPending
   const gray600 = useCSSString('--color-gray-600')
   const yellow600 = useCSSString('--color-yellow-600')
-  const gray700 = useCSSString('--color-gray-700')
-  const cyan900 = useCSSString('--color-cyan-900')
-  const cyan600 = useCSSString('--color-cyan-600')
-  const gray300 = useCSSString('--color-gray-300')
+
+  const { form, update, submit, isPending } = useOptionsForm(OPTION_KEYS)
 
   const [distributorOpen, setDistributorOpen] = useState(false)
-  const [notifFromOpen, setNotifFromOpen] = useState(false)
-  const [form, setForm] = useState(() => {
-    return {
-      distributorId: getSavedDistributor(),
-      showNotificationsFrom: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotificationsFrom,
-      ),
-      notifyMentions: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyMentions,
-      ),
-      notifyReactions: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyReactions,
-      ),
-      notifyQuotes: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyQuotes,
-      ),
-      notifyFollows: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyFollows,
-      ),
-      notifyRewoots: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyRewoots,
-      ),
-      notifyBites: getPrivateOptionValue(
-        settings?.options ?? [],
-        PrivateOptionNames.NotifyBites,
-      ),
-    }
-  })
-
+  const [distributorId, setDistributorId] = useState(getSavedDistributor)
   const distributors = getDistributors()
   const savedDistributor = distributors.find(
-    (dist) => dist.id === form.distributorId,
+    (dist) => dist.id === distributorId,
   )
 
-  function update<T extends keyof typeof form>(
-    key: T,
-    value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
-  ) {
-    setForm((prev) => {
-      const newValue = typeof value === 'function' ? value(prev[key]) : value
-      return { ...prev, [key]: newValue }
-    })
-  }
-
   function onSubmit() {
-    saveDistributor(form.distributorId)
-    editMutation.mutate({
-      options: [
-        {
-          name: PrivateOptionNames.NotificationsFrom,
-          value: JSON.stringify(form.showNotificationsFrom),
-        },
-        {
-          name: PrivateOptionNames.NotifyMentions,
-          value: JSON.stringify(form.notifyMentions),
-        },
-        {
-          name: PrivateOptionNames.NotifyReactions,
-          value: JSON.stringify(form.notifyReactions),
-        },
-        {
-          name: PrivateOptionNames.NotifyQuotes,
-          value: JSON.stringify(form.notifyQuotes),
-        },
-        {
-          name: PrivateOptionNames.NotifyFollows,
-          value: JSON.stringify(form.notifyFollows),
-        },
-        {
-          name: PrivateOptionNames.NotifyRewoots,
-          value: JSON.stringify(form.notifyRewoots),
-        },
-        {
-          name: PrivateOptionNames.NotifyBites,
-          value: JSON.stringify(form.notifyBites),
-        },
-      ],
-      manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
-      name: me?.name || '',
-      description: me?.description || '',
-    })
+    saveDistributor(distributorId)
+    submit()
   }
 
   return (
     <View style={{ ...sx, paddingTop: headerInset }}>
       <Header
         title="Notification settings"
-        right={
-          <Pressable
-            onPress={onSubmit}
-            className={clsx(
-              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-              {
-                'bg-cyan-800 active:bg-cyan-700': canPublish,
-                'bg-gray-400/25 opacity-50': !canPublish,
-              },
-            )}
-          >
-            {editMutation.isPending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <MaterialCommunityIcons
-                name="content-save-edit"
-                size={20}
-                color="white"
-              />
-            )}
-            <Text className="text-medium text-white">Save</Text>
-          </Pressable>
-        }
+        right={<SaveButton onPress={onSubmit} isPending={isPending} />}
       />
       <ScrollView
         contentContainerStyle={{
@@ -207,13 +102,13 @@ export default function NotificationSettings() {
                     padding: 16,
                   }}
                   onPress={() => {
-                    update('distributorId', d.id)
+                    setDistributorId(d.id)
                     setDistributorOpen(false)
                   }}
                 >
                   <Image source={d.icon} style={{ width: 32, height: 32 }} />
                   <Text className="font-semibold shrink grow">{d.name}</Text>
-                  {d.id === form.distributorId && (
+                  {d.id === distributorId && (
                     <Ionicons
                       className="shrink-0"
                       name="checkmark-sharp"
@@ -246,72 +141,29 @@ export default function NotificationSettings() {
             </Text>
           </Text>
         </View>
-        <View className="p-4">
-          <Text className="text-white mb-2">Show notifications from:</Text>
-          <Pressable onPress={() => setNotifFromOpen(true)}>
-            <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
-              <Text className="text-white text-sm px-1 grow shrink">
-                {NOTIFICATIONS_FROM_LABELS[form.showNotificationsFrom]}
-              </Text>
-              <MaterialCommunityIcons
-                name="chevron-down"
-                color={gray600}
-                size={20}
-              />
-            </View>
-          </Pressable>
-          <BottomSheet open={notifFromOpen} setOpen={setNotifFromOpen}>
-            {[
-              NotificationsFrom.Everyone,
-              NotificationsFrom.PeopleFollowingMe,
-              NotificationsFrom.PeopleIFollow,
-              NotificationsFrom.Mutuals,
-            ].map((value) => (
-              <Pressable
-                key={value}
-                className="active:bg-gray-200"
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: 16,
-                }}
-                onPress={() => {
-                  update('showNotificationsFrom', value)
-                  setNotifFromOpen(false)
-                }}
-              >
-                <Text className="font-semibold shrink grow">
-                  {NOTIFICATIONS_FROM_LABELS[value]}
-                </Text>
-                {value === form.showNotificationsFrom && (
-                  <Ionicons
-                    className="shrink-0"
-                    name="checkmark-sharp"
-                    color="black"
-                    size={24}
-                  />
-                )}
-              </Pressable>
-            ))}
-          </BottomSheet>
-        </View>
+        <SettingSelectRow
+          label="Show notifications from:"
+          value={form[PrivateOptionNames.NotificationsFrom]}
+          onChange={(value) =>
+            update(PrivateOptionNames.NotificationsFrom, value)
+          }
+          options={[
+            NotificationsFrom.Everyone,
+            NotificationsFrom.PeopleFollowingMe,
+            NotificationsFrom.PeopleIFollow,
+            NotificationsFrom.Mutuals,
+          ].map((value) => ({
+            value,
+            label: NOTIFICATIONS_FROM_LABELS[value],
+          }))}
+        />
         {notificationsCategories.map((cat) => (
-          <Pressable
-            key={cat.value}
-            onPress={() => update(cat.value, (prev) => !prev)}
-            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-          >
-            <Text className="text-white text-base leading-6 grow shrink">
-              {cat.label}
-            </Text>
-            <Switch
-              value={form[cat.value]}
-              onValueChange={(flag) => update(cat.value, flag)}
-              trackColor={{ false: gray700, true: cyan900 }}
-              thumbColor={form[cat.value] ? cyan600 : gray300}
-            />
-          </Pressable>
+          <SettingRow
+            key={cat.key}
+            label={cat.label}
+            value={form[cat.key]}
+            onChange={(flag) => update(cat.key, flag)}
+          />
         ))}
       </ScrollView>
     </View>

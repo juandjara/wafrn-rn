@@ -5,227 +5,78 @@ import {
   AskOptionValue,
   ASKS_LABELS,
   DEFAULT_PRIVATE_OPTIONS,
-  getPrivateOptionValue,
-  getPublicOptionValue,
   MINIMUM_THREAD_ANCESTOR_LIMIT,
   PrivateOptionNames,
   PublicOptionNames,
-  useSettings,
 } from '@/lib/api/settings'
-import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
 import { Link } from 'expo-router'
 import { useState } from 'react'
-import {
-  ActivityIndicator,
-  Pressable,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native'
+import { Text, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-import BottomSheet from '@/components/BottomSheet'
-import { useCSSString } from '@/lib/cssVariables'
+import { useOptionsForm } from '@/lib/useOptionsForm'
+import SaveButton from '@/components/settings/SaveButton'
+import SettingRow from '@/components/settings/SettingRow'
+import SettingSelectRow from '@/components/settings/SettingSelectRow'
 
 const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
 
-type FormState = {
-  gifApiKey: string
-  manuallyAcceptsFollows: boolean
-  defaultPostEditorPrivacy: PrivacyLevel
-  disableCW: boolean
-  disableNSFWCloak: boolean
-  threadAncestorLimit: string
-  disableForceAltText: boolean
-  federateWithThreads: boolean
-  forceClassicLogo: boolean
-  forceOldEditor: boolean
-  mutedWords: string
-  asks: AskOptionValue
-  enableReplaceAIWord: boolean
-  replaceAIWord: string
-  hideFollows: boolean
-  hideProfileNotLoggedIn: boolean
-  disableEmailNotifications: boolean
-  longPressToReact: boolean
-}
+const OPTION_KEYS = [
+  PrivateOptionNames.GifApiKey,
+  PrivateOptionNames.DefaultPostPrivacy,
+  PrivateOptionNames.DisableCW,
+  PrivateOptionNames.DisableNSFWCloak,
+  PrivateOptionNames.ThreadAncestorLimit,
+  PrivateOptionNames.DisableForceAltText,
+  PrivateOptionNames.FederateWithThreads,
+  PrivateOptionNames.ForceClassicLogo,
+  PrivateOptionNames.ForceOldEditor,
+  PrivateOptionNames.MutedWords,
+  PrivateOptionNames.EnableReplaceAIWord,
+  PrivateOptionNames.ReplaceAIWord,
+  PrivateOptionNames.LongPressToReact,
+  PublicOptionNames.Asks,
+] as const
+
+const PROFILE_FLAGS = [
+  'manuallyAcceptsFollows',
+  'hideFollows',
+  'hideProfileNotLoggedIn',
+  'disableEmailNotifications',
+] as const
 
 export default function Options() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const gray600 = useCSSString('--color-gray-600')
-  const gray700 = useCSSString('--color-gray-700')
-  const cyan900 = useCSSString('--color-cyan-900')
-  const cyan600 = useCSSString('--color-cyan-600')
-  const gray300 = useCSSString('--color-gray-300')
-
   const { env } = useAuth()
-  const { data: settings } = useSettings()
-  const { data: me } = useCurrentUser()
-  const [asksOpen, setAsksOpen] = useState(false)
-  const [form, setForm] = useState<FormState>(() => {
-    const opts = settings?.options || []
-    const gifApiKey = getPrivateOptionValue(opts, PrivateOptionNames.GifApiKey)
-    const defaultPostEditorPrivacy = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.DefaultPostPrivacy,
-    )
-    const disableCW = getPrivateOptionValue(opts, PrivateOptionNames.DisableCW)
-    const disableNSFWCloak = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.DisableNSFWCloak,
-    )
-    const threadAncestorLimit = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.ThreadAncestorLimit,
-    )
-    const disableForceAltText = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.DisableForceAltText,
-    )
-    const federateWithThreads = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.FederateWithThreads,
-    )
-    const forceClassicLogo = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.ForceClassicLogo,
-    )
-    const forceOldEditor = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.ForceOldEditor,
-    )
-    const mutedWords = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.MutedWords,
-    )
-    const enableReplaceAIWord = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.EnableReplaceAIWord,
-    )
-    const replaceAIWord = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.ReplaceAIWord,
-    )
-    const asks = getPublicOptionValue(opts, PublicOptionNames.Asks)
-    const longPressToReact = getPrivateOptionValue(
-      opts,
-      PrivateOptionNames.LongPressToReact,
-    )
 
-    return {
-      gifApiKey,
-      manuallyAcceptsFollows: me?.manuallyAcceptsFollows || false,
-      hideFollows: me?.hideFollows || false,
-      hideProfileNotLoggedIn: me?.hideProfileNotLoggedIn || false,
-      disableEmailNotifications: me?.disableEmailNotifications || false,
-      defaultPostEditorPrivacy,
-      disableCW,
-      disableNSFWCloak,
-      threadAncestorLimit: String(threadAncestorLimit),
-      disableForceAltText,
-      federateWithThreads,
-      forceClassicLogo,
-      forceOldEditor,
-      mutedWords,
-      asks,
-      enableReplaceAIWord,
-      replaceAIWord,
-      longPressToReact,
-    }
-  })
-  const parsedMutedWords = form.mutedWords
+  const { form, update, submit, isPending } = useOptionsForm(
+    OPTION_KEYS,
+    PROFILE_FLAGS,
+  )
+
+  const [threadLimitText, setThreadLimitText] = useState(
+    String(form[PrivateOptionNames.ThreadAncestorLimit]),
+  )
+  const validThreadAncestorLimit =
+    Number.isFinite(Number(threadLimitText)) &&
+    Number(threadLimitText) >= MINIMUM_THREAD_ANCESTOR_LIMIT
+
+  const parsedMutedWords = form[PrivateOptionNames.MutedWords]
     .split(',')
     .map((tag) => tag.trim())
     .filter(Boolean)
-  const validThreadAncestorLimit =
-    Number.isFinite(Number(form.threadAncestorLimit)) &&
-    Number(form.threadAncestorLimit) >= MINIMUM_THREAD_ANCESTOR_LIMIT
 
-  const editMutation = useEditProfileMutation()
-  const canPublish = validThreadAncestorLimit && !editMutation.isPending
-
-  function update<T extends keyof typeof form>(
-    key: T,
-    value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
-  ) {
-    setForm((prev) => {
-      const newValue = typeof value === 'function' ? value(prev[key]) : value
-      return { ...prev, [key]: newValue }
-    })
-  }
+  const canPublish = validThreadAncestorLimit && !isPending
 
   function onSubmit() {
-    const options = [
-      {
-        name: PrivateOptionNames.GifApiKey,
-        value: JSON.stringify(form.gifApiKey),
-      },
-      {
-        name: PrivateOptionNames.DefaultPostPrivacy,
-        value: JSON.stringify(form.defaultPostEditorPrivacy),
-      },
-      {
-        name: PrivateOptionNames.DisableCW,
-        value: JSON.stringify(form.disableCW),
-      },
-      {
-        name: PrivateOptionNames.DisableNSFWCloak,
-        value: JSON.stringify(form.disableNSFWCloak),
-      },
-      {
-        name: PrivateOptionNames.ThreadAncestorLimit,
-        value: JSON.stringify(
-          validThreadAncestorLimit
-            ? Number(form.threadAncestorLimit)
-            : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit],
-        ),
-      },
-      {
-        name: PrivateOptionNames.DisableForceAltText,
-        value: JSON.stringify(form.disableForceAltText),
-      },
-      {
-        name: PrivateOptionNames.FederateWithThreads,
-        value: JSON.stringify(form.federateWithThreads),
-      },
-      {
-        name: PrivateOptionNames.ForceClassicLogo,
-        value: JSON.stringify(form.forceClassicLogo),
-      },
-      {
-        name: PrivateOptionNames.ForceOldEditor,
-        value: JSON.stringify(form.forceOldEditor),
-      },
-      {
-        name: PrivateOptionNames.MutedWords,
-        value: JSON.stringify(form.mutedWords),
-      },
-      { name: PublicOptionNames.Asks, value: JSON.stringify(form.asks) },
-      {
-        name: PrivateOptionNames.EnableReplaceAIWord,
-        value: JSON.stringify(form.enableReplaceAIWord),
-      },
-      {
-        name: PrivateOptionNames.ReplaceAIWord,
-        value: JSON.stringify(form.replaceAIWord),
-      },
-      {
-        name: PrivateOptionNames.LongPressToReact,
-        value: JSON.stringify(form.longPressToReact),
-      },
-    ]
-    editMutation.mutate({
-      options,
-      manuallyAcceptsFollows: form.manuallyAcceptsFollows,
-      hideFollows: form.hideFollows,
-      hideProfileNotLoggedIn: form.hideProfileNotLoggedIn,
-      disableEmailNotifications: form.disableEmailNotifications,
+    submit({
+      [PrivateOptionNames.ThreadAncestorLimit]: validThreadAncestorLimit
+        ? Number(threadLimitText)
+        : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit],
     })
   }
 
@@ -234,27 +85,11 @@ export default function Options() {
       <Header
         title="Options & Customizations"
         right={
-          <Pressable
+          <SaveButton
             onPress={onSubmit}
-            className={clsx(
-              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-              {
-                'bg-cyan-800 active:bg-cyan-700': canPublish,
-                'bg-gray-400/25 opacity-50': !canPublish,
-              },
-            )}
-          >
-            {editMutation.isPending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <MaterialCommunityIcons
-                name="content-save-edit"
-                size={20}
-                color="white"
-              />
-            )}
-            <Text className="text-medium text-white">Save</Text>
-          </Pressable>
+            disabled={!canPublish}
+            isPending={isPending}
+          />
         }
       />
       <KeyboardAwareScrollView
@@ -269,8 +104,10 @@ export default function Options() {
           <View className="p-4">
             <Text className="text-white mb-2">Tenor API Key</Text>
             <TextInput
-              value={form.gifApiKey}
-              onChangeText={(text) => update('gifApiKey', text)}
+              value={form[PrivateOptionNames.GifApiKey]}
+              onChangeText={(text) =>
+                update(PrivateOptionNames.GifApiKey, text)
+              }
               className="p-3 rounded-lg text-white border border-gray-600"
               numberOfLines={1}
             />
@@ -287,66 +124,23 @@ export default function Options() {
             </Text>
           </View>
         )}
-        <View className="p-4">
-          <Text className="text-white mb-2">Ask privacy</Text>
-          <Pressable onPress={() => setAsksOpen(true)}>
-            <View
-              className={clsx(
-                'flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600',
-              )}
-            >
-              <Text className="text-white text-sm px-1 grow shrink">
-                {ASKS_LABELS[form.asks]}
-              </Text>
-              <MaterialCommunityIcons
-                name="chevron-down"
-                color={gray600}
-                size={20}
-              />
-            </View>
-          </Pressable>
-          <BottomSheet open={asksOpen} setOpen={setAsksOpen}>
-            {[
-              AskOptionValue.AllowIdentifiedAsks,
-              AskOptionValue.AllowAnonAsks,
-              AskOptionValue.AllowNoAsks,
-            ].map((value) => (
-              <Pressable
-                key={value}
-                className="active:bg-gray-200"
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: 16,
-                }}
-                onPress={() => {
-                  update('asks', value)
-                  setAsksOpen(false)
-                }}
-              >
-                <Text className="font-semibold shrink grow">
-                  {ASKS_LABELS[value]}
-                </Text>
-                {value === form.asks && (
-                  <Ionicons
-                    className="shrink-0"
-                    name="checkmark-sharp"
-                    color="black"
-                    size={24}
-                  />
-                )}
-              </Pressable>
-            ))}
-          </BottomSheet>
-        </View>
+        <SettingSelectRow
+          label="Ask privacy"
+          value={form[PublicOptionNames.Asks]}
+          onChange={(value) => update(PublicOptionNames.Asks, value)}
+          options={[
+            AskOptionValue.AllowIdentifiedAsks,
+            AskOptionValue.AllowAnonAsks,
+            AskOptionValue.AllowNoAsks,
+          ].map((value) => ({ value, label: ASKS_LABELS[value] }))}
+        />
         <View className="p-4">
           <Text className="text-white mb-2">Default post privacy</Text>
           <PrivacySelect
             className="p-3 pl-4"
-            privacy={form.defaultPostEditorPrivacy}
+            privacy={form[PrivateOptionNames.DefaultPostPrivacy]}
             setPrivacy={(privacy) =>
-              update('defaultPostEditorPrivacy', privacy)
+              update(PrivateOptionNames.DefaultPostPrivacy, privacy)
             }
             options={[
               PrivacyLevel.PUBLIC,
@@ -369,8 +163,8 @@ export default function Options() {
             </Link>
           </View>
           <TextInput
-            value={form.mutedWords}
-            onChangeText={(text) => update('mutedWords', text)}
+            value={form[PrivateOptionNames.MutedWords]}
+            onChangeText={(text) => update(PrivateOptionNames.MutedWords, text)}
             className="p-3 rounded-lg text-white border border-gray-600"
             placeholder="Muted words"
             placeholderTextColorClassName="accent-gray-400"
@@ -397,8 +191,8 @@ export default function Options() {
             </Text>
           </Text>
           <TextInput
-            value={form.threadAncestorLimit}
-            onChangeText={(text) => update('threadAncestorLimit', text)}
+            value={threadLimitText}
+            onChangeText={setThreadLimitText}
             className={clsx('p-3 rounded-lg text-white border', {
               'border-gray-600': validThreadAncestorLimit,
               'border-red-200': !validThreadAncestorLimit,
@@ -411,193 +205,95 @@ export default function Options() {
             <Text className="text-red-200 text-sm mt-2">Invalid number</Text>
           )}
         </View>
-        <Pressable
-          onPress={() => update('manuallyAcceptsFollows', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Manually accept follow requests
-          </Text>
-          <Switch
-            value={form.manuallyAcceptsFollows}
-            onValueChange={(flag) => update('manuallyAcceptsFollows', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.manuallyAcceptsFollows ? cyan600 : gray300}
+        <SettingRow
+          label="Manually accept follow requests"
+          value={form.manuallyAcceptsFollows}
+          onChange={(flag) => update('manuallyAcceptsFollows', flag)}
+        />
+        <SettingRow
+          label="Disable CW unless post contains muted words"
+          value={form[PrivateOptionNames.DisableCW]}
+          onChange={(flag) => update(PrivateOptionNames.DisableCW, flag)}
+        />
+        <SettingRow
+          label="Disable hiding sensitive media behind a cloak for all posts"
+          value={form[PrivateOptionNames.DisableNSFWCloak]}
+          onChange={(flag) => update(PrivateOptionNames.DisableNSFWCloak, flag)}
+        />
+        <SettingRow
+          label="Use Classic WAFRN Logo"
+          value={form[PrivateOptionNames.ForceClassicLogo]}
+          onChange={(flag) => update(PrivateOptionNames.ForceClassicLogo, flag)}
+        />
+        <SettingRow
+          label={
+            <>
+              Allow uploading media without alt text{' '}
+              <Text className="text-red-100">
+                (enable this only if {"you're"} evil)
+              </Text>
+            </>
+          }
+          value={form[PrivateOptionNames.DisableForceAltText]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisableForceAltText, flag)
+          }
+        />
+        <SettingRow
+          label="Long press to toggle reaction"
+          value={form[PrivateOptionNames.LongPressToReact]}
+          onChange={(flag) => update(PrivateOptionNames.LongPressToReact, flag)}
+        />
+        <View>
+          <SettingRow
+            label="Enable replacing AI with this word:"
+            value={form[PrivateOptionNames.EnableReplaceAIWord]}
+            onChange={(flag) =>
+              update(PrivateOptionNames.EnableReplaceAIWord, flag)
+            }
           />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableCW', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Disable CW unless post contains muted words
-          </Text>
-          <Switch
-            value={form.disableCW}
-            onValueChange={(flag) => update('disableCW', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.disableCW ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableNSFWCloak', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Disable hiding sensitive media behind a cloak for all posts
-          </Text>
-          <Switch
-            value={form.disableNSFWCloak}
-            onValueChange={(flag) => update('disableNSFWCloak', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.disableNSFWCloak ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('forceClassicLogo', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Use Classic WAFRN Logo
-          </Text>
-          <Switch
-            value={form.forceClassicLogo}
-            onValueChange={(flag) => update('forceClassicLogo', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.forceClassicLogo ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('disableForceAltText', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Allow uploading media without alt text{' '}
-            <Text className="text-red-100">
-              (enable this only if {"you're"} evil)
-            </Text>
-          </Text>
-          <Switch
-            value={form.disableForceAltText}
-            onValueChange={(flag) => update('disableForceAltText', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.disableForceAltText ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('longPressToReact', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Long press to toggle reaction
-          </Text>
-          <Switch
-            value={form.longPressToReact}
-            onValueChange={(flag) => update('longPressToReact', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.longPressToReact ? cyan600 : gray300}
-          />
-        </Pressable>
-        <View className="p-4">
-          <Pressable
-            onPress={() => update('enableReplaceAIWord', (prev) => !prev)}
-            className="flex-row items-center gap-4 my-2 pb-2 active:bg-white/10"
-          >
-            <Text className="text-white text-base leading-6 grow shrink">
-              Enable replacing AI with this word:
-            </Text>
-            <Switch
-              value={form.enableReplaceAIWord}
-              onValueChange={(flag) => update('enableReplaceAIWord', flag)}
-              trackColor={{ false: gray700, true: cyan900 }}
-              thumbColor={form.enableReplaceAIWord ? cyan600 : gray300}
+          <View className="px-4 pb-4">
+            <TextInput
+              value={form[PrivateOptionNames.ReplaceAIWord]}
+              onChangeText={(text) =>
+                update(PrivateOptionNames.ReplaceAIWord, text)
+              }
+              className="p-3 rounded-lg text-white border border-gray-600"
+              placeholder="Write your word here"
+              placeholderTextColorClassName="accent-gray-400"
+              numberOfLines={1}
             />
-          </Pressable>
-          <TextInput
-            value={form.replaceAIWord}
-            onChangeText={(text) => update('replaceAIWord', text)}
-            className="p-3 rounded-lg text-white border border-gray-600"
-            placeholder="Write your word here"
-            placeholderTextColorClassName="accent-gray-400"
-            numberOfLines={1}
-          />
-          <Text className="text-gray-200 text-sm mt-2">
-            Whenever the word {'"AI"'} is detected in a post, it will be
-            replaced with the word you write here.
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => update('disableEmailNotifications', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Disable email campaign notifications
-          </Text>
-          <Switch
-            value={form.disableEmailNotifications}
-            onValueChange={(flag) => update('disableEmailNotifications', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.disableEmailNotifications ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('hideFollows', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <Text className="text-white text-base leading-6 grow shrink">
-            Hide follows and followers count in my profile
-          </Text>
-          <Switch
-            value={form.hideFollows}
-            onValueChange={(flag) => update('hideFollows', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.hideFollows ? cyan600 : gray300}
-          />
-        </Pressable>
-        <Pressable
-          onPress={() => update('hideProfileNotLoggedIn', (prev) => !prev)}
-          className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-        >
-          <View className="grow shrink">
-            <Text className="text-white text-base leading-6 flex-1">
-              Hide my profile in search and to not logged in users in web
-            </Text>
-            <Text className="text-gray-300 text-sm mt-2 flex-1">
-              This will only affect this wafrn server, people can still see your
-              profile from other servers or from bluesky, but link previews will
-              be hidden.
+            <Text className="text-gray-200 text-sm mt-2">
+              Whenever the word {'"AI"'} is detected in a post, it will be
+              replaced with the word you write here.
             </Text>
           </View>
-          <Switch
-            value={form.hideProfileNotLoggedIn}
-            onValueChange={(flag) => update('hideProfileNotLoggedIn', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.hideProfileNotLoggedIn ? cyan600 : gray300}
-          />
-        </Pressable>
+        </View>
+        <SettingRow
+          label="Disable email campaign notifications"
+          value={form.disableEmailNotifications}
+          onChange={(flag) => update('disableEmailNotifications', flag)}
+        />
+        <SettingRow
+          label="Hide follows and followers count in my profile"
+          value={form.hideFollows}
+          onChange={(flag) => update('hideFollows', flag)}
+        />
+        <SettingRow
+          label="Hide my profile in search and to not logged in users in web"
+          description="This will only affect this wafrn server, people can still see your profile from other servers or from bluesky, but link previews will be hidden."
+          value={form.hideProfileNotLoggedIn}
+          onChange={(flag) => update('hideProfileNotLoggedIn', flag)}
+        />
         {env?.ENABLE_THREADS_FEDERATION && (
-          <Pressable
-            onPress={() => update('federateWithThreads', (prev) => !prev)}
-            className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
-          >
-            <View className="grow shrink">
-              <Text className="text-white text-base leading-6 flex-1">
-                Enable federation with Threads from Meta (facebook)
-              </Text>
-              <Text className="text-gray-300 text-sm mt-2 flex-1">
-                Threads is a microblogging platform by Meta (formerly Facebook).
-                We understand not everyone will want to make their content
-                available there. By default meta will not see you, unless you
-                enable this option.
-              </Text>
-            </View>
-            <Switch
-              value={form.federateWithThreads}
-              onValueChange={(flag) => update('federateWithThreads', flag)}
-              trackColor={{ false: gray700, true: cyan900 }}
-              thumbColor={form.federateWithThreads ? cyan600 : gray300}
-            />
-          </Pressable>
+          <SettingRow
+            label="Enable federation with Threads from Meta (facebook)"
+            description="Threads is a microblogging platform by Meta (formerly Facebook). We understand not everyone will want to make their content available there. By default meta will not see you, unless you enable this option."
+            value={form[PrivateOptionNames.FederateWithThreads]}
+            onChange={(flag) =>
+              update(PrivateOptionNames.FederateWithThreads, flag)
+            }
+          />
         )}
       </KeyboardAwareScrollView>
     </View>

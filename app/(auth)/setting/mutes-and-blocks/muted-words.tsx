@@ -15,7 +15,6 @@ import { clsx } from 'clsx'
 import { Link, router, useLocalSearchParams } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
   Button,
   Pressable,
   Text,
@@ -25,6 +24,7 @@ import {
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useCSSString } from '@/lib/cssVariables'
+import SaveButton from '@/components/settings/SaveButton'
 
 const DEFAULT_BLOCK = {
   words: '',
@@ -111,38 +111,19 @@ export default function MutedWords() {
     )
   }
 
-  function renderSaveButton() {
-    return (
-      <Pressable
-        onPress={handleEdit}
-        disabled={!formValid}
-        className={clsx(
-          'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-          {
-            'bg-cyan-800 active:bg-cyan-700': formValid,
-            'bg-gray-400/25 opacity-50': !formValid,
-          },
-        )}
-      >
-        {editMutation.isPending ? (
-          <ActivityIndicator size="small" color="white" />
-        ) : (
-          <MaterialCommunityIcons
-            name="content-save-edit"
-            size={20}
-            color="white"
-          />
-        )}
-        <Text className="text-medium text-white">Save</Text>
-      </Pressable>
-    )
-  }
-
   return (
     <View>
       <Header
         title={title}
-        right={isEditMode ? renderSaveButton() : undefined}
+        right={
+          isEditMode ? (
+            <SaveButton
+              onPress={handleEdit}
+              disabled={!formValid}
+              isPending={editMutation.isPending}
+            />
+          ) : undefined
+        }
       />
       <KeyboardAwareScrollView
         style={{ marginTop: headerInset }}

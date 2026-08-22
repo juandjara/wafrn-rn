@@ -1,13 +1,5 @@
 import { useCurrentUser, useEditProfileMutation } from '@/lib/api/user'
-import {
-  ActivityIndicator,
-  Pressable,
-  Switch,
-  Text,
-  View,
-  ScrollView,
-  Keyboard,
-} from 'react-native'
+import { Pressable, Text, View, ScrollView, Keyboard } from 'react-native'
 import { Image } from 'expo-image'
 import { formatAvatarUrl, formatHeaderUrl } from '@/lib/formatters'
 import { TextInput } from 'react-native-gesture-handler'
@@ -26,7 +18,6 @@ import {
   useSettings,
 } from '@/lib/api/settings'
 import { HTMLToMarkdown, markdownToHTML } from '@/lib/markdown'
-import { clsx } from 'clsx'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
 import Header from '@/components/Header'
 import { Link } from 'expo-router'
@@ -43,7 +34,8 @@ import {
 } from 'react-native-keyboard-controller'
 import { InteractionControl } from '@/lib/api/posts.types'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
-import { useCSSString } from '@/lib/cssVariables'
+import SaveButton from '@/components/settings/SaveButton'
+import SettingRow from '@/components/settings/SettingRow'
 
 type FormState = {
   name: string
@@ -80,11 +72,6 @@ export default function EditProfile() {
   const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
     formatHeaderUrl(me?.id || ''),
   )
-  const gray700 = useCSSString('--color-gray-700')
-  const cyan900 = useCSSString('--color-cyan-900')
-  const cyan600 = useCSSString('--color-cyan-600')
-  const gray300 = useCSSString('--color-gray-300')
-
   const savedCustomFields = useMemo(() => {
     const options = getPublicOptionValue(
       settings?.options || [],
@@ -250,27 +237,11 @@ export default function EditProfile() {
         title="Edit Profile"
         style={headerStyle}
         right={
-          <Pressable
+          <SaveButton
             onPress={onSubmit}
-            className={clsx(
-              'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
-              {
-                'bg-cyan-800 active:bg-cyan-700': canPublish,
-                'bg-gray-400/25 opacity-50': !canPublish,
-              },
-            )}
-          >
-            {editMutation.isPending ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <MaterialCommunityIcons
-                name="content-save-edit"
-                size={20}
-                color="white"
-              />
-            )}
-            <Text className="text-medium text-white">Save</Text>
-          </Pressable>
+            disabled={!canPublish}
+            isPending={editMutation.isPending}
+          />
         }
       />
       <KeyboardAwareScrollView
@@ -411,28 +382,12 @@ export default function EditProfile() {
             <Text className="text-white text-sm">Add field</Text>
           </Pressable>
         </View>
-        <Pressable
-          onPress={() => update('isBot', (prev) => !prev)}
-          className="m-4 mt-0 flex-row items-center gap-4 py-2 active:bg-white/10"
-        >
-          <View className="grow shrink">
-            <Text className="text-white text-base leading-6">
-              Mark user as a bot account
-            </Text>
-            <Text className="text-gray-300 text-sm mt-2">
-              Shows a bot badge on your profile and announces your account to
-              the fediverse as automated. Other servers may treat bots
-              differently, for example by keeping their public posts out of
-              public feeds.
-            </Text>
-          </View>
-          <Switch
-            value={form.isBot}
-            onValueChange={(flag) => update('isBot', flag)}
-            trackColor={{ false: gray700, true: cyan900 }}
-            thumbColor={form.isBot ? cyan600 : gray300}
-          />
-        </Pressable>
+        <SettingRow
+          label="Mark user as a bot account"
+          description="Shows a bot badge on your profile and announces your account to the fediverse as automated. Other servers may treat bots differently, for example by keeping their public posts out of public feeds."
+          value={form.isBot}
+          onChange={(flag) => update('isBot', flag)}
+        />
         <Link href="/setting/options" asChild>
           <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">
             <MaterialCommunityIcons name="cog" size={24} color="white" />
