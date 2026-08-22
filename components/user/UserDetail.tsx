@@ -31,10 +31,12 @@ import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
 import { useCSSString } from '@/lib/cssVariables'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 
 export default function UserDetail({ user }: { user: User }) {
   const gray400 = useCSSString('--color-gray-400')
+  const yellow400 = useCSSString('--color-yellow-400')
   const me = useParsedToken()
   const isMe = me?.userId === user.id
   const width = useContainerWidth()
@@ -148,6 +150,32 @@ export default function UserDetail({ user }: { user: User }) {
           />
           <Text className="text-white text-lg">{formatUserUrl(user.url)}</Text>
         </View>
+        {(user.migratedTo || user.userMigratedTo) && (
+          <Link
+            href={
+              user.migratedTo
+                ? `/user/${user.migratedTo}`
+                : (user.userMigratedTo ?? '')
+            }
+            asChild
+          >
+            <Pressable className="flex-row items-center gap-2 mt-4 px-3 py-2 rounded-lg bg-yellow-800/50 active:bg-yellow-900/50">
+              <MaterialCommunityIcons
+                name="account-alert-outline"
+                size={20}
+                color={yellow400}
+              />
+              <Text className="text-yellow-100 shrink">
+                This account has moved to{' '}
+                <Text className="underline">
+                  {user.migratedTo
+                    ? formatUserUrl(user.migratedTo)
+                    : user.userMigratedTo}
+                </Text>
+              </Text>
+            </Pressable>
+          </Link>
+        )}
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (
             <Link

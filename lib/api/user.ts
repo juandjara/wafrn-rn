@@ -61,7 +61,8 @@ export type User = {
   hideFollows?: boolean
   hideProfileNotLoggedIn?: boolean
   disableEmailNotifications?: boolean
-  userMigratedTo?: string
+  userMigratedTo?: string // raw actor URL, from the ActivityPub movedTo property
+  migratedTo?: string // same account resolved to a handle; absent when this instance doesn't know the target user
   displayUrl?: string
   alternateUrl?: string
 }
