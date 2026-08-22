@@ -95,6 +95,81 @@ export function useBlocks() {
 }
 
 /*
+ * FOLLOWED USER FILTERS
+ * per-followed-user switches to hide their rewoots, quotes or replies from your feed
+ */
+
+export type FollowedUserFilter = 'rewoots' | 'quotes' | 'replies'
+
+const FILTER_LABELS: Record<FollowedUserFilter, string> = {
+  rewoots: 'Rewoots',
+  quotes: 'Quotes',
+  replies: 'Replies',
+}
+
+export async function toggleFollowedUserFilter({
+  token,
+  userId,
+  filter,
+}: {
+  token: string
+  userId: string
+  filter: FollowedUserFilter
+}) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/muteRewoots`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    // the endpoint body works like this:
+    // no extra field toggles rewoots, muteQuotes toggles quotes, hideReplies toggles replies
+    body: JSON.stringify({
+      userId,
+      ...(filter === 'quotes' ? { muteQuotes: true } : {}),
+      ...(filter === 'replies' ? { hideReplies: true } : {}),
+    }),
+  })
+}
+
+export function useFollowedUserFilterMutation(user: PostUser) {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+  const { showToastSuccess, showToastError } = useToasts()
+
+  return useMutation<
+    void,
+    Error,
+    { filter: FollowedUserFilter; hidden: boolean }
+  >({
+    mutationKey: ['followedUserFilter', user.id],
+    mutationFn: ({ filter }) =>
+      toggleFollowedUserFilter({
+        token: token!,
+        userId: user.id,
+        filter,
+      }),
+    onError: (err, { filter, hidden }) => {
+      console.error(err)
+      showToastError(`Failed to ${hidden ? 'unhide' : 'hide'} ${filter}`)
+    },
+    onSuccess: (data, { filter, hidden }) => {
+      showToastSuccess(
+        `${FILTER_LABELS[filter]} ${hidden ? 'unhidden' : 'hidden'}`,
+      )
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({
+        predicate: ({ queryKey }) =>
+          queryKey[0] === 'settings' ||
+          (queryKey[0] === 'user' && queryKey[1] === user.url),
+      })
+    },
+  })
+}
+
+/*
  * USER MUTES
  */
 
@@ -238,6 +313,10 @@ export function useSilenceMutation(post: Post) {
 }
 
 // NOTE: to get a list of muted posts, use `DashboardMode.MUTED_POSTS` as `mode` parameter in `getDashboard`
+
+/*
+ * SERVER BLOCKS
+ */
 
 async function toggleServerBlock({
   token,

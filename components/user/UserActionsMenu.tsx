@@ -1,8 +1,10 @@
 import {
   useBlockMutation,
+  useFollowedUserFilterMutation,
   useMuteMutation,
   useServerBlockMutation,
 } from '@/lib/api/mutes-and-blocks'
+import { useSettings } from '@/lib/api/settings'
 import { User, useRefetchUserDataMutation } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { useBiteUserMutation } from '@/lib/interaction'
@@ -28,6 +30,17 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const serverBlockMutation = useServerBlockMutation(user)
   const biteMutation = useBiteUserMutation()
   const refetchMutation = useRefetchUserDataMutation(user)
+  const filterMutation = useFollowedUserFilterMutation(user)
+
+  const { data: settings } = useSettings()
+  const isFollowed =
+    !!settings &&
+    (settings.followedUsers.includes(user.id) ||
+      settings.notAcceptedFollows.includes(user.id))
+
+  const rewootsHidden = !!settings?.mutedRewoots?.includes(user.id)
+  const quotesHidden = !!settings?.mutedQuotes?.includes(user.id)
+  const repliesHidden = !!settings?.hiddenReplies?.includes(user.id)
 
   const [open, setOpen] = useState(false)
 
@@ -52,14 +65,40 @@ export default function UserActionsMenu({ user }: { user: User }) {
           action: () => biteMutation.mutate(user.id),
         },
         {
+          name: `${rewootsHidden ? 'Unhide' : 'Hide'} rewoots`,
+          icon: rewootsHidden ? ('repeat' as const) : ('repeat-off' as const),
+          disabled: filterMutation.isPending,
+          action: () =>
+            filterMutation.mutate({ filter: 'rewoots', hidden: rewootsHidden }),
+          hidden: isMe || !isFollowed,
+        },
+        {
+          name: `${quotesHidden ? 'Unhide' : 'Hide'} quotes`,
+          icon: quotesHidden
+            ? ('format-quote-open' as const)
+            : ('format-quote-open-outline' as const),
+          disabled: filterMutation.isPending,
+          action: () =>
+            filterMutation.mutate({ filter: 'quotes', hidden: quotesHidden }),
+          hidden: isMe || !isFollowed,
+        },
+        {
+          name: `${repliesHidden ? 'Unhide' : 'Hide'} replies`,
+          icon: repliesHidden ? ('reply' as const) : ('reply-outline' as const),
+          disabled: filterMutation.isPending,
+          action: () =>
+            filterMutation.mutate({ filter: 'replies', hidden: repliesHidden }),
+          hidden: isMe || !isFollowed,
+        },
+        {
           name: `${user.muted ? 'Unmute' : 'Mute'} user`,
-          icon: 'volume-off' as const,
+          icon: 'account-off-outline' as const,
           disabled: isMe || muteMutation.isPending,
           action: () => muteMutation.mutate(user.muted),
         },
         {
           name: `${user.blocked ? 'Unblock' : 'Block'} user`,
-          icon: 'account-cancel-outline' as const,
+          icon: 'account-off' as const,
           disabled: isMe || blockMutation.isPending,
           action: () => blockMutation.mutate(user.blocked),
         },
@@ -87,6 +126,11 @@ export default function UserActionsMenu({ user }: { user: User }) {
       serverBlockMutation,
       biteMutation,
       refetchMutation,
+      filterMutation,
+      isFollowed,
+      rewootsHidden,
+      quotesHidden,
+      repliesHidden,
     ],
   )
 

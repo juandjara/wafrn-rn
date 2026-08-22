@@ -52,6 +52,9 @@ export default function UserDetail({ user }: { user: User }) {
     isFollowingMe,
     commonFollows,
     commonExtraCount,
+    rewootsHidden,
+    quotesHidden,
+    repliesHidden,
   } = useMemo(() => {
     const amIFollowing = settings?.followedUsers.includes(user?.id!)
     const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
@@ -62,12 +65,20 @@ export default function UserDetail({ user }: { user: User }) {
       : []
     const commonExtraCount =
       commonFollows.length > 3 ? commonFollows.length - 3 : 0
+
+    const rewootsHidden = !!settings?.mutedRewoots?.includes(user.id)
+    const quotesHidden = !!settings?.mutedQuotes?.includes(user.id)
+    const repliesHidden = !!settings?.hiddenReplies?.includes(user.id)
+
     return {
       amIFollowing,
       amIAwaitingApproval,
       isFollowingMe,
       commonFollows: commonFollows.slice(0, 3),
       commonExtraCount,
+      rewootsHidden,
+      quotesHidden,
+      repliesHidden,
     }
   }, [user, me?.userId, settings, myFollowers, followers])
 
@@ -240,26 +251,43 @@ export default function UserDetail({ user }: { user: User }) {
             </View>
           </>
         )}
-        {user.isBot && (
-          <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
-            Bot account
-          </Text>
-        )}
-        {isFollowingMe && (
-          <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
-            Follows you
-          </Text>
-        )}
-        {user.muted && (
-          <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
-            Muted
-          </Text>
-        )}
-        {user.blocked && (
-          <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
-            Blocked
-          </Text>
-        )}
+        <View className="flex-row px-3 mb-3 gap-3">
+          {user.isBot && (
+            <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Bot account
+            </Text>
+          )}
+          {isFollowingMe && (
+            <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Follows you
+            </Text>
+          )}
+          {rewootsHidden && (
+            <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Rewoots hidden
+            </Text>
+          )}
+          {quotesHidden && (
+            <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Quotes hidden
+            </Text>
+          )}
+          {repliesHidden && (
+            <Text className="text-white bg-gray-500/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Replies hidden
+            </Text>
+          )}
+          {user.muted && (
+            <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Muted
+            </Text>
+          )}
+          {user.blocked && (
+            <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Blocked
+            </Text>
+          )}
+        </View>
         <View className="flex-row gap-6 mt-6 mb-3">
           <Link href={`/user/followed/${user.url}`} asChild>
             <Pressable className="items-center">

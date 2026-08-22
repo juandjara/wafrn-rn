@@ -232,6 +232,9 @@ export type Settings = {
   followedUsers: string[] // ids of people you follow
   notAcceptedFollows: string[] // ids of people who you tried to follow but they didn't accept yet
   mutedUsers: string[] // ids of people you've muted
+  mutedRewoots: string[] // ids of followed users whose rewoots you've hidden
+  mutedQuotes: string[] // ids of followed users whose quotes you've hidden
+  hiddenReplies: string[] // ids of followed users whose replies you've hidden
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
   options: PrivateOption[] & PublicOption[] // the actual values of the settings for the user
