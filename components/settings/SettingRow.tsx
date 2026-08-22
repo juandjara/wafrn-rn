@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { Pressable, Switch, Text, View } from 'react-native'
+import { clsx } from 'clsx'
 import { useCSSString } from '@/lib/cssVariables'
 
 export default function SettingRow({
@@ -24,7 +25,12 @@ export default function SettingRow({
     <Pressable
       disabled={disabled}
       onPress={() => onChange(!value)}
-      className="flex-row items-center gap-4 my-2 p-4 active:bg-white/10"
+      className={clsx(
+        'flex-row items-center gap-4 my-2 p-4 active:bg-white/10',
+        {
+          'opacity-50': disabled,
+        },
+      )}
     >
       {description ? (
         <View className="grow shrink">
