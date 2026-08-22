@@ -3,7 +3,7 @@ import {
   useMuteMutation,
   useServerBlockMutation,
 } from '@/lib/api/mutes-and-blocks'
-import { User } from '@/lib/api/user'
+import { User, useRefetchUserDataMutation } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { useBiteUserMutation } from '@/lib/interaction'
 import { optionStyleBig } from '@/lib/styles'
@@ -27,45 +27,56 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const blockMutation = useBlockMutation(user)
   const serverBlockMutation = useServerBlockMutation(user)
   const biteMutation = useBiteUserMutation()
+  const refetchMutation = useRefetchUserDataMutation(user)
 
   const [open, setOpen] = useState(false)
 
   const options = useMemo(
-    () => [
-      {
-        name: 'Share user',
-        icon: 'share-variant' as const,
-        action: () =>
-          user &&
-          Share.share({
-            message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}`,
-          }),
-      },
-      {
-        name: 'Bite user',
-        icon: <FontAwesome6 name="drumstick-bite" size={20} color={gray600} />,
-        disabled: isMe || biteMutation.isPending,
-        action: () => biteMutation.mutate(user.id),
-      },
-      {
-        name: `${user.muted ? 'Unmute' : 'Mute'} user`,
-        icon: 'volume-off' as const,
-        disabled: isMe || muteMutation.isPending,
-        action: () => muteMutation.mutate(user.muted),
-      },
-      {
-        name: `${user.blocked ? 'Unblock' : 'Block'} user`,
-        icon: 'account-cancel-outline' as const,
-        disabled: isMe || blockMutation.isPending,
-        action: () => blockMutation.mutate(user.blocked),
-      },
-      {
-        name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
-        icon: 'server-off' as const,
-        disabled: isMe || serverBlockMutation.isPending,
-        action: () => serverBlockMutation.mutate(user.serverBlocked),
-      },
-    ],
+    () =>
+      [
+        {
+          name: 'Share user',
+          icon: 'share-variant' as const,
+          action: () =>
+            user &&
+            Share.share({
+              message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}`,
+            }),
+        },
+        {
+          name: 'Bite user',
+          icon: (
+            <FontAwesome6 name="drumstick-bite" size={20} color={gray600} />
+          ),
+          disabled: isMe || biteMutation.isPending,
+          action: () => biteMutation.mutate(user.id),
+        },
+        {
+          name: `${user.muted ? 'Unmute' : 'Mute'} user`,
+          icon: 'volume-off' as const,
+          disabled: isMe || muteMutation.isPending,
+          action: () => muteMutation.mutate(user.muted),
+        },
+        {
+          name: `${user.blocked ? 'Unblock' : 'Block'} user`,
+          icon: 'account-cancel-outline' as const,
+          disabled: isMe || blockMutation.isPending,
+          action: () => blockMutation.mutate(user.blocked),
+        },
+        {
+          name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
+          icon: 'server-off' as const,
+          disabled: isMe || serverBlockMutation.isPending,
+          action: () => serverBlockMutation.mutate(user.serverBlocked),
+        },
+        {
+          name: 'Refetch remote user data',
+          icon: 'cloud-refresh-outline' as const,
+          disabled: refetchMutation.isPending,
+          action: () => refetchMutation.mutate(),
+          hidden: !user.url.startsWith('@'),
+        },
+      ].filter((m) => !m.hidden),
     [
       gray600,
       user,
@@ -75,6 +86,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
       blockMutation,
       serverBlockMutation,
       biteMutation,
+      refetchMutation,
     ],
   )
 

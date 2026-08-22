@@ -117,6 +117,40 @@ export function useUser(handle: string) {
   })
 }
 
+async function refetchUserData(token: string, handle: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(
+    `${env?.API_URL}/user/${encodeURIComponent(handle)}/refetchData`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
+}
+
+export function useRefetchUserDataMutation(user: User) {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+  const { showToastError, showToastSuccess, showToastInfo } = useToasts()
+
+  return useMutation({
+    mutationKey: ['refetchUserData', user.url],
+    mutationFn: () => refetchUserData(token!, user.url),
+    onMutate: () => {
+      showToastInfo('Refetching remote user...')
+    },
+    onError: (err) => {
+      console.error(err)
+      showToastError('Failed to refetch user data')
+    },
+    onSuccess: () => {
+      showToastSuccess('User data refetched')
+      return qc.invalidateQueries({ queryKey: ['user', user.url] })
+    },
+  })
+}
+
 // // all of this just to get the fucking avatars and names for the account switcher
 // function useAccountsQueries(data: SavedAccount[], enabled: boolean) {
 //   return useQueries({
