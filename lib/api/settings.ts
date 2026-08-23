@@ -80,6 +80,10 @@ export enum PrivateOptionNames {
   AutoAddSpecifiedTagsAsks = 'wafrn.autoAddSpecifiedTagsAsks',
   AutoAddSpecifiedTagsAsksNoGeneral = 'wafrn.autoAddSpecifiedTagsAsksNoGeneral',
   AutoAddContentWarning = 'wafrn.autoAddContentWarning',
+  HideNoDescriptionMedia = 'wafrn.hideNoDescriptionMedia',
+  MarkAllMediaAsNSFW = 'wafrn.markAllMediaAsNSFW',
+  DisableReactCounts = 'wafrn.disableReactCounts',
+  DisablePostCounts = 'wafrn.disablePostCounts',
 }
 
 export enum RssOptions {
@@ -133,6 +137,10 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.AutoAddSpecifiedTagsAsks]: string
   [PrivateOptionNames.AutoAddSpecifiedTagsAsksNoGeneral]: boolean
   [PrivateOptionNames.AutoAddContentWarning]: string
+  [PrivateOptionNames.HideNoDescriptionMedia]: boolean
+  [PrivateOptionNames.MarkAllMediaAsNSFW]: boolean
+  [PrivateOptionNames.DisableReactCounts]: boolean
+  [PrivateOptionNames.DisablePostCounts]: boolean
 }
 
 export enum MuteSource {
@@ -197,6 +205,10 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.AutoAddSpecifiedTagsAsks]: '',
   [PrivateOptionNames.AutoAddSpecifiedTagsAsksNoGeneral]: false,
   [PrivateOptionNames.AutoAddContentWarning]: '',
+  [PrivateOptionNames.HideNoDescriptionMedia]: false,
+  [PrivateOptionNames.MarkAllMediaAsNSFW]: false,
+  [PrivateOptionNames.DisableReactCounts]: false,
+  [PrivateOptionNames.DisablePostCounts]: false,
 }
 
 export type PrivateOption = SettingsOption & {

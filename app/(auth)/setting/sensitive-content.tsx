@@ -10,6 +10,10 @@ import SettingRow from '@/components/settings/SettingRow'
 const OPTION_KEYS = [
   PrivateOptionNames.DisableCW,
   PrivateOptionNames.DisableNSFWCloak,
+  PrivateOptionNames.MarkAllMediaAsNSFW,
+  PrivateOptionNames.HideNoDescriptionMedia,
+  PrivateOptionNames.DisableReactCounts,
+  PrivateOptionNames.DisablePostCounts,
 ] as const
 
 const PROFILE_FLAGS = ['hideFollows'] as const
@@ -44,6 +48,37 @@ export default function SensitiveContentSettings() {
           label="Disable hiding sensitive media behind a cloak for all posts"
           value={form[PrivateOptionNames.DisableNSFWCloak]}
           onChange={(flag) => update(PrivateOptionNames.DisableNSFWCloak, flag)}
+        />
+        <SettingRow
+          label="Mark all media as sensitive"
+          description="Hide every image, video and audio behind a cloak until tapped, even when the previous option is enabled."
+          value={form[PrivateOptionNames.MarkAllMediaAsNSFW]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.MarkAllMediaAsNSFW, flag)
+          }
+        />
+        <SettingRow
+          label="Mark all media with no alt text as sensitive"
+          value={form[PrivateOptionNames.HideNoDescriptionMedia]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.HideNoDescriptionMedia, flag)
+          }
+        />
+        <SettingRow
+          label="Hide reaction counts"
+          description="Do not show how many times a woot has been liked or reacted to."
+          value={form[PrivateOptionNames.DisableReactCounts]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisableReactCounts, flag)
+          }
+        />
+        <SettingRow
+          label="Hide woot counts"
+          description="Do not show how many woots any given user has wooted."
+          value={form[PrivateOptionNames.DisablePostCounts]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisablePostCounts, flag)
+          }
         />
         <SettingRow
           label="Hide follows and followers count in my profile"
