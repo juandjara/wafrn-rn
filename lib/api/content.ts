@@ -419,11 +419,24 @@ export function separateInlineMedias(
     options,
     PrivateOptionNames.DisableNSFWCloak,
   )
+  const markAllMediaAsNSFW = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.MarkAllMediaAsNSFW,
+  )
+  const hideNoDescriptionMedia = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.HideNoDescriptionMedia,
+  )
   const medias = context.medias
     .filter((m) => m.postId === post.id)
     .map((m) => ({
       ...m,
-      NSFW: disableNSFWCloak ? false : m.NSFW,
+      // same precedence as the web client: "mark all" wins over "disable cloak"
+      NSFW: markAllMediaAsNSFW
+        ? true
+        : disableNSFWCloak
+          ? false
+          : m.NSFW || (hideNoDescriptionMedia && !m.description),
     }))
     .sort((a, b) => a.mediaOrder - b.mediaOrder)
 
