@@ -10,11 +10,11 @@ import { launchImageLibraryAsync } from 'expo-image-picker'
 import EditorCanvas from './EditorCanvas'
 import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
-import { EditorFormState, EditorImage } from '@/lib/editor'
+import { EditorFormState, EditorImage, EditorSearchParams } from '@/lib/editor'
 import { useCSSString } from '@/lib/cssVariables'
-import InteractionControlMenu, {
-  InteractionControlChange,
-} from './InteractionControlMenu'
+import InteractionControlMenu from './InteractionControlMenu'
+import { InteractionControlChange } from '@/lib/interactionControl'
+import { useLocalSearchParams } from 'expo-router'
 
 export type EditorActionProps = {
   actions: {
@@ -29,6 +29,9 @@ export type EditorActionProps = {
 }
 
 export default function EditorActions({ actions, form }: EditorActionProps) {
+  const { type } = useLocalSearchParams<EditorSearchParams>()
+  const interactionControlDisabled = type === 'edit' || type === 'reply'
+
   const { contentWarningOpen } = form
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
@@ -99,8 +102,10 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         horizontal
       >
         <InteractionControlMenu
-          initialCanReply={form.canReply}
+          canReply={form.canReply}
+          canQuote={form.canQuote}
           onChange={actions.onInteractionControlChange}
+          disabled={interactionControlDisabled}
         />
         <Pressable
           onPress={() => setShowEmojiPicker(true)}
