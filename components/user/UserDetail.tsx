@@ -7,7 +7,9 @@ import {
 import {
   useSettings,
   AskOptionValue,
+  getPrivateOptionValue,
   getPublicOptionValue,
+  PrivateOptionNames,
   PublicOptionNames,
 } from '@/lib/api/settings'
 import { Pressable, Text, View } from 'react-native'
@@ -97,7 +99,13 @@ export default function UserDetail({ user }: { user: User }) {
     }))
   }, [user])
 
-  const remoteInfo = getRemoteInfo(user)
+  const remoteInfo = getRemoteInfo(
+    user,
+    getPrivateOptionValue(
+      settings?.options ?? [],
+      PrivateOptionNames.AtprotoLinkDestination,
+    ),
+  )
 
   const askFlag = getPublicOptionValue(
     user.publicOptions,

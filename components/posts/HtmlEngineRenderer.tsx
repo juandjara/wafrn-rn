@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { Document, RenderHTMLSource } from 'react-native-html-engine'
 import LinkPreviewCard from './LinkPreviewCard'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
 
 function HtmlEngineRendererInner({
   html,
@@ -17,23 +18,26 @@ function HtmlEngineRendererInner({
   disableLinkCards?: boolean
 }) {
   const { env } = useAuth()
+  const disableLinkPreviewsOption = usePrivateOptionValue(
+    PrivateOptionNames.DisableLinkPreviews,
+  )
+  const linkPreviewsDisabled = disableLinkCards || disableLinkPreviewsOption
   const { links, source } = useMemo(() => {
     const dom = parseDocument(html)
-    const links = DomUtils.findAll((node) => {
-      if (node.name === 'a') {
-        const text = DomUtils.textContent(node)
-        const href = node.attribs.href
-        node.attribs['data-text'] = text
-        if (disableLinkCards) {
+    const links = linkPreviewsDisabled
+      ? []
+      : DomUtils.findAll((node) => {
+          if (node.name === 'a') {
+            const text = DomUtils.textContent(node)
+            const href = node.attribs.href
+            node.attribs['data-text'] = text
+            if (hiddenLinks?.includes(href)) {
+              return false
+            }
+            return text === href
+          }
           return false
-        }
-        if (hiddenLinks?.includes(href)) {
-          return false
-        }
-        return text === href
-      }
-      return false
-    }, dom.children)
+        }, dom.children)
 
     const uniqueLinks = Array.from(
       new Set(links.map((node) => node.attribs.href)),
@@ -47,7 +51,7 @@ function HtmlEngineRendererInner({
         baseUrl: env?.BASE_URL,
       },
     }
-  }, [html, hiddenLinks, disableLinkCards, env?.BASE_URL])
+  }, [html, hiddenLinks, linkPreviewsDisabled, env?.BASE_URL])
 
   return (
     <>

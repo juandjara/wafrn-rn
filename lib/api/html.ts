@@ -4,7 +4,8 @@ import { PostMedia } from './posts.types'
 import { getEnvironmentStatic } from './auth'
 import { crush } from 'html-crush'
 
-export const BSKY_URL = 'https://bsky.app'
+export const BSKY_HOST = 'bsky.app'
+export const BSKY_URL = `https://${BSKY_HOST}`
 export const BR = '\n'
 
 /**
@@ -178,11 +179,11 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
   const env = getEnvironmentStatic()
   if (href.startsWith(`${env.BASE_URL}/dashboard/search/`)) {
     const tag = href.replace(`${env.BASE_URL}/dashboard/search/`, '')
-    return `/search/?q=${encodeURIComponent(`#${tag}`)}`
+    return `/search/?q=${encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)}`
   }
   if (attribs.class?.includes('hashtag')) {
     const tag = attribs['data-text']
-    return `/search/?q=${encodeURIComponent(`#${tag}`)}`
+    return `/search/?q=${encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)}`
   }
   if (href.startsWith(`${env.BASE_URL}/blog/`)) {
     const user = href.replace(`${env.BASE_URL}/blog/`, '')

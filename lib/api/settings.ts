@@ -6,6 +6,7 @@ import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic } from './auth'
 import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
+import { BSKY_HOST } from './html'
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
@@ -64,6 +65,12 @@ export enum PrivateOptionNames {
   LongPressToReact = 'wafrn.longPressToReact',
   AutoAcceptFollowsFromFollowing = 'wafrn.autoAcceptFollowsFromFollowing',
   AutoRejectFollowsFromUsersYouDoNotFollow = 'wafrn.autoRejectFollowsFromUsersYouDoNotFollow',
+  DisableRewootsDashboard = 'wafrn.disableRewootsDashboard',
+  DisableRewootsExploreLocal = 'wafrn.disableRewootsExploreLocal',
+  DisableReplies = 'wafrn.disableReplies',
+  DisableBsky = 'wafrn.disableBsky',
+  DisableLinkPreviews = 'wafrn.disableLinkPreviews',
+  AtprotoLinkDestination = 'wafrn.atprotoLinkDestination',
 }
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
@@ -92,6 +99,12 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.LongPressToReact]: boolean
   [PrivateOptionNames.AutoAcceptFollowsFromFollowing]: boolean
   [PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow]: boolean
+  [PrivateOptionNames.DisableRewootsDashboard]: boolean
+  [PrivateOptionNames.DisableRewootsExploreLocal]: boolean
+  [PrivateOptionNames.DisableReplies]: boolean
+  [PrivateOptionNames.DisableBsky]: boolean
+  [PrivateOptionNames.DisableLinkPreviews]: boolean
+  [PrivateOptionNames.AtprotoLinkDestination]: string
 }
 
 export enum MuteSource {
@@ -142,6 +155,12 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.LongPressToReact]: false,
   [PrivateOptionNames.AutoAcceptFollowsFromFollowing]: false,
   [PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow]: false,
+  [PrivateOptionNames.DisableRewootsDashboard]: false,
+  [PrivateOptionNames.DisableRewootsExploreLocal]: false,
+  [PrivateOptionNames.DisableReplies]: false,
+  [PrivateOptionNames.DisableBsky]: false,
+  [PrivateOptionNames.DisableLinkPreviews]: false,
+  [PrivateOptionNames.AtprotoLinkDestination]: BSKY_HOST,
 }
 
 export type PrivateOption = SettingsOption & {
@@ -287,4 +306,21 @@ export function useSettings() {
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
   })
+}
+
+/**
+ * Subscribes to a single option value instead of the whole settings object.
+ * Prefer this in components rendered once per post: thanks to the `select`,
+ * they only re-render when this option's value changes.
+ */
+export function usePrivateOptionValue<T extends PrivateOptionNames>(key: T) {
+  const { token } = useAuth()
+  const { data } = useQuery({
+    queryKey: ['settings'],
+    queryFn: ({ signal }) => getSettings(token!, signal),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60, // 1 hour
+    select: (settings) => getPrivateOptionValue(settings.options, key),
+  })
+  return data ?? DEFAULT_PRIVATE_OPTIONS[key]
 }

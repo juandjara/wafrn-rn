@@ -11,7 +11,7 @@ import { Timestamps } from './types'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { PostUser } from './posts.types'
 import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
-import { BSKY_URL } from './html'
+import { BSKY_HOST } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
 import { formatAvatarUrl, formatCachedUrl, formatUserUrl } from '../formatters'
@@ -331,7 +331,7 @@ export function useFollowed(handle?: string) {
   })
 }
 
-export function getRemoteInfo(user: User) {
+export function getRemoteInfo(user: User, atprotoHost = BSKY_HOST) {
   if (user.remoteId) {
     return {
       href: user.displayUrl || user.remoteId,
@@ -340,7 +340,7 @@ export function getRemoteInfo(user: User) {
   }
   if (user.bskyDid && user.url.startsWith('@')) {
     try {
-      const url = new URL(`${BSKY_URL}/profile/${user.bskyDid}`)
+      const url = new URL(`https://${atprotoHost}/profile/${user.bskyDid}`)
       return {
         href: url.toString(),
         name: url.hostname,

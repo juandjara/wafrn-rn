@@ -20,7 +20,7 @@ import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { useToasts } from '@/lib/toasts'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
-import { BSKY_URL } from '@/lib/api/html'
+import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
 import SilenceButton from './SilenceButton'
 import ReportPostModal from '../posts/ReportPostModal'
 
@@ -31,7 +31,10 @@ export default function InteractionMenu({ post }: { post: Post }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const { env } = useAuth()
-  const remoteUrl = getRemotePostUrl(post)
+  const atprotoHost = usePrivateOptionValue(
+    PrivateOptionNames.AtprotoLinkDestination,
+  )
+  const remoteUrl = getRemotePostUrl(post, atprotoHost)
   const wafrnUrl = `${env?.BASE_URL}/fediverse/post/${post.id}`
 
   const me = useParsedToken()
@@ -43,6 +46,18 @@ export default function InteractionMenu({ post }: { post: Post }) {
   const showRewoot =
     post.privacy !== PrivacyLevel.DIRECT_MESSAGE &&
     post.privacy !== PrivacyLevel.FOLLOWERS_ONLY
+
+  function remoteUrlHost() {
+    if (!remoteUrl) {
+      return null
+    }
+    try {
+      const url = new URL(remoteUrl)
+      return url.host
+    } catch {
+      return null
+    }
+  }
 
   const { showToastSuccess, showToastError } = useToasts()
 
@@ -204,11 +219,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
                 router.navigate(remoteUrl)
                 setMenuOpen(false)
               }}
-              label={
-                remoteUrl?.startsWith(BSKY_URL)
-                  ? 'Open in Bluesky'
-                  : 'Open remote post'
-              }
+              label={`Open in ${remoteUrlHost()}`}
               style={optionStyleBig(1)}
             />
           </>

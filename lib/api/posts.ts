@@ -9,8 +9,8 @@ import {
 } from './posts.types'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
-import { BSKY_URL } from './html'
 import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
+import { BSKY_HOST } from './html'
 import { EditorImage } from '../editor'
 import { useAccounts } from './user'
 import { router } from 'expo-router'
@@ -390,7 +390,7 @@ export function useVoteMutation(pollId: number | null) {
   })
 }
 
-export function getRemotePostUrl(post: Post) {
+export function getRemotePostUrl(post: Post, atprotoHost = BSKY_HOST) {
   if (post.displayUrl) {
     return post.displayUrl
   }
@@ -401,7 +401,7 @@ export function getRemotePostUrl(post: Post) {
     const parts = post.bskyUri.replace('at://', '').split('/')
     const did = parts[0]
     const postId = parts[2]
-    return `${BSKY_URL}/profile/${did}/post/${postId}`
+    return `https://${atprotoHost}/profile/${did}/post/${postId}`
   }
   return null
 }

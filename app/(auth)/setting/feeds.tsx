@@ -14,12 +14,21 @@ import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
 
 const OPTION_KEYS = [
+  PrivateOptionNames.DisableRewootsDashboard,
+  PrivateOptionNames.DisableRewootsExploreLocal,
+  PrivateOptionNames.DisableReplies,
+  PrivateOptionNames.DisableBsky,
   PrivateOptionNames.ThreadAncestorLimit,
+  PrivateOptionNames.DisableLinkPreviews,
+  PrivateOptionNames.AtprotoLinkDestination,
   PrivateOptionNames.LongPressToReact,
   PrivateOptionNames.EnableReplaceAIWord,
   PrivateOptionNames.ReplaceAIWord,
   PrivateOptionNames.ForceClassicLogo,
 ] as const
+
+const DEFAULT_ATPROTO_HOST =
+  DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.AtprotoLinkDestination]
 
 export default function FeedsAndContentSettings() {
   const sx = useSafeAreaPadding()
@@ -42,6 +51,9 @@ export default function FeedsAndContentSettings() {
       [PrivateOptionNames.ThreadAncestorLimit]: validThreadAncestorLimit
         ? Number(threadLimitText)
         : DEFAULT_PRIVATE_OPTIONS[PrivateOptionNames.ThreadAncestorLimit],
+      [PrivateOptionNames.AtprotoLinkDestination]:
+        form[PrivateOptionNames.AtprotoLinkDestination].trim() ||
+        DEFAULT_ATPROTO_HOST,
     })
   }
 
@@ -65,6 +77,56 @@ export default function FeedsAndContentSettings() {
           paddingBottom: sx.paddingBottom + 20,
         }}
       >
+        <SettingRow
+          label="Hide rewoots in the Home feed"
+          value={form[PrivateOptionNames.DisableRewootsDashboard]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisableRewootsDashboard, flag)
+          }
+        />
+        <SettingRow
+          label="Hide rewoots in the Local feed"
+          value={form[PrivateOptionNames.DisableRewootsExploreLocal]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisableRewootsExploreLocal, flag)
+          }
+        />
+        <SettingRow
+          label="Hide replies in feeds"
+          value={form[PrivateOptionNames.DisableReplies]}
+          onChange={(flag) => update(PrivateOptionNames.DisableReplies, flag)}
+        />
+        <SettingRow
+          label="Hide Bluesky posts in feeds"
+          value={form[PrivateOptionNames.DisableBsky]}
+          onChange={(flag) => update(PrivateOptionNames.DisableBsky, flag)}
+        />
+        <SettingRow
+          label="Disable link previews in posts"
+          value={form[PrivateOptionNames.DisableLinkPreviews]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisableLinkPreviews, flag)
+          }
+        />
+        <View className="p-4">
+          <Text className="text-white mb-2">ATProto link destination</Text>
+          <TextInput
+            value={form[PrivateOptionNames.AtprotoLinkDestination]}
+            onChangeText={(text) =>
+              update(PrivateOptionNames.AtprotoLinkDestination, text)
+            }
+            autoCapitalize="none"
+            autoCorrect={false}
+            className="p-3 rounded-lg text-white border border-gray-600"
+            placeholder={DEFAULT_ATPROTO_HOST}
+            placeholderTextColorClassName="accent-gray-400"
+            numberOfLines={1}
+          />
+          <Text className="text-gray-200 text-sm mt-2">
+            Website used to open ATProto (Bluesky) posts and profiles
+            externally.
+          </Text>
+        </View>
         <View className="p-4">
           <Text className="text-white mb-2">
             Thread collapse limit{' '}
