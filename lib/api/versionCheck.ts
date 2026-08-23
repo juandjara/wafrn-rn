@@ -5,34 +5,33 @@ import { compare } from 'compare-versions'
 import { RELEASES_URL } from '../envVars'
 import { Platform } from 'react-native'
 
-// omited fields: "author", "assets", "archive_download_count"
-type CodebergRelease = {
-  id: number
-  tag_name: string
-  target_commitish: string
-  name: string
-  body: string
-  url: string
-  html_url: string
-  tarball_url: string
-  zipball_url: string
-  upload_url: string
-  hide_archive_links: boolean
-  draft: boolean
-  prerelease: boolean
-  created_at: string // ISO date
-  published_at: string // ISO date
+type FDroidPackage = {
+  packageName: string
+  suggestedVersionCode: number
+  packages: {
+    versionName: string
+    versionCode: number
+  }[]
 }
 
 const SIGNATURE_CHANGE_VERSION = '1.13.0'
 
+const NO_UPDATE = {
+  tag: '',
+  pkg: pkg.version,
+  tagIsGreater: false,
+  reinstallRequired: false,
+}
+
 async function fetchLatestVersion(signal: AbortSignal) {
   try {
     const url = RELEASES_URL
-    const json = (await getJSON(url, { signal })) as CodebergRelease
-    let tag = json.tag_name
-    if (tag.startsWith('v')) {
-      tag = tag.substring(1)
+    const json = (await getJSON(url, { signal })) as FDroidPackage
+    const tag = json.packages.find(
+      (p) => p.versionCode === json.suggestedVersionCode,
+    )?.versionName
+    if (!tag) {
+      return NO_UPDATE
     }
     const tagIsGreater = compare(tag, pkg.version, '>')
     const reinstallRequired =
@@ -40,13 +39,8 @@ async function fetchLatestVersion(signal: AbortSignal) {
       compare(pkg.version, SIGNATURE_CHANGE_VERSION, '<')
     return { tag, pkg: pkg.version, tagIsGreater, reinstallRequired }
   } catch (err) {
-    console.error('Codeberg is down or having problems', err)
-    return {
-      tag: '',
-      pkg: pkg.version,
-      tagIsGreater: false,
-      reinstallRequired: false,
-    }
+    console.error('F-Droid is down or having problems', err)
+    return NO_UPDATE
   }
 }
 

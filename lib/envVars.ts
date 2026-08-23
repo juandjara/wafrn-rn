@@ -8,6 +8,6 @@ export const FEDIDB_URL =
 
 export const RELEASES_URL =
   process.env.RELEASES_URL ||
-  'https://codeberg.org/api/v1/repos/wafrn/wafrn-rn/releases/latest'
+  'https://f-droid.org/api/v1/packages/dev.djara.wafrn_rn'
 
 export const EXPO_PUBLIC_TENOR_KEY = process.env.EXPO_PUBLIC_TENOR_KEY || ''
