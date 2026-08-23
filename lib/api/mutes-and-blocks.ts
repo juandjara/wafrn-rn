@@ -162,6 +162,8 @@ export function useFollowedUserFilterMutation(user: PostUser) {
     onSettled: async () => {
       await qc.invalidateQueries({
         predicate: ({ queryKey }) =>
+          // feeds must refetch for the rewoot/quote filters to visibly apply
+          queryKey[0] === 'dashboard' ||
           queryKey[0] === 'settings' ||
           (queryKey[0] === 'user' && queryKey[1] === user.url),
       })

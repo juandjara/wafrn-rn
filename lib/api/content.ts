@@ -741,11 +741,26 @@ export function getDerivedThreadState(
     (firstPost ? hiddenUserIds.includes(firstPost.userId) : false) ||
     threadPosts.some((a) => a && hiddenUserIds.includes(a.userId))
 
+  // Enforce the per-user "hide rewoots" action from the user action menu
+  const rewootHidden =
+    isRewoot && (settings?.mutedRewoots || []).includes(thread.userId)
+
+  // Enforce the per-user "hide quotes" action from the user action menu
+  const mutedQuoteUserIds = settings?.mutedQuotes || []
+  const quoteHidden =
+    mutedQuoteUserIds.length > 0 &&
+    posts.some(
+      (p) =>
+        p &&
+        mutedQuoteUserIds.includes(p.userId) &&
+        context.quotes.some((q) => q.quoterPostId === p.id),
+    )
+
   return {
     isRewoot,
     isReply,
     interactionPost,
-    postHidden: postHidden || userHidden,
+    postHidden: postHidden || userHidden || rewootHidden || quoteHidden,
     firstPost,
     threadPosts: threadPosts.filter((t) => !!t),
     morePostsCount,
