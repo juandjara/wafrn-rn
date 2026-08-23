@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useCSSString } from '@/lib/cssVariables'
@@ -6,11 +6,13 @@ import BottomSheet from '../BottomSheet'
 
 export default function SettingSelectRow<T extends string | number>({
   label,
+  description,
   value,
   options,
   onChange,
 }: {
   label: string
+  description?: ReactNode
   value: T
   options: { value: T; label: string }[]
   onChange: (value: T) => void
@@ -23,7 +25,7 @@ export default function SettingSelectRow<T extends string | number>({
     <View className="p-4">
       <Text className="text-white mb-2">{label}</Text>
       <Pressable onPress={() => setOpen(true)}>
-        <View className="flex-row items-center gap-1 rounded-xl pl-4 p-3 border border-gray-600">
+        <View className="flex-row items-center gap-1 rounded-xl p-3 border border-gray-600">
           <Text className="text-white text-sm px-1 grow shrink">
             {current?.label}
           </Text>
@@ -34,6 +36,9 @@ export default function SettingSelectRow<T extends string | number>({
           />
         </View>
       </Pressable>
+      {description ? (
+        <Text className="text-gray-300 text-sm mt-2">{description}</Text>
+      ) : null}
       <BottomSheet open={open} setOpen={setOpen}>
         {options.map((option) => (
           <Pressable
