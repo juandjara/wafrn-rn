@@ -12,7 +12,9 @@ export enum InteractionControl {
   FollowersFollowersAndMentioned = 6,
   MentionedUsersOnly = 7,
   NoOne = 8,
-  SameAsOp = 100, // this one is bsky exclusive. This only applies to REPLIES. Nothing else.
+  // Defer interaction control to root post policy.
+  // Set by the backend on many cases but never selectable in the UI.
+  SameAsOp = 100,
 }
 
 export type PostInteractionControl = {
