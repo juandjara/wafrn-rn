@@ -84,6 +84,7 @@ export enum PrivateOptionNames {
   MarkAllMediaAsNSFW = 'wafrn.markAllMediaAsNSFW',
   DisableReactCounts = 'wafrn.disableReactCounts',
   DisablePostCounts = 'wafrn.disablePostCounts',
+  DisplayMentionsOfBlockedUsers = 'wafrn.displayMentionsOfBlockedUsersFromOtherUsers',
 }
 
 export enum RssOptions {
@@ -141,6 +142,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.MarkAllMediaAsNSFW]: boolean
   [PrivateOptionNames.DisableReactCounts]: boolean
   [PrivateOptionNames.DisablePostCounts]: boolean
+  [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: boolean
 }
 
 export enum MuteSource {
@@ -209,6 +211,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.MarkAllMediaAsNSFW]: false,
   [PrivateOptionNames.DisableReactCounts]: false,
   [PrivateOptionNames.DisablePostCounts]: false,
+  [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: false,
 }
 
 export type PrivateOption = SettingsOption & {

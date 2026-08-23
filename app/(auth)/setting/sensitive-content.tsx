@@ -14,6 +14,7 @@ const OPTION_KEYS = [
   PrivateOptionNames.HideNoDescriptionMedia,
   PrivateOptionNames.DisableReactCounts,
   PrivateOptionNames.DisablePostCounts,
+  PrivateOptionNames.DisplayMentionsOfBlockedUsers,
 ] as const
 
 const PROFILE_FLAGS = ['hideFollows'] as const
@@ -43,6 +44,14 @@ export default function SensitiveContentSettings() {
           label="Disable CW unless post contains muted words"
           value={form[PrivateOptionNames.DisableCW]}
           onChange={(flag) => update(PrivateOptionNames.DisableCW, flag)}
+        />
+        <SettingRow
+          label="Show woots that mention a blocked or muted user"
+          description="By default these woots are replaced with a placeholder in your feeds."
+          value={form[PrivateOptionNames.DisplayMentionsOfBlockedUsers]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DisplayMentionsOfBlockedUsers, flag)
+          }
         />
         <SettingRow
           label="Disable hiding sensitive media behind a cloak for all posts"

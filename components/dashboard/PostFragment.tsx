@@ -32,7 +32,11 @@ import {
   DerivedPostData,
   getDerivedPostState,
 } from '@/lib/api/content'
-import { useSettings } from '@/lib/api/settings'
+import {
+  PrivateOptionNames,
+  usePrivateOptionValue,
+  useSettings,
+} from '@/lib/api/settings'
 import AskCard from '../posts/Ask'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { requestIdle } from '@/lib/requestIdle'
@@ -122,9 +126,12 @@ function PostFragmentInner({
   )
 
   const hiddenUserIds = useHiddenUserIds()
-  const hiddenUserMentioned = mentionedUsers.some((user) =>
-    hiddenUserIds.includes(user.id),
+  const displayBlockedMentions = usePrivateOptionValue(
+    PrivateOptionNames.DisplayMentionsOfBlockedUsers,
   )
+  const hiddenUserMentioned =
+    !displayBlockedMentions &&
+    mentionedUsers.some((user) => hiddenUserIds.includes(user.id))
   const hiddenUserQuoted =
     !!quotedPost && hiddenUserIds.includes(quotedPost.userId)
 
