@@ -10,6 +10,7 @@ import {
 import { Post } from '@/lib/api/posts.types'
 import { useLikeMutation } from '@/lib/interaction'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
+import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
 import { isUnicodeHeart } from '@/lib/api/content'
 import { useToasts } from '@/lib/toasts'
 
@@ -21,6 +22,9 @@ export default function PostReactionList({ post }: { post: Post }) {
   const likeMutation = useLikeMutation(post)
   const { showToastError } = useToasts()
   const extendedReactions = useExtendedReactions(post.id)
+  const disableReactCounts = usePrivateOptionValue(
+    PrivateOptionNames.DisableReactCounts,
+  )
 
   function onToggleReaction(reaction: EmojiGroup) {
     if (typeof reaction.emoji !== 'string' && reaction.emoji.external) {
@@ -59,7 +63,7 @@ export default function PostReactionList({ post }: { post: Post }) {
     return isMine ? 'border-2 border-cyan-600' : 'border border-gray-500'
   }
 
-  if (extendedReactions.length === 0) {
+  if (disableReactCounts || extendedReactions.length === 0) {
     return null
   }
 
