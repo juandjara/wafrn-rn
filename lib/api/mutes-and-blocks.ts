@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { useAuth } from '../contexts/AuthContext'
 import { Post, PostUser } from './posts.types'
-import { useMemo } from 'react'
 import { getEnvironmentStatic } from './auth'
-import { useSettings } from './settings'
+import { useMemo } from 'react'
+import { useSettingsValue } from './settings'
 import { useToasts } from '../toasts'
 
 /*
@@ -442,11 +442,11 @@ export function useUnblockServerMutation() {
   })
 }
 
+const EMPTY_ARR = [] as never[]
+
 export function useHiddenUserIds() {
-  const { data: settings } = useSettings()
-  return useMemo(() => {
-    const mutedIds = settings?.mutedUsers || []
-    const blockedIds = settings?.blockedUsers || []
-    return [...new Set([...mutedIds, ...blockedIds])]
-  }, [settings])
+  const muted = useSettingsValue((settings) => settings.mutedUsers) ?? EMPTY_ARR
+  const blocked =
+    useSettingsValue((settings) => settings.blockedUsers) ?? EMPTY_ARR
+  return useMemo(() => [...new Set([...muted, ...blocked])], [muted, blocked])
 }

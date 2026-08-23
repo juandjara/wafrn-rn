@@ -298,29 +298,34 @@ export async function getSettings(token: string, signal: AbortSignal) {
   return data
 }
 
-export function useSettings() {
+function useSettingsQuery<T = Settings>(select?: (settings: Settings) => T) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['settings'],
     queryFn: ({ signal }) => getSettings(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
+    select,
   })
 }
 
+export function useSettings() {
+  return useSettingsQuery()
+}
+
 /**
- * Subscribes to a single option value instead of the whole settings object.
+ * Subscribes to a slice of the settings object instead of the whole thing.
  * Prefer this in components rendered once per post: thanks to the `select`,
- * they only re-render when this option's value changes.
+ * they only re-render when the selected value changes.
+ * Selectors must be fast: they run on every render or invalidation
  */
+export function useSettingsValue<T>(select: (settings: Settings) => T) {
+  return useSettingsQuery(select).data
+}
+
 export function usePrivateOptionValue<T extends PrivateOptionNames>(key: T) {
-  const { token } = useAuth()
-  const { data } = useQuery({
-    queryKey: ['settings'],
-    queryFn: ({ signal }) => getSettings(token!, signal),
-    enabled: !!token,
-    staleTime: 1000 * 60 * 60, // 1 hour
-    select: (settings) => getPrivateOptionValue(settings.options, key),
-  })
-  return data ?? DEFAULT_PRIVATE_OPTIONS[key]
+  const value = useSettingsValue((settings) =>
+    getPrivateOptionValue(settings.options, key),
+  )
+  return value ?? DEFAULT_PRIVATE_OPTIONS[key]
 }

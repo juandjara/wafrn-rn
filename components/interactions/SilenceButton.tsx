@@ -2,7 +2,7 @@ import { Post } from '@/lib/api/posts.types'
 import { ViewStyle, Alert } from 'react-native'
 import MenuItem from '../MenuItem'
 import { useSilenceMutation } from '@/lib/api/mutes-and-blocks'
-import { useSettings } from '@/lib/api/settings'
+import { useSettingsValue } from '@/lib/api/settings'
 
 export default function SilenceButton({
   post,
@@ -13,8 +13,8 @@ export default function SilenceButton({
   style: ViewStyle
   onPress?: () => void
 }) {
-  const { data: settings } = useSettings()
-  const isSilenced = !!settings?.silencedPosts.includes(post.id)
+  const silencedPosts = useSettingsValue((settings) => settings.silencedPosts)
+  const isSilenced = !!silencedPosts?.includes(post.id)
   const silenceMutation = useSilenceMutation(post)
 
   function silenceAction() {
