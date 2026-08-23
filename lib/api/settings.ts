@@ -80,9 +80,9 @@ export enum RssOptions {
   All = 2,
 }
 export const RSS_OPTIONS_LABELS = {
-  [RssOptions.None]: 'None',
-  [RssOptions.Articles]: 'Articles (Feature WIP)',
-  [RssOptions.All]: 'All',
+  [RssOptions.None]: 'Only my profile',
+  [RssOptions.Articles]: 'Profile and articles',
+  [RssOptions.All]: 'Profile, articles and other posts',
 } as const
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names

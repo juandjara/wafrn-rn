@@ -16,6 +16,8 @@ import { useOptionsForm } from '@/lib/useOptionsForm'
 import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
 import SettingSelectRow from '@/components/settings/SettingSelectRow'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { isValidURL } from '@/lib/api/content'
 
 const OPTION_KEYS = [
   PublicOptionNames.Asks,
@@ -33,6 +35,8 @@ const PROFILE_FLAGS = [
 export default function ProfileSettings() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
+  const { instance } = useAuth()
+  const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
 
   const { form, update, submit, isPending } = useOptionsForm(
     OPTION_KEYS,
@@ -107,7 +111,7 @@ export default function ProfileSettings() {
           onChange={(flag) => update('hideProfileNotLoggedIn', flag)}
         />
         <SettingSelectRow
-          label="Enable RSS and microfront for my blog page"
+          label={`Content for the RSS and IndieWeb microfront in my blog page on ${instanceHost}`}
           value={form[PrivateOptionNames.RssOptions]}
           onChange={(value) => update(PrivateOptionNames.RssOptions, value)}
           options={[RssOptions.None, RssOptions.Articles, RssOptions.All].map(
