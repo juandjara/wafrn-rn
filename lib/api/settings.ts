@@ -7,6 +7,7 @@ import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic } from './auth'
 import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
 import { BSKY_HOST } from './html'
+import { InteractionControl } from './posts.types'
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
@@ -72,6 +73,13 @@ export enum PrivateOptionNames {
   DisableLinkPreviews = 'wafrn.disableLinkPreviews',
   AtprotoLinkDestination = 'wafrn.atprotoLinkDestination',
   RssOptions = 'wafrn.enableRSS',
+  DefaultPostRewootPrivacy = 'wafrn.defaultPostRewootPrivacy',
+  DefaultPostEditorCanReply = 'wafrn.defaultPostEditorCanReply',
+  DefaultPostEditorCanQuote = 'wafrn.defaultPostEditorCanQuote',
+  AutoAddSpecifiedTags = 'wafrn.autoAddSpecifiedTags',
+  AutoAddSpecifiedTagsAsks = 'wafrn.autoAddSpecifiedTagsAsks',
+  AutoAddSpecifiedTagsAsksNoGeneral = 'wafrn.autoAddSpecifiedTagsAsksNoGeneral',
+  AutoAddContentWarning = 'wafrn.autoAddContentWarning',
 }
 
 export enum RssOptions {
@@ -118,6 +126,13 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisableLinkPreviews]: boolean
   [PrivateOptionNames.AtprotoLinkDestination]: string
   [PrivateOptionNames.RssOptions]: RssOptions
+  [PrivateOptionNames.DefaultPostRewootPrivacy]: PrivacyLevel
+  [PrivateOptionNames.DefaultPostEditorCanReply]: InteractionControl
+  [PrivateOptionNames.DefaultPostEditorCanQuote]: InteractionControl
+  [PrivateOptionNames.AutoAddSpecifiedTags]: string
+  [PrivateOptionNames.AutoAddSpecifiedTagsAsks]: string
+  [PrivateOptionNames.AutoAddSpecifiedTagsAsksNoGeneral]: boolean
+  [PrivateOptionNames.AutoAddContentWarning]: string
 }
 
 export enum MuteSource {
@@ -175,6 +190,13 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisableLinkPreviews]: false,
   [PrivateOptionNames.AtprotoLinkDestination]: BSKY_HOST,
   [PrivateOptionNames.RssOptions]: RssOptions.None,
+  [PrivateOptionNames.DefaultPostRewootPrivacy]: PrivacyLevel.PUBLIC,
+  [PrivateOptionNames.DefaultPostEditorCanReply]: InteractionControl.Anyone,
+  [PrivateOptionNames.DefaultPostEditorCanQuote]: InteractionControl.Anyone,
+  [PrivateOptionNames.AutoAddSpecifiedTags]: '',
+  [PrivateOptionNames.AutoAddSpecifiedTagsAsks]: '',
+  [PrivateOptionNames.AutoAddSpecifiedTagsAsksNoGeneral]: false,
+  [PrivateOptionNames.AutoAddContentWarning]: '',
 }
 
 export type PrivateOption = SettingsOption & {
