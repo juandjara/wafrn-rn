@@ -15,7 +15,11 @@ import { EditorImage } from '../editor'
 import { useAccounts } from './user'
 import { router } from 'expo-router'
 import { useToasts } from '../toasts'
-import { useSettings } from './settings'
+import {
+  PrivateOptionNames,
+  usePrivateOptionValue,
+  useSettings,
+} from './settings'
 import { processPost } from '../feeds'
 import {
   combineDashboardContextPages,
@@ -294,13 +298,19 @@ export function useRewootMutation(post: Post) {
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
 
+  // the backend will limit the privacy level to the rewooted post's privacy
+  // when that one is more private than this
+  const defaultRewootPrivacy = usePrivateOptionValue(
+    PrivateOptionNames.DefaultPostRewootPrivacy,
+  )
+
   return useMutation<void, Error, boolean>({
     mutationKey: ['rewoot', post.id],
     mutationFn: async (isRewooted) => {
       if (isRewooted) {
         await deleteRewoot(token!, post.id)
       } else {
-        await rewoot(token!, post.id, post.privacy)
+        await rewoot(token!, post.id, defaultRewootPrivacy)
       }
     },
     onError: (err, variables, context) => {
