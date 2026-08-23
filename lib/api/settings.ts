@@ -71,7 +71,19 @@ export enum PrivateOptionNames {
   DisableBsky = 'wafrn.disableBsky',
   DisableLinkPreviews = 'wafrn.disableLinkPreviews',
   AtprotoLinkDestination = 'wafrn.atprotoLinkDestination',
+  RssOptions = 'wafrn.enableRSS',
 }
+
+export enum RssOptions {
+  None = 0,
+  Articles = 1,
+  All = 2,
+}
+export const RSS_OPTIONS_LABELS = {
+  [RssOptions.None]: 'None',
+  [RssOptions.Articles]: 'Articles (Feature WIP)',
+  [RssOptions.All]: 'All',
+} as const
 
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
 export type PrivateOptionTypeMap = {
@@ -105,6 +117,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisableBsky]: boolean
   [PrivateOptionNames.DisableLinkPreviews]: boolean
   [PrivateOptionNames.AtprotoLinkDestination]: string
+  [PrivateOptionNames.RssOptions]: RssOptions
 }
 
 export enum MuteSource {
@@ -161,6 +174,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisableBsky]: false,
   [PrivateOptionNames.DisableLinkPreviews]: false,
   [PrivateOptionNames.AtprotoLinkDestination]: BSKY_HOST,
+  [PrivateOptionNames.RssOptions]: RssOptions.None,
 }
 
 export type PrivateOption = SettingsOption & {

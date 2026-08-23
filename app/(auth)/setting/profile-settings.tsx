@@ -6,6 +6,8 @@ import {
   BitesFrom,
   PrivateOptionNames,
   PublicOptionNames,
+  RSS_OPTIONS_LABELS,
+  RssOptions,
 } from '@/lib/api/settings'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { View } from 'react-native'
@@ -20,6 +22,7 @@ const OPTION_KEYS = [
   PublicOptionNames.AllowBitesFrom,
   PrivateOptionNames.AutoAcceptFollowsFromFollowing,
   PrivateOptionNames.AutoRejectFollowsFromUsersYouDoNotFollow,
+  PrivateOptionNames.RssOptions,
 ] as const
 
 const PROFILE_FLAGS = [
@@ -102,6 +105,14 @@ export default function ProfileSettings() {
           description="This will only affect this wafrn server, people can still see your profile from other servers or from bluesky, but link previews will be hidden."
           value={form.hideProfileNotLoggedIn}
           onChange={(flag) => update('hideProfileNotLoggedIn', flag)}
+        />
+        <SettingSelectRow
+          label="Enable RSS and microfront for my blog page"
+          value={form[PrivateOptionNames.RssOptions]}
+          onChange={(value) => update(PrivateOptionNames.RssOptions, value)}
+          options={[RssOptions.None, RssOptions.Articles, RssOptions.All].map(
+            (value) => ({ value, label: RSS_OPTIONS_LABELS[value] }),
+          )}
         />
       </ScrollView>
     </View>
