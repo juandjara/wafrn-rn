@@ -115,6 +115,30 @@ export function useEditorData() {
       settings?.options || [],
       PrivateOptionNames.DefaultPostPrivacy,
     )
+    const defaultCanReply = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.DefaultPostEditorCanReply,
+    )
+    const defaultCanQuote = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.DefaultPostEditorCanQuote,
+    )
+    const autoTags = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.AutoAddSpecifiedTags,
+    )
+    const autoAskTags = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.AutoAddSpecifiedTagsAsks,
+    )
+    const askTagsReplaceGeneral = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.AutoAddSpecifiedTagsAsksNoGeneral,
+    )
+    const autoContentWarning = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.AutoAddContentWarning,
+    )
 
     let ask = null
     let replyLabel = 'wooting'
@@ -124,23 +148,26 @@ export function useEditorData() {
       : combineDashboardContextPages([])
     const formState: EditorFormState = {
       content: '',
-      contentWarning: '',
-      contentWarningOpen: false,
-      tags: '',
+      contentWarning: autoContentWarning,
+      contentWarningOpen: !!autoContentWarning,
+      tags: autoTags,
       privacy: defaultPrivacy,
       medias: [] as EditorImage[],
       postingAs: me?.userId || '',
-      canQuote: true,
+      canQuote: defaultCanQuote !== InteractionControl.NoOne,
       canReply:
-        params.type === 'reply'
-          ? InteractionControl.SameAsOp
-          : InteractionControl.Anyone,
+        params.type === 'reply' ? InteractionControl.SameAsOp : defaultCanReply,
     }
 
     if (params.type === 'ask') {
       ask = asks?.find((a) => a.id === Number(params.askId))
       if (ask) {
         replyLabel = 'answering'
+        if (autoAskTags) {
+          formState.tags = askTagsReplaceGeneral
+            ? autoAskTags
+            : [autoTags, autoAskTags].filter(Boolean).join(', ')
+        }
       }
     }
 
@@ -275,14 +302,15 @@ export function useEditorData() {
       formState.privacy = post.privacy
       formState.contentWarning = post.content_warning || ''
       formState.contentWarningOpen = !!post.content_warning
+
       if (post.replyControl) {
         formState.canReply = post.replyControl
       } else if (post.parentId) {
         formState.canReply = InteractionControl.SameAsOp
+      } else {
+        formState.canReply = InteractionControl.Anyone
       }
-      if (post.quoteControl) {
-        formState.canQuote = false
-      }
+      formState.canQuote = !post.quoteControl
     }
 
     if (params.type === 'share' && shareIntent) {
