@@ -106,6 +106,10 @@ export default function UserDetail({ user }: { user: User }) {
       PrivateOptionNames.AtprotoLinkDestination,
     ),
   )
+  const disablePostCounts = getPrivateOptionValue(
+    settings?.options ?? [],
+    PrivateOptionNames.DisablePostCounts,
+  )
 
   const askFlag = getPublicOptionValue(
     user.publicOptions,
@@ -315,7 +319,7 @@ export default function UserDetail({ user }: { user: User }) {
           </Link>
           <View className="items-center">
             <Text className="text-white text-2xl">
-              {user.postCount || '--'}
+              {(!disablePostCounts && user.postCount) || '--'}
             </Text>
             <Text className="text-white text-sm">posts</Text>
           </View>
