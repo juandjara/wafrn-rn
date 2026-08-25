@@ -276,7 +276,7 @@ export type PublicOption = SettingsOption & {
 // types of the values encoded as JSON in the `optionValue` field of `SettingsOption` for these option names
 export type PublicOptionTypeMap = {
   [PublicOptionNames.CustomFields]: {
-    type: string
+    type: 'PropertyValue' // JSON-LD stuff
     name: string // HTML (with emojis)
     value: string // HTML (with emojis)
   }[]
