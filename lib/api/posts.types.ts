@@ -38,6 +38,8 @@ export type Post = {
   featured?: Date | null
   isRewoot?: boolean // TODO: defined only for local posts
   isDeleted?: boolean // TODO: (not sure about this one) defined only for local posts ??
+  isReply?: boolean
+  isBskyExclusive?: boolean
   createdAt: string // ISO string
   updatedAt: string // ISO string
   userId: string

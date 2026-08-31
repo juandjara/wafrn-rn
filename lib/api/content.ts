@@ -91,9 +91,7 @@ export function processPostContent(
     })
   }
 
-  if (!isBlueskyPost(post, context)) {
-    content = collapseWhitespace(content)
-  }
+  content = collapseWhitespace(content)
 
   const ids =
     (context.emojiRelations.postEmojiRelation ?? [])
@@ -103,11 +101,6 @@ export function processPostContent(
   const emojis = ids.map((id) => context.emojis[id]).filter((e) => !!e)
 
   return replaceEmojis(content, emojis)
-}
-
-export function isBlueskyPost(post: Post, context: DashboardContextData) {
-  const user = context.users[post.userId]
-  return !!post.bskyUri && user?.url.startsWith('@')
 }
 
 export function getUserEmojis(user: PostUser, context: DashboardContextData) {
@@ -506,7 +499,7 @@ function getAppliedMute(
   )
   const postText = `${post.content?.trim().toLocaleLowerCase()} ${tags.join(' ')}`
   const user = context.users[post.userId]
-  const isBlueskyPost = post.bskyUri && user?.url.startsWith('@')
+  const isBlueskyPost = !!post.isBskyExclusive
   const isLocalPost = !post.remotePostId && !user?.url.startsWith('@')
   const isFediversePost = post.remotePostId && !post.bskyUri
 
