@@ -355,3 +355,16 @@ export function useEditorData() {
     shareIntent,
   ])
 }
+
+export function simpleEditorState(content: string) {
+  return {
+    tags: '',
+    content,
+    contentWarning: '',
+    contentWarningOpen: false,
+    medias: [],
+    privacy: PrivacyLevel.PUBLIC,
+    canQuote: true,
+    canReply: InteractionControl.Anyone,
+  }
+}

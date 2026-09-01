@@ -5,16 +5,16 @@ import { formatAvatarUrl, formatHeaderUrl } from '@/lib/formatters'
 import { TextInput } from 'react-native-gesture-handler'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { EDITOR_TRIGGERS_CONFIG } from '@/lib/api/content'
 import { useMentions } from 'react-native-more-controlled-mentions'
 import EditorInput from '@/components/editor/EditorInput'
-import { PrivacyLevel } from '@/lib/api/privacy'
 import {
   getPrivateOptionValue,
   getPublicOptionValue,
   PrivateOptionNames,
   PublicOptionNames,
+  PublicOptionTypeMap,
   useSettings,
 } from '@/lib/api/settings'
 import { HTMLToMarkdown, markdownToHTML } from '@/lib/markdown'
@@ -32,15 +32,23 @@ import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from 'react-native-keyboard-controller'
-import { InteractionControl } from '@/lib/api/posts.types'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
+import { EditorFormState, simpleEditorState } from '@/lib/editor'
+
+type CustomField = Omit<
+  PublicOptionTypeMap[PublicOptionNames.CustomFields][number],
+  'type'
+>
 
 type FormState = {
+  headerImage: Partial<MediaUploadPayload> | null
+  avatar: Partial<MediaUploadPayload> | null
   name: string
-  content: string
+  description: string
   isBot: boolean
+  customFields: CustomField[]
 }
 
 export default function EditProfile() {
@@ -61,48 +69,8 @@ export default function EditProfile() {
   }))
 
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const [form, setForm] = useState<FormState>({
-    name: me?.name || '',
-    content: me?.description || '',
-    isBot: me?.isBot || false,
-  })
-  const [avatar, setAvatar] = useState<string | MediaUploadPayload>(
-    formatAvatarUrl(me?.id || ''),
-  )
-  const [headerImage, setHeaderImage] = useState<string | MediaUploadPayload>(
-    formatHeaderUrl(me?.id || ''),
-  )
-  const savedCustomFields = useMemo(() => {
-    const options = getPublicOptionValue(
-      settings?.options || [],
-      PublicOptionNames.CustomFields,
-    )
-    return options.map((o) => ({
-      name: o.name,
-      value: o.value,
-    }))
-  }, [settings])
 
-  const [customFields, setCustomFields] = useState<
-    {
-      name: string
-      value: string
-    }[]
-  >(savedCustomFields)
-
-  function updateCustomField(
-    index: number,
-    key: 'name' | 'value',
-    value: string,
-  ) {
-    setCustomFields((prev) => {
-      const newFields = [...prev]
-      newFields[index] = { ...newFields[index], [key]: value }
-      return newFields
-    })
-  }
-
-  const description = useMemo(() => {
+  const savedDescription = useMemo(() => {
     if (!me || !settings?.options) {
       return ''
     }
@@ -117,67 +85,124 @@ export default function EditProfile() {
     return mdBio
   }, [me, settings])
 
-  useEffect(() => {
-    if (description) {
-      setForm((prev) => ({ ...prev, content: description }))
-    }
-  }, [description])
+  const savedCustomFields = getPublicOptionValue(
+    settings?.options || [],
+    PublicOptionNames.CustomFields,
+  )
+
+  const savedFormState: FormState = {
+    avatar: me?.avatar
+      ? {
+          uri: formatAvatarUrl(me?.id || ''),
+        }
+      : null,
+    headerImage: me?.headerImage
+      ? {
+          uri: formatHeaderUrl(me?.id || ''),
+        }
+      : null,
+    name: me?.name || '',
+    description: savedDescription,
+    isBot: me?.isBot || false,
+    customFields: savedCustomFields,
+  }
+  const [form, setForm] = useState<FormState | null>(null)
+
+  function getFormValue<K extends keyof FormState>(key: K) {
+    return form?.[key] ?? savedFormState[key]
+  }
+
+  function update<T extends keyof FormState>(key: T, value: FormState[T]) {
+    setForm((form) => {
+      // avoid adding previously saved images as media upload payloads
+      const { avatar: _1, headerImage: _2, ...rest } = savedFormState
+      const prev = {
+        ...rest,
+        ...form,
+        avatar: form?.avatar ?? null,
+        headerImage: form?.headerImage ?? null,
+      }
+      prev[key] = value
+      return prev
+    })
+  }
+
+  function addCustomField() {
+    const fields = getFormValue('customFields')
+    update('customFields', fields.concat({ name: '', value: '' }))
+  }
+
+  function updateCustomField(
+    index: number,
+    key: 'name' | 'value',
+    value: string,
+  ) {
+    const fields = getFormValue('customFields')
+    fields[index] = { ...fields[index], [key]: value }
+    update('customFields', fields)
+  }
+
+  function removeCustomField(index: number) {
+    const fields = getFormValue('customFields')
+    update(
+      'customFields',
+      fields.filter((_, i) => i !== index),
+    )
+  }
 
   const mentionApi = useMentions({
-    value: form.content,
-    onChange: (value) => update('content', value),
+    value: getFormValue('description'),
+    onChange: (value) => update('description', value),
     triggersConfig: EDITOR_TRIGGERS_CONFIG,
     onSelectionChange: setSelection,
   })
 
   const editMutation = useEditProfileMutation()
-  const canPublish = form.name.trim().length > 0 && !editMutation.isPending
-
-  type FormKey = keyof typeof form
-  type FormValue = (typeof form)[FormKey]
-
-  function update<T extends FormKey>(
-    key: T,
-    value: FormValue | ((prev: FormValue) => FormValue),
-  ) {
-    setForm((prev) => {
-      const newValue = typeof value === 'function' ? value(prev[key]) : value
-      return { ...prev, [key]: newValue }
-    })
-  }
+  const canPublish =
+    getFormValue('name').trim().length > 0 && !editMutation.isPending
 
   async function pickAvatar() {
     const image = await pickEditableImage()
     if (image) {
-      setAvatar(image)
+      update('avatar', image)
     }
   }
 
   async function pickHeaderImage() {
     const image = await pickEditableImage()
     if (image) {
-      setHeaderImage(image)
+      update('headerImage', image)
+    }
+  }
+
+  function updateDescription(
+    key: keyof EditorFormState,
+    value: EditorFormState[keyof EditorFormState],
+  ) {
+    if (key === 'content') {
+      update('description', value as string)
     }
   }
 
   function onSubmit() {
     if (canPublish) {
       const payload = {
-        name: form.name,
-        description: form.content,
-        avatar: typeof avatar === 'string' ? undefined : avatar,
-        headerImage: typeof headerImage === 'string' ? undefined : headerImage,
+        name: getFormValue('name'),
+        description: getFormValue('description'),
+        avatar: (form?.avatar as MediaUploadPayload) ?? undefined,
+        headerImage: (form?.headerImage as MediaUploadPayload) ?? undefined,
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
-        isBot: form.isBot,
-        options: settings?.options,
+        isBot: getFormValue('isBot'),
+        options: settings?.options ?? [],
       }
+      const customFields = getFormValue('customFields')
       const htmlDescription = payload.description
         ? markdownToHTML(payload.description)
         : ''
 
       let descriptionOptionFound = false
       let customFieldsOptionFound = false
-      const editOptions = (payload.options || []).map((o) => {
+      const editOptions = payload.options.map((o) => {
         if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
           descriptionOptionFound = true
           return {
@@ -230,6 +255,9 @@ export default function EditProfile() {
       })
     }
   }
+
+  const avatar = getFormValue('avatar')
+  const headerImage = getFormValue('headerImage')
 
   return (
     <>
@@ -295,7 +323,7 @@ export default function EditProfile() {
           <TextInput
             placeholder="Display name"
             placeholderTextColorClassName="accent-gray-500"
-            value={form.name}
+            value={getFormValue('name')}
             autoCorrect={false}
             onChangeText={(value) => update('name', value)}
             numberOfLines={1}
@@ -308,17 +336,8 @@ export default function EditProfile() {
           </Text>
           <EditorInput
             {...mentionApi}
-            formState={{
-              tags: '',
-              content: form.content,
-              contentWarning: '',
-              contentWarningOpen: false,
-              medias: [],
-              privacy: PrivacyLevel.PUBLIC,
-              canQuote: true,
-              canReply: InteractionControl.Anyone,
-            }}
-            updateFormState={update as any}
+            formState={simpleEditorState(getFormValue('description'))}
+            updateFormState={updateDescription}
             selection={selection}
             mentionState={mentionApi.mentionState}
             showTags={false}
@@ -331,7 +350,7 @@ export default function EditProfile() {
               (only for the fediverse)
             </Text>
           </Text>
-          {customFields.map((o, index) => (
+          {getFormValue('customFields').map((o, index) => (
             <View key={index} className="mb-6 rounded-md">
               <View className="relative mb-2">
                 <TextInput
@@ -346,11 +365,7 @@ export default function EditProfile() {
                 />
                 <Pressable
                   accessibilityLabel="Remove custom field"
-                  onPress={() =>
-                    setCustomFields((prev) =>
-                      prev.filter((_, i) => i !== index),
-                    )
-                  }
+                  onPress={() => removeCustomField(index)}
                   className="bg-red-700/30 active:bg-red-700/50 rounded-sm p-2 absolute top-1 right-1"
                 >
                   <MaterialCommunityIcons
@@ -373,9 +388,7 @@ export default function EditProfile() {
             </View>
           ))}
           <Pressable
-            onPress={() =>
-              setCustomFields((prev) => [...prev, { name: '', value: '' }])
-            }
+            onPress={() => addCustomField()}
             className="flex-row items-center gap-3 mt-3 py-2 px-3 bg-cyan-700/50 active:bg-cyan-700/75 rounded-xl"
           >
             <MaterialCommunityIcons name="plus" size={24} color="white" />
@@ -385,7 +398,7 @@ export default function EditProfile() {
         <SettingRow
           label="Mark user as a bot account"
           description="Shows a bot badge on your profile and announces your account to the fediverse as automated. Other servers may treat bots differently, for example by keeping their public posts out of public feeds."
-          value={form.isBot}
+          value={getFormValue('isBot')}
           onChange={(flag) => update('isBot', flag)}
         />
         <Link href="/settings" asChild>
