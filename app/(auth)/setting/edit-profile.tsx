@@ -218,6 +218,10 @@ export default function EditProfile() {
             })),
           ),
         ],
+        [
+          PublicOptionNames.RpgActor,
+          JSON.stringify(getFormValue('enableRpgActor')),
+        ],
       ] as const
       const overridden = new Set<string>(overrides.map(([name]) => name))
       const editOptions = payload.options
