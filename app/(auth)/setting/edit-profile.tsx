@@ -210,7 +210,7 @@ export default function EditProfile() {
             value: JSON.stringify(payload.description || ''),
           }
         }
-        if (o.optionName === (PublicOptionNames.CustomFields as any)) {
+        if (o.optionName === PublicOptionNames.CustomFields) {
           customFieldsOptionFound = true
           return {
             name: o.optionName,
@@ -237,7 +237,7 @@ export default function EditProfile() {
       }
       if (!customFieldsOptionFound) {
         editOptions.push({
-          name: PublicOptionNames.CustomFields as any,
+          name: PublicOptionNames.CustomFields,
           value: JSON.stringify(
             customFields.map((field) => ({
               name: field.name,

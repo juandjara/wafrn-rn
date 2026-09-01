@@ -221,7 +221,7 @@ export type PrivateOption = SettingsOption & {
 
 export function getPrivateOptionValue<
   T extends PrivateOptionNames = PrivateOptionNames,
->(options: PrivateOption[], key: T) {
+>(options: (PublicOption | PrivateOption)[], key: T) {
   const defaultValue = DEFAULT_PRIVATE_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
@@ -292,7 +292,7 @@ export const DEFAULT_PUBLIC_OPTIONS = {
 
 export function getPublicOptionValue<
   T extends PublicOptionNames = PublicOptionNames,
->(options: PublicOption[], key: T) {
+>(options: (PrivateOption | PublicOption)[], key: T) {
   const defaultValue = DEFAULT_PUBLIC_OPTIONS[key]
   const option = options.find((o) => o.optionName === key)
   const json = option?.optionValue
@@ -328,7 +328,7 @@ export type Settings = {
   hiddenReplies: string[] // ids of followed users whose replies you've hidden
   silencedPosts: string[] // ids of posts you've silenced
   emojis: EmojiGroupConfig[] // emoji groups saved in this instance
-  options: PrivateOption[] & PublicOption[] // the actual values of the settings for the user
+  options: (PrivateOption | PublicOption)[] // the actual values of the settings for the user
   followedHashtags: string[] // normalized hashtags you follow (without the #)
   serviceAnnouncements?: ServiceAnnouncement[]
 }

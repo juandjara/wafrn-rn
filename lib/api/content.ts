@@ -14,6 +14,7 @@ import {
   MuteType,
   type PrivateOption,
   PrivateOptionNames,
+  PublicOption,
   type Settings,
 } from './settings'
 import { PrivacyLevel } from './privacy'
@@ -67,7 +68,7 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
 export function processPostContent(
   post: Post,
   context: DashboardContextData,
-  options: PrivateOption[],
+  options: (PublicOption | PrivateOption)[],
 ) {
   if (post.content === '<p></p>') {
     return ''
@@ -242,7 +243,7 @@ export function clearSelectionRangeFormat(
 
 export function processContentWarning(
   post: Post,
-  options: PrivateOption[],
+  options: (PublicOption | PrivateOption)[],
   softMutedWords: string[],
 ) {
   const isMuted = softMutedWords.length > 0
@@ -406,7 +407,7 @@ export const EDITOR_TRIGGERS_CONFIG: TriggersConfig<
 export function separateInlineMedias(
   post: Post,
   context: DashboardContextData,
-  options: PrivateOption[],
+  options: (PublicOption | PrivateOption)[],
 ) {
   const disableNSFWCloak = getPrivateOptionValue(
     options,
@@ -486,7 +487,7 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
 function getAppliedMute(
   post: Post,
   context: DashboardContextData,
-  options: PrivateOption[],
+  options: (PublicOption | PrivateOption)[],
 ) {
   const isRewoot = isEmptyRewoot(post, context)
   const rewootedPost = isRewoot ? (post as PostThread).ancestors?.[0] : null
