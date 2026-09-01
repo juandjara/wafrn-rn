@@ -106,25 +106,17 @@ export default function EditProfile() {
     isBot: me?.isBot || false,
     customFields: savedCustomFields,
   }
-  const [form, setForm] = useState<FormState | null>(null)
+  const [form, setForm] = useState<Partial<FormState>>({})
 
   function getFormValue<K extends keyof FormState>(key: K) {
-    return form?.[key] ?? savedFormState[key]
+    return form[key] ?? savedFormState[key]
   }
 
+  const avatar = getFormValue('avatar')
+  const headerImage = getFormValue('headerImage')
+
   function update<T extends keyof FormState>(key: T, value: FormState[T]) {
-    setForm((form) => {
-      // avoid adding previously saved images as media upload payloads
-      const { avatar: _1, headerImage: _2, ...rest } = savedFormState
-      const prev = {
-        ...rest,
-        ...form,
-        avatar: form?.avatar ?? null,
-        headerImage: form?.headerImage ?? null,
-      }
-      prev[key] = value
-      return prev
-    })
+    setForm((form) => ({ ...form, [key]: value }))
   }
 
   function addCustomField() {
@@ -137,9 +129,11 @@ export default function EditProfile() {
     key: 'name' | 'value',
     value: string,
   ) {
-    const fields = getFormValue('customFields')
-    fields[index] = { ...fields[index], [key]: value }
-    update('customFields', fields)
+    const customFields = getFormValue('customFields')
+    const newFields = customFields.map((field, i) =>
+      i === index ? { ...field, [key]: value } : field,
+    )
+    update('customFields', newFields)
   }
 
   function removeCustomField(index: number) {
@@ -189,64 +183,38 @@ export default function EditProfile() {
       const payload = {
         name: getFormValue('name'),
         description: getFormValue('description'),
-        avatar: (form?.avatar as MediaUploadPayload) ?? undefined,
-        headerImage: (form?.headerImage as MediaUploadPayload) ?? undefined,
+        avatar: (form.avatar as MediaUploadPayload) ?? undefined,
+        headerImage: (form.headerImage as MediaUploadPayload) ?? undefined,
         manuallyAcceptsFollows: me?.manuallyAcceptsFollows,
         isBot: getFormValue('isBot'),
         options: settings?.options ?? [],
       }
-      const customFields = getFormValue('customFields')
+      const customFields = getFormValue('customFields').filter(
+        (field) => field.name.trim() || field.value.trim(),
+      )
       const htmlDescription = payload.description
         ? markdownToHTML(payload.description)
         : ''
-
-      let descriptionOptionFound = false
-      let customFieldsOptionFound = false
-      const editOptions = payload.options.map((o) => {
-        if (o.optionName === PrivateOptionNames.OriginalMarkdownBio) {
-          descriptionOptionFound = true
-          return {
-            name: o.optionName,
-            value: JSON.stringify(payload.description || ''),
-          }
-        }
-        if (o.optionName === PublicOptionNames.CustomFields) {
-          customFieldsOptionFound = true
-          return {
-            name: o.optionName,
-            value: JSON.stringify(
-              customFields.map((field) => ({
-                name: field.name,
-                value: field.value,
-                type: 'PropertyValue',
-              })),
-            ),
-          }
-        }
-        return {
-          name: o.optionName,
-          value: o.optionValue,
-        }
-      })
-
-      if (!descriptionOptionFound) {
-        editOptions.push({
-          name: PrivateOptionNames.OriginalMarkdownBio,
-          value: JSON.stringify(payload.description || ''),
-        })
-      }
-      if (!customFieldsOptionFound) {
-        editOptions.push({
-          name: PublicOptionNames.CustomFields,
-          value: JSON.stringify(
+      const overrides = [
+        [
+          PrivateOptionNames.OriginalMarkdownBio,
+          JSON.stringify(payload.description || ''),
+        ],
+        [
+          PublicOptionNames.CustomFields,
+          JSON.stringify(
             customFields.map((field) => ({
-              name: field.name,
-              value: field.value,
+              ...field,
               type: 'PropertyValue',
             })),
           ),
-        })
-      }
+        ],
+      ] as const
+      const overridden = new Set<string>(overrides.map(([name]) => name))
+      const editOptions = payload.options
+        .filter((o) => !overridden.has(o.optionName))
+        .map((o) => ({ name: o.optionName, value: o.optionValue }))
+        .concat(overrides.map(([name, value]) => ({ name, value })))
 
       editMutation.mutate({
         ...payload,
@@ -255,9 +223,6 @@ export default function EditProfile() {
       })
     }
   }
-
-  const avatar = getFormValue('avatar')
-  const headerImage = getFormValue('headerImage')
 
   return (
     <>
