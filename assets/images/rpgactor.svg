@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9a227"/>
+      <stop offset="100%" stop-color="#8b4513"/>
+    </linearGradient>
+  </defs>
+  <!-- d20 shape -->
+  <polygon points="32,2 58,18 58,46 32,62 6,46 6,18" fill="url(#g)" stroke="#2c2416" stroke-width="2"/>
+  <!-- Inner facets -->
+  <polygon points="32,2 58,18 32,30" fill="#d4b033" stroke="#2c2416" stroke-width="1" opacity="0.6"/>
+  <polygon points="32,2 6,18 32,30" fill="#a67c1a" stroke="#2c2416" stroke-width="1" opacity="0.5"/>
+  <polygon points="6,18 6,46 32,30" fill="#7a3a10" stroke="#2c2416" stroke-width="1" opacity="0.4"/>
+  <polygon points="58,18 58,46 32,30" fill="#b8921e" stroke="#2c2416" stroke-width="1" opacity="0.4"/>
+  <polygon points="6,46 32,62 32,30" fill="#8b4513" stroke="#2c2416" stroke-width="1" opacity="0.5"/>
+  <polygon points="58,46 32,62 32,30" fill="#a67c1a" stroke="#2c2416" stroke-width="1" opacity="0.5"/>
+</svg>

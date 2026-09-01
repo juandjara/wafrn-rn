@@ -35,6 +35,7 @@ import UserActionsMenu from './UserActionsMenu'
 import { useCSSString } from '@/lib/cssVariables'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
+import RpgActorModal from './RpgActorModal'
 
 export default function UserDetail({ user }: { user: User }) {
   const gray400 = useCSSString('--color-gray-400')
@@ -87,6 +88,10 @@ export default function UserDetail({ user }: { user: User }) {
   const description = useMemo(() => {
     return collapseWhitespace(replaceEmojis(user.description, user.emojis))
   }, [user])
+
+  const rpgActorEnabled =
+    user.isBskyPrimary ||
+    getPublicOptionValue(user.publicOptions, PublicOptionNames.RpgActor)
 
   const customFields = useMemo(() => {
     const fields = getPublicOptionValue(
@@ -334,6 +339,10 @@ export default function UserDetail({ user }: { user: User }) {
               />
             </Text>
           </View>
+          {rpgActorEnabled && user.bskyDid && (
+            <RpgActorModal did={user.bskyDid} />
+          )}
+          {hasAsks && <AskModal user={user} emojis={user.emojis} />}
           <View id="custom-fields">
             {customFields.map((field, i) => (
               <View key={i} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">
@@ -363,7 +372,6 @@ export default function UserDetail({ user }: { user: User }) {
               </View>
             ))}
           </View>
-          {hasAsks && <AskModal user={user} emojis={user.emojis} />}
           <Text className="text-white text-sm text-center mt-2">
             First seen {new Date(user.createdAt).toLocaleDateString()}
           </Text>

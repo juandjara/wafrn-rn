@@ -56,6 +56,7 @@ export type User = {
   postCount: number
   isBlueskyUser?: boolean
   isFediverseUser?: boolean
+  isBskyPrimary?: boolean
   isAdmin?: boolean
   isBot?: boolean
   hideFollows?: boolean
