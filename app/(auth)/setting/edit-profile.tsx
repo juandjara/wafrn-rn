@@ -36,6 +36,7 @@ import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
 import { EditorFormState, simpleEditorState } from '@/lib/editor'
+import { useRPGDataMutation } from '@/lib/rpgactor'
 
 type CustomField = Omit<
   PublicOptionTypeMap[PublicOptionNames.CustomFields][number],
@@ -49,6 +50,7 @@ type FormState = {
   description: string
   isBot: boolean
   customFields: CustomField[]
+  enableRpgActor: boolean
 }
 
 export default function EditProfile() {
@@ -89,6 +91,10 @@ export default function EditProfile() {
     settings?.options || [],
     PublicOptionNames.CustomFields,
   )
+  const enableRpgActor = getPublicOptionValue(
+    settings?.options || [],
+    PublicOptionNames.RpgActor,
+  )
 
   const savedFormState: FormState = {
     avatar: me?.avatar
@@ -105,6 +111,7 @@ export default function EditProfile() {
     description: savedDescription,
     isBot: me?.isBot || false,
     customFields: savedCustomFields,
+    enableRpgActor,
   }
   const [form, setForm] = useState<Partial<FormState>>({})
 
@@ -154,6 +161,8 @@ export default function EditProfile() {
   const editMutation = useEditProfileMutation()
   const canPublish =
     getFormValue('name').trim().length > 0 && !editMutation.isPending
+
+  const rpgDataMutation = useRPGDataMutation()
 
   async function pickAvatar() {
     const image = await pickEditableImage()
@@ -224,6 +233,42 @@ export default function EditProfile() {
     }
   }
 
+  function checkRpgActorIntegration() {
+    const did = me?.bskyDid
+    if (!did) {
+      return
+    }
+    rpgDataMutation.mutate(did, {
+      onError: () => {
+        update('enableRpgActor', false)
+      },
+    })
+  }
+
+  const rpgActorDescription = (
+    <>
+      <Text className="text-gray-300">
+        Shows a button with the rpg.actor logo on your profile that can show
+        your sprite and inventory on click.{'\n'}
+      </Text>
+      {!me?.bskyDid && (
+        <Text className="text-red-200 text-xs">
+          You need to connect an ATProto (Bluesky) account to enable this
+          feature
+        </Text>
+      )}
+      {rpgDataMutation.error?.cause === 404 && (
+        <Text className="text-red-200 text-xs">
+          No rpg.actor data found for this account. Visit{' '}
+          <Link className="underline" href="https://rpg.actor" target="_blank">
+            https://rpg.actor
+          </Link>
+          {''} for creating a character.
+        </Text>
+      )}
+    </>
+  )
+
   return (
     <>
       <Header
@@ -232,7 +277,7 @@ export default function EditProfile() {
         right={
           <SaveButton
             onPress={onSubmit}
-            disabled={!canPublish}
+            disabled={rpgDataMutation.isPending || !canPublish}
             isPending={editMutation.isPending}
           />
         }
@@ -365,6 +410,23 @@ export default function EditProfile() {
           description="Shows a bot badge on your profile and announces your account to the fediverse as automated. Other servers may treat bots differently, for example by keeping their public posts out of public feeds."
           value={getFormValue('isBot')}
           onChange={(flag) => update('isBot', flag)}
+        />
+        <SettingRow
+          label={
+            <Text className="text-white">
+              Enable <Text className="text-yellow-500">rpg.actor</Text>{' '}
+              integration
+            </Text>
+          }
+          disabled={!me?.bskyDid || rpgDataMutation.isPending}
+          description={rpgActorDescription}
+          value={getFormValue('enableRpgActor')}
+          onChange={(flag) => {
+            update('enableRpgActor', flag)
+            if (flag) {
+              checkRpgActorIntegration()
+            }
+          }}
         />
         <Link href="/settings" asChild>
           <Pressable className="m-4 flex-row items-center gap-3 py-2 px-3 bg-indigo-500/20 active:bg-indigo-500/40 rounded-xl">

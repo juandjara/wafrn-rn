@@ -244,6 +244,7 @@ export enum PublicOptionNames {
   CustomFields = 'fediverse.public.attachment',
   Asks = 'wafrn.public.asks',
   AllowBitesFrom = 'wafrn.public.allowBitesFrom',
+  RpgActor = 'wafrn.public.rpgactor',
 }
 
 export enum BitesFrom {
@@ -282,12 +283,14 @@ export type PublicOptionTypeMap = {
   }[]
   [PublicOptionNames.Asks]: AskOptionValue
   [PublicOptionNames.AllowBitesFrom]: BitesFrom
+  [PublicOptionNames.RpgActor]: boolean
 }
 
 export const DEFAULT_PUBLIC_OPTIONS = {
   [PublicOptionNames.CustomFields]: [],
   [PublicOptionNames.Asks]: AskOptionValue.AllowIdentifiedAsks,
   [PublicOptionNames.AllowBitesFrom]: BitesFrom.Everyone,
+  [PublicOptionNames.RpgActor]: false,
 }
 
 export function getPublicOptionValue<
