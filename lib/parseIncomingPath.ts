@@ -51,6 +51,9 @@ export default function parseIncomingPath(_path: string) {
         if (remote && segments[1] && !segments[1].startsWith('@')) {
           segments[1] = `@${segments[1]}@${host}`
         }
+        if (segments[1] && segments[2] === 'ask') {
+          return `/user/${segments[1]}?ask=1`
+        }
         break
       case 'post':
         if (remote) {
