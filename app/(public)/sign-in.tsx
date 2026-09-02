@@ -21,6 +21,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import InstanceProvider from '@/components/InstanceProvider'
 import { useToasts } from '@/lib/toasts'
 import Button from '@/components/Button'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 /**
  * Sanitize `next` param coming from url search params.
@@ -92,6 +93,8 @@ export default function SignIn() {
     )
   }
 
+  const iconCN = 'absolute top-7 left-4'
+
   if (env && parseToken(token)) {
     return <Redirect href={internalPath(next) ?? '/'} />
   }
@@ -130,27 +133,43 @@ export default function SignIn() {
               {!firstPassToken && (
                 <>
                   <View className="mt-3">
-                    <TextInput
-                      inputMode="email"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      placeholder="Email"
-                      placeholderTextColor={placeholderColor}
-                      style={{ color: textInputColor }}
-                      className="p-3 my-3 border border-gray-500 rounded"
-                      value={email}
-                      onChangeText={setEmail}
-                    />
-                    <TextInput
-                      secureTextEntry
-                      autoCapitalize="none"
-                      placeholder="Password"
-                      placeholderTextColor={placeholderColor}
-                      style={{ color: textInputColor }}
-                      className="p-3 my-3 border border-gray-500 rounded"
-                      value={password}
-                      onChangeText={setPassword}
-                    />
+                    <View className="relative">
+                      <MaterialCommunityIcons
+                        color={placeholderColor}
+                        size={20}
+                        name="email"
+                        className={iconCN}
+                      />
+                      <TextInput
+                        inputMode="email"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        placeholder="Email"
+                        placeholderTextColor={placeholderColor}
+                        style={{ color: textInputColor }}
+                        className="pl-12 p-3 my-3 border border-gray-500 rounded"
+                        value={email}
+                        onChangeText={setEmail}
+                      />
+                    </View>
+                    <View className="relative">
+                      <MaterialCommunityIcons
+                        color={placeholderColor}
+                        size={20}
+                        name="key"
+                        className={iconCN}
+                      />
+                      <TextInput
+                        secureTextEntry
+                        autoCapitalize="none"
+                        placeholder="Password"
+                        placeholderTextColor={placeholderColor}
+                        style={{ color: textInputColor }}
+                        className="pl-12 p-3 my-3 border border-gray-500 rounded"
+                        value={password}
+                        onChangeText={setPassword}
+                      />
+                    </View>
                     <Link href="/password-reset" className="text-blue-500 pb-3">
                       Forgot your password?
                     </Link>

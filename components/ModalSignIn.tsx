@@ -13,6 +13,7 @@ import Button from './Button'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { useCSSString } from '@/lib/cssVariables'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function ModalSignIn({
   onLoginComplete,
@@ -79,6 +80,8 @@ export default function ModalSignIn({
     }
   }
 
+  const iconCN = 'absolute top-7 left-4'
+
   return (
     <View
       className="flex-1 px-4 pt-5"
@@ -93,27 +96,43 @@ export default function ModalSignIn({
           {!firstPassToken && (
             <>
               <View className="mt-3">
-                <TextInput
-                  inputMode="email"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholder="Email"
-                  placeholderTextColor={placeholderColor}
-                  style={{ color: textInputColor }}
-                  className="p-3 my-3 border border-gray-500 rounded"
-                  value={email}
-                  onChangeText={setEmail}
-                />
-                <TextInput
-                  secureTextEntry
-                  autoCapitalize="none"
-                  placeholder="Password"
-                  placeholderTextColor={placeholderColor}
-                  style={{ color: textInputColor }}
-                  className="p-3 my-3 border border-gray-500 rounded"
-                  value={password}
-                  onChangeText={setPassword}
-                />
+                <View className="relative">
+                  <MaterialCommunityIcons
+                    color={placeholderColor}
+                    size={20}
+                    name="email"
+                    className={iconCN}
+                  />
+                  <TextInput
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholder="Email"
+                    placeholderTextColor={placeholderColor}
+                    style={{ color: textInputColor }}
+                    className="pl-12 p-3 my-3 border border-gray-500 rounded"
+                    value={email}
+                    onChangeText={setEmail}
+                  />
+                </View>
+                <View className="relative">
+                  <MaterialCommunityIcons
+                    color={placeholderColor}
+                    size={20}
+                    name="key"
+                    className={iconCN}
+                  />
+                  <TextInput
+                    secureTextEntry
+                    autoCapitalize="none"
+                    placeholder="Password"
+                    placeholderTextColor={placeholderColor}
+                    style={{ color: textInputColor }}
+                    className="pl-12 p-3 my-3 border border-gray-500 rounded"
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                </View>
                 <Link href="/password-reset" className="text-blue-500 pb-3">
                   Forgot your password?
                 </Link>
