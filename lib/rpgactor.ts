@@ -1,6 +1,4 @@
-import { fetchToLocalUri } from './files'
 import { getJSON } from './http'
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
 import { useToasts } from './toasts'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
@@ -23,7 +21,7 @@ type AtBlob = {
   ref: { $link: string }
   size: number
 }
-export type RPGSpriteRecord = {
+type RPGSpriteRecord = {
   $type: typeof SPRITE_COLLECTION
   columns: number
   createdAt: string // iso date
@@ -65,6 +63,12 @@ type RPGItemRecord = {
   description: string
 }
 
+export type RPGSprite = {
+  spriteSheetUrl: string
+  frameHeight: number
+  frameWidth: number
+}
+
 export type RPGItem = {
   cid: string
   iconUrl: string
@@ -92,62 +96,59 @@ function buildBlobUrl({
 }
 
 async function listRecords<T>({
+  pds,
   did,
   collection,
   limit = 5,
   signal,
 }: {
+  pds: string
   did: string
   collection: string
   limit?: number
   signal?: AbortSignal
 }) {
-  const { pds } = await getDidDoc(did, signal)
   const url = `${pds}/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=${collection}&limit=${limit}`
   const data = await getJSON(url, { signal })
   return data as RecordList<T>
 }
 
 async function getSpritesheetRecord(did: string, signal?: AbortSignal) {
+  const { pds } = await getDidDoc(did, signal)
   const list = await listRecords<RPGSpriteRecord>({
+    pds,
     did,
     collection: SPRITE_COLLECTION,
     signal,
   })
   const record = list.records.find((r) => r.uri.endsWith(RKEY))
-  return record ?? null
-}
-
-export async function getRPGSprite(did: string, signal?: AbortSignal) {
-  const { pds } = await getDidDoc(did, signal)
-  const spritesheetRecord = await getSpritesheetRecord(did, signal)
-  if (!spritesheetRecord) {
+  if (!record) {
     return null
   }
-
-  const filename = `spritesheet-${spritesheetRecord.cid}.png`
   const spriteSheetUrl = buildBlobUrl({
     pds,
     did,
-    cid: spritesheetRecord.value.spriteSheet.ref.$link,
+    cid: record.value.spriteSheet.ref.$link,
   })
-  const localSpritesheet = await fetchToLocalUri(spriteSheetUrl, filename)
-  const context = ImageManipulator.manipulate(localSpritesheet)
-  context.crop({
-    originX: 0,
-    originY: 0,
-    height: spritesheetRecord.value.frameHeight,
-    width: spritesheetRecord.value.frameWidth,
-  })
-  const rendered = await context.renderAsync()
-  const result = await rendered.saveAsync({ format: SaveFormat.WEBP })
-  context.release()
-  return result
+  return {
+    spriteSheetUrl,
+    frameHeight: record.value.frameHeight,
+    frameWidth: record.value.frameWidth,
+  } satisfies RPGSprite
 }
 
-export async function getRPGItems(did: string, signal?: AbortSignal) {
+export function useRPGSpritesheet(did: string) {
+  return useQuery({
+    queryKey: ['rpg-actor-sprite', did],
+    queryFn: ({ signal }) => getSpritesheetRecord(did, signal),
+    enabled: !!did,
+  })
+}
+
+async function getRPGItems(did: string, signal?: AbortSignal) {
   const { pds } = await getDidDoc(did, signal)
   const list = await listRecords<RPGItemRecord>({
+    pds,
     did,
     collection: ITEM_COLLECTION,
   })
@@ -155,22 +156,14 @@ export async function getRPGItems(did: string, signal?: AbortSignal) {
     const { icon, title, description, context } = r.value
     const cid = icon.ref.$link
     const iconUrl = buildBlobUrl({ pds, did, cid })
-    return { cid, iconUrl, title, description, context }
+    return { cid, iconUrl, title, description, context } satisfies RPGItem
   })
 }
 
-async function fetchRPGData(did: string, signal?: AbortSignal) {
-  const [sprite, items] = await Promise.all([
-    getRPGSprite(did, signal),
-    getRPGItems(did, signal),
-  ])
-  return { sprite, items }
-}
-
-export function useRPGData(did: string) {
+export function useRPGItems(did: string) {
   return useQuery({
-    queryKey: ['rpg-data', did],
-    queryFn: ({ signal }) => fetchRPGData(did, signal),
+    queryKey: ['rpg-actor-items', did],
+    queryFn: ({ signal }) => getRPGItems(did, signal),
     enabled: !!did,
   })
 }
@@ -178,12 +171,8 @@ export function useRPGData(did: string) {
 export function useRPGDataMutation() {
   const { showToastError } = useToasts()
   return useMutation({
-    mutationKey: ['rpg-actor-sprite'],
-    mutationFn: async (did: string) => {
-      if (did) {
-        return fetchRPGData(did)
-      }
-    },
+    mutationKey: ['rpg-actor-check'],
+    mutationFn: (did: string) => getSpritesheetRecord(did),
     onError: (err) => {
       console.error(err)
       showToastError(`Failed getting rpg.actor data: ${err.message}`)

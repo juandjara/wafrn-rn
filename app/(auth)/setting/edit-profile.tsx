@@ -246,7 +246,8 @@ export default function EditProfile() {
   }
 
   const hasNoRpgData =
-    rpgDataMutation.isSuccess && rpgDataMutation.data?.sprite === null
+    rpgDataMutation.isSuccess && rpgDataMutation.data === null
+
   const rpgActorDescription = (
     <>
       <Text className="text-gray-300">
