@@ -1,6 +1,5 @@
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import {
-  Button,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -28,6 +27,7 @@ import { useRegisterMutation } from '@/lib/api/user'
 import { useCSSString } from '@/lib/cssVariables'
 import { useToasts } from '@/lib/toasts'
 import { useAuth } from '@/lib/contexts/AuthContext'
+import Button from '@/components/Button'
 
 const bigW = require('@/assets/images/logo_w.png')
 
@@ -61,7 +61,7 @@ export default function Register() {
   const placeholderColor = useCSSString('--color-gray-400')
   const mutation = useRegisterMutation()
   const { showToastSuccess } = useToasts()
-  const gray600 = useCSSString('--color-gray-600')
+  const gray500 = useCSSString('--color-gray-500')
   const { env } = useAuth()
 
   function onSubmit(values: RegisterFormState) {
@@ -85,6 +85,8 @@ export default function Register() {
       },
     )
   }
+
+  const iconCN = 'absolute top-4 left-3'
 
   return (
     <View
@@ -145,14 +147,20 @@ export default function Register() {
                           .string()
                           .email({ message: 'Invalid email address' })}
                         children={({ value, setValue, onBlur, errors }) => (
-                          <View className="my-3">
+                          <View className="my-3 relative">
+                            <MaterialCommunityIcons
+                              color={gray500}
+                              size={20}
+                              name="email"
+                              className={iconCN}
+                            />
                             <TextInput
                               autoCapitalize="none"
                               inputMode="email"
                               placeholder="Email"
                               placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded"
+                              className="pl-10 p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -160,7 +168,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -172,9 +180,18 @@ export default function Register() {
                         name="password"
                         onBlurValidate={z
                           .string()
-                          .min(8, 'Password must at least 8 characters long')}
+                          .min(
+                            8,
+                            'Password must be at least 8 characters long',
+                          )}
                         children={({ value, setValue, onBlur, errors }) => (
-                          <View className="my-3">
+                          <View className="my-3 relative">
+                            <MaterialCommunityIcons
+                              color={gray500}
+                              size={20}
+                              name="key"
+                              className={iconCN}
+                            />
                             <TextInput
                               secureTextEntry
                               autoCapitalize="none"
@@ -183,7 +200,7 @@ export default function Register() {
                               placeholder="Password"
                               placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded"
+                              className="pl-10 p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -191,7 +208,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -204,13 +221,19 @@ export default function Register() {
                           name="inviteCode"
                           onBlurValidate={z.string()}
                           children={({ value, setValue, onBlur, errors }) => (
-                            <View className="my-3">
+                            <View className="my-3 relative">
+                              <MaterialCommunityIcons
+                                color={gray500}
+                                size={20}
+                                name="ticket"
+                                className={iconCN}
+                              />
                               <TextInput
                                 autoCapitalize="none"
                                 placeholder="Invite code"
                                 placeholderTextColor={placeholderColor}
                                 style={{ color: inputTextColor }}
-                                className="p-3 border border-gray-500 rounded"
+                                className="pl-10 p-3 border border-gray-500 rounded"
                                 value={value}
                                 onChangeText={setValue}
                                 onBlur={onBlur}
@@ -222,7 +245,7 @@ export default function Register() {
                               {errors.map((error) => (
                                 <Text
                                   key={error}
-                                  className="text-xs text-red-600 my-1"
+                                  className="text-xs text-red-500 my-1"
                                 >
                                   {error}
                                 </Text>
@@ -235,27 +258,40 @@ export default function Register() {
                         name="username"
                         onChangeValidate={z
                           .string()
-                          .regex(/^\w+$/, 'Invalid username')}
+                          .regex(
+                            /^@?\w+$/,
+                            'Right now we do not allow special characters nor spaces',
+                          )
+                          .refine(
+                            (input) => {
+                              return !input.startsWith('@')
+                            },
+                            {
+                              message: 'No need to include @ at the start',
+                            },
+                          )}
                         children={({ value, setValue, onBlur, errors }) => (
-                          <View className="my-3">
+                          <View className="my-3 relative">
+                            <MaterialCommunityIcons
+                              name="at"
+                              color={gray500}
+                              size={20}
+                              className={iconCN}
+                            />
                             <TextInput
                               autoCapitalize="none"
                               placeholder="Your username"
                               placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded"
+                              className="pl-10 p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
                             />
-                            <Text className="text-xs text-gray-200 my-1">
-                              Right now we do not allow special characters nor
-                              spaces
-                            </Text>
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -283,12 +319,18 @@ export default function Register() {
                             },
                           )}
                         children={({ value, setValue, onBlur, errors }) => (
-                          <View className="my-3">
+                          <View className="my-3 relative">
+                            <MaterialCommunityIcons
+                              color={gray500}
+                              size={20}
+                              name="cake"
+                              className={iconCN}
+                            />
                             <TextInput
                               placeholder="Your birth date"
                               placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded"
+                              className="pl-10 p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -303,7 +345,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -315,14 +357,20 @@ export default function Register() {
                         name="bio"
                         onBlurValidate={z.string()}
                         children={({ value, setValue, onBlur, errors }) => (
-                          <View className="my-3">
+                          <View className="my-3 relative">
+                            <MaterialCommunityIcons
+                              color={gray500}
+                              size={20}
+                              name="message-processing"
+                              className={iconCN}
+                            />
                             <TextInput
                               multiline
                               numberOfLines={3}
                               placeholder="Describe yourself (optional)"
                               placeholderTextColor={placeholderColor}
                               style={{ color: inputTextColor }}
-                              className="p-3 border border-gray-500 rounded"
+                              className="pl-10 p-3 border border-gray-500 rounded"
                               value={value}
                               onChangeText={setValue}
                               onBlur={onBlur}
@@ -334,7 +382,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -363,7 +411,7 @@ export default function Register() {
                                   </Text>
                                   <MaterialCommunityIcons
                                     name="chevron-down"
-                                    color={gray600}
+                                    color={gray500}
                                     size={20}
                                   />
                                 </View>
@@ -410,7 +458,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -467,7 +515,7 @@ export default function Register() {
                             {errors.map((error) => (
                               <Text
                                 key={error}
-                                className="text-xs text-red-600 my-1"
+                                className="text-xs text-red-500 my-1"
                               >
                                 {error}
                               </Text>
@@ -478,7 +526,7 @@ export default function Register() {
                       <View className="my-3">
                         <Button
                           disabled={!isValid || mutation.isPending}
-                          title="Register"
+                          text="Register"
                           onPress={submit}
                         />
                       </View>
