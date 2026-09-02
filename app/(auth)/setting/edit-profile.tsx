@@ -242,13 +242,11 @@ export default function EditProfile() {
     if (!did) {
       return
     }
-    rpgDataMutation.mutate(did, {
-      onError: () => {
-        update('enableRpgActor', false)
-      },
-    })
+    rpgDataMutation.mutate(did)
   }
 
+  const hasNoRpgData =
+    rpgDataMutation.isSuccess && rpgDataMutation.data?.sprite === null
   const rpgActorDescription = (
     <>
       <Text className="text-gray-300">
@@ -261,9 +259,9 @@ export default function EditProfile() {
           feature
         </Text>
       )}
-      {rpgDataMutation.error?.cause === 404 && (
+      {hasNoRpgData && (
         <Text className="text-red-200 text-xs">
-          No rpg.actor data found for this account. Visit{' '}
+          No rpg.actor sprite found for this account. Visit{' '}
           <Link className="underline" href="https://rpg.actor" target="_blank">
             https://rpg.actor
           </Link>
