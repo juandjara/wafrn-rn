@@ -116,8 +116,8 @@ android {
         applicationId 'dev.djara.wafrn_rn'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1016000
-        versionName "1.16.0"
+        versionCode 1016001
+        versionName "1.16.1"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
