@@ -23,7 +23,7 @@ type AtBlob = {
   ref: { $link: string }
   size: number
 }
-type RPGSpriteRecord = {
+export type RPGSpriteRecord = {
   $type: typeof SPRITE_COLLECTION
   columns: number
   createdAt: string // iso date
@@ -65,11 +65,18 @@ type RPGItemRecord = {
   description: string
 }
 
-async function getPDS(did: string, signal?: AbortSignal) {
+export type RPGItem = {
+  cid: string
+  iconUrl: string
+  title: string
+  description: string
+  context: string
+}
+
+async function getDidDoc(did: string, signal?: AbortSignal) {
   const url = `${SLINGSHOT_URL}/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${did}`
   const data = await getJSON(url, { signal })
-  const doc = data as MiniDidDoc
-  return doc.pds
+  return data as MiniDidDoc
 }
 
 function buildBlobUrl({
@@ -95,7 +102,7 @@ async function listRecords<T>({
   limit?: number
   signal?: AbortSignal
 }) {
-  const pds = await getPDS(did, signal)
+  const { pds } = await getDidDoc(did, signal)
   const url = `${pds}/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=${collection}&limit=${limit}`
   const data = await getJSON(url, { signal })
   return data as RecordList<T>
@@ -112,7 +119,7 @@ async function getSpritesheetRecord(did: string, signal?: AbortSignal) {
 }
 
 export async function getRPGSprite(did: string, signal?: AbortSignal) {
-  const pds = await getPDS(did, signal)
+  const { pds } = await getDidDoc(did, signal)
   const spritesheetRecord = await getSpritesheetRecord(did, signal)
   if (!spritesheetRecord) {
     return null
@@ -139,14 +146,16 @@ export async function getRPGSprite(did: string, signal?: AbortSignal) {
 }
 
 export async function getRPGItems(did: string, signal?: AbortSignal) {
-  const pds = await getPDS(did, signal)
+  const { pds } = await getDidDoc(did, signal)
   const list = await listRecords<RPGItemRecord>({
     did,
     collection: ITEM_COLLECTION,
   })
   return list.records.map((r) => {
-    const cid = r.value.icon.ref.$link
-    return buildBlobUrl({ pds, did, cid })
+    const { icon, title, description, context } = r.value
+    const cid = icon.ref.$link
+    const iconUrl = buildBlobUrl({ pds, did, cid })
+    return { cid, iconUrl, title, description, context }
   })
 }
 
