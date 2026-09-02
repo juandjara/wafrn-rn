@@ -96,7 +96,7 @@ export default function UserActionsMenu({ user }: { user: User }) {
         {
           name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
           icon: 'server-off' as const,
-          disabled: isMe || serverBlockMutation.isPending,
+          disabled: isMe || user.isBskyPrimary || serverBlockMutation.isPending,
           action: () => serverBlockMutation.mutate(user.serverBlocked),
         },
         {
