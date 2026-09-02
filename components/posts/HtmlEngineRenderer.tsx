@@ -24,20 +24,21 @@ function HtmlEngineRendererInner({
   const linkPreviewsDisabled = disableLinkCards || disableLinkPreviewsOption
   const { links, source } = useMemo(() => {
     const dom = parseDocument(html)
+    const anchors = DomUtils.findAll((node) => node.name === 'a', dom.children)
+
+    for (const node of anchors) {
+      node.attribs['data-text'] = DomUtils.textContent(node)
+    }
+
     const links = linkPreviewsDisabled
       ? []
-      : DomUtils.findAll((node) => {
-          if (node.name === 'a') {
-            const text = DomUtils.textContent(node)
-            const href = node.attribs.href
-            node.attribs['data-text'] = text
-            if (hiddenLinks?.includes(href)) {
-              return false
-            }
-            return text === href
+      : anchors.filter((node) => {
+          const href = node.attribs.href
+          if (hiddenLinks?.includes(href)) {
+            return false
           }
-          return false
-        }, dom.children)
+          return node.attribs['data-text'] === href
+        })
 
     const uniqueLinks = Array.from(
       new Set(links.map((node) => node.attribs.href)),

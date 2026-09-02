@@ -172,15 +172,15 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
     return `/user/${user}`
   }
 
-  if (attribs.class?.includes('hashtag')) {
-    const tag = attribs['data-text']
-    return `/search/?q=${encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)}`
+  const dataText = attribs['data-text']
+  if (dataText && attribs.class?.includes('hashtag')) {
+    const tag = dataText.startsWith('#') ? dataText : `#${dataText}`
+    return `/search/?q=${encodeURIComponent(tag)}`
   }
 
-  if (attribs.class?.includes('mention')) {
-    const text = attribs['data-text']
+  if (dataText && attribs.class?.includes('mention')) {
     // remove text after the second @ if exists
-    const firstAtOnly = text.split('@').slice(0, 2).join('@')
+    const firstAtOnly = dataText.split('@').slice(0, 2).join('@')
     const fullHandle = `${firstAtOnly}@${url.hostname}`
     return `/user/${fullHandle}`
   }
