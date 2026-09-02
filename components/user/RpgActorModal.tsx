@@ -18,18 +18,17 @@ export default function RpgActorModal({ did }: { did: string }) {
 
   return (
     <>
-      <View className="items-center">
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <Pressable
-            onPress={() => setOpen(true)}
-            className="active:opacity-50 p-4 border border-gray-300 bg-gray-700/50"
-          >
-            <Image source={rpgActorLogo} style={{ width: 60, height: 60 }} />
-          </Pressable>
-        )}
-      </View>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Pressable
+          onPress={() => setOpen(true)}
+          accessibilityLabel="See rpg.actor sprites for this user"
+          className="active:opacity-50 p-2 rounded-full bg-gray-700/50"
+        >
+          <Image source={rpgActorLogo} style={{ width: 36, height: 36 }} />
+        </Pressable>
+      )}
       {open && (
         <BottomSheet className="bg-indigo-950" open setOpen={setOpen}>
           <View className="m-4">
