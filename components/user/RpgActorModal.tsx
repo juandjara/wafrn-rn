@@ -61,6 +61,10 @@ export default function RpgActorModal({ did }: { did: string }) {
     setSelectedItem(selectedItem === item ? null : item)
   }
 
+  if (!spriteLoading && !sprite) {
+    return null
+  }
+
   return (
     <>
       {spriteLoading ? (
