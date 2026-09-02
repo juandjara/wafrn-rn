@@ -28,12 +28,12 @@ import { Image, ImageProps } from 'expo-image'
 import { Link } from 'expo-router'
 import { clsx } from 'clsx'
 import AskModal from './AskModal'
-import { useFollowMutation } from '@/lib/interaction'
+import { useBiteUserMutation, useFollowMutation } from '@/lib/interaction'
 import TextWithEmojis from '../TextWithEmojis'
 import { collapseWhitespace } from '@/lib/api/html'
 import UserActionsMenu from './UserActionsMenu'
 import { useCSSString } from '@/lib/cssVariables'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import RpgActorModal from './RpgActorModal'
 
@@ -48,6 +48,7 @@ export default function UserDetail({ user }: { user: User }) {
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
   const followMutation = useFollowMutation(user)
+  const biteMutation = useBiteUserMutation()
 
   const {
     amIFollowing,
@@ -132,6 +133,25 @@ export default function UserDetail({ user }: { user: User }) {
     }
   }
 
+  function getCookieIconName() {
+    if (biteMutation.isPending) {
+      return 'cookie-clock-outline' as const
+    }
+    if (biteMutation.isSuccess) {
+      return 'cookie-check-outline' as const
+    }
+    return 'cookie-outline' as const
+  }
+  function getCookieLabel() {
+    if (biteMutation.isPending) {
+      return 'Biting'
+    }
+    if (biteMutation.isSuccess) {
+      return 'Bittem'
+    }
+    return 'Bite'
+  }
+
   return (
     <View className="mb-2">
       {user.headerImage ? (
@@ -204,6 +224,39 @@ export default function UserDetail({ user }: { user: User }) {
             </Pressable>
           </Link>
         )}
+        <View className="flex-row items-center gap-3 mt-6">
+          {rpgActorEnabled && user.bskyDid && (
+            <RpgActorModal did={user.bskyDid} />
+          )}
+          {hasAsks && <AskModal user={user} emojis={user.emojis} />}
+          <Link
+            href={`/editor?text=${formatUserUrl(user.url)}&privacy=10`}
+            asChild
+          >
+            <Pressable
+              accessibilityLabel="Direct Message"
+              className="bg-gray-700/50 rounded-full p-3"
+            >
+              <AntDesign name="message" color="white" size={24} />
+            </Pressable>
+          </Link>
+          {isMe ? null : (
+            <Pressable
+              className={clsx('bg-gray-700/50 rounded-full p-3', {
+                'opacity-50 pointer-events-none': biteMutation.isPending,
+              })}
+              disabled={biteMutation.isPending}
+              onPress={() => biteMutation.mutate(user.id)}
+              accessibilityLabel={getCookieLabel()}
+            >
+              <MaterialCommunityIcons
+                name={getCookieIconName()}
+                size={24}
+                color="white"
+              />
+            </Pressable>
+          )}
+        </View>
         <View className="flex-row items-center gap-2 mt-6">
           {isMe ? (
             <Link
@@ -339,10 +392,6 @@ export default function UserDetail({ user }: { user: User }) {
               />
             </Text>
           </View>
-          {rpgActorEnabled && user.bskyDid && (
-            <RpgActorModal did={user.bskyDid} />
-          )}
-          {hasAsks && <AskModal user={user} emojis={user.emojis} />}
           <View id="custom-fields">
             {customFields.map((field, i) => (
               <View key={i} className="my-2 py-2 bg-indigo-950 px-2 rounded-md">

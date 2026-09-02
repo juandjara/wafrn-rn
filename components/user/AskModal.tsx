@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -62,6 +62,13 @@ export default function AskModal({
 
   return (
     <>
+      <Pressable
+        accessibilityLabel="Ask a question"
+        onPress={() => setOpen(true)}
+        className="bg-gray-700/50 rounded-full p-3"
+      >
+        <FontAwesome name="envelope-o" color="white" size={24} />
+      </Pressable>
       {open && (
         <BottomSheet className="bg-indigo-950" open setOpen={setOpen}>
           <ScrollView>
@@ -84,7 +91,7 @@ export default function AskModal({
               numberOfLines={4}
               textAlignVertical="top"
               placeholderTextColorClassName="accent-gray-400"
-              className="bg-gray-900 text-white m-4 p-4 rounded-lg min-h-[100px]"
+              className="bg-gray-900 text-white m-4 p-4 rounded-lg min-h-25"
               value={question}
               onChangeText={setQuestion}
             />
@@ -145,12 +152,6 @@ export default function AskModal({
           </ScrollView>
         </BottomSheet>
       )}
-      <Pressable
-        onPress={() => setOpen(true)}
-        className="my-4 mx-auto bg-cyan-500/25 active:bg-cyan-500/50 py-2 px-6 rounded-full text-center"
-      >
-        <Text className="text-cyan-500 text-lg">Ask a question</Text>
-      </Pressable>
     </>
   )
 }

@@ -7,9 +7,8 @@ import {
 import { useSettings } from '@/lib/api/settings'
 import { User, useRefetchUserDataMutation } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
-import { useBiteUserMutation } from '@/lib/interaction'
 import { optionStyleBig } from '@/lib/styles'
-import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
 import { Share, TouchableOpacity } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
@@ -20,7 +19,6 @@ import ReportPostModal from '../posts/ReportPostModal'
 export default function UserActionsMenu({ user }: { user: User }) {
   const gray400 = useCSSString('--color-gray-400')
   const gray500 = useCSSString('--color-gray-500')
-  const gray600 = useCSSString('--color-gray-600')
 
   const { env } = useAuth()
   const me = useParsedToken()
@@ -29,7 +27,6 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const muteMutation = useMuteMutation(user)
   const blockMutation = useBlockMutation(user)
   const serverBlockMutation = useServerBlockMutation(user)
-  const biteMutation = useBiteUserMutation()
   const refetchMutation = useRefetchUserDataMutation(user)
   const filterMutation = useFollowedUserFilterMutation(user)
 
@@ -57,14 +54,6 @@ export default function UserActionsMenu({ user }: { user: User }) {
             Share.share({
               message: user.remoteId ?? `${env?.BASE_URL}/blog/${user.url}`,
             }),
-        },
-        {
-          name: 'Bite user',
-          icon: (
-            <FontAwesome6 name="drumstick-bite" size={20} color={gray600} />
-          ),
-          disabled: isMe || biteMutation.isPending,
-          action: () => biteMutation.mutate(user.id),
         },
         {
           name: `${rewootsHidden ? 'Unhide' : 'Hide'} rewoots`,
@@ -125,14 +114,12 @@ export default function UserActionsMenu({ user }: { user: User }) {
         },
       ].filter((m) => !m.hidden),
     [
-      gray600,
       user,
       env,
       isMe,
       muteMutation,
       blockMutation,
       serverBlockMutation,
-      biteMutation,
       refetchMutation,
       filterMutation,
       isFollowed,
