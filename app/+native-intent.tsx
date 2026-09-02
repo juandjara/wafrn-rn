@@ -7,5 +7,6 @@ type RedirectFnParams = Parameters<NonNullable<RedirectFn>>[0]
 export function redirectSystemPath({
   path,
 }: RedirectFnParams): Promise<string> | string {
-  return parseIncomingPath(path)
+  const pathRewrite = parseIncomingPath(path)
+  return pathRewrite ?? path
 }

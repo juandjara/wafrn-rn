@@ -1,58 +1,71 @@
 import { instanceAtom } from './api/auth'
 
-// NOTE: path param can be a full URL or a single path
+/**
+ * Returns a rewritten app route, or null when no rewrite rule was applied,
+ * so callers can differentiate rewrites from 404s
+ *
+ * The incoming path param can be a full http URL, an app path or a wafrn:/// url
+ */
 export default function parseIncomingPath(_path: string) {
-  let path = _path.slice()
   try {
-    // create a copy of the original path so you can later use the original in the search url
-    const url = new URL(path, 'wafrn:///')
-    const instance = instanceAtom.get()
-    const instanceHost = new URL(instance).host
-    const host = url.host ?? instanceHost
+    const url = new URL(_path, 'wafrn:///')
+    const instanceHost = new URL(instanceAtom.get()).host
+    const isHttp = url.protocol === 'http:' || url.protocol === 'https:'
+    const host = isHttp ? url.host : instanceHost
+    const remote = host !== instanceHost
 
-    // base replacements to turn web routes into app routes
-    if (path.includes('/share')) {
-      return `/editor?${url.searchParams.toString()}`
+    const segments = url.pathname.split('/').filter(Boolean)
+    if (url.protocol === 'wafrn:' && url.host) {
+      // wafrn://blog/x (with a double slash) parses 'blog' as the URL host
+      segments.unshift(url.host)
     }
-
-    if (path.includes('fediverse/')) {
-      path = path.replace('fediverse/', '')
+    if (segments[0] === '--') {
+      // expo dev-client prefix: exp+wafrn://<dev-server>/--/<path>
+      segments.shift()
     }
-    if (path.includes('dashboard/search/')) {
-      const q = path.split('dashboard/search/').pop()
-      return `/search?q=${q}`
+    if (segments[0] === 'fediverse') {
+      segments.shift()
     }
-    if (path.includes('blog/')) {
-      path = path.replace('blog/', 'user/')
-    }
-    if (path.includes('/resetPassword/')) {
-      const parts = path.split('/')
-      const code = parts.pop()
-      const email = decodeURIComponent(parts.pop() ?? '')
-      path = `/complete-password-reset?code=${code}&email=${email}`
-    }
-    if (path.includes('/activate/')) {
-      const parts = path.split('/')
-      const code = parts.pop()
-      const email = decodeURIComponent(parts.pop() ?? '')
-      path = `/activate-account?code=${code}&email=${email}`
+    if (segments[0] === 'blog') {
+      segments[0] = 'user'
     }
 
-    // extra checks for links on other instances
-    if (host !== instanceHost) {
-      if (path.includes('user/')) {
-        path = path.replace('user/', 'user/@')
-        path = `${path}@${host}`
+    switch (segments[0]) {
+      case 'share':
+        return `/editor?${url.searchParams.toString()}`
+      case 'dashboard':
+        if (segments[1] === 'search' && segments[2]) {
+          return `/search?q=${segments.slice(2).join('/')}`
+        }
+        break
+      case 'activate':
+      case 'resetPassword': {
+        const [origRoute, email, code] = segments
+        const destRoute =
+          origRoute === 'activate'
+            ? '/activate-account'
+            : '/complete-password-reset'
+        return `${destRoute}?code=${code}&email=${decodeURIComponent(email ?? '')}`
       }
-      if (path.includes('post/')) {
-        path = `/search?q=${_path}`
-      }
+      case 'user':
+        if (remote && segments[1] && !segments[1].startsWith('@')) {
+          segments[1] = `@${segments[1]}@${host}`
+        }
+        break
+      case 'post':
+        if (remote) {
+          return `/search?q=${_path}`
+        }
+        break
     }
+
+    const path = `/${segments.join('/')}`
+    if (path === url.pathname) {
+      return null
+    }
+    return path + url.search
   } catch (err) {
-    console.error(
-      '[parseIncomingPath]: error checking for url redirection: ',
-      err,
-    )
+    console.error('[parseIncomingPath]: error checking', err)
+    return null
   }
-  return path
 }
