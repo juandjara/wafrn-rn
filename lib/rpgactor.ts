@@ -16,11 +16,7 @@ type MiniDidDoc = {
   pds: string
   signing_key: string
 }
-type Record<T = unknown> = {
-  cid: string
-  uri: string
-  value: T
-}
+
 type AtBlob = {
   $type: 'blob'
   mimeType: 'image/png'
@@ -43,15 +39,14 @@ type RPGSpriteRecord = {
   spriteBackdrop?: string
   spriteSheet: AtBlob
 }
+type Record<T = unknown> = {
+  cid: string
+  uri: string
+  value: T
+}
 type RecordList<T = unknown> = {
   cursor: 'string'
-  records: [
-    {
-      cid: 'string'
-      uri: 'string'
-      value: T
-    },
-  ]
+  records: Record<T>[]
 }
 type RPGItemRecord = {
   $type: typeof ITEM_COLLECTION
@@ -77,28 +72,50 @@ async function getPDS(did: string, signal?: AbortSignal) {
   return doc.pds
 }
 
-async function getSpritesheetRecord(
-  pds: string,
-  did: string,
-  signal?: AbortSignal,
-) {
-  try {
-    const url = `${pds}/xrpc/com.atproto.repo.getRecord?repo=${did}&collection=${SPRITE_COLLECTION}&rkey=${RKEY}`
-    const data = await getJSON(url, { signal })
-    return data as Record<RPGSpriteRecord>
-  } catch (err) {
-    console.error(err)
-    return null
-  }
+function buildBlobUrl({
+  pds,
+  did,
+  cid,
+}: {
+  pds: string
+  did: string
+  cid: string
+}) {
+  return `${pds}/xrpc/com.atproto.sync.getBlob?cid=${cid}&did=${did}`
+}
+
+async function listRecords<T>({
+  did,
+  collection,
+  limit = 5,
+  signal,
+}: {
+  did: string
+  collection: string
+  limit?: number
+  signal?: AbortSignal
+}) {
+  const pds = await getPDS(did, signal)
+  const url = `${pds}/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=${collection}&limit=${limit}`
+  const data = await getJSON(url, { signal })
+  return data as RecordList<T>
+}
+
+async function getSpritesheetRecord(did: string, signal?: AbortSignal) {
+  const list = await listRecords<RPGSpriteRecord>({
+    did,
+    collection: SPRITE_COLLECTION,
+    signal,
+  })
+  const record = list.records.find((r) => r.uri.endsWith(RKEY))
+  return record ?? null
 }
 
 export async function getRPGSprite(did: string, signal?: AbortSignal) {
   const pds = await getPDS(did, signal)
-  const spritesheetRecord = await getSpritesheetRecord(pds, did, signal)
+  const spritesheetRecord = await getSpritesheetRecord(did, signal)
   if (!spritesheetRecord) {
-    const err = new Error(`No rpg.actor data found for this account`)
-    err.cause = 404
-    throw err
+    return null
   }
 
   const filename = `spritesheet-${spritesheetRecord.cid}.png`
@@ -121,6 +138,18 @@ export async function getRPGSprite(did: string, signal?: AbortSignal) {
   return result
 }
 
+export async function getRPGItems(did: string, signal?: AbortSignal) {
+  const pds = await getPDS(did, signal)
+  const list = await listRecords<RPGItemRecord>({
+    did,
+    collection: ITEM_COLLECTION,
+  })
+  return list.records.map((r) => {
+    const cid = r.value.icon.ref.$link
+    return buildBlobUrl({ pds, did, cid })
+  })
+}
+
 async function fetchRPGData(did: string, signal?: AbortSignal) {
   const [sprite, items] = await Promise.all([
     getRPGSprite(did, signal),
@@ -132,14 +161,7 @@ async function fetchRPGData(did: string, signal?: AbortSignal) {
 export function useRPGData(did: string) {
   return useQuery({
     queryKey: ['rpg-data', did],
-    queryFn: ({ signal }) => {
-      try {
-        return fetchRPGData(did, signal)
-      } catch (err) {
-        console.error(err)
-        return null
-      }
-    },
+    queryFn: ({ signal }) => fetchRPGData(did, signal),
     enabled: !!did,
   })
 }
@@ -155,34 +177,7 @@ export function useRPGDataMutation() {
     },
     onError: (err) => {
       console.error(err)
-      if (err.cause === 404) {
-        showToastError('No rpg.actor data found for this account')
-      } else {
-        showToastError(`Failed getting rpg.actor data: ${err.message}`)
-      }
+      showToastError(`Failed getting rpg.actor data: ${err.message}`)
     },
-  })
-}
-
-function buildBlobUrl({
-  pds,
-  did,
-  cid,
-}: {
-  pds: string
-  did: string
-  cid: string
-}) {
-  return `${pds}/xrpc/com.atproto.sync.getBlob?cid=${cid}&did=${did}`
-}
-
-export async function getRPGItems(did: string, signal?: AbortSignal) {
-  const pds = await getPDS(did, signal)
-  const url = `${pds}/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=${ITEM_COLLECTION}&limit=5`
-  const data = await getJSON(url, { signal })
-  const list = data as RecordList<RPGItemRecord>
-  return list.records.map((r) => {
-    const cid = r.value.icon.ref.$link
-    return buildBlobUrl({ pds, did, cid })
   })
 }
