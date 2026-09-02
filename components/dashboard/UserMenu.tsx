@@ -3,7 +3,11 @@ import { formatAvatarUrl, formatUserUrl } from '@/lib/formatters'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity, View, Pressable } from 'react-native'
 import { Image } from 'expo-image'
-import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
+import {
+  FontAwesome,
+  MaterialCommunityIcons,
+  Octicons,
+} from '@expo/vector-icons'
 import { optionStyleBig, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
 import { useAdminCheck, useAuth } from '@/lib/contexts/AuthContext'
@@ -38,7 +42,7 @@ export default function UserMenu({ size }: { size?: number }) {
         action: () => router.navigate('/roll'),
       },
       {
-        icon: 'chat-question-outline' as const,
+        icon: <FontAwesome name="envelope-o" color={gray600} size={20} />,
         label: 'Asks',
         action: () => router.navigate('/asks'),
         badge: badges?.asks || 0,
