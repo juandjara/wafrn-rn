@@ -22,6 +22,7 @@ import { EmojiBase } from '@/lib/api/emojis'
 import TextWithEmojis from '../TextWithEmojis'
 import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
+import { useLocalSearchParams } from 'expo-router'
 
 export default function AskModal({
   user,
@@ -39,8 +40,9 @@ export default function AskModal({
     user.publicOptions,
     PublicOptionNames.Asks,
   )
+  const params = useLocalSearchParams<{ ask: string }>()
   const canAskAnonymously = askOptionValue === AskOptionValue.AllowAnonAsks
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(params.ask === '1')
   const [anonymous, setAnonymous] = useState(false)
   const [question, setQuestion] = useState('')
   const mutation = useAskMutation()
