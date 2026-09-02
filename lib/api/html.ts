@@ -156,10 +156,6 @@ export function collapseWhitespace(html?: string) {
 }
 
 export function handleLinkClick(href: string, attribs: Record<string, string>) {
-  if (href.startsWith('wafrn://')) {
-    return href.replace('wafrn://', '')
-  }
-
   let url = null
   try {
     url = new URL(href)
