@@ -18,7 +18,10 @@ import { useAsks } from './asks'
 import { InteractionControl, PostUser } from './api/posts.types'
 import { useShareIntentContext } from 'expo-share-intent'
 
-export type EditorSearchParams =
+export type EditorSearchParams = {
+  text?: string
+  privacy?: string // PrivacyLevel
+} & (
   | {
       type: 'reply'
       replyId: string
@@ -38,6 +41,7 @@ export type EditorSearchParams =
   | {
       type: 'share'
     }
+)
 
 export type EditorFormState = {
   content: string
@@ -147,11 +151,11 @@ export function useEditorData() {
       ? getDashboardContextPage(reply)
       : combineDashboardContextPages([])
     const formState: EditorFormState = {
-      content: '',
+      content: params.text ?? '',
       contentWarning: autoContentWarning,
       contentWarningOpen: !!autoContentWarning,
       tags: autoTags,
-      privacy: defaultPrivacy,
+      privacy: params.privacy ? Number(params.privacy) : defaultPrivacy,
       medias: [] as EditorImage[],
       postingAs: me?.userId || '',
       canQuote: defaultCanQuote !== InteractionControl.NoOne,

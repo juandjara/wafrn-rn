@@ -11,6 +11,10 @@ export default function parseIncomingPath(_path: string) {
     const host = url.host ?? instanceHost
 
     // base replacements to turn web routes into app routes
+    if (path.includes('/share')) {
+      return `/editor?${url.searchParams.toString()}`
+    }
+
     if (path.includes('fediverse/')) {
       path = path.replace('fediverse/', '')
     }
