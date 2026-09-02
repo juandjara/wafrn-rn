@@ -1,7 +1,7 @@
 import { Platform } from 'react-native'
 import { formatMediaIdUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
-import { getEnvironmentStatic } from './auth'
+import parseIncomingPath from '../parseIncomingPath'
 import { crush } from 'html-crush'
 
 export const BSKY_HOST = 'bsky.app'
@@ -172,23 +172,11 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
     return `/user/${user}`
   }
 
-  const env = getEnvironmentStatic()
-  if (href.startsWith(`${env.BASE_URL}/dashboard/search/`)) {
-    const tag = href.replace(`${env.BASE_URL}/dashboard/search/`, '')
-    return `/search/?q=${encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)}`
-  }
   if (attribs.class?.includes('hashtag')) {
     const tag = attribs['data-text']
     return `/search/?q=${encodeURIComponent(tag.startsWith('#') ? tag : `#${tag}`)}`
   }
-  if (href.startsWith(`${env.BASE_URL}/blog/`)) {
-    const user = href.replace(`${env.BASE_URL}/blog/`, '')
-    return `/user/${user}`
-  }
-  if (href.startsWith(`${env.BASE_URL}/fediverse/blog/`)) {
-    const user = href.replace(`${env.BASE_URL}/fediverse/blog/`, '')
-    return `/user/${user}`
-  }
+
   if (attribs.class?.includes('mention')) {
     const text = attribs['data-text']
     // remove text after the second @ if exists
@@ -196,5 +184,13 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
     const fullHandle = `${firstAtOnly}@${url.hostname}`
     return `/user/${fullHandle}`
   }
+
+  // wafrn-shaped URLs (blog, fediverse, dashboard/search, other instances)
+  // share the rewrite rules with deep links
+  const parsedPath = parseIncomingPath(href)
+  if (parsedPath !== null) {
+    return parsedPath
+  }
+
   return href
 }
