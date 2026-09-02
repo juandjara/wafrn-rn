@@ -1,7 +1,7 @@
 import { PostUser } from '@/lib/api/posts.types'
 import BaseRibbon from './BaseRibbon'
 import { formatAvatarUrl } from '@/lib/formatters'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { EmojiBase } from '@/lib/api/emojis'
 
 export default function AskRibbon({
@@ -22,11 +22,11 @@ export default function AskRibbon({
       link={user ? `/user/${user.url}` : ''}
       label="asked"
       icon={
-        <MaterialCommunityIcons
-          name="chat-question"
-          size={24}
-          color="white"
+        <FontAwesome
           className="ml-1"
+          name="envelope-o"
+          color="white"
+          size={24}
         />
       }
     />

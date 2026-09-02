@@ -1,9 +1,7 @@
-import { FontAwesome6 } from '@expo/vector-icons'
 import MenuItem from '../MenuItem'
 import { type ViewStyle } from 'react-native'
 import { type Post } from '@/lib/api/posts.types'
 import { useBitePostMutation } from '@/lib/interaction'
-import { useCSSString } from '@/lib/cssVariables'
 
 export default function BiteButton({
   post,
@@ -14,12 +12,11 @@ export default function BiteButton({
   style?: ViewStyle
   onPress?: () => void
 }) {
-  const gray600 = useCSSString('--color-gray-600')
   const biteMutation = useBitePostMutation()
 
   return (
     <MenuItem
-      icon={<FontAwesome6 name="drumstick-bite" size={20} color={gray600} />}
+      icon={biteMutation.isSuccess ? 'cookie-check-outline' : 'cookie-outline'}
       action={() => {
         if (!biteMutation.isPending) {
           biteMutation.mutate(post.id)

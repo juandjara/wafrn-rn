@@ -2,7 +2,7 @@ import UserMenu from '@/components/dashboard/UserMenu'
 import { useNotificationBadges } from '@/lib/notifications'
 import { usePushNotifications } from '@/lib/push-notifications/push-notifications'
 import { useShareIntentHandler } from '@/lib/useShareIntentHandler'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { Tabs, usePathname } from 'expo-router'
 import { View, Text, Platform, useWindowDimensions } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
@@ -149,16 +149,8 @@ export default function TabsLayout() {
             <TabButton
               {...props}
               focused={pathname === '/messages'}
-              icon={({ color, focused }) => (
-                <MaterialCommunityIcons
-                  name={
-                    focused
-                      ? 'message-processing'
-                      : 'message-processing-outline'
-                  }
-                  color={color}
-                  size={ICON_SIZE}
-                />
+              icon={({ color }) => (
+                <AntDesign name="message" color={color} size={ICON_SIZE} />
               )}
             />
           ),

@@ -2,7 +2,7 @@ import { PostUser } from '@/lib/api/posts.types'
 import BaseRibbon from './BaseRibbon'
 import { EmojiBase } from '@/lib/api/emojis'
 import { formatAvatarUrl } from '@/lib/formatters'
-import { FontAwesome6 } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function BiteRibbon({
   user,
@@ -21,8 +21,8 @@ export default function BiteRibbon({
       link={`/user/${user.url}`}
       label={type === 'user' ? 'bit you' : 'bit your post'}
       icon={
-        <FontAwesome6
-          name="drumstick-bite"
+        <MaterialCommunityIcons
+          name="cookie"
           size={20}
           color="white"
           className="mx-1"
