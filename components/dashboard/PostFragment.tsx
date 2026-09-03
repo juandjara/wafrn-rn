@@ -276,10 +276,10 @@ function PostFragmentInner({
                     </Text>
                     <Pressable
                       id="content-warning-toggle"
-                      className="px-3 py-2 mt-1 active:bg-indigo-500/10 bg-indigo-500/20 rounded-full"
+                      className="px-3 py-2 mt-1 rounded-full bg-indigo-900 border border-indigo-950"
                       onPress={toggleCW}
                     >
-                      <Text className="text-indigo-500 text-center text-base">
+                      <Text className="text-indigo-100 text-center text-base">
                         {cwOpen ? 'Hide' : 'Show'} content
                       </Text>
                     </Pressable>
