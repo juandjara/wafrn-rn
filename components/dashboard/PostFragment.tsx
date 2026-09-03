@@ -40,6 +40,7 @@ import {
 import AskCard from '../posts/Ask'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { requestIdle } from '@/lib/requestIdle'
+import { collapseWhitespace } from '@/lib/api/html'
 
 type PostFragmentProps = {
   post: Post
@@ -108,6 +109,7 @@ function PostFragmentInner({
 
   const gray200 = useCSSString('--color-gray-200')
   const yellow500 = useCSSString('--color-yellow-500')
+  const contentWarningHTML = collapseWhitespace(contentWarning)
 
   const { postid } = useLocalSearchParams()
   const isDetailView = postid === post.id
@@ -236,9 +238,9 @@ function PostFragmentInner({
               {contentWarning && (
                 <View
                   id="content-warning-indicator"
-                  className="flex-row items-start gap-3 p-2"
+                  className="flex-row items-start gap-3 p-2 bg-yellow-500/10"
                 >
-                  <View className="ml-1 gap-1">
+                  <View className="ml-1 pt-0.5 gap-1">
                     {contentWarning.toLowerCase().includes('fedi meta') ? (
                       <MaterialCommunityIcons
                         name="skull"
@@ -265,7 +267,12 @@ function PostFragmentInner({
                   </View>
                   <View className="shrink grow gap-2">
                     <Text className="text-yellow-100 leading-5">
-                      {contentWarning}
+                      <HtmlEngineRenderer
+                        disableLinkCards
+                        html={contentWarningHTML}
+                        // 24: icon size, 8: p-2, 4: ml-1
+                        contentWidth={contentWidth - 24 - 8 - 4}
+                      />
                     </Text>
                     <Pressable
                       id="content-warning-toggle"
