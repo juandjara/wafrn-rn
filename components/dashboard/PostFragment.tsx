@@ -238,7 +238,7 @@ function PostFragmentInner({
               {contentWarning && (
                 <View
                   id="content-warning-indicator"
-                  className="flex-row items-start gap-3 p-2 bg-yellow-500/10"
+                  className="flex-row items-start gap-3 p-2 bg-linear-to-b from-yellow-400/10 from-50%"
                 >
                   <View className="ml-1 pt-0.5 gap-1">
                     {contentWarning.toLowerCase().includes('fedi meta') ? (
