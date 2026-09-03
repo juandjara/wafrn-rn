@@ -325,7 +325,8 @@ type ServiceAnnouncement = {
 
 export type Settings = {
   myFollowers: string[] // ids of people who follow you
-  blockedUsers: string[] // ids of people you've blocked
+  // ids of people you've blocked, people who have blocked you, and people you've muted
+  blockedUsers: string[]
   followedUsers: string[] // ids of people you follow
   notAcceptedFollows: string[] // ids of people who you tried to follow but they didn't accept yet
   mutedUsers: string[] // ids of people you've muted

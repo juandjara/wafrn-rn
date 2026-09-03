@@ -59,6 +59,7 @@ export default function UserDetail({ user }: { user: User }) {
     rewootsHidden,
     quotesHidden,
     repliesHidden,
+    hasBlockedMe,
   } = useMemo(() => {
     const amIFollowing = settings?.followedUsers.includes(user?.id!)
     const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
@@ -73,6 +74,8 @@ export default function UserDetail({ user }: { user: User }) {
     const rewootsHidden = !!settings?.mutedRewoots?.includes(user.id)
     const quotesHidden = !!settings?.mutedQuotes?.includes(user.id)
     const repliesHidden = !!settings?.hiddenReplies?.includes(user.id)
+    const hasBlockedMe =
+      !!settings?.blockedUsers.includes(user.id) && !user.blocked && !user.muted
 
     return {
       amIFollowing,
@@ -83,6 +86,7 @@ export default function UserDetail({ user }: { user: User }) {
       rewootsHidden,
       quotesHidden,
       repliesHidden,
+      hasBlockedMe,
     }
   }, [user, me?.userId, settings, myFollowers, followers])
 
@@ -286,7 +290,10 @@ export default function UserDetail({ user }: { user: User }) {
               )}
               {!amIFollowing && !amIAwaitingApproval && (
                 <Pressable
-                  className={clsx({ 'opacity-50': followMutation.isPending })}
+                  className={clsx({
+                    'opacity-50': followMutation.isPending || hasBlockedMe,
+                  })}
+                  disabled={followMutation.isPending || hasBlockedMe}
                   onPress={toggleFollow}
                 >
                   <Text className="text-indigo-500 bg-indigo-500/20 py-2 px-5 text-lg rounded-full">
@@ -355,6 +362,11 @@ export default function UserDetail({ user }: { user: User }) {
           {user.blocked && (
             <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
               Blocked
+            </Text>
+          )}
+          {hasBlockedMe && (
+            <Text className="text-white bg-red-700/50 px-2 py-1 rounded-lg mt-8 text-sm">
+              Has blocked you
             </Text>
           )}
         </View>
