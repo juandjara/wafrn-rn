@@ -11,7 +11,11 @@ import {
   useNotificationBadges,
 } from '../notifications'
 import { getEnvironmentStatic } from './auth'
-import { useSettings } from './settings'
+import {
+  getPrivateOptionValue,
+  PrivateOptionNames,
+  useSettings,
+} from './settings'
 import { getFeedData } from '../feeds'
 import { EmojiBase } from './emojis'
 
@@ -54,6 +58,13 @@ export function dashboardQueryKey(mode: DashboardMode) {
   return ['dashboard', mode] as const
 }
 
+// dashboard modes where feed dedupe is applicable
+const DEDUPED_MODES = [
+  DashboardMode.FEED,
+  DashboardMode.LOCAL,
+  DashboardMode.FEDERATED,
+]
+
 export function useDashboard(mode: DashboardMode) {
   const { token } = useAuth()
   const { refetch: refetchBadge } = useNotificationBadges()
@@ -64,19 +75,35 @@ export function useDashboard(mode: DashboardMode) {
     queryFn: async ({ pageParam, signal }) => {
       const list = await getDashboard({
         mode,
-        startTime: pageParam,
+        startTime: pageParam.startTime,
         token: token!,
         signal,
       })
       const context = getDashboardContextPage(list)
-      const feed = await getFeedData(context, list.posts, settings)
+      const dedupe =
+        DEDUPED_MODES.includes(mode) &&
+        getPrivateOptionValue(
+          settings?.options || [],
+          PrivateOptionNames.DedupePostsInFeed,
+        )
+      const seenPostIds = dedupe ? new Set(pageParam.seenPostIds) : undefined
+      const feed = await getFeedData(context, list.posts, settings, seenPostIds)
       const lastDate = getLastDate(list.posts)
 
       await refetchBadge()
-      return { context, feed, lastDate }
+      return {
+        context,
+        feed,
+        lastDate,
+        // pass this to the query cache in array form so storage is easier
+        seenPostIds: seenPostIds ? [...seenPostIds] : [],
+      }
     },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.lastDate,
+    initialPageParam: { startTime: 0, seenPostIds: [] as string[] },
+    getNextPageParam: (lastPage) =>
+      lastPage.lastDate === undefined
+        ? undefined
+        : { startTime: lastPage.lastDate, seenPostIds: lastPage.seenPostIds },
     enabled: !!token && !!settings,
     staleTime: Infinity, // prevent re-fetching old data
   })

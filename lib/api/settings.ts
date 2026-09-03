@@ -85,6 +85,7 @@ export enum PrivateOptionNames {
   DisableReactCounts = 'wafrn.disableReactCounts',
   DisablePostCounts = 'wafrn.disablePostCounts',
   DisplayMentionsOfBlockedUsers = 'wafrn.displayMentionsOfBlockedUsersFromOtherUsers',
+  DedupePostsInFeed = 'wafrn.dedupePostsInFeed',
 }
 
 export enum RssOptions {
@@ -143,6 +144,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisableReactCounts]: boolean
   [PrivateOptionNames.DisablePostCounts]: boolean
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: boolean
+  [PrivateOptionNames.DedupePostsInFeed]: boolean
 }
 
 export enum MuteSource {
@@ -212,6 +214,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisableReactCounts]: false,
   [PrivateOptionNames.DisablePostCounts]: false,
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: false,
+  [PrivateOptionNames.DedupePostsInFeed]: false,
 }
 
 export type PrivateOption = SettingsOption & {

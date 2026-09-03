@@ -18,6 +18,7 @@ const OPTION_KEYS = [
   PrivateOptionNames.DisableRewootsExploreLocal,
   PrivateOptionNames.DisableReplies,
   PrivateOptionNames.DisableBsky,
+  PrivateOptionNames.DedupePostsInFeed,
   PrivateOptionNames.ThreadAncestorLimit,
   PrivateOptionNames.DisableLinkPreviews,
   PrivateOptionNames.AtprotoLinkDestination,
@@ -100,6 +101,14 @@ export default function FeedsAndContentSettings() {
           label="Hide Bluesky posts in feeds"
           value={form[PrivateOptionNames.DisableBsky]}
           onChange={(flag) => update(PrivateOptionNames.DisableBsky, flag)}
+        />
+        <SettingRow
+          label="Dedupe posts already shown in feeds"
+          description="When several replies of the same thread appear in a feed, only the newest one is shown instead of repeating the thread once per reply (does not apply to rewoots)."
+          value={form[PrivateOptionNames.DedupePostsInFeed]}
+          onChange={(flag) =>
+            update(PrivateOptionNames.DedupePostsInFeed, flag)
+          }
         />
         <SettingRow
           label="Disable link previews in posts"
