@@ -23,6 +23,7 @@ import { DomUtils, parseDocument } from 'htmlparser2'
 import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
 import SilenceButton from './SilenceButton'
 import ReportPostModal from '../posts/ReportPostModal'
+import { RefederateButton } from './RefederateButton'
 
 export default function InteractionMenu({ post }: { post: Post }) {
   const gray300 = useCSSString('--color-gray-300')
@@ -40,6 +41,10 @@ export default function InteractionMenu({ post }: { post: Post }) {
   const me = useParsedToken()
   const createdByMe = post.userId === me?.userId
 
+  const showRefederate =
+    createdByMe &&
+    post.privacy !== PrivacyLevel.DRAFT &&
+    post.privacy !== PrivacyLevel.INSTANCE_ONLY
   const showQuote =
     post.privacy === PrivacyLevel.PUBLIC ||
     post.privacy === PrivacyLevel.UNLISTED
@@ -181,6 +186,13 @@ export default function InteractionMenu({ post }: { post: Post }) {
           </>
         ) : null}
         {/* --- SECONDARY --- */}
+        {showRefederate ? (
+          <RefederateButton
+            post={post}
+            style={optionStyleBig(1)}
+            onPress={() => setMenuOpen(false)}
+          />
+        ) : null}
         {!createdByMe ? (
           <BiteButton
             post={post}

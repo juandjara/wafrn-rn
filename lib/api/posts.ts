@@ -415,3 +415,34 @@ export function getRemotePostUrl(post: Post, atprotoHost = BSKY_HOST) {
   }
   return null
 }
+
+async function refederatePost(token: string, postId: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/refederatePost`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
+  })
+}
+
+export function useRefederatePostMutation() {
+  const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
+
+  return useMutation({
+    mutationKey: ['refederate-post'],
+    mutationFn: async (postId: string) => {
+      await refederatePost(token!, postId)
+    },
+    onError: (err, variables, context) => {
+      console.error(err)
+      showToastError(`Post refederation started`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Failed to refederate post`)
+    },
+  })
+}
