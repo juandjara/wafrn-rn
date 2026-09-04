@@ -8,6 +8,11 @@ import { instanceAtom } from './api/auth'
  */
 export default function parseIncomingPath(_path: string) {
   try {
+    // ensure no trailing slash so segment split is stable
+    if (_path.endsWith('/')) {
+      _path = _path.slice(0, -1)
+    }
+
     const url = new URL(_path, 'wafrn:///')
     const instanceHost = new URL(instanceAtom.get()).host
     const isHttp = url.protocol === 'http:' || url.protocol === 'https:'
