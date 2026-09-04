@@ -1,6 +1,11 @@
 import { instanceAtom } from './api/auth'
 import instances from '@/instances.json'
 
+/** Reencode path segments into query params */
+function reencode(segment: string) {
+  return encodeURIComponent(decodeURIComponent(segment))
+}
+
 /**
  * Returns a rewritten app route, or null when no rewrite rule was applied,
  * so callers can differentiate rewrites from 404s
@@ -17,6 +22,14 @@ export default function parseIncomingPath(_path: string) {
     const url = new URL(_path, 'wafrn:///')
     const instanceHost = new URL(instanceAtom.get()).host
     const isHttp = url.protocol === 'http:' || url.protocol === 'https:'
+    const isWafScheme =
+      url.protocol === 'wafrn:' || url.protocol.endsWith('+wafrn:')
+
+    // not interested in mailto: or tel: links
+    if (!isHttp && !isWafScheme) {
+      return null
+    }
+
     const host = isHttp ? url.host : instanceHost
     const remote = host !== instanceHost
 
@@ -46,7 +59,7 @@ export default function parseIncomingPath(_path: string) {
         return `/editor?${url.searchParams.toString()}`
       case 'dashboard':
         if (segments[1] === 'search' && segments[2]) {
-          return `/search?q=${segments.slice(2).join('/')}`
+          return `/search?q=${reencode(segments.slice(2).join('/'))}`
         }
         break
       case 'activate':
@@ -56,7 +69,7 @@ export default function parseIncomingPath(_path: string) {
           origRoute === 'activate'
             ? '/activate-account'
             : '/complete-password-reset'
-        return `${destRoute}?code=${code}&email=${decodeURIComponent(email ?? '')}`
+        return `${destRoute}?code=${reencode(code ?? '')}&email=${reencode(email ?? '')}`
       }
       case 'user':
         if (remote && segments[1] && !segments[1].startsWith('@')) {
@@ -68,7 +81,7 @@ export default function parseIncomingPath(_path: string) {
         break
       case 'post':
         if (remote) {
-          return `/search?q=${_path}`
+          return `/search?q=${encodeURIComponent(_path)}`
         }
         break
     }
