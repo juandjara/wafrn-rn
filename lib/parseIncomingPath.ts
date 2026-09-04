@@ -1,4 +1,5 @@
 import { instanceAtom } from './api/auth'
+import instances from '@/instances.json'
 
 /**
  * Returns a rewritten app route, or null when no rewrite rule was applied,
@@ -18,6 +19,11 @@ export default function parseIncomingPath(_path: string) {
     const isHttp = url.protocol === 'http:' || url.protocol === 'https:'
     const host = isHttp ? url.host : instanceHost
     const remote = host !== instanceHost
+
+    // do not parse a link that is not local or from a known wafrn instance
+    if (remote && !instances.includes(host)) {
+      return null
+    }
 
     const segments = url.pathname.split('/').filter(Boolean)
     if (url.protocol === 'wafrn:' && url.host) {
