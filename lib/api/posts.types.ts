@@ -35,7 +35,7 @@ export type Post = {
   markdownContent?: string
   remotePostId: string | null
   privacy: PrivacyLevel
-  featured?: Date | null
+  featured?: string | null // ISO string of when the post was pinned
   isRewoot?: boolean // TODO: defined only for local posts
   isDeleted?: boolean // TODO: (not sure about this one) defined only for local posts ??
   isReply?: boolean

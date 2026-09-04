@@ -16,7 +16,7 @@ import {
   PrivateOptionNames,
   useSettings,
 } from './settings'
-import { getFeedData } from '../feeds'
+import { getFeedData, getPinnedFeedData } from '../feeds'
 import { EmojiBase } from './emojis'
 
 export enum DashboardMode {
@@ -166,7 +166,7 @@ export function getDashboardContextPage(data: DashboardData) {
       (data.bookmarks ?? []).map((b) => [b.postId, true as const]),
     ),
   } satisfies DashboardContextData
-  return context
+  return context as DashboardContextData
 }
 
 function combine<T>(
@@ -244,15 +244,17 @@ export async function getUserFeed({
   userId,
   token,
   signal,
+  featured = false,
 }: {
   startTime: number
   userId: string
   token: string
   signal: AbortSignal
+  featured?: boolean
 }) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}`,
+    `${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -271,14 +273,38 @@ export function useUserFeed(userId: string) {
   return useInfiniteQuery({
     queryKey: ['dashboard', 'userFeed', userId],
     queryFn: async ({ pageParam, signal }) => {
-      const list = await getUserFeed({
-        userId,
-        startTime: pageParam,
-        token: token!,
-        signal,
-      })
-      const context = getDashboardContextPage(list)
-      const feed = await getFeedData(context, list.posts, settings)
+      const isFirstPage = pageParam === 0
+      const [list, pinnedList] = await Promise.all([
+        getUserFeed({
+          userId,
+          startTime: pageParam,
+          token: token!,
+          signal,
+        }),
+        isFirstPage
+          ? getUserFeed({
+              userId,
+              startTime: 0,
+              token: token!,
+              signal,
+              featured: true,
+            })
+          : null,
+      ])
+      let context = getDashboardContextPage(list)
+      let feed = await getFeedData(context, list.posts, settings)
+
+      if (pinnedList) {
+        const pinnedContext = getDashboardContextPage(pinnedList)
+        const pinnedFeed = await getPinnedFeedData(
+          pinnedContext,
+          pinnedList.posts,
+          settings,
+        )
+        feed = [...pinnedFeed, ...feed]
+        context = combineDashboardContextPages([pinnedContext, context])
+      }
+
       const lastDate = getLastDate(list.posts)
       return { context, feed, lastDate }
     },

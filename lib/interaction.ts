@@ -144,6 +144,49 @@ export function useBookmarkMutation({ id }: { id: string }) {
   })
 }
 
+// basic toggle endpoint:
+// it unpins when the post is already pinned, or pins this post and unpins every other one
+export async function togglePinPost({
+  token,
+  postId,
+}: {
+  token: string
+  postId: string
+}) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env?.API_URL}/user/pinPost`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ postId }),
+  })
+}
+
+export function usePinMutation({ id }: { id: string }) {
+  const qc = useQueryClient()
+  const { token } = useAuth()
+  const { showToastError, showToastSuccess } = useToasts()
+
+  // the `isPinned` variable is not being used in the mutation fn, but it is used on the callback notifications
+  return useMutation<void, Error, boolean>({
+    mutationKey: ['pin', id],
+    mutationFn: (isPinned: boolean) =>
+      togglePinPost({ token: token!, postId: id }),
+    onError: (err, variables) => {
+      console.error(err)
+      showToastError(`Failed to ${variables ? 'un' : ''}pin woot`)
+    },
+    onSuccess: (data, variables) => {
+      showToastSuccess(`Woot ${variables ? 'un' : ''}pinned`)
+    },
+    onSettled: async () => {
+      await qc.invalidateQueries({ queryKey: ['dashboard', 'userFeed'] })
+    },
+  })
+}
+
 export async function toggleFollowTag({
   token,
   tag,

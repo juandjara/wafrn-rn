@@ -13,6 +13,7 @@ import LikeButton from './LikeButton'
 import BookmarkButton from './BookmarkButton'
 import ReactionEmojiPicker from './ReactionEmojiPicker'
 import DeleteButton from './DeleteButton'
+import PinButton from './PinButton'
 import BiteButton from './BiteButton'
 import CollapseButton from './ColllapseButton'
 import { getRemotePostUrl } from '@/lib/api/posts'
@@ -42,7 +43,6 @@ export default function InteractionMenu({ post }: { post: Post }) {
   const createdByMe = post.userId === me?.userId
 
   const showRefederate =
-    createdByMe &&
     post.privacy !== PrivacyLevel.DRAFT &&
     post.privacy !== PrivacyLevel.INSTANCE_ONLY
   const showQuote =
@@ -183,16 +183,23 @@ export default function InteractionMenu({ post }: { post: Post }) {
               style={optionStyleBig(1)}
               onPress={() => setMenuOpen(false)}
             />
+            {post.privacy !== PrivacyLevel.DRAFT ? (
+              <PinButton
+                post={post}
+                style={optionStyleBig(1)}
+                onPress={() => setMenuOpen(false)}
+              />
+            ) : null}
+            {showRefederate ? (
+              <RefederateButton
+                post={post}
+                style={optionStyleBig(1)}
+                onPress={() => setMenuOpen(false)}
+              />
+            ) : null}
           </>
         ) : null}
         {/* --- SECONDARY --- */}
-        {showRefederate ? (
-          <RefederateButton
-            post={post}
-            style={optionStyleBig(1)}
-            onPress={() => setMenuOpen(false)}
-          />
-        ) : null}
         {!createdByMe ? (
           <BiteButton
             post={post}

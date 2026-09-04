@@ -104,10 +104,64 @@ async function threadToListItems(
   return elements
 }
 
-export type FeedItem = Awaited<ReturnType<typeof threadToListItems>>[number]
+type ThreadListItem = Awaited<ReturnType<typeof threadToListItems>>[number]
+type PinRibbonItem = { threadId: string; type: 'pin-ribbon'; postId: string }
 
+// the `pinned` boolean is needed so `feedKeyExtractor` can give a different key to items from pinned posts.
+export type FeedItem = (ThreadListItem | PinRibbonItem) & { pinned?: boolean }
+
+/**
+ * Feed items for pinned posts are always the same: pin ribbon, the post and the interaction ribbon.
+ * Even when a reply is pinned, no context is shown for the thread.
+ * Pinned posts keep the order they were pinned in (newest first)
+ * and do not get folded into the chronological order used by `getFeedData`.
+ */
+export async function getPinnedFeedData(
+  context: DashboardContextData,
+  posts: PostThread[],
+  settings?: Settings,
+) {
+  const feed = [] as FeedItem[]
+  const sortedPosts = [...posts].sort(
+    (a, b) =>
+      new Date(b.featured ?? 0).getTime() - new Date(a.featured ?? 0).getTime(),
+  )
+  for (const post of sortedPosts) {
+    const { postHidden } = getDerivedThreadState(post, context, settings)
+    if (postHidden) {
+      continue
+    }
+    await processPost(post, context, settings)
+    feed.push(
+      { threadId: post.id, type: 'pin-ribbon', postId: post.id, pinned: true },
+      {
+        threadId: post.id,
+        type: 'post',
+        post,
+        postId: post.id,
+        border: false,
+        pinned: true,
+      },
+      {
+        threadId: post.id,
+        type: 'interaction-ribbon',
+        post,
+        postId: post.id,
+        pinned: true,
+      },
+    )
+  }
+  return feed
+}
+
+/**
+ * Get the key for feed items in a flatlist.
+ * A pinned post can show up again further down the same feed,
+ * so the pinned copy needs its own list key.
+ */
 export function feedKeyExtractor(item: FeedItem) {
-  return `${item.threadId}--${item.type}--${item.postId}`
+  const prefix = item.pinned ? 'pinned--' : ''
+  return `${prefix}${item.threadId}--${item.type}--${item.postId}`
 }
 
 /**

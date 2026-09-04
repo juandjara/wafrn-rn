@@ -3,6 +3,7 @@ import { memo } from 'react'
 import { View } from 'react-native'
 import RewootRibbon from '../ribbons/RewootRibbon'
 import ReplyRibbon from '../ribbons/ReplyRibbon'
+import PinRibbon from '../ribbons/PinRibbon'
 import { Link } from 'expo-router'
 import PostFragment from './PostFragment'
 import InteractionRibbon from '../posts/InteractionRibbon'
@@ -13,6 +14,11 @@ function FeedItemRenderer_({ item }: { item: FeedItem }) {
   const isSmallScreen = useSmallScreenCheck()
   const roundedCN = isSmallScreen ? '' : 'rounded-t-lg'
 
+  if (item.type === 'pin-ribbon') {
+    return (
+      <PinRibbon className={clsx(roundedCN, 'border-b border-slate-600')} />
+    )
+  }
   if (item.type === 'rewoot-ribbon') {
     return (
       <RewootRibbon
