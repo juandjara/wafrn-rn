@@ -1,6 +1,7 @@
-import { MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import {
+  ActivityIndicator,
   Keyboard,
   Platform,
   Pressable,
@@ -17,7 +18,6 @@ import {
 import { useCreatePostMutation } from '@/lib/api/posts'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
-import EditorHeader from '@/components/editor/EditorHeader'
 import EditorActions, {
   EditorActionProps,
 } from '@/components/editor/EditorActions'
@@ -37,10 +37,11 @@ import { PostUser } from '@/lib/api/posts.types'
 import { useCSSString } from '@/lib/cssVariables'
 import { Colors } from '@/constants/Colors'
 import AskCard from '@/components/posts/Ask'
-import PostingAsSelector from '@/components/editor/PostingAsSelector'
 import PrivacySelect from '@/components/PrivacySelect'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { PRIVACY_ORDER, PrivacyLevel } from '@/lib/api/privacy'
+import { Link } from 'expo-router'
+import { clsx } from 'clsx'
 
 export default function EditorView() {
   const {
@@ -168,6 +169,9 @@ export default function EditorView() {
   }
 
   const actions = {
+    selectPostingAs: (userId: string) => {
+      setForm({ ...form, postingAs: userId })
+    },
     insertCharacter: (character: string) => {
       const text = mentionApi.mentionState.plainText
       const textBeforeCursor = text.substring(0, selection.start)
@@ -266,11 +270,42 @@ export default function EditorView() {
         }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <EditorHeader
-          isLoading={createMutation.isPending}
-          canPublish={canPublish()}
-          onPublish={onPublish}
-        />
+        <View className="flex-row gap-2 justify-between items-center px-2">
+          <Link href="../" className="rounded-full p-1">
+            <MaterialIcons name="close" color="white" size={20} />
+          </Link>
+          <View>
+            <PrivacySelect
+              options={privacyOptions}
+              privacy={form.privacy}
+              setPrivacy={(p: PrivacyLevel) => {
+                setForm({ ...form, privacy: p })
+              }}
+              maxPrivacy={maxPrivacy}
+              disabled={privacySelectDisabled}
+              invertMaxPrivacy={params.type === 'edit'}
+            />
+          </View>
+          <View className="grow"></View>
+          <Pressable
+            disabled={!canPublish}
+            onPress={onPublish}
+            className={clsx(
+              'px-4 py-2 my-2 rounded-full flex-row items-center gap-2',
+              {
+                'bg-cyan-800': canPublish,
+                'bg-gray-400/25 opacity-50': !canPublish,
+              },
+            )}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <MaterialCommunityIcons name="send" color="white" size={20} />
+            )}
+            <Text className="font-medium text-white">Publish</Text>
+          </Pressable>
+        </View>
         <ScrollView
           id="editor-scroll"
           style={{ flexGrow: 0, paddingBottom: 4 }}
@@ -318,42 +353,21 @@ export default function EditorView() {
             setImages={(images) => update('medias', images)}
             disableForceAltText={disableForceAltText}
           />
-          <View className="mx-2 mb-1 mt-3 rounded-lg bg-indigo-950">
-            <View className="flex-row items-center px-3 py-2 gap-2">
-              <PostingAsSelector
-                selectedUserId={form.postingAs}
-                setSelectedUserId={(userId) => {
-                  setForm({ ...form, postingAs: userId })
-                }}
-              />
-              <Text className="text-white text-sm">is {replyLabel}</Text>
-              <View className="grow" />
-              <Text className="text-white text-sm">in</Text>
-              <View className="shrink">
-                <PrivacySelect
-                  options={privacyOptions}
-                  privacy={form.privacy}
-                  setPrivacy={(p: PrivacyLevel) => {
-                    setForm({ ...form, privacy: p })
-                  }}
-                  maxPrivacy={maxPrivacy}
-                  disabled={privacySelectDisabled}
-                  invertMaxPrivacy={params.type === 'edit'}
-                />
-              </View>
+          {replyLabel ? (
+            <View className="px-3 pt-3">
+              <Text className="text-gray-300 text-sm">{replyLabel}</Text>
             </View>
-            {reply ? (
-              <View className="border-t border-gray-600">
-                <PostFragment
-                  post={reply.posts[0]}
-                  collapsible={false}
-                  clickable={false}
-                  hasCornerMenu={false}
-                />
-              </View>
-            ) : null}
-            {ask ? <AskCard className="m-2 mt-1" ask={ask} /> : null}
-          </View>
+          ) : null}
+          {reply ? (
+            <PostFragment
+              post={reply.posts[0]}
+              collapsible={false}
+              clickable={false}
+              hasCornerMenu={false}
+              className="mx-2 mt-1 rounded-lg"
+            />
+          ) : null}
+          {ask ? <AskCard className="mx-2 mt-1" ask={ask} /> : null}
         </ScrollView>
         <EditorActions actions={actions} form={form} />
       </KeyboardAvoidingView>

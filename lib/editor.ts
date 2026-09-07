@@ -145,7 +145,7 @@ export function useEditorData() {
     )
 
     let ask = null
-    let replyLabel = 'wooting'
+    let replyLabel = ''
     let mentionedUsers = [] as PostUser[]
     const context = reply
       ? getDashboardContextPage(reply)
@@ -185,7 +185,7 @@ export function useEditorData() {
 
     let privacySelectDisabled = false
     if (reply && params.type === 'reply') {
-      replyLabel = 'replying'
+      replyLabel = 'replying to'
       const replyPost = reply.posts[0]
       if (replyPost) {
         formState.privacy = isLessPrivateThan(replyPost.privacy, defaultPrivacy)
