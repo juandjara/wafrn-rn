@@ -58,10 +58,10 @@ export default function EditorView() {
   const gray300 = useCSSString('--color-gray-300')
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
-  const [_mentions, setMentions] = useState<PostUser[]>([])
+  const [_mentions, setMentions] = useState<PostUser[] | null>(null)
   const [_form, setForm] = useState<EditorFormState | null>(null)
 
-  const mentions = _mentions.length > 0 ? _mentions : mentionedUsers
+  const mentions = _mentions ? _mentions : mentionedUsers
   const form = _form || formState
 
   function update<T extends keyof EditorFormState>(
