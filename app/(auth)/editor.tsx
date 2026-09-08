@@ -391,9 +391,7 @@ export default function EditorView() {
             <View className="flex-row items-center px-3 py-2 gap-2">
               <PostingAsSelector
                 selectedUserId={form.postingAs}
-                setSelectedUserId={(userId) => {
-                  setForm({ ...form, postingAs: userId })
-                }}
+                setSelectedUserId={(userId) => update('postingAs', userId)}
               />
               <Text className="text-white text-sm">is {replyLabel}</Text>
               <View className="grow" />
@@ -413,9 +411,7 @@ export default function EditorView() {
                   smallLabels
                   options={privacyOptions}
                   privacy={form.privacy}
-                  setPrivacy={(p: PrivacyLevel) => {
-                    setForm({ ...form, privacy: p })
-                  }}
+                  setPrivacy={(p: PrivacyLevel) => update('privacy', p)}
                   maxPrivacy={maxPrivacy}
                   disabled={privacySelectDisabled}
                   invertMaxPrivacy={params.type === 'edit'}
