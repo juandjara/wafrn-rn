@@ -368,7 +368,7 @@ export default function EditorView() {
             disableForceAltText={disableForceAltText}
           />
           <View className="mx-2 mt-3 rounded-lg bg-indigo-950">
-            <View className="flex-row items-center px-3 py-3 gap-3">
+            <View className="flex-row items-center px-3 py-2 gap-2">
               <PostingAsSelector
                 selectedUserId={form.postingAs}
                 setSelectedUserId={(userId) => {
