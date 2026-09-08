@@ -187,6 +187,8 @@ export type CreatePostPayload = {
   postingAccountId: string
   canQuote: boolean
   canReply: InteractionControl
+  queuedPostPublishing?: boolean
+  publishAt?: number // unix timestamp
 }
 
 export async function wait(ms: number) {
@@ -256,7 +258,16 @@ export function useCreatePostMutation() {
       showToastError(`Failed to create woot: ${err.message}`)
     },
     onSuccess: (data, variables) => {
-      showToastSuccess('Woot Created')
+      if (variables.privacy === PrivacyLevel.DRAFT) {
+        showToastSuccess('Draft saved')
+      } else if (variables.queuedPostPublishing) {
+        showToastSuccess('Woot queued')
+      } else if (variables.publishAt) {
+        showToastSuccess('Woot scheduled')
+      } else {
+        showToastSuccess('Woot created')
+      }
+
       const instance =
         getAccountData(variables.postingAccountId)?.instance ?? ''
       if (env?.BASE_URL === instance) {
