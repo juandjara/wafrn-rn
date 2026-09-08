@@ -64,13 +64,16 @@ export default function AskModal({
 
   return (
     <>
-      <Pressable
-        accessibilityLabel="Ask a question"
-        onPress={() => setOpen(true)}
-        className="bg-gray-700/50 rounded-full p-3"
-      >
-        <FontAwesome name="envelope-o" color="white" size={24} />
-      </Pressable>
+      <View>
+        <Pressable
+          accessibilityLabel="Ask a question"
+          onPress={() => setOpen(true)}
+          className="bg-gray-700/50 rounded-full p-3"
+        >
+          <FontAwesome name="envelope-o" color="white" size={24} />
+        </Pressable>
+        <Text className="mt-2 text-gray-300 text-sm text-center">Ask</Text>
+      </View>
       {open && (
         <BottomSheet className="bg-indigo-950" open setOpen={setOpen}>
           <ScrollView>

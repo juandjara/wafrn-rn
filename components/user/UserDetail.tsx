@@ -151,7 +151,7 @@ export default function UserDetail({ user }: { user: User }) {
       return 'Biting'
     }
     if (biteMutation.isSuccess) {
-      return 'Bittem'
+      return 'Bitten'
     }
     return 'Bite'
   }
@@ -233,32 +233,40 @@ export default function UserDetail({ user }: { user: User }) {
             <RpgActorModal did={user.bskyDid} />
           )}
           {hasAsks && <AskModal user={user} emojis={user.emojis} />}
-          <Link
-            href={`/editor?text=${formatUserUrl(user.url)}&privacy=10`}
-            asChild
-          >
-            <Pressable
-              accessibilityLabel="Direct Message"
-              className="bg-gray-700/50 rounded-full p-3"
+          <View>
+            <Link
+              href={`/editor?text=${formatUserUrl(user.url)}&privacy=10`}
+              asChild
             >
-              <AntDesign name="message" color="white" size={24} />
-            </Pressable>
-          </Link>
+              <Pressable
+                accessibilityLabel="Direct Message"
+                className="bg-gray-700/50 rounded-full p-3"
+              >
+                <AntDesign name="message" color="white" size={24} />
+              </Pressable>
+            </Link>
+            <Text className="mt-2 text-gray-300 text-sm text-center">DM</Text>
+          </View>
           {isMe ? null : (
-            <Pressable
-              className={clsx('bg-gray-700/50 rounded-full p-3', {
-                'opacity-50 pointer-events-none': biteMutation.isPending,
-              })}
-              disabled={biteMutation.isPending}
-              onPress={() => biteMutation.mutate(user.id)}
-              accessibilityLabel={getCookieLabel()}
-            >
-              <MaterialCommunityIcons
-                name={getCookieIconName()}
-                size={24}
-                color="white"
-              />
-            </Pressable>
+            <View>
+              <Pressable
+                className={clsx('bg-gray-700/50 rounded-full p-3', {
+                  'opacity-50 pointer-events-none': biteMutation.isPending,
+                })}
+                disabled={biteMutation.isPending}
+                onPress={() => biteMutation.mutate(user.id)}
+                accessibilityLabel={getCookieLabel()}
+              >
+                <MaterialCommunityIcons
+                  name={getCookieIconName()}
+                  size={24}
+                  color="white"
+                />
+              </Pressable>
+              <Text className="mt-2 text-gray-300 text-sm text-center">
+                Bite
+              </Text>
+            </View>
           )}
         </View>
         <View className="flex-row items-center gap-2 mt-6">
