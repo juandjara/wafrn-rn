@@ -311,7 +311,7 @@ export default function EditorView() {
               />
             )}
             <Text className="font-medium text-white">
-              {form.privacy === PrivacyLevel.DRAFT ? 'Save' : 'Publish'}
+              {form.privacy === PrivacyLevel.DRAFT ? 'Save' : 'Woot!'}
             </Text>
           </Pressable>
           <Pressable
