@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Keyboard,
@@ -20,6 +20,7 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
 import EditorActions, {
   EditorActionProps,
+  EditorActionRef,
 } from '@/components/editor/EditorActions'
 import ImageList from '@/components/editor/EditorImages'
 import EditorInput from '@/components/editor/EditorInput'
@@ -63,6 +64,7 @@ export default function EditorView() {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [_mentions, setMentions] = useState<PostUser[] | null>(null)
   const [_form, setForm] = useState<EditorFormState | null>(null)
+  const editorActionsRef = useRef<EditorActionRef>(null)
 
   const mentions = _mentions ? _mentions : mentionedUsers
   const form = _form || formState
@@ -380,6 +382,17 @@ export default function EditorView() {
               <Text className="text-white text-sm">in</Text>
               <View className="shrink">
                 <PrivacySelect
+                  title={
+                    <View className="p-4 pt-2">
+                      <Text className="text-lg font-medium">
+                        Select posting mode
+                      </Text>
+                      <Text className="text-gray-500 font-medium">
+                        Who can read this post?
+                      </Text>
+                    </View>
+                  }
+                  smallLabels
                   options={privacyOptions}
                   privacy={form.privacy}
                   setPrivacy={(p: PrivacyLevel) => {
@@ -388,6 +401,21 @@ export default function EditorView() {
                   maxPrivacy={maxPrivacy}
                   disabled={privacySelectDisabled}
                   invertMaxPrivacy={params.type === 'edit'}
+                  bottom={
+                    <Pressable
+                      className="px-4 py-2 active:opacity-50"
+                      onPress={() => {
+                        editorActionsRef.current?.setInteractionControlOpen(
+                          true,
+                        )
+                      }}
+                    >
+                      <Text>
+                        Who can interact with this post?{' '}
+                        <Text className="text-sky-600">See here</Text>
+                      </Text>
+                    </Pressable>
+                  }
                 />
               </View>
             </View>
@@ -405,7 +433,7 @@ export default function EditorView() {
             <AskCard className="mx-2 mt-2 bg-indigo-950 border-0" ask={ask} />
           ) : null}
         </ScrollView>
-        <EditorActions actions={actions} form={form} />
+        <EditorActions ref={editorActionsRef} actions={actions} form={form} />
       </KeyboardAvoidingView>
     </DashboardContextProvider>
   )

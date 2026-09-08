@@ -8,18 +8,20 @@ import InteractionControlPicker from '../InteractionControlPicker'
 import { InteractionControlChange } from '@/lib/interactionControl'
 
 export default function InteractionControlMenu({
+  open,
+  setOpen,
   canReply,
   canQuote,
   onChange,
   disabled,
 }: {
+  open: boolean
+  setOpen: (flag: boolean) => void
   canReply: InteractionControl
   canQuote: boolean
   onChange: (p: InteractionControlChange) => void
   disabled?: boolean
 }) {
-  const [open, setOpen] = useState(false)
-
   const isInteractionControlModified =
     (canReply !== InteractionControl.Anyone &&
       canReply !== InteractionControl.SameAsOp) ||

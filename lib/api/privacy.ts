@@ -10,16 +10,24 @@ export enum PrivacyLevel {
 export const PRIVACY_LABELS = {
   [PrivacyLevel.PUBLIC]: 'Public',
   [PrivacyLevel.FOLLOWERS_ONLY]: 'Followers only',
-  [PrivacyLevel.INSTANCE_ONLY]: 'Instance only',
+  [PrivacyLevel.INSTANCE_ONLY]: 'Local only',
   [PrivacyLevel.UNLISTED]: 'Unlisted',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Direct message',
+  [PrivacyLevel.DRAFT]: 'Draft',
+} as const
+export const SMALL_PRIVACY_LABELS = {
+  [PrivacyLevel.PUBLIC]: 'Public',
+  [PrivacyLevel.FOLLOWERS_ONLY]: 'Followers',
+  [PrivacyLevel.INSTANCE_ONLY]: 'Local',
+  [PrivacyLevel.UNLISTED]: 'Unlisted',
+  [PrivacyLevel.DIRECT_MESSAGE]: 'DM',
   [PrivacyLevel.DRAFT]: 'Draft',
 } as const
 
 export const PRIVACY_DESCRIPTIONS = {
   [PrivacyLevel.PUBLIC]: 'Visible to everyone',
-  [PrivacyLevel.FOLLOWERS_ONLY]: 'Visible to your followers only',
-  [PrivacyLevel.INSTANCE_ONLY]: 'Visible to users on this instance only',
+  [PrivacyLevel.FOLLOWERS_ONLY]: 'Visible only to your followers',
+  [PrivacyLevel.INSTANCE_ONLY]: 'Visible only to users on your local server',
   [PrivacyLevel.UNLISTED]:
     'Visible to everyone but does not appear in searches or public feeds',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Visible to mentioned users only',

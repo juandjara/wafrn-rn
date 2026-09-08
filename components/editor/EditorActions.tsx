@@ -3,7 +3,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
-import { useState } from 'react'
+import { useImperativeHandle, useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
@@ -16,6 +16,10 @@ import InteractionControlMenu from './InteractionControlMenu'
 import { InteractionControlChange } from '@/lib/interactionControl'
 import { useLocalSearchParams } from 'expo-router'
 
+export type EditorActionRef = {
+  setInteractionControlOpen: (flag: boolean) => void
+}
+
 export type EditorActionProps = {
   actions: {
     insertCharacter: (character: string) => void
@@ -26,9 +30,14 @@ export type EditorActionProps = {
     onInteractionControlChange: (change: InteractionControlChange) => void
   }
   form: EditorFormState
+  ref: React.Ref<EditorActionRef>
 }
 
-export default function EditorActions({ actions, form }: EditorActionProps) {
+export default function EditorActions({
+  actions,
+  form,
+  ref,
+}: EditorActionProps) {
   const { type } = useLocalSearchParams<EditorSearchParams>()
   const interactionControlDisabled = type === 'edit' || type === 'reply'
 
@@ -37,7 +46,10 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showGifPicker, setShowGifPicker] = useState(false)
+  const [interactionControlOpen, setInteractionControlOpen] = useState(false)
   const yellow500 = useCSSString('--color-yellow-500')
+
+  useImperativeHandle(ref, () => ({ setInteractionControlOpen }))
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -102,6 +114,8 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         horizontal
       >
         <InteractionControlMenu
+          open={interactionControlOpen}
+          setOpen={setInteractionControlOpen}
           canReply={form.canReply}
           canQuote={form.canQuote}
           onChange={actions.onInteractionControlChange}

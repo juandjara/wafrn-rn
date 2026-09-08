@@ -5,6 +5,7 @@ import {
   PRIVACY_LABELS,
   PRIVACY_ORDER,
   PrivacyLevel,
+  SMALL_PRIVACY_LABELS,
 } from '@/lib/api/privacy'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
@@ -21,6 +22,9 @@ type PrivacyModalProps = {
   maxPrivacy?: PrivacyLevel
   disabled?: boolean
   invertMaxPrivacy?: boolean
+  title?: React.ReactNode
+  bottom?: React.ReactNode
+  smallLabels?: boolean
 }
 
 export default function PrivacySelect({
@@ -31,6 +35,9 @@ export default function PrivacySelect({
   maxPrivacy,
   disabled = false,
   invertMaxPrivacy = false,
+  title,
+  bottom,
+  smallLabels,
 }: PrivacyModalProps) {
   const [open, setOpen] = useState(false)
   const gray600 = useCSSString('--color-gray-600')
@@ -70,12 +77,12 @@ export default function PrivacySelect({
           size={20}
         />
         <Text numberOfLines={1} className="text-white text-sm px-1 grow shrink">
-          {PRIVACY_LABELS[privacy]}
+          {(smallLabels ? SMALL_PRIVACY_LABELS : PRIVACY_LABELS)[privacy]}
         </Text>
         <MaterialCommunityIcons name="chevron-down" color={gray600} size={20} />
       </Pressable>
-      <BottomSheet initialFullHeight open={open} setOpen={setOpen}>
-        <Text className="p-4 text-lg font-medium">Select posting mode</Text>
+      <BottomSheet open={open} setOpen={setOpen}>
+        {title}
         {options.map((p) => (
           <Pressable
             key={p}
@@ -104,6 +111,7 @@ export default function PrivacySelect({
             </View>
           </Pressable>
         ))}
+        {bottom}
       </BottomSheet>
     </>
   )
