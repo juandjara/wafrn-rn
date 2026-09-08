@@ -9,7 +9,6 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { clsx } from 'clsx'
-import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from './BottomSheet'
 
 interface PromptProps {
@@ -28,14 +27,13 @@ export default function Prompt({
   title = 'Prompt',
   message = '',
   cancelText = 'Cancel',
-  confirmText = 'OK',
+  confirmText = 'Send',
   onConfirm,
   onClose,
   inputProps,
 }: PromptProps) {
   const [inputText, setInputText] = useState(inputProps?.defaultValue || '')
   const isPassword = inputProps?.secureTextEntry
-  const cyan200 = useCSSString('--color-cyan-200')
 
   function handleConfirm() {
     onConfirm?.(inputText)
@@ -77,7 +75,7 @@ export default function Prompt({
           textAlignVertical={isPassword ? 'center' : 'top'}
           placeholderTextColorClassName="accent-gray-400"
           className={clsx('bg-gray-900 text-white m-4 p-4 rounded-lg', {
-            'min-h-[100px]': !isPassword,
+            'min-h-25': !isPassword,
           })}
           value={inputText}
           onChangeText={setInputText}
@@ -91,7 +89,7 @@ export default function Prompt({
           <Pressable
             onPress={handleClose}
             className={clsx(
-              'flex-1 py-2 px-3 rounded-lg text-center flex-row items-center justify-center',
+              'grow py-2 px-3 rounded-lg text-center flex-row items-center justify-center',
               {
                 'bg-gray-700/50 active:bg-gray-700/75': true,
               },
@@ -99,20 +97,18 @@ export default function Prompt({
           >
             <Text className="text-gray-300 text-lg">{cancelText}</Text>
           </Pressable>
-
           <Pressable
             disabled={!inputText}
             onPress={handleConfirm}
             className={clsx(
-              'flex-1 py-2 px-3 rounded-lg text-center flex-row items-center justify-center gap-3',
+              'grow bg-sky-700 active:opacity-75 py-2 px-3 rounded-lg flex-row items-center justify-center gap-3',
               {
-                'bg-cyan-500/25 active:bg-cyan-500/50': inputText,
-                'bg-gray-700/50 opacity-50': !inputText,
+                'opacity-50': !inputText,
               },
             )}
           >
-            <Text className="text-cyan-200 text-lg">{confirmText}</Text>
-            <MaterialCommunityIcons name="send" size={20} color={cyan200} />
+            <Text className="text-white text-lg">{confirmText}</Text>
+            <MaterialCommunityIcons name="send" size={20} color="white" />
           </Pressable>
         </View>
       </ScrollView>

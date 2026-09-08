@@ -35,7 +35,6 @@ export default function AskModal({
   const cyan900 = useCSSString('--color-cyan-900')
   const cyan600 = useCSSString('--color-cyan-600')
   const gray300 = useCSSString('--color-gray-300')
-  const cyan200 = useCSSString('--color-cyan-200')
   const askOptionValue = getPublicOptionValue(
     user.publicOptions,
     PublicOptionNames.Asks,
@@ -127,18 +126,17 @@ export default function AskModal({
               disabled={!question || mutation.isPending}
               onPress={onSubmit}
               className={clsx(
-                'bg-cyan-500/25 py-2 px-3 text-lg rounded-lg text-center mx-4 flex-row items-center justify-center gap-3',
+                'bg-sky-700 active:opacity-75 py-2 px-3 mx-4 rounded-lg flex-row items-center justify-center gap-3',
                 {
-                  'active:bg-cyan-500/50': question && !mutation.isPending,
-                  'opacity-50': !question,
+                  'opacity-50': !question || mutation.isPending,
                 },
               )}
             >
-              <Text className="text-cyan-200 text-lg">Send</Text>
+              <Text className="text-white text-lg">Send</Text>
               {mutation.isPending ? (
-                <ActivityIndicator colorClassName="accent-cyan-200" />
+                <ActivityIndicator color="white" />
               ) : (
-                <MaterialCommunityIcons name="send" size={24} color={cyan200} />
+                <MaterialCommunityIcons name="send" size={24} color="white" />
               )}
             </Pressable>
             <Collapsible

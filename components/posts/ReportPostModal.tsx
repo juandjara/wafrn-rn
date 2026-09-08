@@ -17,7 +17,6 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
 
 type ReportTarget =
@@ -33,7 +32,6 @@ export default function ReportPostModal({
   open: boolean
   onClose: () => void
 } & ReportTarget) {
-  const cyan200 = useCSSString('--color-cyan-200')
   const [severity, setSeverity] = useState<ReportSeverity>(ReportSeverity.SPAM)
   const [description, setDescription] = useState('')
   const mutation = useReportMutation()
@@ -75,7 +73,9 @@ export default function ReportPostModal({
             <MaterialCommunityIcons name="close" size={24} color="white" />
           </Pressable>
         </View>
-        <Text className="text-gray-300 text-sm p-4">Report severity:</Text>
+        <Text className="text-gray-300 text-sm px-4 py-2">
+          Report severity:
+        </Text>
         <ScrollView horizontal contentContainerClassName="gap-3 px-4">
           {REPORT_SEVERITY_ORDER.map((key) => (
             <Pressable
@@ -95,7 +95,7 @@ export default function ReportPostModal({
         <Text className="text-gray-400 leading-relaxed px-4 py-3">
           {REPORT_SEVERITY_DESCRIPTIONS[severity]}
         </Text>
-        <Text className="text-gray-300 text-sm pt-2 px-4">
+        <Text className="text-gray-300 text-sm pt-3 px-5">
           Report description:
         </Text>
         <TextInput
@@ -104,20 +104,20 @@ export default function ReportPostModal({
           numberOfLines={4}
           textAlignVertical="top"
           placeholderTextColorClassName="accent-gray-400"
-          className="bg-gray-900 text-white m-4 mt-2 p-4 rounded-lg min-h-[100px]"
+          className="bg-gray-900 text-white m-4 mt-2 p-4 rounded-lg min-h-25"
           value={description}
           onChangeText={setDescription}
         />
         <Pressable
           onPress={onSubmit}
           disabled={mutation.isPending}
-          className="bg-cyan-500/25 active:bg-cyan-500/50 py-2 px-3 text-lg rounded-lg text-center mx-4 flex-row items-center justify-center gap-3"
+          className="bg-sky-700 active:opacity-75 py-2 px-3 mx-4 mb-4 rounded-lg flex-row items-center justify-center gap-3"
         >
-          <Text className="text-cyan-200 text-lg">Send</Text>
+          <Text className="text-white text-lg">Send</Text>
           {mutation.isPending ? (
-            <ActivityIndicator colorClassName="accent-cyan-200" />
+            <ActivityIndicator color="white" />
           ) : (
-            <MaterialCommunityIcons name="send" size={24} color={cyan200} />
+            <MaterialCommunityIcons name="send" size={24} color="white" />
           )}
         </Pressable>
       </ScrollView>
