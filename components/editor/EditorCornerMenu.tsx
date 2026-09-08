@@ -65,6 +65,7 @@ export default function EditorCornerMenu({
   return (
     <>
       <Pressable
+        disabled={!canPublish}
         onPress={() => setOpen(true)}
         className={clsx(
           'h-10 border-l border-gray-400 p-2 px-1.5 my-2 rounded-r-full',
