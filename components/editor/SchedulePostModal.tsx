@@ -36,20 +36,6 @@ export default function SchedulePostModal({
 
   return (
     <>
-      {datepickerOpen && (
-        <DateTimePicker
-          is24Hour
-          mode={datepickerOpen}
-          value={new Date(datetime)}
-          minimumDate={today}
-          onChange={(ev) => {
-            setDatepickerOpen(null)
-            if (ev.type === 'set') {
-              setDatetime(ev.nativeEvent.timestamp)
-            }
-          }}
-        />
-      )}
       <BottomSheet className="bg-indigo-950" open={open} setOpen={setOpen}>
         <Text className="text-white px-3 py-1 my-1">
           Select the date your woot will be published
@@ -71,7 +57,9 @@ export default function SchedulePostModal({
             <View className="grow">
               <Text className="text-sm text-gray-400">Date:</Text>
               <Pressable
-                onPress={() => setDatepickerOpen('date')}
+                onPress={() =>
+                  setDatepickerOpen((prev) => (prev === 'date' ? null : 'date'))
+                }
                 className="flex-row items-center gap-1 rounded-lg border border-gray-500 p-2"
               >
                 <Text className="grow text-gray-300">
@@ -87,7 +75,9 @@ export default function SchedulePostModal({
             <View className="grow">
               <Text className="text-sm text-gray-400">Time:</Text>
               <Pressable
-                onPress={() => setDatepickerOpen('time')}
+                onPress={() =>
+                  setDatepickerOpen((prev) => (prev === 'time' ? null : 'time'))
+                }
                 className="flex-row items-center gap-1 rounded-lg border border-gray-500 p-2"
               >
                 <Text className="grow text-gray-300">
@@ -101,6 +91,24 @@ export default function SchedulePostModal({
               </Pressable>
             </View>
           </View>
+        )}
+        {datepickerOpen && (
+          <DateTimePicker
+            is24Hour
+            mode={datepickerOpen}
+            value={new Date(datetime)}
+            minimumDate={today}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            themeVariant="dark"
+            onChange={(ev) => {
+              if (Platform.OS === 'android') {
+                setDatepickerOpen(null)
+              }
+              if (ev.type === 'set') {
+                setDatetime(ev.nativeEvent.timestamp)
+              }
+            }}
+          />
         )}
         <Pressable
           disabled={!dateIsValid}
