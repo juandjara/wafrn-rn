@@ -119,7 +119,7 @@ export default function EditorView() {
   const maxPrivacy = reply?.posts[0].privacy
 
   function onPublish(extra?: Partial<CreatePostPayload>) {
-    if (!computeCanPublish()) {
+    if (!canPublish) {
       return
     }
 
