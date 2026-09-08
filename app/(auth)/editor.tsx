@@ -275,16 +275,18 @@ export default function EditorView() {
           <Link href="../" className="rounded-full p-1">
             <MaterialIcons name="close" color="white" size={20} />
           </Link>
-          <Link asChild href="/drafts">
-            <Pressable className="border-gray-600 border active:bg-white/30 px-2 py-1 rounded-xl flex-row items-center gap-2">
-              <MaterialCommunityIcons
-                name="archive-edit-outline"
-                color={gray300}
-                size={20}
-              />
-              <Text className="text-white">Drafts</Text>
-            </Pressable>
-          </Link>
+          {enableDrafts ? (
+            <Link asChild href="/drafts">
+              <Pressable className="border-gray-600 border active:bg-white/30 px-2 py-1 rounded-xl flex-row items-center gap-2">
+                <MaterialCommunityIcons
+                  name="archive-edit-outline"
+                  color={gray300}
+                  size={20}
+                />
+                <Text className="text-white">Drafts</Text>
+              </Pressable>
+            </Link>
+          ) : null}
           <View className="grow"></View>
           <Pressable
             disabled={!canPublish}
