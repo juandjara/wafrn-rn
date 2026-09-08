@@ -15,7 +15,7 @@ import {
   isTriggerConfig,
   useMentions,
 } from 'react-native-more-controlled-mentions'
-import { useCreatePostMutation } from '@/lib/api/posts'
+import { CreatePostPayload, useCreatePostMutation } from '@/lib/api/posts'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
 import EditorActions, {
@@ -42,6 +42,8 @@ import { useAuth } from '@/lib/contexts/AuthContext'
 import { PRIVACY_ORDER, PrivacyLevel } from '@/lib/api/privacy'
 import { Link } from 'expo-router'
 import { clsx } from 'clsx'
+import EditorCornerMenu from '@/components/editor/EditorCornerMenu'
+import PostingAsSelector from '@/components/editor/PostingAsSelector'
 
 export default function EditorView() {
   const {
@@ -86,7 +88,7 @@ export default function EditorView() {
   const uploadMutation = useMediaUploadMutation()
   const createMutation = useCreatePostMutation()
 
-  function canPublish() {
+  function computeCanPublish() {
     if (createMutation.isPending || uploadMutation.isPending) {
       return false
     }
@@ -103,6 +105,7 @@ export default function EditorView() {
       form.contentWarning.length > 0
     )
   }
+  const canPublish = computeCanPublish()
 
   const mentionApi = useMentions({
     value: form.content,
@@ -113,8 +116,8 @@ export default function EditorView() {
 
   const maxPrivacy = reply?.posts[0].privacy
 
-  function onPublish() {
-    if (!canPublish()) {
+  function onPublish(extra?: Partial<CreatePostPayload>) {
+    if (!computeCanPublish()) {
       return
     }
 
@@ -165,13 +168,11 @@ export default function EditorView() {
       postingAccountId: form.postingAs,
       canQuote: form.canQuote,
       canReply: form.canReply,
+      ...extra,
     })
   }
 
   const actions = {
-    selectPostingAs: (userId: string) => {
-      setForm({ ...form, postingAs: userId })
-    },
     insertCharacter: (character: string) => {
       const text = mentionApi.mentionState.plainText
       const textBeforeCursor = text.substring(0, selection.start)
@@ -270,11 +271,21 @@ export default function EditorView() {
         }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View className="flex-row gap-2 justify-between items-center px-2">
+        <View className="flex-row justify-between items-center px-2">
           <Link href="../" className="rounded-full p-1">
             <MaterialIcons name="close" color="white" size={20} />
           </Link>
-          <View>
+          <Link asChild href="/drafts">
+            <Pressable className="border-gray-600 border active:bg-white/30 px-2 py-1 rounded-xl flex-row items-center gap-2">
+              <MaterialCommunityIcons
+                name="archive-edit-outline"
+                color={gray300}
+                size={20}
+              />
+              <Text className="text-white">Drafts</Text>
+            </Pressable>
+          </Link>
+          {/* <View>
             <PrivacySelect
               options={privacyOptions}
               privacy={form.privacy}
@@ -285,13 +296,13 @@ export default function EditorView() {
               disabled={privacySelectDisabled}
               invertMaxPrivacy={params.type === 'edit'}
             />
-          </View>
+          </View> */}
           <View className="grow"></View>
           <Pressable
             disabled={!canPublish}
-            onPress={onPublish}
+            onPress={() => onPublish()}
             className={clsx(
-              'px-4 py-2 my-2 rounded-full flex-row items-center gap-2',
+              'h-10 pl-4 pr-3 py-2 my-2 rounded-l-full flex-row items-center gap-2',
               {
                 'bg-cyan-800': canPublish,
                 'bg-gray-400/25 opacity-50': !canPublish,
@@ -301,10 +312,25 @@ export default function EditorView() {
             {isLoading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <MaterialCommunityIcons name="send" color="white" size={20} />
+              <MaterialCommunityIcons
+                name={
+                  form.privacy === PrivacyLevel.DRAFT
+                    ? 'content-save-edit'
+                    : 'send'
+                }
+                color="white"
+                size={20}
+              />
             )}
-            <Text className="font-medium text-white">Publish</Text>
+            <Text className="font-medium text-white">
+              {form.privacy === PrivacyLevel.DRAFT ? 'Save' : 'Publish'}
+            </Text>
           </Pressable>
+          <EditorCornerMenu
+            privacy={form.privacy}
+            onPublish={onPublish}
+            canPublish={canPublish}
+          />
         </View>
         <ScrollView
           id="editor-scroll"
@@ -353,21 +379,43 @@ export default function EditorView() {
             setImages={(images) => update('medias', images)}
             disableForceAltText={disableForceAltText}
           />
-          {replyLabel ? (
-            <View className="px-3 pt-3">
-              <Text className="text-gray-300 text-sm">{replyLabel}</Text>
+          <View className="mx-2 mt-3 rounded-lg bg-indigo-950">
+            <View className="flex-row items-center px-3 py-3 gap-3">
+              <PostingAsSelector
+                selectedUserId={form.postingAs}
+                setSelectedUserId={(userId) => {
+                  setForm({ ...form, postingAs: userId })
+                }}
+              />
+              <Text className="text-white text-sm">is {replyLabel}</Text>
+              <View className="grow" />
+              <Text className="text-white text-sm">in</Text>
+              <View className="shrink">
+                <PrivacySelect
+                  options={privacyOptions}
+                  privacy={form.privacy}
+                  setPrivacy={(p: PrivacyLevel) => {
+                    setForm({ ...form, privacy: p })
+                  }}
+                  maxPrivacy={maxPrivacy}
+                  disabled={privacySelectDisabled}
+                  invertMaxPrivacy={params.type === 'edit'}
+                />
+              </View>
             </View>
-          ) : null}
+          </View>
           {reply ? (
             <PostFragment
               post={reply.posts[0]}
               collapsible={false}
               clickable={false}
               hasCornerMenu={false}
-              className="mx-2 mt-1 rounded-lg"
+              className="mx-2 mt-2 rounded-lg"
             />
           ) : null}
-          {ask ? <AskCard className="mx-2 mt-1" ask={ask} /> : null}
+          {ask ? (
+            <AskCard className="mx-2 mt-2 bg-indigo-950 border-0" ask={ask} />
+          ) : null}
         </ScrollView>
         <EditorActions actions={actions} form={form} />
       </KeyboardAvoidingView>

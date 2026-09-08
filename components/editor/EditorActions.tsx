@@ -15,11 +15,9 @@ import { useCSSString } from '@/lib/cssVariables'
 import InteractionControlMenu from './InteractionControlMenu'
 import { InteractionControlChange } from '@/lib/interactionControl'
 import { useLocalSearchParams } from 'expo-router'
-import PostingAsSelector from './PostingAsSelector'
 
 export type EditorActionProps = {
   actions: {
-    selectPostingAs: (userId: string) => void
     insertCharacter: (character: string) => void
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
@@ -103,10 +101,6 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
         keyboardShouldPersistTaps="always"
         horizontal
       >
-        <PostingAsSelector
-          selectedUserId={form.postingAs}
-          setSelectedUserId={actions.selectPostingAs}
-        />
         <InteractionControlMenu
           canReply={form.canReply}
           canQuote={form.canQuote}
