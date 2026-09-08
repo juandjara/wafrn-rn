@@ -19,7 +19,7 @@ export default function SchedulePostModal({
   onPublish: (extra?: Partial<CreatePostPayload>) => void
 }) {
   const gray600 = useCSSString('--color-gray-600')
-  const [datepickerOpen, setdatepickerOpen] = useState<'date' | 'time' | null>(
+  const [datepickerOpen, setDatepickerOpen] = useState<'date' | 'time' | null>(
     null,
   )
   const now = Date.now()
@@ -42,7 +42,7 @@ export default function SchedulePostModal({
           value={new Date(datetime)}
           minimumDate={today}
           onChange={(ev) => {
-            setdatepickerOpen(null)
+            setDatepickerOpen(null)
             if (ev.type === 'set') {
               setDatetime(ev.nativeEvent.timestamp)
             }
@@ -69,7 +69,7 @@ export default function SchedulePostModal({
             <View className="grow">
               <Text className="text-sm text-gray-400">Date:</Text>
               <Pressable
-                onPress={() => setdatepickerOpen('date')}
+                onPress={() => setDatepickerOpen('date')}
                 className="flex-row items-center gap-1 rounded-lg border border-gray-500 p-2"
               >
                 <Text className="grow text-gray-300">
@@ -85,7 +85,7 @@ export default function SchedulePostModal({
             <View className="grow">
               <Text className="text-sm text-gray-400">Time:</Text>
               <Pressable
-                onPress={() => setdatepickerOpen('time')}
+                onPress={() => setDatepickerOpen('time')}
                 className="flex-row items-center gap-1 rounded-lg border border-gray-500 p-2"
               >
                 <Text className="grow text-gray-300">
