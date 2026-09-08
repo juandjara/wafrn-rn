@@ -229,6 +229,8 @@ export async function createPost(
       mentionedUserIds: payload.mentionedUserIds,
       canQuote: payload.canQuote,
       canReply: payload.canReply,
+      queuedPostPublishing: payload.queuedPostPublishing,
+      publishAt: payload.publishAt,
     }),
   })
   await arbitraryWaitPostQueue()
