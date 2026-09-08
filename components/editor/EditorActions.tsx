@@ -26,7 +26,6 @@ export type EditorActionProps = {
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
     toggleCW: () => void
-    setPostingAs: (userId: string) => void
     onInteractionControlChange: (change: InteractionControlChange) => void
   }
   form: EditorFormState

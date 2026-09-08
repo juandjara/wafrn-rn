@@ -248,7 +248,6 @@ export default function EditorView() {
     toggleCW: () => {
       update('contentWarningOpen', !form.contentWarningOpen)
     },
-    setPostingAs: (userId: string) => update('postingAs', userId),
     onInteractionControlChange: ({ canQuote, interactionControl }) => {
       update('canQuote', canQuote)
       update('canReply', interactionControl)
