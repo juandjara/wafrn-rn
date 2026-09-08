@@ -299,7 +299,7 @@ export default function EditorView() {
               },
             )}
           >
-            {isLoading ? (
+            {createMutation.isPending ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
               <MaterialCommunityIcons
