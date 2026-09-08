@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import {
   ActivityIndicator,
   Keyboard,
@@ -20,7 +20,6 @@ import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'
 import EditorActions, {
   EditorActionProps,
-  EditorActionRef,
 } from '@/components/editor/EditorActions'
 import ImageList from '@/components/editor/EditorImages'
 import EditorInput from '@/components/editor/EditorInput'
@@ -45,6 +44,8 @@ import { Link } from 'expo-router'
 import { clsx } from 'clsx'
 import EditorCornerMenu from '@/components/editor/EditorCornerMenu'
 import PostingAsSelector from '@/components/editor/PostingAsSelector'
+import BottomSheet from '@/components/BottomSheet'
+import InteractionControlPicker from '@/components/InteractionControlPicker'
 
 export default function EditorView() {
   const {
@@ -65,7 +66,7 @@ export default function EditorView() {
   const [_mentions, setMentions] = useState<PostUser[] | null>(null)
   const [_form, setForm] = useState<EditorFormState | null>(null)
   const [cornerMenuOpen, setCornerMenuOpen] = useState(false)
-  const editorActionsRef = useRef<EditorActionRef>(null)
+  const [interactionPickerOpen, setInteractionPickerOpen] = useState(false)
 
   const mentions = _mentions ? _mentions : mentionedUsers
   const form = _form || formState
@@ -249,10 +250,7 @@ export default function EditorView() {
     toggleCW: () => {
       update('contentWarningOpen', !form.contentWarningOpen)
     },
-    onInteractionControlChange: ({ canQuote, interactionControl }) => {
-      update('canQuote', canQuote)
-      update('canReply', interactionControl)
-    },
+    setInteractionPickerOpen,
   } satisfies EditorActionProps['actions']
 
   const { env } = useAuth()
@@ -418,11 +416,7 @@ export default function EditorView() {
                   bottom={
                     <Pressable
                       className="px-4 py-2 active:opacity-50"
-                      onPress={() => {
-                        editorActionsRef.current?.setInteractionControlOpen(
-                          true,
-                        )
-                      }}
+                      onPress={() => setInteractionPickerOpen(true)}
                     >
                       <Text>
                         Who can interact with this post?{' '}
@@ -447,7 +441,22 @@ export default function EditorView() {
             <AskCard className="mx-2 mt-2 bg-indigo-950 border-0" ask={ask} />
           ) : null}
         </ScrollView>
-        <EditorActions ref={editorActionsRef} actions={actions} form={form} />
+        <BottomSheet
+          className="bg-indigo-950"
+          open={interactionPickerOpen}
+          setOpen={setInteractionPickerOpen}
+        >
+          <InteractionControlPicker
+            title="Who can interact with this post?"
+            canReply={form.canReply}
+            canQuote={form.canQuote}
+            onChange={({ canQuote, interactionControl }) => {
+              update('canQuote', canQuote)
+              update('canReply', interactionControl)
+            }}
+          />
+        </BottomSheet>
+        <EditorActions actions={actions} form={form} />
       </KeyboardAvoidingView>
     </DashboardContextProvider>
   )

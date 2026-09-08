@@ -3,7 +3,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
-import { useImperativeHandle, useState } from 'react'
+import { useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
 import ColorPicker from './ColorPicker'
 import { launchImageLibraryAsync } from 'expo-image-picker'
@@ -12,13 +12,9 @@ import EmojiPicker from '../EmojiPicker'
 import GifSearch from './GifSearch'
 import { EditorFormState, EditorImage, EditorSearchParams } from '@/lib/editor'
 import { useCSSString } from '@/lib/cssVariables'
-import InteractionControlMenu from './InteractionControlMenu'
-import { InteractionControlChange } from '@/lib/interactionControl'
 import { useLocalSearchParams } from 'expo-router'
-
-export type EditorActionRef = {
-  setInteractionControlOpen: (flag: boolean) => void
-}
+import { InteractionControl } from '@/lib/api/posts.types'
+import { clsx } from 'clsx'
 
 export type EditorActionProps = {
   actions: {
@@ -26,29 +22,25 @@ export type EditorActionProps = {
     wrapSelection: (start: string, end?: string) => void
     addImages: (images: EditorImage[]) => void
     toggleCW: () => void
-    onInteractionControlChange: (change: InteractionControlChange) => void
+    setInteractionPickerOpen: (flag: boolean) => void
   }
   form: EditorFormState
-  ref: React.Ref<EditorActionRef>
 }
 
-export default function EditorActions({
-  actions,
-  form,
-  ref,
-}: EditorActionProps) {
+export default function EditorActions({ actions, form }: EditorActionProps) {
   const { type } = useLocalSearchParams<EditorSearchParams>()
   const interactionControlDisabled = type === 'edit' || type === 'reply'
+  const isInteractionControlModified =
+    (form.canReply !== InteractionControl.Anyone &&
+      form.canReply !== InteractionControl.SameAsOp) ||
+    !form.canQuote
 
   const { contentWarningOpen } = form
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCanvas, setShowCanvas] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showGifPicker, setShowGifPicker] = useState(false)
-  const [interactionControlOpen, setInteractionControlOpen] = useState(false)
   const yellow500 = useCSSString('--color-yellow-500')
-
-  useImperativeHandle(ref, () => ({ setInteractionControlOpen }))
 
   function colorSelection(color: string) {
     actions.wrapSelection(`[fg=${color}](`, ')')
@@ -112,14 +104,22 @@ export default function EditorActions({
         keyboardShouldPersistTaps="always"
         horizontal
       >
-        <InteractionControlMenu
-          open={interactionControlOpen}
-          setOpen={setInteractionControlOpen}
-          canReply={form.canReply}
-          canQuote={form.canQuote}
-          onChange={actions.onInteractionControlChange}
+        <Pressable
+          onPress={() => actions.setInteractionPickerOpen(true)}
+          accessibilityLabel={`Interaction Control: ${isInteractionControlModified ? 'Restricted' : 'Open'}`}
           disabled={interactionControlDisabled}
-        />
+          className={clsx('active:bg-white/50 bg-white/15 p-2 rounded-full', {
+            'opacity-50 pointer-events-none': interactionControlDisabled,
+          })}
+        >
+          <MaterialCommunityIcons
+            name={
+              isInteractionControlModified ? 'lock-outline' : 'lock-off-outline'
+            }
+            color="white"
+            size={24}
+          />
+        </Pressable>
         <Pressable
           onPress={() => setShowEmojiPicker(true)}
           className="active:bg-white/50 bg-white/15 p-2 rounded-full"
