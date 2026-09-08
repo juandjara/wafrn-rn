@@ -14,7 +14,7 @@ export default function AskCard({
   return (
     <View
       className={clsx(
-        'p-2 border border-gray-600 rounded-xl bg-gray-500/10',
+        'p-2 border border-gray-600 rounded-lg bg-gray-500/10',
         className,
       )}
     >
