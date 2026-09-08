@@ -6,6 +6,7 @@ import { clsx } from 'clsx'
 import { useCSSString } from '@/lib/cssVariables'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { CreatePostPayload } from '@/lib/api/posts'
+import dayjs from 'dayjs'
 
 const ONE_DAY = 24 * 60 * 60 * 1000
 
@@ -54,11 +55,12 @@ export default function SchedulePostModal({
           Select the date your woot will be published
         </Text>
         {Platform.OS === 'web' ? (
-          <View className="my-2 mx-3 p-2 border rounded-md border-gray-500">
+          <View className="focus-within:ring-2 ring-sky-600 my-4 mx-3 p-2 border rounded-md border-gray-500">
             <input
-              style={{ color: '#333' }}
+              className="outline-0"
               type="datetime-local"
-              value={datetime.toString()}
+              value={dayjs(datetime).format('YYYY-MM-DDTHH:mm')}
+              min={dayjs(now).format('YYYY-MM-DDTHH:mm')}
               onChange={(ev) => {
                 setDatetime(Date.parse(ev.target.value))
               }}
