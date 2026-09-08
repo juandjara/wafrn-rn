@@ -33,9 +33,8 @@ export default function BlueskySettings() {
         visible={showPrompt}
         title="Enter your Wafrn password"
         inputProps={{
-          placeholder: 'password',
+          placeholder: 'Password',
           secureTextEntry: true,
-          keyboardType: 'visible-password',
         }}
         onClose={() => setShowPrompt(false)}
         onConfirm={(password) => {
