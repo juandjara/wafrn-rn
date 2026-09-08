@@ -64,6 +64,7 @@ export default function EditorView() {
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [_mentions, setMentions] = useState<PostUser[] | null>(null)
   const [_form, setForm] = useState<EditorFormState | null>(null)
+  const [cornerMenuOpen, setCornerMenuOpen] = useState(false)
   const editorActionsRef = useRef<EditorActionRef>(null)
 
   const mentions = _mentions ? _mentions : mentionedUsers
@@ -315,10 +316,28 @@ export default function EditorView() {
               {form.privacy === PrivacyLevel.DRAFT ? 'Save' : 'Publish'}
             </Text>
           </Pressable>
+          <Pressable
+            disabled={!canPublish}
+            onPress={() => setCornerMenuOpen(true)}
+            className={clsx(
+              'h-10 border-l border-gray-400 p-2 px-1.5 my-2 rounded-r-full',
+              {
+                'bg-cyan-800': canPublish,
+                'bg-gray-400/25 opacity-50': !canPublish,
+              },
+            )}
+          >
+            <MaterialCommunityIcons
+              name="chevron-down"
+              color="white"
+              size={24}
+            />
+          </Pressable>
           <EditorCornerMenu
+            open={cornerMenuOpen}
+            setOpen={setCornerMenuOpen}
             privacy={form.privacy}
             onPublish={onPublish}
-            canPublish={canPublish}
           />
         </View>
         <ScrollView

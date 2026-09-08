@@ -1,6 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { Pressable, View } from 'react-native'
-import { clsx } from 'clsx'
+import { View } from 'react-native'
 import { useState } from 'react'
 import { useCSSString } from '@/lib/cssVariables'
 import BottomSheet from '../BottomSheet'
@@ -11,16 +10,17 @@ import { PrivacyLevel } from '@/lib/api/privacy'
 import SchedulePostModal from './SchedulePostModal'
 
 export default function EditorCornerMenu({
+  open,
+  setOpen,
   privacy,
   onPublish,
-  canPublish,
 }: {
+  open: boolean
+  setOpen: (flag: boolean) => void
   privacy: PrivacyLevel
   onPublish: (extra?: Partial<CreatePostPayload>) => void
-  canPublish: boolean
 }) {
   const gray600 = useCSSString('--color-gray-600')
-  const [open, setOpen] = useState(false)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const isDraft = privacy === PrivacyLevel.DRAFT
 
@@ -64,20 +64,6 @@ export default function EditorCornerMenu({
 
   return (
     <>
-      <Pressable
-        disabled={!canPublish}
-        onPress={() => setOpen(true)}
-        className={clsx(
-          'h-10 border-l border-gray-400 p-2 px-1.5 my-2 rounded-r-full',
-          {
-            'bg-cyan-800': canPublish,
-            'bg-gray-400/25 opacity-50': !canPublish,
-          },
-        )}
-      >
-        <MaterialCommunityIcons name="chevron-down" color="white" size={24} />
-      </Pressable>
-
       {scheduleModalOpen && (
         <SchedulePostModal
           onPublish={onPublish}
