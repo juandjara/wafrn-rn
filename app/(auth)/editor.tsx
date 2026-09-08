@@ -285,18 +285,6 @@ export default function EditorView() {
               <Text className="text-white">Drafts</Text>
             </Pressable>
           </Link>
-          {/* <View>
-            <PrivacySelect
-              options={privacyOptions}
-              privacy={form.privacy}
-              setPrivacy={(p: PrivacyLevel) => {
-                setForm({ ...form, privacy: p })
-              }}
-              maxPrivacy={maxPrivacy}
-              disabled={privacySelectDisabled}
-              invertMaxPrivacy={params.type === 'edit'}
-            />
-          </View> */}
           <View className="grow"></View>
           <Pressable
             disabled={!canPublish}
