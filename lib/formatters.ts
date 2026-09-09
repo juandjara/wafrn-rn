@@ -4,11 +4,6 @@ import { getEnvironmentStatic } from './api/auth'
 
 dayjs.extend(relativeTime)
 
-export function formatCachedUrl(url: string) {
-  const env = getEnvironmentStatic()
-  return `${env?.CACHE_URL}${encodeURIComponent(url)}`
-}
-
 export function formatMediaUrl(url?: string, mediaUrl?: string) {
   if (!url) {
     return ''
@@ -79,4 +74,9 @@ export function formatEmojiUrl(emojiId: string, instanceUrl?: string) {
   const env = getEnvironmentStatic()
   const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
   return `${baseUrl}/api/v2/cache/emoji/${emojiId}`
+}
+export function formatFaviconUrl(pageUrl: string, instanceUrl?: string) {
+  const env = getEnvironmentStatic()
+  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
+  return `${baseUrl}/api/v2/cache/favicon/${encodeURIComponent(pageUrl)}`
 }

@@ -14,7 +14,7 @@ import { PrivateOptionNames, PublicOption, PublicOptionNames } from './settings'
 import { BSKY_HOST } from './html'
 import { toggleFollowUser } from '../interaction'
 import type { MediaUploadPayload } from './media'
-import { formatAvatarUrl, formatCachedUrl, formatUserUrl } from '../formatters'
+import { formatAvatarUrl, formatFaviconUrl, formatUserUrl } from '../formatters'
 import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { getUploadableFile } from '@/lib/files'
@@ -858,17 +858,10 @@ const fediLogo = require('@/assets/images/fediverse_logo.svg')
 const bigW = require('@/assets/images/logo_w.png')
 
 export function getIconFromInstance(user: User) {
-  if (!user.federatedHost) {
+  if (!user.federatedHost?.publicInbox) {
     return null
   }
-  try {
-    const url = new URL(user.federatedHost.publicInbox)
-    url.pathname = '/favicon.ico'
-    const uri = formatCachedUrl(url.toString())
-    return { uri }
-  } catch {
-    return null
-  }
+  return { uri: formatFaviconUrl(user.federatedHost.publicInbox) }
 }
 
 export function getUrlDecoration(user: User) {
