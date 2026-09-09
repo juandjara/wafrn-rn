@@ -70,13 +70,16 @@ export default function RpgActorModal({ did }: { did: string }) {
       {spriteLoading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <Pressable
-          onPress={() => setOpen(true)}
-          accessibilityLabel="See rpg.actor sprites for this user"
-          className="active:opacity-50 p-2 rounded-full bg-gray-700/50"
-        >
-          <Image source={rpgActorLogo} style={{ width: 36, height: 36 }} />
-        </Pressable>
+        <View>
+          <Pressable
+            onPress={() => setOpen(true)}
+            accessibilityLabel="See rpg.actor sprites for this user"
+            className="bg-gray-700/50 active:bg-gray-600 rounded-full p-2"
+          >
+            <Image source={rpgActorLogo} style={{ width: 36, height: 36 }} />
+          </Pressable>
+          <Text className="mt-2 text-gray-300 text-sm text-center">RPG</Text>
+        </View>
       )}
       {open && (
         <BottomSheet className="bg-indigo-950" open setOpen={setOpen}>
