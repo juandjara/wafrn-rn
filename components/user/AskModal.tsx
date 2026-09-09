@@ -67,7 +67,7 @@ export default function AskModal({
         <Pressable
           accessibilityLabel="Ask a question"
           onPress={() => setOpen(true)}
-          className="bg-gray-700/50 rounded-full p-3"
+          className="bg-gray-700/50 active:bg-gray-600 rounded-full p-3"
         >
           <FontAwesome name="envelope-o" color="white" size={24} />
         </Pressable>

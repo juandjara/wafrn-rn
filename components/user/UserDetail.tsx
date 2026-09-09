@@ -240,7 +240,7 @@ export default function UserDetail({ user }: { user: User }) {
             >
               <Pressable
                 accessibilityLabel="Direct Message"
-                className="bg-gray-700/50 rounded-full p-3"
+                className="bg-gray-700/50 active:bg-gray-600 rounded-full p-3"
               >
                 <AntDesign name="message" color="white" size={24} />
               </Pressable>
@@ -250,9 +250,12 @@ export default function UserDetail({ user }: { user: User }) {
           {isMe ? null : (
             <View>
               <Pressable
-                className={clsx('bg-gray-700/50 rounded-full p-3', {
-                  'opacity-50 pointer-events-none': biteMutation.isPending,
-                })}
+                className={clsx(
+                  'bg-gray-700/50 active:bg-gray-600 rounded-full p-3',
+                  {
+                    'opacity-50 pointer-events-none': biteMutation.isPending,
+                  },
+                )}
                 disabled={biteMutation.isPending}
                 onPress={() => biteMutation.mutate(user.id)}
                 accessibilityLabel={getCookieLabel()}
