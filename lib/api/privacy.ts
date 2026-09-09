@@ -31,7 +31,7 @@ export const PRIVACY_DESCRIPTIONS = {
   [PrivacyLevel.UNLISTED]:
     'Visible to everyone but does not appear in searches or public feeds',
   [PrivacyLevel.DIRECT_MESSAGE]: 'Visible to mentioned users only',
-  [PrivacyLevel.DRAFT]: `Visible only to you, won't federate to other platforms or create any notifications`,
+  [PrivacyLevel.DRAFT]: `Visible only to you, won't be sent to other places or notify anyone`,
 }
 
 // names for MaterialCommunityIcons
