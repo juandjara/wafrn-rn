@@ -28,6 +28,12 @@ export type PostInteractionControl = {
   canQuote: boolean
 }
 
+export enum Exclusivity {
+  None = 0,
+  Fediverse = 1,
+  Bluesky = 2,
+}
+
 export type Post = {
   id: string
   content_warning: string
@@ -49,6 +55,7 @@ export type Post = {
   bskyCid?: string
   bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>
   displayUrl: string | null // for cases of bridging and such
+  exclusivity?: Exclusivity
 } & PostInteractionControl
 export type PostThread = Post & {
   ancestors: Post[]

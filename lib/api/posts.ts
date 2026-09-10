@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { getJSON, statusError, StatusError } from '../http'
 import {
   DashboardData,
+  Exclusivity,
   InteractionControl,
   Post,
   PostUser,
@@ -189,6 +190,7 @@ export type CreatePostPayload = {
   canReply: InteractionControl
   queuedPostPublishing?: boolean
   publishAt?: number // unix timestamp
+  exclusivity?: Exclusivity
 }
 
 export async function wait(ms: number) {
@@ -231,6 +233,7 @@ export async function createPost(
       canReply: payload.canReply,
       queuedPostPublishing: payload.queuedPostPublishing,
       publishAt: payload.publishAt,
+      exclusivity: payload.exclusivity,
     }),
   })
   await arbitraryWaitPostQueue()

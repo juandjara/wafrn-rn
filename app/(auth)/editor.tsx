@@ -33,7 +33,7 @@ import {
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
 import Loading from '@/components/Loading'
-import { PostUser } from '@/lib/api/posts.types'
+import { Exclusivity, PostUser } from '@/lib/api/posts.types'
 import { useCSSString } from '@/lib/cssVariables'
 import { Colors } from '@/constants/Colors'
 import AskCard from '@/components/posts/Ask'
@@ -46,6 +46,7 @@ import EditorCornerMenu from '@/components/editor/EditorCornerMenu'
 import PostingAsSelector from '@/components/editor/PostingAsSelector'
 import BottomSheet from '@/components/BottomSheet'
 import InteractionControlPicker from '@/components/InteractionControlPicker'
+import RadioGroup from '@/components/RadioGroup'
 
 export default function EditorView() {
   const {
@@ -60,7 +61,10 @@ export default function EditorView() {
     replyLabel,
     privacySelectDisabled,
   } = useEditorData()
+
   const gray300 = useCSSString('--color-gray-300')
+  const gray800 = useCSSString('--color-gray-800')
+
   const sx = useSafeAreaPadding()
   const [selection, setSelection] = useState({ start: 0, end: 0 })
   const [_mentions, setMentions] = useState<PostUser[] | null>(null)
@@ -120,6 +124,18 @@ export default function EditorView() {
 
   const maxPrivacy = reply?.posts[0].privacy
 
+  function computeExclusivityDisabled() {
+    let disabled = form.privacy !== PrivacyLevel.PUBLIC
+    // editing exclusivity would have no effect if the post was already federated
+    if (reply) {
+      const replyIsDraft = reply?.posts[0].privacy === PrivacyLevel.DRAFT
+      // only allow editing exclusivity if editing a draft
+      disabled = disabled || !replyIsDraft
+    }
+    return disabled
+  }
+  const exclusivityToggleDisabled = computeExclusivityDisabled()
+
   function onPublish(extra?: Partial<CreatePostPayload>) {
     if (!canPublish) {
       return
@@ -172,6 +188,7 @@ export default function EditorView() {
       postingAccountId: form.postingAs,
       canQuote: form.canQuote,
       canReply: form.canReply,
+      exclusivity: form.exclusivity,
       ...extra,
     })
   }
@@ -399,19 +416,48 @@ export default function EditorView() {
               <View className="shrink">
                 <PrivacySelect
                   title={
-                    <View className="p-4 pt-2">
-                      <Text className="text-lg font-medium">
-                        Select posting mode
-                      </Text>
-                      <Text className="text-gray-500 font-medium">
-                        Who can read this post?
-                      </Text>
-                    </View>
+                    <>
+                      <View className="px-4 py-2">
+                        <Text className="text-lg font-medium">
+                          Select posting mode
+                        </Text>
+                        <Text className="text-gray-500 font-medium">
+                          Who can read this post?
+                        </Text>
+                      </View>
+                      <View className="my-1.5 px-2">
+                        <RadioGroup<Exclusivity>
+                          value={form.exclusivity ?? Exclusivity.None}
+                          onValueChange={(val) => update('exclusivity', val)}
+                          color={gray800}
+                          disabled={exclusivityToggleDisabled}
+                          options={[
+                            {
+                              value: Exclusivity.None,
+                              label: 'Both',
+                            },
+                            {
+                              value: Exclusivity.Fediverse,
+                              label: 'Fedi only',
+                            },
+                            {
+                              value: Exclusivity.Bluesky,
+                              label: 'Bsky only',
+                            },
+                          ]}
+                        />
+                      </View>
+                    </>
                   }
                   smallLabels
                   options={privacyOptions}
                   privacy={form.privacy}
-                  setPrivacy={(p: PrivacyLevel) => update('privacy', p)}
+                  setPrivacy={(p: PrivacyLevel) => {
+                    update('privacy', p)
+                    if (p !== PrivacyLevel.PUBLIC) {
+                      update('exclusivity', Exclusivity.Fediverse)
+                    }
+                  }}
                   maxPrivacy={maxPrivacy}
                   disabled={privacySelectDisabled}
                   invertMaxPrivacy={params.type === 'edit'}

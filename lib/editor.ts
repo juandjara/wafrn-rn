@@ -15,7 +15,7 @@ import {
   combineDashboardContextPages,
 } from './api/dashboard'
 import { useAsks } from './asks'
-import { InteractionControl, PostUser } from './api/posts.types'
+import { Exclusivity, InteractionControl, PostUser } from './api/posts.types'
 import { useShareIntentContext } from 'expo-share-intent'
 
 export type EditorSearchParams = {
@@ -53,6 +53,7 @@ export type EditorFormState = {
   postingAs: string // user id
   canQuote: boolean
   canReply: InteractionControl
+  exclusivity?: Exclusivity
 }
 
 export type EditorImage = {
@@ -188,6 +189,7 @@ export function useEditorData() {
       replyLabel = 'replying'
       const replyPost = reply.posts[0]
       if (replyPost) {
+        formState.exclusivity = replyPost.exclusivity
         formState.privacy = isLessPrivateThan(replyPost.privacy, defaultPrivacy)
           ? defaultPrivacy
           : replyPost.privacy
