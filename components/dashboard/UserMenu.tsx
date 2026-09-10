@@ -6,7 +6,7 @@ import { Image } from 'expo-image'
 import {
   FontAwesome,
   MaterialCommunityIcons,
-  Octicons,
+  MaterialIcons,
 } from '@expo/vector-icons'
 import { optionStyleBig, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
@@ -60,15 +60,20 @@ export default function UserMenu({ size }: { size?: number }) {
         action: () => router.navigate('/bookmarks'),
       },
       {
+        icon: <MaterialIcons name="schedule" color={gray600} size={20} />,
+        label: 'Scheduled posts',
+        action: () => router.navigate('/setting/scheduled-posts'),
+      },
+      {
+        icon: 'layers-outline' as const,
+        label: 'Queued posts',
+        action: () => router.navigate('/setting/queued-posts'),
+      },
+      {
         icon: 'archive-edit-outline' as const,
         label: 'Drafts',
         action: () => router.navigate('/drafts'),
         hidden: !env?.ENABLE_DRAFTS,
-      },
-      {
-        icon: <Octicons name="hash" size={20} color={gray600} />,
-        label: 'Followed hashtags',
-        action: () => router.navigate('/followed-hashtags'),
       },
       {
         icon: 'shield-outline' as const,
@@ -192,14 +197,6 @@ export default function UserMenu({ size }: { size?: number }) {
                 />
               </TouchableOpacity>
             </View>
-          </View>
-          <View style={{ ...optionStyleBig(0) }}>
-            <MaterialCommunityIcons
-              name="account-outline"
-              color={gray600}
-              size={20}
-            />
-            <Text className="text-sm grow">My profile</Text>
           </View>
         </Pressable>
         {menuOptions.map((option, i) => (

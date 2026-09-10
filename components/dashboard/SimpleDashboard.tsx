@@ -6,7 +6,13 @@ import { DashboardMode, dashboardQueryKey } from '@/lib/api/dashboard'
 import { View } from 'react-native'
 import RefreshButton from '../RefreshButton'
 
-export default function SimpleDashboard({ mode }: { mode: DashboardMode }) {
+export default function SimpleDashboard({
+  title,
+  mode,
+}: {
+  title: React.ReactNode
+  mode: DashboardMode
+}) {
   const headerInset = useHeaderInset()
   const ref = useRef<DashboardRef>(null)
   const isFetching =
@@ -23,7 +29,7 @@ export default function SimpleDashboard({ mode }: { mode: DashboardMode }) {
   return (
     <View className="flex-1">
       <Header
-        title="Muted Posts"
+        title={title}
         right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
       />
       <View style={{ flex: 1, marginTop: headerInset }}>
