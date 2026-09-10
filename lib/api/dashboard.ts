@@ -27,6 +27,8 @@ export enum DashboardMode {
   MUTED_POSTS = 25,
   BOOKMARKS = 50,
   DRAFTS = 30,
+  SCHEDULED_POSTS = 60,
+  QUEUED_POSTS = 61,
 }
 
 export async function getDashboard({
