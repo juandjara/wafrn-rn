@@ -35,7 +35,12 @@ import {
   getTextFromMentionState,
 } from '@/lib/api/content'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { EditorFormState, EditorImage, useEditorData } from '@/lib/editor'
+import {
+  EditorFormState,
+  EditorImage,
+  slugify,
+  useEditorData,
+} from '@/lib/editor'
 import Loading from '@/components/Loading'
 import { Exclusivity, PostUser } from '@/lib/api/posts.types'
 import { useCSSString } from '@/lib/cssVariables'
@@ -171,6 +176,7 @@ export default function EditorView() {
       new Set([...editorMentionedUserIds, ...mentions.map((u) => u.id)]),
     )
 
+    const slug = slugify(form.articleSlug ?? form.articleTitle ?? '')
     createMutation.mutate({
       content: text,
       parentId: params.type === 'reply' ? params.replyId : undefined,
@@ -194,7 +200,7 @@ export default function EditorView() {
       canReply: form.canReply,
       exclusivity: form.exclusivity,
       title: form.articleMode ? form.articleTitle : undefined,
-      slug: form.articleMode ? form.articleSlug : undefined,
+      slug: form.articleMode ? slug : undefined,
       ...extra,
     })
   }
