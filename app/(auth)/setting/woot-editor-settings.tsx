@@ -41,7 +41,7 @@ const OPTION_KEYS = [
   PrivateOptionNames.DefaultExclusivity,
 ] as const
 
-export default function PostingSettings() {
+export default function WootEditorSettings() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
   const { env } = useAuth()
@@ -54,7 +54,7 @@ export default function PostingSettings() {
   return (
     <View className="flex-1">
       <Header
-        title="Posting"
+        title="Woot Editor"
         right={<SaveButton onPress={() => submit()} isPending={isPending} />}
       />
       <KeyboardAwareScrollView
@@ -66,7 +66,7 @@ export default function PostingSettings() {
         }}
       >
         <View className="p-4">
-          <Text className="text-white mb-2">Default post privacy</Text>
+          <Text className="text-white mb-2">Default woot privacy</Text>
           <PrivacySelect
             className="p-3 pl-4"
             privacy={form[PrivateOptionNames.DefaultPostPrivacy]}

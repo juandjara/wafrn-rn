@@ -23,7 +23,7 @@ export default function PostingAsSelector({
   return (
     <>
       <Pressable
-        accessibilityLabel={`Posting as ${formatUserUrl(selectedAccount?.url)}`}
+        accessibilityLabel={`Wooting as ${formatUserUrl(selectedAccount?.url)}`}
         onPress={() => {
           Keyboard.dismiss()
           setOpen(true)
@@ -36,7 +36,7 @@ export default function PostingAsSelector({
       </Pressable>
       <BottomSheet initialFullHeight open={open} setOpen={setOpen}>
         <Text numberOfLines={1} className="p-4 text-lg font-medium">
-          Select the account you are posting as
+          Select the account you are wooting as
         </Text>
         {accounts.map((acc, i) => (
           <Pressable

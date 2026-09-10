@@ -65,7 +65,7 @@ export default function PrivacySelect({
           },
           className,
         )}
-        accessibilityLabel={`Posting mode: ${PRIVACY_LABELS[privacy]}`}
+        accessibilityLabel={`Selected privacy: ${PRIVACY_LABELS[privacy]}`}
         onPress={() => {
           Keyboard.dismiss()
           setOpen(true)

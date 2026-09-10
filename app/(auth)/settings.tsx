@@ -37,8 +37,8 @@ export default function Settings() {
       { header: 'Preferences' },
       {
         icon: 'pencil-outline' as const,
-        label: 'Posting',
-        link: '/setting/posting',
+        label: 'Woot editor',
+        link: '/setting/woot-editor-settings',
       },
       {
         icon: 'view-day-outline' as const,
