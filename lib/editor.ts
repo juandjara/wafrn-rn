@@ -144,6 +144,10 @@ export function useEditorData() {
       settings?.options || [],
       PrivateOptionNames.AutoAddContentWarning,
     )
+    const defaultExclusivity = getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.DefaultExclusivity,
+    )
 
     let ask = null
     let replyLabel = 'wooting'
@@ -162,6 +166,7 @@ export function useEditorData() {
       canQuote: defaultCanQuote !== InteractionControl.NoOne,
       canReply:
         params.type === 'reply' ? InteractionControl.SameAsOp : defaultCanReply,
+      exclusivity: defaultExclusivity,
     }
 
     if (params.type === 'ask') {
