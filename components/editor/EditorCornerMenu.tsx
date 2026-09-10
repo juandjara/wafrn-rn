@@ -1,4 +1,8 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
 import { Pressable, Text, View } from 'react-native'
 import { useState } from 'react'
 import { useCSSString } from '@/lib/cssVariables'
@@ -12,11 +16,15 @@ export default function EditorCornerMenu({
   setOpen,
   privacy,
   onPublish,
+  articleMode,
+  setArticleMode,
 }: {
   open: boolean
   setOpen: (flag: boolean) => void
   privacy: PrivacyLevel
   onPublish: (extra?: Partial<CreatePostPayload>) => void
+  articleMode: boolean
+  setArticleMode: (flag: boolean) => void
 }) {
   const gray600 = useCSSString('--color-gray-600')
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
@@ -40,6 +48,20 @@ export default function EditorCornerMenu({
           privacy: isDraft ? PrivacyLevel.PUBLIC : PrivacyLevel.DRAFT,
         })
       },
+    },
+    {
+      name: articleMode ? 'Convert back to woot' : 'Convert to article',
+      description: articleMode
+        ? 'Turn this article back into a simple woot'
+        : 'Turn this woot into an article with its separate title and its proper URL',
+      icon: (
+        <Ionicons
+          name={articleMode ? 'send' : 'newspaper-outline'}
+          color={gray600}
+          size={24}
+        />
+      ),
+      action: () => setArticleMode(!articleMode),
     },
     {
       name: 'Add to queue',

@@ -43,6 +43,22 @@ export type EditorSearchParams = {
     }
 )
 
+// unreserved URL characters (RFC 3986), same as the backend uses for validation
+const SLUG_CHARS = 'a-zA-Z0-9._~-'
+export const SLUG_REGEX = new RegExp(`^[${SLUG_CHARS}]+$`)
+const NON_SLUG_CHARS = new RegExp(`[^${SLUG_CHARS}]+`, 'g')
+const SLUG_MAX_LENGTH = 256
+
+export function slugify(text: string) {
+  return text
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '') // combining diacritics left over from NFKD
+    .toLowerCase()
+    .replace(NON_SLUG_CHARS, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, SLUG_MAX_LENGTH)
+}
+
 export type EditorFormState = {
   content: string
   contentWarning: string
@@ -54,6 +70,9 @@ export type EditorFormState = {
   canQuote: boolean
   canReply: InteractionControl
   exclusivity?: Exclusivity
+  articleMode?: boolean
+  articleTitle?: string
+  articleSlug?: string
 }
 
 export type EditorImage = {
@@ -313,6 +332,9 @@ export function useEditorData() {
       formState.privacy = post.privacy
       formState.contentWarning = post.content_warning || ''
       formState.contentWarningOpen = !!post.content_warning
+      formState.articleMode = !!post.slug
+      formState.articleTitle = post.title
+      formState.articleSlug = post.slug
 
       if (post.replyControl) {
         formState.canReply = post.replyControl

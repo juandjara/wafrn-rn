@@ -191,6 +191,8 @@ export type CreatePostPayload = {
   queuedPostPublishing?: boolean
   publishAt?: number // unix timestamp
   exclusivity?: Exclusivity
+  title?: string
+  slug?: string
 }
 
 export async function wait(ms: number) {
@@ -234,6 +236,8 @@ export async function createPost(
       queuedPostPublishing: payload.queuedPostPublishing,
       publishAt: payload.publishAt,
       exclusivity: payload.exclusivity,
+      title: payload.title,
+      slug: payload.slug,
     }),
   })
   await arbitraryWaitPostQueue()

@@ -12,7 +12,7 @@ import {
 import EditorSuggestions from './EditorSuggestions'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'
-import { EditorFormState } from '@/lib/editor'
+import { EditorFormState, slugify } from '@/lib/editor'
 import { useCSSString } from '@/lib/cssVariables'
 import { useFocusRing } from '@/lib/styles'
 import { clsx } from 'clsx'
@@ -101,11 +101,39 @@ export default function EditorInput({
     )
   }
 
+  const slug = slugify(formState.articleSlug ?? formState.articleTitle ?? '')
+
   return (
     <View
       id="editor"
       className={clsx('border border-gray-600 rounded-lg mx-2', ringClassName)}
     >
+      {formState.articleMode && (
+        <View>
+          <View className="border border-gray-600 rounded-md m-0.5">
+            <TextInput
+              numberOfLines={1}
+              style={inputProps.style}
+              placeholderTextColorClassName="accent-gray-500"
+              className="text-white py-2 px-3"
+              placeholder="Article title"
+              value={formState.articleTitle}
+              onChangeText={(text) => updateFormState('articleTitle', text)}
+            />
+          </View>
+          <View className="border border-gray-600 rounded-md m-0.5">
+            <TextInput
+              numberOfLines={1}
+              style={inputProps.style}
+              placeholderTextColorClassName="accent-gray-500"
+              className="text-white py-2 px-3"
+              placeholder="Article URL"
+              value={slug}
+              onChangeText={(text) => updateFormState('articleSlug', text)}
+            />
+          </View>
+        </View>
+      )}
       {formState.contentWarningOpen && (
         <View className="border border-yellow-500 pl-8 rounded-md m-0.5">
           {formState.contentWarning?.toLowerCase().includes('fedi meta') ? (

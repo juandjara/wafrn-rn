@@ -1,4 +1,8 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
 import { useState } from 'react'
 import {
   ActivityIndicator,
@@ -189,6 +193,8 @@ export default function EditorView() {
       canQuote: form.canQuote,
       canReply: form.canReply,
       exclusivity: form.exclusivity,
+      title: form.articleMode ? form.articleTitle : undefined,
+      slug: form.articleMode ? form.articleSlug : undefined,
       ...extra,
     })
   }
@@ -318,6 +324,8 @@ export default function EditorView() {
           >
             {createMutation.isPending ? (
               <ActivityIndicator size="small" color="white" />
+            ) : form.articleMode ? (
+              <Ionicons name="newspaper-outline" color="white" size={20} />
             ) : (
               <MaterialCommunityIcons
                 name={
@@ -355,6 +363,8 @@ export default function EditorView() {
             setOpen={setCornerMenuOpen}
             privacy={form.privacy}
             onPublish={onPublish}
+            articleMode={!!form.articleMode}
+            setArticleMode={(flag) => update('articleMode', flag)}
           />
         </View>
         <ScrollView

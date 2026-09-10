@@ -39,6 +39,11 @@ export const EXCLUSIVITY_LABELS = {
   [Exclusivity.Bluesky]: 'Only Bluesky',
 }
 
+type PostArticle = {
+  title?: string
+  slug?: string
+}
+
 export type Post = {
   id: string
   content_warning: string
@@ -61,7 +66,8 @@ export type Post = {
   bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>
   displayUrl: string | null // for cases of bridging and such
   exclusivity?: Exclusivity
-} & PostInteractionControl
+} & PostInteractionControl &
+  PostArticle
 export type PostThread = Post & {
   ancestors: Post[]
   notes: number
