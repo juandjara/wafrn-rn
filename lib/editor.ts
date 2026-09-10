@@ -229,9 +229,7 @@ export function useEditorData() {
         // generating mentionsPrefix and mentionedUserIds
         const userId = replyPost.userId
 
-        privacySelectDisabled =
-          !!replyPost.bskyUri &&
-          !!context.users[replyPost.userId]?.url.startsWith('@')
+        privacySelectDisabled = !!replyPost.isBskyExclusive
         if (privacySelectDisabled) {
           formState.privacy = PrivacyLevel.PUBLIC
         }
