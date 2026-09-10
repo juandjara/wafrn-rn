@@ -7,7 +7,7 @@ import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic } from './auth'
 import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
 import { BSKY_HOST } from './html'
-import { InteractionControl } from './posts.types'
+import { Exclusivity, InteractionControl } from './posts.types'
 
 export type EmojiGroupConfig = Timestamps & {
   id: string
@@ -86,6 +86,7 @@ export enum PrivateOptionNames {
   DisablePostCounts = 'wafrn.disablePostCounts',
   DisplayMentionsOfBlockedUsers = 'wafrn.displayMentionsOfBlockedUsersFromOtherUsers',
   DedupePostsInFeed = 'wafrn.dedupePostsInFeed',
+  DefaultExclusivity = 'wafrn.defaultExclusivity',
 }
 
 export enum RssOptions {
@@ -145,6 +146,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisablePostCounts]: boolean
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: boolean
   [PrivateOptionNames.DedupePostsInFeed]: boolean
+  [PrivateOptionNames.DefaultExclusivity]: Exclusivity
 }
 
 export enum MuteSource {
@@ -215,6 +217,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisablePostCounts]: false,
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: false,
   [PrivateOptionNames.DedupePostsInFeed]: false,
+  [PrivateOptionNames.DefaultExclusivity]: Exclusivity.None,
 }
 
 export type PrivateOption = SettingsOption & {

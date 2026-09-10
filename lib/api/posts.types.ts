@@ -33,6 +33,11 @@ export enum Exclusivity {
   Fediverse = 1,
   Bluesky = 2,
 }
+export const EXCLUSIVITY_LABELS = {
+  [Exclusivity.None]: 'Both Fediverse and Bluesky',
+  [Exclusivity.Fediverse]: 'Only Fediverse',
+  [Exclusivity.Bluesky]: 'Only Bluesky',
+}
 
 export type Post = {
   id: string

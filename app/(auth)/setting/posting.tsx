@@ -2,7 +2,11 @@ import Header, { useHeaderInset } from '@/components/Header'
 import PrivacySelect from '@/components/PrivacySelect'
 import { PrivacyLevel } from '@/lib/api/privacy'
 import { PrivateOptionNames } from '@/lib/api/settings'
-import { InteractionControl } from '@/lib/api/posts.types'
+import {
+  Exclusivity,
+  EXCLUSIVITY_LABELS,
+  InteractionControl,
+} from '@/lib/api/posts.types'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { EXPO_PUBLIC_TENOR_KEY } from '@/lib/envVars'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -18,6 +22,7 @@ import InteractionControlPicker from '@/components/InteractionControlPicker'
 import { interactionControlSummary } from '@/lib/interactionControl'
 import SaveButton from '@/components/settings/SaveButton'
 import SettingRow from '@/components/settings/SettingRow'
+import SettingSelectRow from '@/components/settings/SettingSelectRow'
 
 const AUTO_GIF_SUPPORT = !!EXPO_PUBLIC_TENOR_KEY
 
@@ -33,6 +38,7 @@ const OPTION_KEYS = [
   PrivateOptionNames.AutoAddContentWarning,
   PrivateOptionNames.GifApiKey,
   PrivateOptionNames.FederateWithThreads,
+  PrivateOptionNames.DefaultExclusivity,
 ] as const
 
 export default function PostingSettings() {
@@ -91,6 +97,21 @@ export default function PostingSettings() {
             ]}
           />
         </View>
+        <SettingSelectRow
+          label="Where to publish your woot by default"
+          value={form[PrivateOptionNames.DefaultExclusivity]}
+          onChange={(value) =>
+            update(PrivateOptionNames.DefaultExclusivity, value)
+          }
+          options={[
+            Exclusivity.None,
+            Exclusivity.Fediverse,
+            Exclusivity.Bluesky,
+          ].map((value) => ({
+            value,
+            label: EXCLUSIVITY_LABELS[value],
+          }))}
+        />
         <View className="p-4">
           <Text className="text-white mb-2">Default interaction controls</Text>
           <Pressable onPress={() => setInteractionMenuOpen(true)}>
