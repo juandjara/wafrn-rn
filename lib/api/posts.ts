@@ -459,10 +459,10 @@ export function useRefederatePostMutation() {
     },
     onError: (err, variables, context) => {
       console.error(err)
-      showToastError(`Post refederation started`)
+      showToastError(`Failed to refederate post`)
     },
     onSuccess: (data, variables) => {
-      showToastSuccess(`Failed to refederate post`)
+      showToastSuccess(`Post refederation started`)
     },
   })
 }
