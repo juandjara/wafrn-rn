@@ -43,11 +43,12 @@ export default function PrivacySelect({
   const gray600 = useCSSString('--color-gray-600')
 
   function isDisabled(p: PrivacyLevel) {
-    if (!maxPrivacy) return false
-    if (invertMaxPrivacy) {
-      return isLessPrivateThan(maxPrivacy, p)
-    }
-    return isLessPrivateThan(p, maxPrivacy)
+    if (maxPrivacy === undefined) return false
+    // inverted (editing): only equal or less private than the original
+    // default (replying): only equal or more private than the original
+    return invertMaxPrivacy
+      ? isLessPrivateThan(maxPrivacy, p)
+      : isLessPrivateThan(p, maxPrivacy)
   }
 
   function select(p: PrivacyLevel) {

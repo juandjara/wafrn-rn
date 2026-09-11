@@ -200,20 +200,25 @@ export function useEditorData() {
       }
     }
 
+    let privacySelectDisabled = false
+    let maxPrivacy: PrivacyLevel | undefined
+    let invertMaxPrivacy = false
+
     if (reply && params.type === 'quote') {
       replyLabel = 'quoting'
       const quotePost = reply.posts[0]
       if (quotePost) {
         formState.privacy = Math.max(quotePost.privacy, defaultPrivacy)
+        maxPrivacy = quotePost.privacy
       }
     }
 
-    let privacySelectDisabled = false
     if (reply && params.type === 'reply') {
       replyLabel = 'replying'
       const replyPost = reply.posts[0]
       if (replyPost) {
         formState.exclusivity = replyPost.exclusivity
+        maxPrivacy = replyPost.privacy
         formState.privacy = isLessPrivateThan(replyPost.privacy, defaultPrivacy)
           ? defaultPrivacy
           : replyPost.privacy
@@ -328,6 +333,19 @@ export function useEditorData() {
         formState.canReply = InteractionControl.Anyone
       }
       formState.canQuote = !post.quoteControl
+
+      if (post.parentId) {
+        if (post.privacy === PrivacyLevel.DRAFT) {
+          // the server only clamps to the parent privacy on create, not on edit
+          const parent = post.ancestors?.find((a) => a.id === post.parentId)
+          maxPrivacy = parent?.privacy
+        } else {
+          privacySelectDisabled = true
+        }
+      } else if (post.privacy !== PrivacyLevel.DRAFT) {
+        maxPrivacy = post.privacy
+        invertMaxPrivacy = true
+      }
     }
 
     if (params.type === 'share' && shareIntent) {
@@ -360,6 +378,8 @@ export function useEditorData() {
       mentionedUsers,
       isLoading,
       privacySelectDisabled,
+      maxPrivacy,
+      invertMaxPrivacy,
     }
   }, [
     me?.userId,

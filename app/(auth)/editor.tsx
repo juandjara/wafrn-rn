@@ -69,6 +69,8 @@ export default function EditorView() {
     mentionedUsers,
     replyLabel,
     privacySelectDisabled,
+    maxPrivacy,
+    invertMaxPrivacy,
   } = useEditorData()
 
   const gray300 = useCSSString('--color-gray-300')
@@ -130,8 +132,6 @@ export default function EditorView() {
     triggersConfig: EDITOR_TRIGGERS_CONFIG,
     onSelectionChange: setSelection,
   })
-
-  const maxPrivacy = reply?.posts[0].privacy
 
   function computeExclusivityDisabled() {
     let disabled = form.privacy !== PrivacyLevel.PUBLIC
@@ -476,7 +476,7 @@ export default function EditorView() {
                   }}
                   maxPrivacy={maxPrivacy}
                   disabled={privacySelectDisabled}
-                  invertMaxPrivacy={params.type === 'edit'}
+                  invertMaxPrivacy={invertMaxPrivacy}
                   bottom={
                     <Pressable
                       className="px-4 py-2 active:opacity-50"
