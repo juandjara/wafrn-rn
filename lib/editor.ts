@@ -234,53 +234,39 @@ export function useEditorData() {
           formState.privacy = PrivacyLevel.PUBLIC
         }
 
-        // NOTE: complex stuff here
-        // when creating a quote to a post, a mention is created to notify the quoted post author
-        // we need to ignore these mentions when creating a reply to a quote
-        // but only if the quote is not a reply to another post (i.e. it's a top-level post)
-        // we also need to ignore all the mentions inside the quoted post, because they are not relevant to the reply
-        const mentionsToIgnore = [] as string[]
-        const thread = [replyPost, ...(replyPost.ancestors || [])]
-        const topPost = thread.find((p) => p.hierarchyLevel <= 1)
-
-        // TODO: review if we still need this, logic complexity could be reduced
-        // because right now we are only picking mentions from the reply post
-        if (topPost) {
-          const quotedPostRelation = reply.quotes.find(
-            (q) => q.quoterPostId === topPost.id,
+        // quoting creates a mention to the quoted author on the quoter post.
+        // when replying directly to a top-level quote, neither that author
+        // nor anyone mentioned inside the quoted post belongs in the reply
+        const usersToIgnore = new Set<string>()
+        if (me?.userId) {
+          usersToIgnore.add(me.userId)
+        }
+        if (replyPost.hierarchyLevel <= 1) {
+          const quoteRelation = reply.quotes.find(
+            (q) => q.quoterPostId === replyPost.id,
           )
-          if (quotedPostRelation) {
-            const quotedPost = reply.quotedPosts.find(
-              (p) => p.id === quotedPostRelation.quotedPostId,
-            )
-            if (quotedPost) {
-              // ignore the mention from the top post to the quoted post user
-              mentionsToIgnore.push([topPost.id, quotedPost.userId].join('/'))
-              // ignore all the mentions inside the quoted post
-              for (const mention of reply.mentions) {
-                if (mention.post === quotedPost.id) {
-                  mentionsToIgnore.push(
-                    [mention.post, mention.userMentioned].join('/'),
-                  )
-                }
+          const quotedPost = reply.quotedPosts.find(
+            (p) => p.id === quoteRelation?.quotedPostId,
+          )
+          if (quotedPost) {
+            usersToIgnore.add(quotedPost.userId)
+            for (const mention of reply.mentions) {
+              if (mention.post === quotedPost.id) {
+                usersToIgnore.add(mention.userMentioned)
               }
             }
           }
         }
 
         const mentionIds = new Set<string>()
-
         if (userId !== me?.userId) {
           mentionIds.add(userId)
         }
-
-        const replyPostMentions = reply.mentions.filter(
-          (m) => m.post === replyPost.id,
-        )
-        for (const mention of replyPostMentions) {
-          const isMe = mention.userMentioned === me?.userId
-          const entry = [mention.post, mention.userMentioned].join('/')
-          if (!isMe && !mentionsToIgnore.includes(entry)) {
+        for (const mention of reply.mentions) {
+          if (
+            mention.post === replyPost.id &&
+            !usersToIgnore.has(mention.userMentioned)
+          ) {
             mentionIds.add(mention.userMentioned)
           }
         }
