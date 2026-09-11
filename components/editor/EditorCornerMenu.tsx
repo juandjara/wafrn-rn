@@ -81,7 +81,7 @@ export default function EditorCornerMenu({
     {
       name: 'Schedule post',
       description:
-        'Schedule your woot to published at a certian date and time. This is checked in the server every 15 minutes so there might be some small delay in minutes',
+        'Schedule your woot to be published at a certain date and time. This is checked in the server every 15 minutes so there might be some small delay in minutes',
       icon: <MaterialIcons name="schedule" color={gray600} size={24} />,
       action: () => {
         setScheduleModalOpen(true)
