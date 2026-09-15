@@ -43,6 +43,17 @@ export default function AccountSwitcherSettings() {
     addAccount(token, instance)
   }
 
+  function confirmRemoveAll() {
+    Alert.alert(
+      'Delete all saved accounts',
+      'Are you sure you want to delete all saved accounts? The account you are current logged in will not be deleted but if you want to login to any other account you will have to enter the credentials again',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: removeAll },
+      ],
+    )
+  }
+
   return (
     <View
       style={{
@@ -67,7 +78,7 @@ export default function AccountSwitcherSettings() {
             'flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2',
             { 'opacity-50': accounts.length === 0 },
           )}
-          onPress={removeAll}
+          onPress={confirmRemoveAll}
           disabled={accounts.length === 0}
         >
           <Text className="text-indigo-300 text-sm">Delete all</Text>
