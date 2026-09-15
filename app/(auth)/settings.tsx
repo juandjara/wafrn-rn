@@ -21,18 +21,6 @@ export default function Settings() {
 
   const options = useMemo(() => {
     const opts = [
-      // PROFILE
-      { header: 'Profile' },
-      {
-        icon: 'account-edit-outline' as const,
-        label: 'Edit my profile',
-        link: '/setting/edit-profile',
-      },
-      {
-        icon: 'account-cog-outline' as const,
-        label: 'Profile settings',
-        link: '/setting/profile-settings',
-      },
       // PREFERENCES
       { header: 'Preferences' },
       {
@@ -44,6 +32,11 @@ export default function Settings() {
         icon: 'view-day-outline' as const,
         label: 'Feeds settings',
         link: '/setting/feeds',
+      },
+      {
+        icon: 'account-cog-outline' as const,
+        label: 'Profile settings',
+        link: '/setting/profile-settings',
       },
       {
         icon: 'heart-outline' as const,
@@ -72,6 +65,16 @@ export default function Settings() {
       },
       // ACCOUNT
       { header: 'Account' },
+      {
+        icon: 'account-edit-outline' as const,
+        label: 'Edit my profile',
+        link: '/setting/edit-profile',
+      },
+      {
+        icon: 'account-plus-outline' as const,
+        label: 'Account switcher',
+        link: '/setting/account-switcher',
+      },
       {
         icon: 'account-multiple-plus-outline' as const,
         label: 'Import follows',
