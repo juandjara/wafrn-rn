@@ -49,6 +49,11 @@ export default function AdminIndex() {
       badge: badges?.usersAwaitingApproval || 0,
     },
     {
+      label: 'Moderation log',
+      link: 'admin/moderation-log',
+      icon: 'cog-outline' as const,
+    },
+    {
       label: 'Banned users',
       link: 'admin/banned-users',
       icon: 'account-off-outline' as const,

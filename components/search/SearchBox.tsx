@@ -10,9 +10,13 @@ import { clsx } from 'clsx'
 export default function SearchBox({
   query,
   onSearch,
+  onBack = () => router.back(),
+  className,
 }: {
   query: string
   onSearch: (query: string) => void
+  onBack?: () => void
+  className?: string
 }) {
   const sx = useSafeAreaPadding()
   const [searchTerm, setSearchTerm] = useState(query)
@@ -23,14 +27,15 @@ export default function SearchBox({
     <View
       style={{ marginTop: sx.paddingTop }}
       className={clsx(
+        className,
         'flex-row items-center border-b border-gray-600 h-16 pr-2',
         ringClassName,
       )}
     >
       <Pressable
-        className="mx-2 bg-black/30 rounded-full p-2"
+        className="ml-3 mr-2 p-2 bg-black/30 rounded-full"
         accessibilityLabel="Go back"
-        onPress={() => router.back()}
+        onPress={onBack}
       >
         <MaterialCommunityIcons name="arrow-left" size={20} color="white" />
       </Pressable>

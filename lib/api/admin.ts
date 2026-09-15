@@ -1,10 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
 import type { Report } from './reports'
 import { getEnvironmentStatic } from './auth'
 import { Timestamps } from './types'
 import { useToasts } from '../toasts'
+import { PostUser } from './posts.types'
 
 export type UserForApproval = {
   id: string
@@ -414,5 +420,76 @@ export function useServerStats() {
       return { queueStats, nodeInfo }
     },
     enabled: !!token && !!env,
+  })
+}
+
+export type ModerationLogPayload = {
+  page?: number
+  pageSize?: number
+  search?: string
+}
+type ModerationLogResponse = {
+  total: number
+  moderationActions: ModerationAction[]
+}
+export type ModerationAction = {
+  id: string // UUID
+  action: string // enum ??
+  adminId: string // UUID
+  message: string
+  comment: string | null
+  ip: string
+  createdAt: string // ISO date
+  admin: Pick<PostUser, 'id' | 'url' | 'name'>
+}
+
+const DEFAULT_PAGE_SIZE = 25
+
+async function getModerationLog(
+  token: string,
+  payload: ModerationLogPayload,
+  signal?: AbortSignal,
+) {
+  const env = getEnvironmentStatic()
+  const url = new URL(`${env?.API_URL}/admin/moderationActions`)
+
+  url.search = new URLSearchParams({
+    page: String(payload.page ?? 0),
+    pageSize: String(payload.pageSize ?? DEFAULT_PAGE_SIZE),
+    search: String(payload.search ?? ''),
+  }).toString()
+
+  const json = await getJSON(url, {
+    signal,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  const data = json as ModerationLogResponse
+  return data
+}
+
+export function useModerationLog(payload: ModerationLogPayload) {
+  const { token } = useAuth()
+  return useInfiniteQuery({
+    queryKey: ['moderation-actions', payload.pageSize, payload.search],
+    queryFn: ({ signal, pageParam }) =>
+      getModerationLog(
+        token!,
+        {
+          page: pageParam,
+          pageSize: payload.pageSize,
+          search: payload.search,
+        },
+        signal,
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.total === 0) {
+        return undefined
+      }
+      return lastPageParam + 1
+    },
+    enabled: !!token,
   })
 }
