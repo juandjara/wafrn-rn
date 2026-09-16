@@ -1,6 +1,10 @@
 import Header, { useHeaderInset } from '@/components/Header'
 import { isValidURL } from '@/lib/api/content'
-import { useAdminCheck, useAuth } from '@/lib/contexts/AuthContext'
+import {
+  useAdminCheck,
+  useAuth,
+  useParsedToken,
+} from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
@@ -8,11 +12,13 @@ import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View, Platform } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
+import { formatUserUrl } from '@/lib/formatters'
 
 export default function Settings() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
   const isAdmin = useAdminCheck()
+  const me = useParsedToken()
   const { instance } = useAuth()
   const instanceHost = isValidURL(instance) ? new URL(instance).host : instance
 
@@ -171,7 +177,7 @@ export default function Settings() {
         flex: 1,
       }}
     >
-      <Header title="Settings" />
+      <Header title={`Settings for ${formatUserUrl(me?.url)}`} />
       <ScrollView contentContainerClassName="pb-6">
         {options.map((option, i) =>
           option.header ? (
