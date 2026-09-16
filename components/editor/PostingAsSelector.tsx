@@ -1,10 +1,8 @@
 import { useAccounts } from '@/lib/api/user'
 import { formatUserUrl } from '@/lib/formatters'
-import { optionStyleBig } from '@/lib/styles'
 import { Image } from 'expo-image'
 import { useMemo, useState } from 'react'
 import { Keyboard, Pressable, Text, View } from 'react-native'
-import TextWithEmojis from '../TextWithEmojis'
 import BottomSheet from '../BottomSheet'
 
 export default function PostingAsSelector({
@@ -36,13 +34,12 @@ export default function PostingAsSelector({
       </Pressable>
       <BottomSheet initialFullHeight open={open} setOpen={setOpen}>
         <Text numberOfLines={1} className="p-4 text-lg font-medium">
-          Select the account you are wooting as
+          Which account are you wooting as?
         </Text>
         {accounts.map((acc, i) => (
           <Pressable
             key={acc.id}
-            className="active:bg-gray-200"
-            style={{ ...optionStyleBig(i), paddingVertical: 8 }}
+            className="active:bg-gray-200 px-4 mb-2 flex-row items-center gap-2"
             onPress={() => {
               setSelectedUserId(acc.id)
               setOpen(false)
@@ -52,9 +49,9 @@ export default function PostingAsSelector({
               <Image
                 source={{ uri: acc.avatar }}
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 10,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
                 }}
               />
               {acc?.avatar ? null : (
@@ -63,12 +60,12 @@ export default function PostingAsSelector({
                 </Text>
               )}
             </View>
-            <View className="flex-1 mb-2">
-              <TextWithEmojis text={acc.name || ''} />
-              <Text className="text-sm text-gray-500">
-                {formatUserUrl(acc.url)}
-              </Text>
-            </View>
+            <Text className="font-medium flex-1">
+              {formatUserUrl(acc.url)}
+              {acc.main ? (
+                <Text className="italic text-sm text-gray-500"> Main</Text>
+              ) : null}
+            </Text>
           </Pressable>
         ))}
       </BottomSheet>

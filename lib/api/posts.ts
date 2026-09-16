@@ -255,7 +255,7 @@ export function useCreatePostMutation() {
     mutationKey: ['createPost'],
     mutationFn: async (payload) => {
       const data = getAccountData(payload.postingAccountId)
-      if (!data.token || !data.instance) {
+      if (!data?.token || !data?.instance) {
         throw new Error(
           `cannot post with invalid account data: ${JSON.stringify(data)}`,
         )
@@ -282,7 +282,9 @@ export function useCreatePostMutation() {
       if (env?.BASE_URL === instance) {
         router.replace(`/post/${data}`)
       } else {
-        router.back()
+        router.replace(
+          `/search?q=${encodeURIComponent(`${instance}/post/${data}`)}`,
+        )
       }
     },
   })

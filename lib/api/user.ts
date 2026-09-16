@@ -152,42 +152,13 @@ export function useRefetchUserDataMutation(user: User) {
   })
 }
 
-// // all of this just to get the fucking avatars and names for the account switcher
-// function useAccountsQueries(data: SavedAccount[], enabled: boolean) {
-//   return useQueries({
-//     queries: data.map((account) => ({
-//       queryKey: ['user', account.token, account.instance],
-//       queryFn: async ({ signal }) => {
-//         const user = parseToken(account.token)
-//         let handle = user?.url || ''
-//         try {
-//           const { instance, token } = account
-//           const env = await getInstanceEnvironment(instance)
-//           const url = `${env.API_URL}/user?id=${handle}`
-//           const json = await getJSON(url, {
-//             headers: {
-//               Authorization: `Bearer ${token}`,
-//             },
-//             signal,
-//           })
-//           const user = json as User
-//           user.avatar = formatMediaUrl(user.avatar, env.MEDIA_URL)
-//           return user
-//         } catch (error) {
-//           console.error('Error fetching user:', error)
-//           return null
-//         }
-//       },
-//       enabled,
-//     })),
-//   })
-// }
-
 const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 
 export type SavedAccount = {
   token: string
   instance: string
+  shorthand?: string
+  main?: boolean
 }
 
 export function useAccounts() {
@@ -198,6 +169,7 @@ export function useAccounts() {
     value: _accountsData,
     setValue: setAccountsData,
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
+  const { showToastSuccess } = useToasts()
 
   const accountsData = _accountsData?.length
     ? _accountsData
@@ -216,38 +188,77 @@ export function useAccounts() {
       )
       return {
         id: user.userId,
-        name: user.url,
         url: user.url,
         avatar,
         role: user.role,
         email: user.email,
+        main: a.main,
+        shorthand: a.shorthand,
       }
     })
     .filter((a) => !!a)
+    .toSorted((a, b) => {
+      if (a.main === b.main) {
+        return b.url.localeCompare(a.url)
+      }
+      return Number(b.main) - Number(a.main)
+    })
 
   function addAccount(token: string, instance: string) {
-    setAccountsData([...(accountsData ?? []), { token, instance }])
+    setAccountsData([...accountsData, { token, instance }])
   }
-  function removeAccount(index: number) {
-    setAccountsData(accountsData?.filter((t, i) => i !== index) ?? [])
+  function removeAccount(userId: string) {
+    setAccountsData(
+      accountsData.filter((a) => {
+        const parsed = parseToken(a.token, true)
+        const shouldDelete = parsed && parsed.userId === userId
+        return !shouldDelete
+      }),
+    )
   }
   function removeAll() {
     setAccountsData([])
   }
   function getAccountData(userId: string) {
-    const index = accounts.findIndex((a) => a.id === userId)
-    return accountsData[index]
+    return accountsData.find((a) => {
+      const parsed = parseToken(a.token, true)
+      return parsed && parsed.userId === userId
+    })
+  }
+  function editAccounts(
+    payload: Record<
+      string,
+      {
+        main: boolean
+        shorthand: string
+      }
+    >,
+  ) {
+    setAccountsData(
+      accountsData.map((a) => {
+        const parsed = parseToken(a.token)
+        if (!parsed) {
+          return a
+        }
+        const { main, shorthand } = payload[parsed.userId] ?? {}
+        return {
+          ...a,
+          main,
+          shorthand,
+        }
+      }),
+    )
   }
 
   function nextTick() {
     return new Promise<void>((resolve) => {
-      setImmediate(resolve)
+      setTimeout(resolve)
     })
   }
 
   async function selectAccount(index: number) {
-    const newValues = accountsData?.[index] ?? null
-    const { token, instance } = newValues ?? {}
+    const newValues = accountsData[index] ?? {}
+    const { token, instance } = newValues
     startTransition(async () => {
       setInstance(instance)
       setToken(token)
@@ -257,6 +268,8 @@ export function useAccounts() {
       await qc.invalidateQueries({
         predicate: ({ queryKey }) => queryKey[0] !== 'environment',
       })
+      const url = parseToken(token)?.url ?? ''
+      showToastSuccess(`You are now waffing as ${url}`)
     })
   }
   return {
@@ -264,6 +277,7 @@ export function useAccounts() {
     loading,
     addAccount,
     removeAccount,
+    editAccounts,
     selectAccount,
     removeAll,
     getAccountData,
@@ -894,17 +908,16 @@ export async function deleteAccount(token: string, password: string) {
 export function useDeleteAccountMutation() {
   const { token } = useAuth()
   const { showToastError, showToastSuccess } = useToasts()
-  const { accounts, removeAccount } = useAccounts()
+  const { removeAccount } = useAccounts()
 
   return useMutation({
     mutationKey: ['deleteAccount'],
     mutationFn: (password: string) => deleteAccount(token!, password),
     onSuccess: () => {
       showToastSuccess('Account deleted')
-      const account = parseToken(token)
-      const index = accounts.findIndex((a) => a.id === account?.userId)
-      if (index > -1) {
-        removeAccount(index)
+      const account = parseToken(token, true)
+      if (account) {
+        removeAccount(account.userId)
       }
       router.navigate('/sign-out')
     },

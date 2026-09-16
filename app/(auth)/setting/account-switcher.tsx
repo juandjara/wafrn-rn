@@ -2,7 +2,6 @@ import Button from '@/components/Button'
 import Header, { useHeaderInset } from '@/components/Header'
 import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
-import TextWithEmojis from '@/components/TextWithEmojis'
 import { useAccounts, useCurrentUser } from '@/lib/api/user'
 import { formatUserUrl } from '@/lib/formatters'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -16,11 +15,22 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
+import SaveButton from '@/components/settings/SaveButton'
+
+type AccountMap = Record<
+  string,
+  {
+    main: boolean
+    shorthand: string
+  }
+>
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
@@ -30,13 +40,57 @@ export default function AccountSwitcherSettings() {
     accounts,
     loading,
     addAccount,
+    editAccounts,
     removeAccount,
     selectAccount,
     removeAll,
   } = useAccounts()
   const [showLogin, setShowLogin] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+
+  function buildAccountMap(acc: typeof accounts) {
+    return Object.fromEntries(
+      acc.map((a) => [
+        a.id,
+        {
+          main: a.main ?? false,
+          shorthand: a.shorthand ?? '',
+        },
+      ]),
+    )
+  }
+
+  const [_form, setForm] = useState<AccountMap | null>(null)
+  const form = _form ?? buildAccountMap(accounts)
+
   const gray200 = useCSSString('--color-gray-200')
   const indigo400 = useCSSString('--color-indigo-400')
+
+  const gray700 = useCSSString('--color-gray-700')
+  const cyan900 = useCSSString('--color-cyan-900')
+  const cyan600 = useCSSString('--color-cyan-600')
+  const gray300 = useCSSString('--color-gray-300')
+
+  function toggleMain(id: string) {
+    const newForm = {} as AccountMap
+    for (const account of accounts) {
+      const entry = form[account.id]
+      newForm[account.id] = {
+        ...entry,
+        main: id === account.id ? !entry?.main : false,
+      }
+    }
+    setForm(newForm)
+  }
+  function updateShorthand(id: string, shorthand: string) {
+    setForm({
+      ...form,
+      [id]: {
+        ...form[id],
+        shorthand,
+      },
+    })
+  }
 
   function onLoginComplete(token: string, instance: string) {
     setShowLogin(false)
@@ -54,6 +108,11 @@ export default function AccountSwitcherSettings() {
     )
   }
 
+  function handleSave() {
+    editAccounts(form)
+    setEditMode(false)
+  }
+
   return (
     <View
       style={{
@@ -63,7 +122,22 @@ export default function AccountSwitcherSettings() {
         paddingTop: headerInset,
       }}
     >
-      <Header title="Account Switcher" />
+      <Header
+        title="Account Switcher"
+        right={
+          editMode ? (
+            <SaveButton isPending={loading} onPress={handleSave} />
+          ) : (
+            <Pressable
+              className="p-1.5 rounded-full active:bg-gray-300/30"
+              accessibilityLabel="Enter edit mode"
+              onPress={() => setEditMode(true)}
+            >
+              <MaterialCommunityIcons name="pencil" color="white" size={20} />
+            </Pressable>
+          )
+        }
+      />
       {loading && (
         <View className="absolute top-0 left-0 right-0">
           <Loading />
@@ -91,56 +165,79 @@ export default function AccountSwitcherSettings() {
       </View>
       <ScrollView className="p-2">
         {accounts.map((acc, index) => (
-          <Pressable
-            key={acc?.id}
-            accessibilityLabel="My profile"
-            className="flex-row px-2 mb-4 gap-3 items-center bg-blue-950/50 rounded-2xl"
-            disabled={acc.id === me?.id}
-            onPress={() => selectAccount(index)}
-          >
-            <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
-              <Image
-                source={{ uri: acc.avatar }}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 10,
-                }}
-              />
-              {acc?.avatar ? null : (
-                <Text className="absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
-                  {acc.url.substring(0, 1)}
-                </Text>
-              )}
-            </View>
-            <View className="flex-1 mb-2">
-              <TextWithEmojis className="text-white" text={acc.name || ''} />
-              <Text className="text-sm text-gray-500">
-                {formatUserUrl(acc.url)}
-              </Text>
-            </View>
-            <TouchableOpacity
-              className="p-2 rounded-full"
+          <View key={acc.id} className={acc.main ? '' : 'ml-3'}>
+            <Pressable
+              className="flex-row px-2 mb-3 gap-3 items-center bg-blue-950/50 rounded-2xl"
               disabled={acc.id === me?.id}
-              accessibilityLabel="Delete account"
-              onPress={() => {
-                Alert.alert(
-                  'Delete account',
-                  `Do you want to remove ${formatUserUrl(acc.url)} from the account switcher?`,
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Switch', onPress: () => removeAccount(index) },
-                  ],
-                )
-              }}
+              onPress={() => selectAccount(index)}
             >
-              <MaterialCommunityIcons
-                name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
-                size={24}
-                color={gray200}
-              />
-            </TouchableOpacity>
-          </Pressable>
+              <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
+                <Image
+                  source={{ uri: acc.avatar }}
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 10,
+                  }}
+                />
+                {acc?.avatar ? null : (
+                  <Text className="absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
+                    {acc.url.substring(0, 1)}
+                  </Text>
+                )}
+              </View>
+              <Text className="text-white text-base flex-1">
+                {formatUserUrl(acc.url)}
+                {acc.main ? (
+                  <Text className="italic text-sm text-gray-300"> Main</Text>
+                ) : null}
+              </Text>
+              <TouchableOpacity
+                className="p-2 rounded-full"
+                disabled={acc.id === me?.id}
+                accessibilityLabel="Delete account"
+                onPress={() => {
+                  Alert.alert(
+                    'Delete account',
+                    `Do you want to remove ${formatUserUrl(acc.url)} from the account switcher?`,
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Switch', onPress: () => removeAccount(acc.id) },
+                    ],
+                  )
+                }}
+              >
+                <MaterialCommunityIcons
+                  name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
+                  size={24}
+                  color={gray200}
+                />
+              </TouchableOpacity>
+            </Pressable>
+            {editMode ? (
+              <View className="flex-row items-center mb-3">
+                <TextInput
+                  value={form[acc.id]?.shorthand ?? ''}
+                  onChangeText={(text) => updateShorthand(acc.id, text)}
+                  placeholder="Editor shorthand"
+                  placeholderTextColorClassName="accent-gray-500"
+                  className="flex-1 p-2 rounded-lg text-white border border-gray-600"
+                />
+                <Pressable
+                  className="flex-1 flex-row items-center gap-4 px-4 py-2 active:bg-white/10"
+                  onPress={() => toggleMain(acc.id)}
+                >
+                  <Text className="text-white text-base">Main</Text>
+                  <Switch
+                    value={!!form[acc.id]?.main}
+                    onValueChange={() => toggleMain(acc.id)}
+                    trackColor={{ false: gray700, true: cyan900 }}
+                    thumbColor={form[acc.id]?.main ? cyan600 : gray300}
+                  />
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
         ))}
       </ScrollView>
       <View className="my-4">
