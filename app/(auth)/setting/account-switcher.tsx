@@ -23,6 +23,7 @@ import {
 } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
 import SaveButton from '@/components/settings/SaveButton'
+import { Collapsible } from '@/components/Collapsible'
 
 type AccountMap = Record<
   string,
@@ -164,8 +165,24 @@ export default function AccountSwitcherSettings() {
         </Pressable>
       </View>
       <ScrollView className="p-2">
+        <Collapsible title="How does this work?" className="mb-4">
+          <Text className="text-white">
+            Here you can toggle one of your accounts as{' '}
+            <Text className="italic">Main</Text> and configure the editor
+            shorthand for each account. A <Text className="italic">Main</Text>{' '}
+            label will show next to the url in account pickers.
+          </Text>
+          <Text>{'\n'}</Text>
+          <Text className="text-white">
+            For the editor shorthand, each account can have assigned{' '}
+            <Text className="font-bold">a prefix</Text> that, when typed at the
+            start of writing any woot, reply or quote, will make the editor
+            instantly switch to that account. This prefix can be any text or
+            unicode emoji
+          </Text>
+        </Collapsible>
         {accounts.map((acc, index) => (
-          <View key={acc.id} className={acc.main ? '' : 'ml-3'}>
+          <View key={acc.id}>
             <Pressable
               className="flex-row px-2 mb-3 gap-3 items-center bg-blue-950/50 rounded-2xl"
               disabled={acc.id === me?.id}
