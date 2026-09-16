@@ -50,14 +50,15 @@ function isValidURL(str: string, base?: string) {
   }
 }
 
-export function parseToken(token: string | null) {
+/** parses a JWT token. The 'force' flag makes it parse and return an expired token too */
+export function parseToken(token: string | null, force?: boolean) {
   if (!token) return null
 
   try {
     const decoed = JSON.parse(atob(token.split('.')[1])) as ParsedToken
     const expMs = decoed.exp * 1000
     const now = Date.now()
-    if (expMs < now) {
+    if (expMs < now && !force) {
       console.warn('Token expired')
       return null
     }
