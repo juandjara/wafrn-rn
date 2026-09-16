@@ -49,6 +49,7 @@ export default function ModerationLog() {
     <Pressable
       onPress={() => setShowSearchBox(true)}
       className="p-1.5 rounded-full active:bg-gray-300/30"
+      accessibilityLabel="Search moderation actions"
     >
       <MaterialCommunityIcons name="magnify" color="white" size={20} />
     </Pressable>
