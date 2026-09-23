@@ -11,36 +11,40 @@
       <string>applinks:meowing.men</string>
       <string>applinks:wafrn.vaguely.art</string>
       <string>applinks:fedisky.it</string>
-      <string>applinks:homestuck.fr</string>
       <string>applinks:waffles.baeddel.social</string>
+      <string>applinks:homestuck.fr</string>
       <string>applinks:vifrn.vilant.org</string>
       <string>applinks:social.cybernetica.cc</string>
       <string>applinks:problemeowtic.net</string>
-      <string>applinks:rotkap.net</string>
       <string>applinks:resenha.top</string>
-      <string>applinks:gabboman.xyz</string>
-      <string>applinks:wafrn.isquite.gay</string>
-      <string>applinks:puppygirl.fail</string>
+      <string>applinks:sleepy.girlkissing.club</string>
       <string>applinks:waf.gaycatgirl.sex</string>
-      <string>applinks:plaza.minkalia.city</string>
-      <string>applinks:wafrn.bunnynabbit.com</string>
       <string>applinks:waf.c00lest-kats-on.ovh</string>
-      <string>applinks:blog.goodanser.com</string>
-      <string>applinks:wafrn.catgirlpatchouli.online</string>
       <string>applinks:dragonite.blog</string>
-      <string>applinks:wafrn.is-hardly.online</string>
-      <string>applinks:wafrn.is.sillyand.gay</string>
+      <string>applinks:waf.meowing.zip</string>
       <string>applinks:neo.tokyonight.city</string>
+      <string>applinks:wafrn.is.sillyand.gay</string>
+      <string>applinks:rotkap.net</string>
+      <string>applinks:wafrn.isquite.gay</string>
       <string>applinks:irminsul.cc</string>
-      <string>applinks:wicwafren.com</string>
       <string>applinks:wafrn.jcm.re</string>
+      <string>applinks:wicwafren.com</string>
       <string>applinks:club.endormis.cat</string>
+      <string>applinks:wf.jbc.lol</string>
       <string>applinks:wafrn.k1ba.eu</string>
+      <string>applinks:puppygirl.fail</string>
+      <string>applinks:plaza.minkalia.city</string>
+      <string>applinks:wafrn.nikes.website</string>
+      <string>applinks:wafrn.bunnynabbit.com</string>
       <string>applinks:waf.mec-v02.dev</string>
       <string>applinks:social.sztupy.hu</string>
       <string>applinks:waf.00ffff.eu</string>
-      <string>applinks:fright.tomb.download</string>
       <string>applinks:social.stg.sztupy.hu</string>
+      <string>applinks:wafrn.lonewolf.zone</string>
+      <string>applinks:wafrn.is-hardly.online</string>
+      <string>applinks:waf.dragon-vi.be</string>
+      <string>applinks:social.raven.scot</string>
+      <string>applinks:fright.tomb.download</string>
     </array>
     <key>com.apple.security.application-groups</key>
     <array>
