@@ -62,9 +62,9 @@ export default function PostingAsSelector({
             </View>
             <Text className="font-medium flex-1">
               {formatUserUrl(acc.url)}
-              {acc.main ? (
+              {/* {acc.main ? (
                 <Text className="italic text-sm text-gray-500"> Main</Text>
-              ) : null}
+              ) : null} */}
             </Text>
           </Pressable>
         ))}

@@ -22,8 +22,8 @@ import {
   View,
 } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
-import SaveButton from '@/components/settings/SaveButton'
-import { Collapsible } from '@/components/Collapsible'
+// import SaveButton from '@/components/settings/SaveButton'
+// import { Collapsible } from '@/components/Collapsible'
 
 type AccountMap = Record<
   string,
@@ -125,19 +125,19 @@ export default function AccountSwitcherSettings() {
     >
       <Header
         title="Account Switcher"
-        right={
-          editMode ? (
-            <SaveButton isPending={loading} onPress={handleSave} />
-          ) : (
-            <Pressable
-              className="p-1.5 rounded-full active:bg-gray-300/30"
-              accessibilityLabel="Enter edit mode"
-              onPress={() => setEditMode(true)}
-            >
-              <MaterialCommunityIcons name="pencil" color="white" size={20} />
-            </Pressable>
-          )
-        }
+        // right={
+        //   editMode ? (
+        //     <SaveButton isPending={loading} onPress={handleSave} />
+        //   ) : (
+        //     <Pressable
+        //       className="p-1.5 rounded-full active:bg-gray-300/30"
+        //       accessibilityLabel="Enter edit mode"
+        //       onPress={() => setEditMode(true)}
+        //     >
+        //       <MaterialCommunityIcons name="pencil" color="white" size={20} />
+        //     </Pressable>
+        //   )
+        // }
       />
       {loading && (
         <View className="absolute top-0 left-0 right-0">
@@ -165,7 +165,7 @@ export default function AccountSwitcherSettings() {
         </Pressable>
       </View>
       <ScrollView className="p-2">
-        <Collapsible title="How does this work?" className="mb-4">
+        {/* <Collapsible title="How does this work?" className="mb-4">
           <Text className="text-white">
             Here you can toggle one of your accounts as{' '}
             <Text className="italic">Main</Text> and configure the editor
@@ -180,7 +180,7 @@ export default function AccountSwitcherSettings() {
             instantly switch to that account. This prefix can be any text or
             unicode emoji
           </Text>
-        </Collapsible>
+        </Collapsible> */}
         {accounts.map((acc, index) => (
           <View key={acc.id}>
             <Pressable
@@ -205,9 +205,9 @@ export default function AccountSwitcherSettings() {
               </View>
               <Text className="text-white text-base flex-1">
                 {formatUserUrl(acc.url)}
-                {acc.main ? (
+                {/* {acc.main ? (
                   <Text className="italic text-sm text-gray-300"> Main</Text>
-                ) : null}
+                ) : null} */}
               </Text>
               <TouchableOpacity
                 className="p-2 rounded-full"
