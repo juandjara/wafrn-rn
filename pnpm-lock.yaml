@@ -8,6 +8,9 @@ patchedDependencies:
   '@react-native/gradle-plugin@0.83.4':
     hash: 303e758eff499b370d5a659dbf5f04538f00380be1c6330ae87cfa0fa06fb5d6
     path: patches/@react-native__gradle-plugin@0.83.4.patch
+  expo-router@55.0.11:
+    hash: a3b7b0f61682c73b2043ecad5702a3c158de55d31ac55ec03226ef2c0c25472d
+    path: patches/expo-router@55.0.11.patch
 
 importers:
 
@@ -123,7 +126,7 @@ importers:
         version: 55.0.17(expo@55.0.12)(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       expo-router:
         specifier: ~55.0.11
-        version: 55.0.11(4eaf88a7a241b4c86145543a4040c730)
+        version: 55.0.11(patch_hash=a3b7b0f61682c73b2043ecad5702a3c158de55d31ac55ec03226ef2c0c25472d)(4eaf88a7a241b4c86145543a4040c730)
       expo-secure-store:
         specifier: ~55.0.12
         version: 55.0.12(expo@55.0.12)
@@ -6289,7 +6292,7 @@ snapshots:
       ws: 8.18.3
       zod: 3.25.76
     optionalDependencies:
-      expo-router: 55.0.11(4eaf88a7a241b4c86145543a4040c730)
+      expo-router: 55.0.11(patch_hash=a3b7b0f61682c73b2043ecad5702a3c158de55d31ac55ec03226ef2c0c25472d)(4eaf88a7a241b4c86145543a4040c730)
       react-native: 0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0)
     transitivePeerDependencies:
       - '@expo/dom-webview'
@@ -6551,7 +6554,7 @@ snapshots:
       react: 19.2.0
     optionalDependencies:
       '@expo/metro-runtime': 55.0.11(@expo/dom-webview@55.0.5)(expo@55.0.12)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
-      expo-router: 55.0.11(4eaf88a7a241b4c86145543a4040c730)
+      expo-router: 55.0.11(patch_hash=a3b7b0f61682c73b2043ecad5702a3c158de55d31ac55ec03226ef2c0c25472d)(4eaf88a7a241b4c86145543a4040c730)
       react-dom: 19.2.0(react@19.2.0)
     transitivePeerDependencies:
       - supports-color
@@ -8957,7 +8960,7 @@ snapshots:
       - supports-color
       - typescript
 
-  expo-router@55.0.11(4eaf88a7a241b4c86145543a4040c730):
+  expo-router@55.0.11(patch_hash=a3b7b0f61682c73b2043ecad5702a3c158de55d31ac55ec03226ef2c0c25472d)(4eaf88a7a241b4c86145543a4040c730):
     dependencies:
       '@expo/log-box': 55.0.10(@expo/dom-webview@55.0.5)(expo@55.0.12)(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
       '@expo/metro-runtime': 55.0.11(@expo/dom-webview@55.0.5)(expo@55.0.12)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
