@@ -197,7 +197,7 @@ export function useAccounts() {
       }
     })
     .filter((a) => !!a)
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       if (a.main === b.main) {
         return b.url.localeCompare(a.url)
       }
