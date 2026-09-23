@@ -33,6 +33,9 @@ platform :ios do
 
     changelog_from_git_commits
 
+    # keep Podfile in sync with the dependencies from package.json
+    cocoapods(podfile: "ios/Podfile", use_bundle_exec: false)
+
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/Wafrn.xcodeproj",
