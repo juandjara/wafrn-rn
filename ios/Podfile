@@ -18,7 +18,8 @@ ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] ||= podfile_properties['EX_DEV_CLIENT_NET
 ENV['RCT_USE_RN_DEP'] ||= '1' if podfile_properties['ios.buildReactNativeFromSource'] != 'true'
 ENV['RCT_USE_PREBUILT_RNCORE'] ||= '1' if podfile_properties['ios.buildReactNativeFromSource'] != 'true'
 ENV['RCT_HERMES_V1_ENABLED'] ||= '1' if podfile_properties['expo.useHermesV1'] == 'true'
-platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
+deployment_target = podfile_properties['ios.deploymentTarget'] || '15.1'
+platform :ios, deployment_target
 
 prepare_react_native_project!
 
@@ -61,5 +62,16 @@ target 'Wafrn' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+
+    # `react_native_post_install` only raises pod native targets,
+    # and Xcode 27 rejects resource bundles that keep their pod's older minimum 
+    # like SDWebImage 9.0 and RNSVG 12.4
+    installer.target_installation_results.pod_target_installation_results.each_value do |result|
+      result.resource_bundle_targets.each do |bundle|
+        bundle.build_configurations.each do |config|
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = deployment_target
+        end
+      end
+    end
   end
 end
