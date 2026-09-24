@@ -91,6 +91,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: isDev ? 'dev.djara.wafrn-rn.dev' : 'dev.djara.wafrn-rn',
+      buildNumber: '2',
       associatedDomains: instances.map((l) => `applinks:${l}`),
       infoPlist: {
         UIBackgroundModes: ['audio', 'remote-notification'],
