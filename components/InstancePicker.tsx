@@ -32,6 +32,7 @@ import { InstanceListItem, useInstanceList } from '@/lib/api/instances'
 import { DEFAULT_INSTANCE } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
 import Button from './Button'
+import { useCSSString } from '@/lib/cssVariables'
 
 const DEFAULT_LIST = [
   {
@@ -196,10 +197,24 @@ function InstanceList({
   isLoading,
   onRefresh,
 }: InstanceListProps) {
+  const [search, setSearch] = useState('')
+  const filteredInstances = instances.filter((i) => {
+    const query = search.toLowerCase()
+    if (!query) {
+      return true
+    }
+    const name = i.name.toLowerCase()
+    const desc = i.description.toLowerCase()
+    const url = i.url.toLowerCase()
+    return name.includes(query) || desc.includes(query) || url.includes(query)
+  })
+  const gray400 = useCSSString('--color-gray-400')
+
   function isSelected(item: InstanceListItem) {
     const itemHost = isValidURL(item.url) ? new URL(item.url).host : item.url
     return itemHost === selected
   }
+
   return (
     <ScrollView
       className="grow-0"
@@ -208,7 +223,24 @@ function InstanceList({
         <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
       }
     >
-      {instances.map((instance) => (
+      <View className="relative">
+        <MaterialCommunityIcons
+          className="absolute top-3 left-3"
+          name="magnify"
+          color={gray400}
+          size={20}
+        />
+        <TextInput
+          placeholderTextColorClassName="accent-gray-400"
+          placeholder="Search by url, name or description"
+          className="text-white grow py-2 pl-10 pr-3 mb-2 rounded-full border-2 border-gray-500"
+          value={search}
+          onChangeText={setSearch}
+          inputMode="search"
+          onSubmitEditing={(e) => setSearch(e.nativeEvent.text)}
+        />
+      </View>
+      {filteredInstances.map((instance) => (
         <Pressable
           key={instance.url}
           onPress={() => onSelect(instance.url)}
