@@ -4,10 +4,8 @@ import {
   Modal,
   Pressable,
   RefreshControl,
-  ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native'
 import {
@@ -126,9 +124,9 @@ export default function InstancePicker({
                 style={tabStyles}
                 className="absolute inset-0 w-1/2 bg-gray-200 rounded-xl m-1"
               />
-              <TouchableOpacity
+              <Pressable
                 onPress={() => setTab('list')}
-                className="p-3 w-1/2 flex-1 shrink"
+                className="active:bg-white/10 p-3 w-1/2 flex-1 shrink"
               >
                 <Text
                   className={clsx(
@@ -140,10 +138,10 @@ export default function InstancePicker({
                 >
                   Known servers
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 onPress={() => setTab('write')}
-                className="p-3 w-1/2 flex-1 shrink"
+                className="active:bg-white/10 p-3 w-1/2 flex-1 shrink"
               >
                 <Text
                   className={clsx(
@@ -155,7 +153,7 @@ export default function InstancePicker({
                 >
                   Custom server
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
           <PagerView
@@ -216,121 +214,133 @@ function InstanceList({
   }
 
   return (
-    <ScrollView
-      className="grow-0"
-      contentContainerClassName="py-2 px-4"
+    <KeyboardAwareScrollView
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
       }
     >
-      <View className="relative">
-        <MaterialCommunityIcons
-          className="absolute top-3 left-3"
-          name="magnify"
-          color={gray400}
-          size={20}
-        />
-        <TextInput
-          placeholderTextColorClassName="accent-gray-400"
-          placeholder="Search by url, name or description"
-          className="text-white grow py-2 pl-10 pr-3 mb-2 rounded-full border-2 border-gray-500"
-          value={search}
-          onChangeText={setSearch}
-          inputMode="search"
-          onSubmitEditing={(e) => setSearch(e.nativeEvent.text)}
-        />
-      </View>
-      {filteredInstances.map((instance) => (
-        <Pressable
-          key={instance.url}
-          onPress={() => onSelect(instance.url)}
-          className={clsx(
-            'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
-            { 'bg-slate-700': isSelected(instance) },
-          )}
-        >
-          <View className="bg-blue-900 mr-3 rounded p-1">
-            <Image
-              source={{ uri: instance.icon }}
-              style={{ width: 42, height: 42 }}
-            />
-          </View>
-          <View className="flex-1 relative">
-            {isSelected(instance) ? (
-              <View className="absolute z-10 -top-1 -right-1">
-                <Ionicons name="checkmark" color="white" size={24} />
-              </View>
-            ) : null}
-            {instance.name ? (
-              <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
-                {instance.name}
-              </Text>
-            ) : null}
-            {instance.name.toLowerCase() !== new URL(instance.url).host ? (
-              <Text className="text-white mb-4 text-sm">
-                {new URL(instance.url).host}
-              </Text>
-            ) : null}
-            {instance.description ? (
-              <Text className="text-white mb-2 text-sm">
-                {instance.description}
-              </Text>
-            ) : null}
-            <Text className="text-white text-xs mb-2">
-              Registrations:{' '}
-              {instance.registrationUrl ? (
-                <Link
-                  target="_blank"
-                  className="text-blue-500"
-                  href={instance.registrationUrl}
-                >
-                  {instance.registrationType}
-                </Link>
-              ) : (
-                instance.registrationType
-              )}
-            </Text>
-            {instance.registrationCondition ? (
+      <View className="px-3">
+        <View className="relative">
+          <MaterialCommunityIcons
+            className="absolute top-6 left-3"
+            name="magnify"
+            color={gray400}
+            size={24}
+          />
+          <TextInput
+            placeholder="Search by url, name or description"
+            placeholderTextColorClassName="accent-gray-500"
+            className="p-3 pl-10 my-3 rounded-xl border border-gray-500 text-white"
+            value={search}
+            onChangeText={setSearch}
+            autoCapitalize="none"
+            inputMode="search"
+            onSubmitEditing={(e) => setSearch(e.nativeEvent.text)}
+          />
+        </View>
+        {filteredInstances.map((instance) => (
+          <Pressable
+            key={instance.url}
+            onPress={() => onSelect(instance.url)}
+            className={clsx(
+              'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
+              { 'bg-slate-700': isSelected(instance) },
+            )}
+          >
+            <View className="bg-blue-900 mr-3 rounded p-1">
+              <Image
+                source={{ uri: instance.icon }}
+                style={{ width: 42, height: 42 }}
+              />
+            </View>
+            <View className="flex-1 relative">
+              {isSelected(instance) ? (
+                <View className="absolute z-10 -top-1 -right-1">
+                  <Ionicons name="checkmark" color="white" size={24} />
+                </View>
+              ) : null}
+              {instance.name ? (
+                <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
+                  {instance.name}
+                </Text>
+              ) : null}
+              {instance.name.toLowerCase() !== new URL(instance.url).host ? (
+                <Text className="text-white mb-4 text-sm">
+                  {new URL(instance.url).host}
+                </Text>
+              ) : null}
+              {instance.description ? (
+                <Text className="text-white mb-2 text-sm">
+                  {instance.description}
+                </Text>
+              ) : null}
               <Text className="text-white text-xs mb-2">
-                {instance.registrationCondition}
+                Registrations:{' '}
+                {instance.registrationUrl ? (
+                  <Link
+                    target="_blank"
+                    className="text-blue-500"
+                    href={instance.registrationUrl}
+                  >
+                    {instance.registrationType}
+                  </Link>
+                ) : (
+                  instance.registrationType
+                )}
               </Text>
-            ) : null}
-            {instance.version ? (
-              <Text className="text-gray-400 mb-2 text-xs">
-                v{instance.version}
-              </Text>
-            ) : null}
-            {instance.bskyEnabled ? (
-              <Text className="text-gray-400 text-xs">
-                <FontAwesome6 name="bluesky" />
-                {' Bluesky enabled'}
-              </Text>
-            ) : null}
-          </View>
-        </Pressable>
-      ))}
-      {instances.length <= 1 && (
-        <Text className="text-gray-300 text-center my-3">
-          No known servers found other than the default. You can still add one
-          manually.
-        </Text>
-      )}
-    </ScrollView>
+              {instance.registrationCondition ? (
+                <Text className="text-white text-xs mb-2">
+                  {instance.registrationCondition}
+                </Text>
+              ) : null}
+              {instance.version ? (
+                <Text className="text-gray-400 mb-2 text-xs">
+                  v{instance.version}
+                </Text>
+              ) : null}
+              {instance.bskyEnabled ? (
+                <Text className="text-gray-400 text-xs">
+                  <FontAwesome6 name="bluesky" />
+                  {' Bluesky enabled'}
+                </Text>
+              ) : null}
+            </View>
+          </Pressable>
+        ))}
+        {instances.length <= 1 && (
+          <Text className="text-gray-300 text-center my-3">
+            No known servers found other than the default. You can still add one
+            manually.
+          </Text>
+        )}
+      </View>
+    </KeyboardAwareScrollView>
   )
 }
 
 function InstanceInput({ onSelect }: { onSelect: (url: string) => void }) {
   const [url, setUrl] = useState('')
+  const gray400 = useCSSString('--color-gray-400')
+
   return (
     <KeyboardAwareScrollView>
       <View className="px-3">
-        <TextInput
-          autoCapitalize="none"
-          placeholder="Your server domain (e.g. app.wafrn.net)"
-          className="p-3 my-3 border border-gray-500 rounded text-white"
-          value={url}
-          onChangeText={setUrl}
-        />
+        <View className="relative">
+          <MaterialCommunityIcons
+            className="absolute top-6 left-3"
+            name="server-outline"
+            color={gray400}
+            size={24}
+          />
+          <TextInput
+            autoCapitalize="none"
+            placeholder="Your server domain (e.g. app.wafrn.net)"
+            placeholderTextColorClassName="accent-gray-500"
+            className="p-3 pl-10 my-3 rounded-xl border border-gray-500 text-white"
+            value={url}
+            onChangeText={setUrl}
+          />
+        </View>
         <View className="mt-2">
           <Button
             text="Connect"
