@@ -24,13 +24,11 @@ export default function UserMenu({ size }: { size?: number }) {
   const { data: badges } = useNotificationBadges()
   const isSmallScreen = useSmallScreenCheck()
   const isAdmin = useAdminCheck()
-  const { env } = useAuth()
+  const { env, instance } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const avatar = formatAvatarUrl(me?.id ?? '', instance)
   const { accounts, loading, selectAccount } = useAccounts()
-  const accountList = useMemo(() => {
-    return accounts.map((a, index) => ({ ...a, index }))
-  }, [accounts])
 
   const gray600 = useCSSString('--color-gray-600')
   const blue900 = useCSSString('--color-blue-900')
@@ -113,7 +111,8 @@ export default function UserMenu({ size }: { size?: number }) {
       >
         <View className="border flex-row items-center gap-3 border-gray-700 bg-gray-700 rounded-full">
           <Image
-            source={{ uri: formatAvatarUrl(me?.id ?? '') }}
+            key={me?.id}
+            source={{ uri: avatar }}
             style={{ width: size ?? 40, height: size ?? 40, borderRadius: 100 }}
           />
           {isSmallScreen ? null : (
@@ -143,7 +142,8 @@ export default function UserMenu({ size }: { size?: number }) {
           <View className="flex-row px-2 mb-2 gap-2 items-start">
             <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
-                source={{ uri: formatAvatarUrl(me?.id ?? '') }}
+                key={me?.id}
+                source={{ uri: avatar }}
                 style={{
                   width: 48,
                   height: 48,
@@ -158,7 +158,7 @@ export default function UserMenu({ size }: { size?: number }) {
               </Text>
             </View>
             <View className="self-center flex-row items-center gap-1 mt-2">
-              {accountList
+              {accounts
                 .filter((a) => a.id !== me?.id)
                 .slice(0, 2)
                 .map((acc) => (
@@ -167,7 +167,7 @@ export default function UserMenu({ size }: { size?: number }) {
                     style={{ width: 48, height: 48 }}
                     className="relative rounded-xl border-2 border-gray-200"
                     accessibilityLabel={`Switch to ${formatUserUrl(acc.url)}`}
-                    onPress={() => selectAccount(acc.index)}
+                    onPress={() => selectAccount(acc.id)}
                     activeOpacity={0.5}
                   >
                     <Image

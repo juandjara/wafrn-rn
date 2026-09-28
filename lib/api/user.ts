@@ -20,6 +20,7 @@ import { useToasts } from '../toasts'
 import { getUploadableFile } from '@/lib/files'
 import { router } from 'expo-router'
 import { startTransition } from 'react'
+import { isValidURL } from './content'
 
 export type User = {
   createdAt: string // iso date
@@ -157,8 +158,6 @@ const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 export type SavedAccount = {
   token: string
   instance: string
-  shorthand?: string
-  main?: boolean
 }
 
 export function useAccounts() {
@@ -182,27 +181,25 @@ export function useAccounts() {
         return null
       }
       // avatars must be fetched from the home server because current server may not have them cached
-      const avatar = formatAvatarUrl(
-        user.userId,
-        instance === a.instance ? '' : a.instance,
-      )
+      const avatar = formatAvatarUrl(user.userId, a.instance)
+      const instanceHost = isValidURL(a.instance)
+        ? new URL(a.instance).host
+        : a.instance
+      const fullUrl =
+        user.url.lastIndexOf('@') > 0 ? user.url : `${user.url}@${instanceHost}`
       return {
         id: user.userId,
         url: user.url,
+        fullUrl: formatUserUrl(fullUrl),
         avatar,
         role: user.role,
         email: user.email,
-        main: a.main,
-        shorthand: a.shorthand,
+        token: a.token,
+        instance: a.instance,
       }
     })
     .filter((a) => !!a)
-    .sort((a, b) => {
-      if (a.main === b.main) {
-        return b.url.localeCompare(a.url)
-      }
-      return Number(b.main) - Number(a.main)
-    })
+    .sort((a, b) => a.fullUrl.localeCompare(b.fullUrl))
 
   function addAccount(token: string, instance: string) {
     setAccountsData([...accountsData, { token, instance }])
@@ -225,30 +222,6 @@ export function useAccounts() {
       return parsed && parsed.userId === userId
     })
   }
-  function editAccounts(
-    payload: Record<
-      string,
-      {
-        main: boolean
-        shorthand: string
-      }
-    >,
-  ) {
-    setAccountsData(
-      accountsData.map((a) => {
-        const parsed = parseToken(a.token)
-        if (!parsed) {
-          return a
-        }
-        const { main, shorthand } = payload[parsed.userId] ?? {}
-        return {
-          ...a,
-          main,
-          shorthand,
-        }
-      }),
-    )
-  }
 
   function nextTick() {
     return new Promise<void>((resolve) => {
@@ -256,28 +229,32 @@ export function useAccounts() {
     })
   }
 
-  async function selectAccount(index: number) {
-    const newValues = accountsData[index] ?? {}
-    const { token, instance } = newValues
+  async function selectAccount(userId: string) {
+    const account = accounts.find((a) => a.id === userId)
+    if (!account) {
+      return
+    }
+
+    const { token, instance } = account
     startTransition(async () => {
       setInstance(instance)
       setToken(token)
       const env = await getInstanceEnvironment(instance)
       envAtom.set(env)
+      const url = parseToken(token)?.url ?? ''
+      showToastSuccess(`You are now waffing as ${url}`)
       await nextTick()
       await qc.invalidateQueries({
         predicate: ({ queryKey }) => queryKey[0] !== 'environment',
       })
-      const url = parseToken(token)?.url ?? ''
-      showToastSuccess(`You are now waffing as ${url}`)
     })
   }
+
   return {
     accounts,
     loading,
     addAccount,
     removeAccount,
-    editAccounts,
     selectAccount,
     removeAll,
     getAccountData,
