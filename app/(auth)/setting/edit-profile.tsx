@@ -7,7 +7,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
 import { EDITOR_TRIGGERS_CONFIG } from '@/lib/api/content'
-import { useMentions } from 'react-native-more-controlled-mentions'
+import { useMentions } from 'react-native-controlled-mentions'
 import EditorInput from '@/components/editor/EditorInput'
 import {
   getPrivateOptionValue,

@@ -18,7 +18,7 @@ import {
   generateValueFromMentionStateAndChangedText,
   isTriggerConfig,
   useMentions,
-} from 'react-native-more-controlled-mentions'
+} from 'react-native-controlled-mentions'
 import { CreatePostPayload, useCreatePostMutation } from '@/lib/api/posts'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import PostFragment from '@/components/dashboard/PostFragment'

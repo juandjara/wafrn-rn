@@ -8,7 +8,7 @@ import {
   generateValueFromMentionStateAndChangedText,
   Suggestion,
   useMentions,
-} from 'react-native-more-controlled-mentions'
+} from 'react-native-controlled-mentions'
 import EditorSuggestions from './EditorSuggestions'
 import { clearSelectionRangeFormat, MENTION_REGEX } from '@/lib/api/content'
 import { useAuth } from '@/lib/contexts/AuthContext'

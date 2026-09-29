@@ -6,7 +6,7 @@ import {
   isTriggerConfig,
   TriggersConfig,
   useMentions,
-} from 'react-native-more-controlled-mentions'
+} from 'react-native-controlled-mentions'
 import {
   ALL_MUTE_SOURCES,
   getPrivateOptionValue,
