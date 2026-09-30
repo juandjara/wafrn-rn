@@ -3,6 +3,9 @@ import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -27,6 +30,7 @@ class MainActivity : ReactActivity() {
     // after the process is killed in the background. React Native rebuilds its own
     // view hierarchy from scratch anyway.
     super.onCreate(null)
+    findViewById<ViewGroup>(android.R.id.content).accessibilityDelegate = TextChangeAnnouncementFilter
   }
 
   /**
@@ -72,5 +76,38 @@ class MainActivity : ReactActivity() {
   override fun onNewIntent(intent: android.content.Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
+  }
+}
+
+/**
+ * On Android, React Native replaces the whole text of a controlled TextInput 
+ * whenever JS sends it text (ReactEditText.maybeSetText), even when the text is unchanged.
+ * TalkBack reads each replace as "X replaced with X".
+ * This drops those events and narrows other whole-field replaces to the range that changed.
+ * Inputs in other windows (Modal, Dialog) are not covered.
+ */
+private object TextChangeAnnouncementFilter : View.AccessibilityDelegate() {
+  override fun onRequestSendAccessibilityEvent(
+    host: ViewGroup,
+    child: View,
+    event: AccessibilityEvent,
+  ): Boolean {
+    if (event.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
+      val before = event.beforeText?.toString()
+      val after = event.text.singleOrNull()?.toString()
+      if (before != null && after != null && event.fromIndex == 0 &&
+        event.removedCount == before.length && event.addedCount == after.length
+      ) {
+        if (before == after) {
+          return false
+        }
+        val prefix = before.commonPrefixWith(after).length
+        val suffix = before.substring(prefix).commonSuffixWith(after.substring(prefix)).length
+        event.fromIndex = prefix
+        event.removedCount = before.length - prefix - suffix
+        event.addedCount = after.length - prefix - suffix
+      }
+    }
+    return super.onRequestSendAccessibilityEvent(host, child, event)
   }
 }
