@@ -205,9 +205,9 @@ export default function UserDetail({ user }: { user: User }) {
         {(user.migratedTo || user.userMigratedTo) && (
           <Link
             href={
-              user.migratedTo
-                ? `/user/${user.migratedTo}`
-                : (user.userMigratedTo ?? '')
+              user.userMigratedTo
+                ? (user.userMigratedTo ?? '')
+                : `/user/${user.migratedTo}`
             }
             asChild
           >
