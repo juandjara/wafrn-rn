@@ -1,6 +1,8 @@
+import { Platform } from 'react-native'
 import { Paths, Directory, File } from 'expo-file-system'
 import {
   saveToLibraryAsync,
+  createAlbumAsync,
   getPermissionsAsync,
   requestPermissionsAsync,
 } from 'expo-media-library'
@@ -8,6 +10,7 @@ import * as Device from 'expo-device'
 import { getUserAgent, handleFetchError } from './http'
 
 const CACHE_DIRNAME = 'WAFRN'
+const ALBUM_NAME = 'WAFRN'
 
 export type UploadableFile = {
   uri: string
@@ -38,6 +41,16 @@ async function ensureMediaLibraryPermission() {
   const next = await requestPermissionsAsync(true)
   if (!next.granted) {
     throw new Error('Download permission not granted')
+  }
+}
+
+async function saveToDevice(localUri: string) {
+  await ensureMediaLibraryPermission()
+  if (Platform.OS === 'android') {
+    // write to Pictures/WAFRN instead of DCIM
+    await createAlbumAsync(ALBUM_NAME, undefined, false, localUri)
+  } else {
+    await saveToLibraryAsync(localUri)
   }
 }
 
@@ -126,6 +139,5 @@ export async function downloadToDevice(
     path = new File(getCachePath(), `copy_${Date.now()}_${name}`)
   }
   const result = await File.downloadFileAsync(url, path)
-  await ensureMediaLibraryPermission()
-  await saveToLibraryAsync(result.uri)
+  await saveToDevice(result.uri)
 }
