@@ -9,6 +9,7 @@ import PostFragment from './PostFragment'
 import InteractionRibbon from '../posts/InteractionRibbon'
 import { useSmallScreenCheck } from '@/lib/styles'
 import { clsx } from 'clsx'
+import TagRibbon from '../ribbons/TagRibbon'
 
 function FeedItemRenderer_({ item }: { item: FeedItem }) {
   const isSmallScreen = useSmallScreenCheck()
@@ -34,6 +35,14 @@ function FeedItemRenderer_({ item }: { item: FeedItem }) {
         postId={item.threadId}
         user={item.user}
         emojis={item.emojis}
+        className={clsx(roundedCN, 'border-b border-slate-600')}
+      />
+    )
+  }
+  if (item.type === 'tag-ribbon') {
+    return (
+      <TagRibbon
+        tag={item.tag}
         className={clsx(roundedCN, 'border-b border-slate-600')}
       />
     )

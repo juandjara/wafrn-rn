@@ -40,6 +40,7 @@ async function threadToListItems(
   } = getDerivedThreadState(thread, context, settings)
   const user = context.users[thread.userId]
   const userEmojis = user ? getUserEmojis(user, context) : []
+  const { followedUsers, followedHashtags } = settings ?? {}
 
   if (postHidden) {
     return []
@@ -47,6 +48,21 @@ async function threadToListItems(
 
   const elements = []
   if (user) {
+    const tags = context.tags[interactionPost.id]
+    const followedSet = new Set(followedHashtags)
+    if (tags?.length && followedHashtags?.length && !isRewoot) {
+      const followedTag = tags.find((t) => followedSet.has(t))
+      if (followedTag && !followedUsers?.includes(user.id)) {
+        elements.push({
+          threadId: thread.id,
+          tag: followedTag,
+          type: 'tag-ribbon' as const,
+          postId: interactionPost.id,
+          user,
+          emojis: userEmojis,
+        })
+      }
+    }
     if (isRewoot) {
       elements.push({
         threadId: thread.id,
