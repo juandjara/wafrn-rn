@@ -25,11 +25,13 @@ import {
 
 export default function ReactionDetailsMenu({
   users,
+  count,
   emoji,
   onToggleReaction,
   className,
 }: {
   users: PostUser[]
+  count: number
   emoji: EmojiReaction
   onToggleReaction?: () => void
   className?: string
@@ -110,7 +112,7 @@ export default function ReactionDetailsMenu({
               style={{ width: 20, height: 20 }}
             />
           )}
-          <Text className="text-gray-200">{users.length}</Text>
+          <Text className="text-gray-200">{count}</Text>
         </View>
       </MenuTrigger>
       <MenuOptions
@@ -136,6 +138,11 @@ export default function ReactionDetailsMenu({
           className="bg-gray-900 rounded-lg m-2"
           keyExtractor={(item) => item.id}
         />
+        {count > users.length && (
+          <Text className="text-gray-300 text-xs px-2 pb-2">
+            and {count - users.length} more
+          </Text>
+        )}
       </MenuOptions>
     </Menu>
   )

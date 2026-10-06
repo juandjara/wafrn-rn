@@ -1,6 +1,7 @@
 import Header, { useHeaderInset } from '@/components/Header'
 import {
   DEFAULT_PRIVATE_OPTIONS,
+  MAXIMUM_THREAD_ANCESTOR_LIMIT,
   MINIMUM_THREAD_ANCESTOR_LIMIT,
   PrivateOptionNames,
 } from '@/lib/api/settings'
@@ -39,11 +40,17 @@ export default function FeedsAndContentSettings() {
 
   // the text input needs free typing; the validated number only lands in the form at save time
   const [threadLimitText, setThreadLimitText] = useState(
-    String(form[PrivateOptionNames.ThreadAncestorLimit]),
+    String(
+      Math.min(
+        form[PrivateOptionNames.ThreadAncestorLimit],
+        MAXIMUM_THREAD_ANCESTOR_LIMIT,
+      ),
+    ),
   )
   const validThreadAncestorLimit =
     Number.isFinite(Number(threadLimitText)) &&
-    Number(threadLimitText) >= MINIMUM_THREAD_ANCESTOR_LIMIT
+    Number(threadLimitText) >= MINIMUM_THREAD_ANCESTOR_LIMIT &&
+    Number(threadLimitText) <= MAXIMUM_THREAD_ANCESTOR_LIMIT
 
   const canPublish = validThreadAncestorLimit && !isPending
 
@@ -140,7 +147,8 @@ export default function FeedsAndContentSettings() {
           <Text className="text-white mb-2">
             Thread collapse limit{' '}
             <Text className="text-gray-200 text-sm">
-              (minimum is {MINIMUM_THREAD_ANCESTOR_LIMIT})
+              (between {MINIMUM_THREAD_ANCESTOR_LIMIT} and{' '}
+              {MAXIMUM_THREAD_ANCESTOR_LIMIT})
             </Text>
           </Text>
           <TextInput

@@ -5,7 +5,13 @@ import {
   useDashboard,
 } from '@/lib/api/dashboard'
 import { FlatList, Text } from 'react-native'
-import { useCallback, useImperativeHandle, useRef, useTransition } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useTransition,
+} from 'react'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import { useQueryClient } from '@tanstack/react-query'
 import Loading from '../Loading'
@@ -82,6 +88,17 @@ export default function Dashboard({
       fetchNextPage()
     }
   }
+
+  const pages = data?.pages ?? []
+  const lastPageIsEmpty = pages[pages.length - 1]?.feed.length === 0
+
+  // we might get an empty page if all the content in there is blocked, muted or filtered in other way
+  // and the FlatList onEndReached will not trigger so we check here
+  useEffect(() => {
+    if (lastPageIsEmpty && hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  }, [lastPageIsEmpty, hasNextPage, isFetching, fetchNextPage])
 
   if (isLoading) {
     return <Loading />

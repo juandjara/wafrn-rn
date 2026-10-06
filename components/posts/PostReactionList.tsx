@@ -71,7 +71,7 @@ export default function PostReactionList({ post }: { post: Post }) {
     <View id="reactions" className="my-2 flex-row flex-wrap items-center gap-2">
       {extendedReactions.map((r) => (
         <PostReaction
-          key={r.id}
+          key={r.key}
           reaction={r}
           onToggleReaction={() => onToggleReaction(r)}
           className={getClassname(r)}

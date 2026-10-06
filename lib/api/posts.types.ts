@@ -71,6 +71,7 @@ export type Post = {
 export type PostThread = Post & {
   ancestors: Post[]
   notes: number
+  omittedAncestors?: number // number of ancestors cut from the thread
 }
 
 export type PostUser = {
@@ -166,6 +167,9 @@ export type DashboardData = {
   asks?: PostAsk[]
   rewootIds?: string[] // ids of posts rewooted by me
   bookmarks?: PostUserRelation[] // posts bookmarked by me
+  likeCounts?: { postId: string; count: number }[] // real total of capped likes
+  emojiReactionCounts?: { postId: string; content: string; count: number }[] // real total of capped reactions
+  scannedUntil?: number | null // dashboard only: oldest post the server scanned
 }
 
 export type PostAsk = Timestamps & {

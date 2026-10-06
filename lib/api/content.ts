@@ -10,6 +10,7 @@ import {
 import {
   ALL_MUTE_SOURCES,
   getPrivateOptionValue,
+  MAXIMUM_THREAD_ANCESTOR_LIMIT,
   MuteSource,
   MuteType,
   type PrivateOption,
@@ -141,19 +142,24 @@ export function getReactions(post: Post, context: DashboardContextData) {
       emoji,
     })
   }
+  const counts = context.reactionCounts[post.id]
   const grouped = new Map<string, EmojiGroup>()
   for (const r of postReactions) {
     const key = typeof r.emoji === 'string' ? r.emoji : r.emoji.name
     if (!grouped.has(key)) {
       grouped.set(key, {
-        id: key,
+        key,
         users: [],
         emoji: r.emoji,
+        count: counts?.[key] ?? 0,
       })
     }
     grouped.get(key)!.users.push(r.user!)
   }
-  return [...grouped.values()].sort((a, b) => a.id.localeCompare(b.id))
+  for (const group of grouped.values()) {
+    group.count = Math.max(group.count, group.users.length)
+  }
+  return [...grouped.values()].sort((a, b) => a.key.localeCompare(b.key))
 }
 
 export function isValidURL(str: string) {
@@ -460,23 +466,26 @@ export function groupPostReactions(post: Post, context: DashboardContextData) {
   const likeUsers = (context.likes[post.id] ?? []).map(
     (id) => context.users[id],
   )
+  let likeCount = Math.max(context.likeCounts[post.id] ?? 0, likeUsers.length)
 
   for (const r of reactions) {
     if (isUnicodeHeart(r.emoji)) {
       for (const u of r.users) {
         likeUsers.push(u)
       }
+      likeCount += r.count
     } else {
       fullReactions.push(r)
     }
   }
 
-  if (likeUsers.length) {
+  if (likeCount > 0) {
     return [
       {
-        id: `${post.id}-likes`,
+        key: `${post.id}-likes`,
         emoji: '❤️' as EmojiReaction,
         users: likeUsers.filter((u) => !!u),
+        count: likeCount,
       },
     ].concat(fullReactions)
   }
@@ -681,9 +690,12 @@ export function getDerivedThreadState(
   const isRewoot = isEmptyRewoot(thread, context)
   const isReply = !!thread.parentId && !isRewoot
 
-  const threadAncestorLimit = getPrivateOptionValue(
-    settings?.options || [],
-    PrivateOptionNames.ThreadAncestorLimit,
+  const threadAncestorLimit = Math.min(
+    getPrivateOptionValue(
+      settings?.options || [],
+      PrivateOptionNames.ThreadAncestorLimit,
+    ),
+    MAXIMUM_THREAD_ANCESTOR_LIMIT,
   )
 
   let ancestors = ((thread as PostThread).ancestors || []).sort(sortPosts)
@@ -697,7 +709,9 @@ export function getDerivedThreadState(
     }
   }
 
-  const ancestorLimitReached = ancestors.length >= threadAncestorLimit
+  const totalAncestors =
+    ancestors.length + ((thread as PostThread).omittedAncestors ?? 0)
+  const ancestorLimitReached = totalAncestors >= threadAncestorLimit
   // this is the shape the array will have if thread ancestor limit is not reached (ex. for threads with only or two posts)
   let posts = [...ancestors, interactionPost] as (Post | null)[]
   let morePostsCount = 0
@@ -707,14 +721,14 @@ export function getDerivedThreadState(
     } else if (threadAncestorLimit === 2) {
       // writing null here so that is what will be extracted as `firstPost` later
       posts = [null, ancestors[ancestors.length - 1], interactionPost]
-      morePostsCount = ancestors.length - 1
+      morePostsCount = totalAncestors - 1
     } else {
       // the `-1` modifier makes the slice starting from the tail of ancestors
       // the `-2` subtraction accounts for the fact that we are already showing 2 other posts
       // `threadAncestorLimit` is a minimum of 3 in this part of the code, so `tail` will at least have one element
       const tail = ancestors.slice(-1 * (threadAncestorLimit - 2))
       posts = [ancestors[0], ...tail, interactionPost].filter(Boolean)
-      morePostsCount = ancestors.length - 2
+      morePostsCount = totalAncestors - 1 - tail.length
     }
   }
   const [firstPost, ...threadPosts] = posts

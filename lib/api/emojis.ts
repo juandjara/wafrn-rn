@@ -86,8 +86,10 @@ export function useEmojiReactMutation({ id }: { id: string }) {
 
 export type EmojiGroup = {
   emoji: EmojiReaction
+  // contains only a sample, first few users that reacted
   users: PostUser[]
-  id: string
+  count: number
+  key: string
 }
 
 function combineReactions(
@@ -95,32 +97,43 @@ function combineReactions(
   reactions: EmojiGroup[],
   mutationState: EmojiReactPayload[],
 ) {
-  const map = Object.fromEntries(reactions.map((r) => [r.id, r]))
+  const reactionMap = Object.fromEntries(reactions.map((r) => [r.key, r]))
   for (const variables of mutationState) {
     const key =
       typeof variables.nextEmoji === 'string'
         ? variables.nextEmoji
-        : variables.nextEmoji.id
-    if (map[key]) {
-      if (variables.undo) {
-        map[key].users = map[key].users.filter((u) => u.id !== me?.id)
-        if (map[key].users.length === 0) {
-          delete map[key]
-        }
+        : variables.nextEmoji.name
+
+    if (reactionMap[key]) {
+      let count = reactionMap[key].count
+      const users = reactionMap[key].users
+      const others = users.filter((u) => u.id !== me?.id)
+      const alreadyCounted = others.length < users.length
+      if (alreadyCounted) {
+        count -= 1
+      }
+      if (!variables.undo) {
+        count += 1
+      }
+      if (count === 0) {
+        delete reactionMap[key]
       } else {
-        map[key].users = map[key].users
-          .filter((u) => u.id !== me?.id)
-          .concat(me)
+        reactionMap[key] = {
+          ...reactionMap[key],
+          count,
+          users: variables.undo ? others : others.concat(me),
+        }
       }
     } else if (!variables.undo) {
-      map[key] = {
-        id: key,
+      reactionMap[key] = {
+        key,
         emoji: variables.nextEmoji,
         users: [me],
+        count: 1,
       }
     }
   }
-  return Object.values(map)
+  return Object.values(reactionMap)
 }
 
 export function useExtendedReactions(postId: string) {
@@ -165,33 +178,36 @@ export function useExtendedReactions(postId: string) {
       emojiReactionState,
     )
     let likesReaction = extendedReactions.find(
-      (r) => r.id === `${postId}-likes`,
+      (r) => r.key === `${postId}-likes`,
     ) || {
-      id: `${postId}-likes`,
+      key: `${postId}-likes`,
       users: [],
       emoji: '❤️',
+      count: 0,
     }
 
     const otherReactions = extendedReactions.filter(
-      (r) => r.id !== `${postId}-likes`,
+      (r) => r.key !== `${postId}-likes`,
     )
 
     if (!isLiked && likesReaction.users.some((u) => u.id === me.userId)) {
       likesReaction = {
-        id: `${postId}-likes`,
+        key: `${postId}-likes`,
         emoji: '❤️',
         users: likesReaction.users.filter((u) => u.id !== me.userId),
+        count: likesReaction.count - 1,
       }
     }
     if (isLiked && !likesReaction.users.some((u) => u.id === me.userId)) {
       likesReaction = {
-        id: `${postId}-likes`,
+        key: `${postId}-likes`,
         emoji: '❤️',
         users: likesReaction.users.concat(myUser),
+        count: likesReaction.count + 1,
       }
     }
 
-    return likesReaction.users.length
+    return likesReaction.count > 0
       ? [likesReaction, ...otherReactions]
       : otherReactions
   }, [me, isLiked, postId, postState?.reactions, emojiReactionState])
