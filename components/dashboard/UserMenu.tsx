@@ -7,6 +7,7 @@ import {
   FontAwesome,
   MaterialCommunityIcons,
   MaterialIcons,
+  Octicons,
 } from '@expo/vector-icons'
 import { optionStyleBig, useSmallScreenCheck } from '@/lib/styles'
 import { useNotificationBadges } from '@/lib/notifications'
@@ -53,9 +54,20 @@ export default function UserMenu({ size }: { size?: number }) {
         hidden: me?.manuallyAcceptsFollows === false,
       },
       {
+        icon: 'archive-edit-outline' as const,
+        label: 'Drafts',
+        action: () => router.navigate('/drafts'),
+        hidden: !env?.ENABLE_DRAFTS,
+      },
+      {
         icon: 'bookmark-outline' as const,
         label: 'Bookmarks',
         action: () => router.navigate('/bookmarks'),
+      },
+      {
+        icon: <Octicons name="hash" size={20} color={gray600} />,
+        label: 'Followed hashtags',
+        action: () => router.navigate('/followed-hashtags'),
       },
       {
         icon: <MaterialIcons name="schedule" color={gray600} size={20} />,
@@ -68,10 +80,9 @@ export default function UserMenu({ size }: { size?: number }) {
         action: () => router.navigate('/setting/queued-posts'),
       },
       {
-        icon: 'archive-edit-outline' as const,
-        label: 'Drafts',
-        action: () => router.navigate('/drafts'),
-        hidden: !env?.ENABLE_DRAFTS,
+        icon: 'cog-outline' as const,
+        label: 'Settings',
+        action: () => router.navigate('/settings'),
       },
       {
         icon: 'shield-outline' as const,
@@ -79,11 +90,6 @@ export default function UserMenu({ size }: { size?: number }) {
         action: () => router.navigate('/admin'),
         hidden: !isAdmin,
         badge: (badges?.reports || 0) + (badges?.usersAwaitingApproval || 0),
-      },
-      {
-        icon: 'cog-outline' as const,
-        label: 'Settings',
-        action: () => router.navigate('/settings'),
       },
     ]
     const badge = options.reduce((acc, option) => acc + (option.badge || 0), 0)

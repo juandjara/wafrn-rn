@@ -7,7 +7,7 @@ import {
 } from '@/lib/contexts/AuthContext'
 import { optionStyleDark } from '@/lib/styles'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
-import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { ScrollView, Text, Pressable, View, Platform } from 'react-native'
@@ -63,11 +63,6 @@ export default function Settings() {
         icon: 'cancel' as const,
         label: 'Mutes & blocks',
         link: '/setting/mutes-and-blocks',
-      },
-      {
-        icon: <Octicons name="hash" size={20} color={gray200} />,
-        label: 'Followed hashtags',
-        link: '/followed-hashtags',
       },
       // ACCOUNT
       { header: 'Account' },
