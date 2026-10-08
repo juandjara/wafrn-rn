@@ -10,11 +10,15 @@ import { getUserEmojis, isEmptyRewoot, sortPosts } from '@/lib/api/content'
 import {
   FLATLIST_PERFORMANCE_CONFIG,
   MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG,
+  usePostAncestors,
   usePostDetail,
+  usePostReplies,
   useRemoteRepliesMutation,
 } from '@/lib/api/posts'
+import { combineDashboardContextPages, dedupeById } from '@/lib/api/dashboard'
 import { Post, PostThread, PostUser } from '@/lib/api/posts.types'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
+import { useAuth } from '@/lib/contexts/AuthContext'
 import { formatUserUrl } from '@/lib/formatters'
 import pluralize from '@/lib/pluralize'
 import { useLayoutData } from '@/lib/postStore'
@@ -24,6 +28,7 @@ import { Link, useLocalSearchParams } from 'expo-router'
 import {
   memo,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -32,6 +37,7 @@ import {
 import { Dimensions, FlatList, Platform, Text, View } from 'react-native'
 import Reanimated from 'react-native-reanimated'
 import { EmojiBase } from '@/lib/api/emojis'
+import { useQueryClient } from '@tanstack/react-query'
 
 const POST_HEADER_HEIGHT = 72
 
@@ -58,6 +64,7 @@ type PostDetailItemData =
   | {
       type: 'rewoot'
       data: {
+        key: string
         user: PostUser
         emojis: EmojiBase[]
       }
@@ -75,169 +82,203 @@ type PostDetailItemData =
 
 export default function PostDetail() {
   const headerInset = useHeaderInset(POST_HEADER_HEIGHT)
+  const { env } = useAuth()
   const { postid, isArticle } = useLocalSearchParams()
-  const { data, isFetching, refetch, error } = usePostDetail(postid as string)
+  const postId = postid as string
 
-  const remoteRepliesMutation = useRemoteRepliesMutation(postid as string)
+  const remoteRepliesMutation = useRemoteRepliesMutation(postId)
   const hiddenUserIds = useHiddenUserIds()
   const layoutData = useLayoutData()
   const listRef = useRef<FlatList<PostDetailItemData>>(null)
 
-  const { mainPost, mainUser, postCount, replyCount, listData, context } =
+  // FlatList jumps if rows are prepended while scrolling,
+  // so reaching the top only marks that ancestors are wanted
+  const needsAncestors = useRef(false)
+
+  // and they are shown or loaded once the scroll comes to rest
+  const [ancestorsShown, setAncestorsShown] = useState(false)
+
+  const qc = useQueryClient()
+  const {
+    data: detailData,
+    isFetching: detailIsFetching,
+    error: detailError,
+  } = usePostDetail(postId)
+  const {
+    data: repliesData,
+    isFetchingNextPage: repliesIsFetchingNextPage,
+    isFetching: repliesIsFetching,
+    error: repliesError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = usePostReplies(postId)
+  const {
+    data: ancestorData,
+    hasNextPage: hasMoreAncestorPages,
+    isFetching: isFetchingAncestors,
+    fetchNextPage: fetchMoreAncestors,
+  } = usePostAncestors(postId, !!detailData?.post.ancestors.length)
+
+  const isRefreshing =
+    detailIsFetching || (repliesIsFetching && !repliesIsFetchingNextPage)
+
+  const error = detailError ?? repliesError
+
+  // invalidate all queries for detail, ancestors and replies
+  const refresh = useCallback(() => {
+    qc.invalidateQueries({ queryKey: ['post', postId] })
+  }, [qc, postId])
+
+  const { mainPost, mainUser, listData, context, lastRepliesPageIsEmpty } =
     useMemo(() => {
-      if (!data) {
+      const repliesPages = repliesData?.pages
+      if (!detailData || !repliesPages) {
         return {
           mainPost: null,
           mainUser: null,
-          postCount: 0,
-          replyCount: 0,
           listData: [] as never[],
           context: null,
+          lastRepliesPageIsEmpty: false,
         }
       }
 
-      const context = data.context
-      const mainPost = data.post
-      const replies = data.replies.filter(
-        (p) => !hiddenUserIds.includes(p.userId),
-      )
-
-      const numRewoots = replies.filter(
-        (p) => isEmptyRewoot(p, context) && p.parentId === postid,
-      ).length
-      const numReplies = replies.filter(
-        (p) => !isEmptyRewoot(p, context),
-      ).length
-      const statsText = `${numReplies} ${pluralize(
-        numReplies,
-        'reply',
-        'replies',
-      )}, ${numRewoots} ${pluralize(numRewoots, 'rewoot')}`
-
+      const ancestorPages = ancestorsShown ? (ancestorData?.pages ?? []) : []
+      const context = combineDashboardContextPages([
+        detailData.context,
+        ...ancestorPages.map((p) => p.context),
+        ...repliesPages.map((p) => p.context),
+      ])
+      const mainPost = detailData.post
       const mainUser = context.users[mainPost.userId]
       const mainIsRewoot = isEmptyRewoot(mainPost, context)
-      const ancestors = mainPost.ancestors
+
+      const ancestorItems: PostDetailItemData[] = dedupeById(
+        ancestorPages.flatMap((p) => p.ancestors),
+      )
         .filter((a) => !hiddenUserIds.includes(a.userId))
         .sort(sortPosts)
-        .map((a) => ({ post: a, className: 'border-t border-slate-600' }))
+        .map((a) => ({
+          type: 'post',
+          data: { post: a, className: 'border-t border-slate-600' },
+        }))
 
-      const mainFragment = {
-        post: mainPost,
-        className: clsx('border-slate-600', {
-          'border-b': mainIsRewoot,
-          'border-t': !mainIsRewoot && ancestors.length > 0,
-        }),
+      const mainItem: PostDetailItemData = {
+        type: 'post',
+        data: {
+          post: mainPost,
+          className: clsx('border-slate-600', {
+            'border-b': mainIsRewoot,
+            'border-t': !mainIsRewoot && ancestorItems.length > 0,
+          }),
+        },
       }
-
       const thread = mainIsRewoot
-        ? [mainFragment, ...ancestors]
-        : [...ancestors, mainFragment]
+        ? [mainItem, ...ancestorItems]
+        : [...ancestorItems, mainItem]
 
-      const fullReplies = replies
-        .filter((p) => {
-          const parentIsTopPost = p.parentId === postid
-          const isRewoot = isEmptyRewoot(p, context)
-          // only show rewoots from the top post
-          return !p.isDeleted && (isRewoot ? parentIsTopPost : true)
-        })
-        .sort(sortPosts)
-        .map((p) => {
-          const user = context.users[p.userId]!
-          if (isEmptyRewoot(p, context)) {
-            return {
-              type: 'rewoot' as const,
+      const replyItems: PostDetailItemData[] = []
+      for (const entry of repliesPages.flatMap((p) => p.entries)) {
+        if (entry.type === 'reply') {
+          if (!entry.isDeleted && !hiddenUserIds.includes(entry.userId)) {
+            replyItems.push({ type: 'reply', data: { post: entry } })
+          }
+        } else {
+          const user = context.users[entry.userId]
+          if (user && !hiddenUserIds.includes(user.id)) {
+            replyItems.push({
+              type: 'rewoot',
               data: {
+                key: `${entry.userId}-${entry.createdAt}`,
                 user,
                 emojis: getUserEmojis(user, context),
               },
-            }
-          } else {
-            return {
-              type: 'reply' as const,
-              data: { post: p },
-            }
+            })
           }
-        })
+        }
+      }
 
-      const replyCount = fullReplies.length
-      const postCount = thread.length
+      const { total, totalRewoots } = repliesPages[0]
+      const numReplies = total - (totalRewoots ?? 0)
+      const rewootsText =
+        totalRewoots === undefined
+          ? ''
+          : `, ${totalRewoots} ${pluralize(totalRewoots, 'rewoot')}`
+      const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}${rewootsText}`
 
-      const listData = [
-        ...thread.map((post) => ({ type: 'post' as const, data: post })),
-        { type: 'interaction-ribbon' as const, data: mainPost },
-        { type: 'stats' as const, data: statsText },
-        ...fullReplies,
-      ].filter((l) => !!l)
+      const lastRepliesPage = repliesPages[repliesPages.length - 1]
+      const lastRepliesPageIsEmpty = !lastRepliesPage.entries.some((entry) =>
+        entry.type === 'reply'
+          ? !entry.isDeleted && !hiddenUserIds.includes(entry.userId)
+          : !hiddenUserIds.includes(entry.userId),
+      )
 
-      return { mainPost, mainUser, postCount, replyCount, listData, context }
-    }, [data, postid, hiddenUserIds])
+      const listData: PostDetailItemData[] = [
+        ...thread,
+        { type: 'interaction-ribbon', data: mainPost },
+        { type: 'stats', data: statsText },
+        ...replyItems,
+      ]
 
-  // Pagination strategy copied and adapted from https://github.com/bluesky-social/social-app/blob/main/src/view/com/post-thread/PostThread.tsx#L377
+      return {
+        mainPost,
+        mainUser,
+        listData,
+        context,
+        lastRepliesPageIsEmpty,
+      }
+    }, [detailData, repliesData, ancestorData, ancestorsShown, hiddenUserIds])
 
-  const PARENTS_CHUNK_SIZE = 10
-  const REPLIES_CHUNK_SIZE = 30
+  const hasMoreAncestors =
+    !!env?.ENABLE_PAGINATED_THREADS &&
+    (ancestorsShown
+      ? hasMoreAncestorPages || isFetchingAncestors
+      : !!mainPost?.ancestors.length)
 
-  // start with no parents so we show the main post first
-  const [maxParents, setMaxParents] = useState(0)
-  const [maxReplies, setMaxReplies] = useState(REPLIES_CHUNK_SIZE)
-
-  const currentList = useMemo(() => {
-    if (listData.length === 0) {
-      return []
+  const loadAncestorsIfNeeded = useCallback(() => {
+    if (!needsAncestors.current || !hasMoreAncestors) {
+      return
     }
-
-    const numAncestors = postCount - 1
-
-    const clampMaxParents =
-      maxParents > numAncestors ? numAncestors : maxParents
-    const clampMaxReplies = maxReplies > replyCount ? replyCount : maxReplies
-
-    let startIndex = numAncestors - clampMaxParents
-
-    // +3 for the main post, then the interaction ribbon, then the stats
-    let endIndex = postCount + 3 + clampMaxReplies
-
-    return listData.slice(startIndex, endIndex)
-  }, [listData, maxParents, maxReplies, postCount, replyCount])
-
-  // We reveal parents in chunks. Although they're all already loaded
-  // and FlatList already has its own virtualization, unfortunately FlatList
-  // has a bug that causes the content to jump around if too many items are getting
-  // prepended at once. It also jumps around if items get prepended during scroll.
-  // To work around this, we prepend rows after scroll bumps against the top and rests.
-  const needsBumpMaxParents = useRef(false)
-
-  const bumpMaxParentsIfNeeded = useCallback(() => {
-    if (needsBumpMaxParents.current) {
-      needsBumpMaxParents.current = false
-      setMaxParents((n) => n + PARENTS_CHUNK_SIZE)
+    needsAncestors.current = false
+    if (!ancestorsShown) {
+      setAncestorsShown(true)
+    } else if (!isFetchingAncestors) {
+      fetchMoreAncestors()
     }
-  }, [])
+  }, [
+    hasMoreAncestors,
+    ancestorsShown,
+    isFetchingAncestors,
+    fetchMoreAncestors,
+  ])
 
   const onStartReached = useCallback(() => {
-    if (isFetching) {
+    if (isRefreshing || !hasMoreAncestors) {
       return
     }
+    needsAncestors.current = true
 
-    const parents = postCount - 1
-    if (parents && maxParents < parents) {
-      needsBumpMaxParents.current = true
-
-      // On web, onMomentumScrollEnd never fires because browsers expose no momentum events
-      if (Platform.OS === 'web') {
-        bumpMaxParentsIfNeeded()
-      }
+    // On web, onMomentumScrollEnd never fires because browsers expose no momentum events
+    if (Platform.OS === 'web') {
+      loadAncestorsIfNeeded()
     }
-  }, [maxParents, postCount, isFetching, bumpMaxParentsIfNeeded])
+  }, [isRefreshing, hasMoreAncestors, loadAncestorsIfNeeded])
 
   const onEndReached = useCallback(() => {
-    if (isFetching || replyCount < maxReplies) {
-      return
+    if (!isRefreshing && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
     }
-    setMaxReplies((prev) => prev + REPLIES_CHUNK_SIZE)
-  }, [isFetching, maxReplies, replyCount])
+  }, [isRefreshing, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const onScrollToTop = bumpMaxParentsIfNeeded
+  // FlatList only calls onEndReached again after the content size changes,
+  // so a page with all items filtered (by blocks or mutes) would leave the list stuck on the spinner
+  useEffect(() => {
+    if (lastRepliesPageIsEmpty && hasNextPage && !repliesIsFetching) {
+      fetchNextPage()
+    }
+  }, [lastRepliesPageIsEmpty, hasNextPage, repliesIsFetching, fetchNextPage])
+
+  const onScrollToTop = loadAncestorsIfNeeded
 
   const renderItem = useCallback(
     ({ item }: { item: PostDetailItemData; index: number }) => (
@@ -247,12 +288,8 @@ export default function PostDetail() {
   )
 
   useLayoutEffect(() => {
-    // reset pagination when a new post is fetched
-    setMaxParents(0)
-    setMaxReplies(REPLIES_CHUNK_SIZE)
-
-    // make it so on the next scroll event, we bump the max parents without disturbing the current scroll position
-    needsBumpMaxParents.current = true
+    setAncestorsShown(false)
+    needsAncestors.current = true
 
     // scroll to the top on next frame
     if (mainPost?.id) {
@@ -268,7 +305,7 @@ export default function PostDetail() {
   const header = (
     <Header
       style={{ height: POST_HEADER_HEIGHT }}
-      right={<RefreshButton onPress={refetch} refreshing={isFetching} />}
+      right={<RefreshButton onPress={refresh} refreshing={isRefreshing} />}
       title={
         <View>
           <Text className="text-white text-2xl font-semibold">
@@ -289,14 +326,14 @@ export default function PostDetail() {
         <ErrorView
           style={{ marginTop: headerInset + 8 }}
           message={error.message}
-          onRetry={refetch}
+          onRetry={refresh}
         />
       </View>
     )
   }
 
   // Show loading immediately while fetching
-  if (!context || isFetching) {
+  if (!context || isRefreshing) {
     return (
       <View className="flex-1">
         {header}
@@ -313,7 +350,7 @@ export default function PostDetail() {
       <View style={{ marginTop: headerInset, flex: 1 }}>
         <Reanimated.FlatList
           ref={listRef}
-          data={currentList}
+          data={listData}
           extraData={layoutData}
           renderItem={renderItem}
           style={{ flex: 1 }}
@@ -323,28 +360,26 @@ export default function PostDetail() {
           }}
           keyExtractor={keyExtractor}
           maintainVisibleContentPosition={
-            isFetching ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
+            isRefreshing ? null : MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG
           }
-          refreshing={isFetching}
-          onRefresh={refetch}
+          refreshing={isRefreshing}
+          onRefresh={refresh}
           scrollEventThrottle={1}
           onStartReached={onStartReached}
           onStartReachedThreshold={0.1}
           onEndReached={onEndReached}
           onEndReachedThreshold={0.1}
-          onMomentumScrollEnd={bumpMaxParentsIfNeeded}
+          onMomentumScrollEnd={loadAncestorsIfNeeded}
           onScrollToTop={onScrollToTop} // only on iOS
-          ListHeaderComponent={maxParents < postCount - 1 ? <Loading /> : null}
+          ListHeaderComponent={hasMoreAncestors ? <Loading /> : null}
           ListFooterComponent={
-            maxReplies < replyCount ? (
+            hasNextPage ? (
               <Loading />
             ) : (
               <View collapsable={false} className="my-8">
-                {postCount > 1 && (
+                {mainPost?.rootId && mainPost.rootId !== postId && (
                   <Link
-                    href={`/post/${
-                      (listData[0].data as { post: Post }).post.id
-                    }`}
+                    href={`/post/${mainPost.rootId}`}
                     className="mb-4 text-center items-center mx-4 py-3 rounded-full text-blue-400 bg-blue-950 active:bg-blue-900"
                   >
                     Go to initial post
@@ -386,7 +421,7 @@ function keyExtractor(item: PostDetailItemData) {
     return item.data.post.id
   }
   if (item.type === 'rewoot') {
-    return item.data.user.id
+    return item.data.key
   }
   if (item.type === 'stats') {
     return item.data

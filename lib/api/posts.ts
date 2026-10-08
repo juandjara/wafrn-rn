@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON, statusError, StatusError } from '../http'
 import {
@@ -6,9 +11,8 @@ import {
   Exclusivity,
   InteractionControl,
   Post,
-  PostUser,
+  PostThread,
 } from './posts.types'
-import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic, getInstanceEnvironment } from './auth'
 import { BSKY_HOST } from './html'
@@ -22,10 +26,7 @@ import {
   useSettings,
 } from './settings'
 import { processPost } from '../feeds'
-import {
-  combineDashboardContextPages,
-  getDashboardContextPage,
-} from './dashboard'
+import { getDashboardContextPage } from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
@@ -83,7 +84,7 @@ export async function getPostDetail(
 ) {
   try {
     const env = getEnvironmentStatic()
-    const json = await getJSON(`${env?.API_URL}/v2/post/${id}`, {
+    const json = await getJSON(`${env?.API_URL}/v3/post/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -107,52 +108,130 @@ export function usePostDetail(id: string) {
   return useQuery({
     queryKey: ['post', id, 'detail'],
     queryFn: async ({ signal }) => {
-      const [postData, repliesData] = await Promise.all([
-        getPostDetail(token!, signal, id),
-        getPostReplies(token!, signal, id),
-      ])
-      const post = postData.posts[0]
-      const replies = repliesData.posts
-      const repliesContext = getDashboardContextPage(repliesData)
-      const postContext = getDashboardContextPage(postData)
-      const context = combineDashboardContextPages([
-        repliesContext,
-        postContext,
-      ])
+      const data = await getPostDetail(token!, signal, id)
+      const post = data.posts[0]
+      const context = getDashboardContextPage(data)
       await processPost(post, context, settings)
-      return { post, replies, context }
+      return { post, context }
     },
     enabled: !!token && !!settings && !!id,
   })
 }
 
-export type PostDescendants = {
-  posts: (Timestamps & {
-    userId: string
-    id: string
-    type: 'rewoot' | 'reply'
-  })[]
-  users: Omit<PostUser, 'remoteId'>[]
+type PostAncestorsPage = DashboardData & {
+  hasMore: boolean
+  totalAncestors: number
 }
 
-/** forum endpoint:
-  - includes complete replies and rewoots,
-  - not paginated, can return lots of posts
-*/
-export async function getPostReplies(
+const ANCESTORS_PER_PAGE = 10
+
+// paginated list of the ancestors of a post, starting at the given post parent and going up to the root
+async function getPostAncestors(
   token: string,
   signal: AbortSignal,
   id: string,
+  page: number,
 ) {
   const env = getEnvironmentStatic()
-  const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const json = await getJSON(
+    `${env?.API_URL}/v3/post/${id}?page=${page}&perPage=${ANCESTORS_PER_PAGE}&order=nearest`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal,
     },
-    signal,
+  )
+  return json as PostAncestorsPage
+}
+
+export function usePostAncestors(id: string, enabled: boolean) {
+  const { token, env } = useAuth()
+
+  return useInfiniteQuery({
+    queryKey: ['post', id, 'ancestors'],
+    queryFn: async ({ pageParam, signal }) => {
+      const data = await getPostAncestors(token!, signal, id, pageParam)
+      return {
+        ancestors: data.posts.filter((p) => p.id !== id),
+        hasMore: data.hasMore,
+        context: getDashboardContextPage(data),
+      }
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      lastPage.hasMore ? lastPageParam + 1 : undefined,
+    enabled: enabled && !!env?.ENABLE_PAGINATED_THREADS && !!token && !!id,
   })
-  const data = json as DashboardData
-  return data
+}
+
+type PostRepliesPage = DashboardData & {
+  total: number
+  hasMore: boolean
+  // only sent when asking with `rewoots=true`
+  totalRewoots?: number
+  rewootEntries?: { userId: string; createdAt: string }[]
+}
+
+export type PostRepliesEntry =
+  | ({ type: 'reply' } & PostThread)
+  | { type: 'rewoot'; userId: string; createdAt: string }
+
+async function getPostReplies(
+  token: string,
+  signal: AbortSignal,
+  id: string,
+  page: number,
+  withRewoots: boolean,
+) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(
+    `${env?.API_URL}/v3/forum/${id}?page=${page}${withRewoots ? '&rewoots=true' : ''}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal,
+    },
+  )
+  return json as PostRepliesPage
+}
+
+export function usePostReplies(id: string) {
+  const { token, env } = useAuth()
+  const withRewoots = !!env?.ENABLE_PAGINATED_THREADS
+
+  return useInfiniteQuery({
+    queryKey: ['post', id, 'replies'],
+    queryFn: async ({ pageParam, signal }) => {
+      const data = await getPostReplies(
+        token!,
+        signal,
+        id,
+        pageParam,
+        withRewoots,
+      )
+      // the server sorts the whole list by date, so merging inside each page is enough
+      const entries: PostRepliesEntry[] = [
+        ...data.posts.map((post) => ({ type: 'reply' as const, ...post })),
+        ...(data.rewootEntries ?? []).map((r) => ({
+          type: 'rewoot' as const,
+          ...r,
+        })),
+      ].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      return {
+        entries,
+        total: data.total,
+        totalRewoots: data.totalRewoots,
+        hasMore: data.hasMore,
+        context: getDashboardContextPage(data),
+      }
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages, lastPageParam) =>
+      lastPage.hasMore ? lastPageParam + 1 : undefined,
+    enabled: !!token && !!id,
+  })
 }
 
 export async function requestMoreRemoteReplies(token: string, id: string) {
@@ -164,12 +243,12 @@ export async function requestMoreRemoteReplies(token: string, id: string) {
 
 export function useRemoteRepliesMutation(postId: string) {
   const { token } = useAuth()
-  const { refetch } = usePostDetail(postId)
+  const qc = useQueryClient()
   return useMutation({
     mutationKey: ['loadRemoteReplies', postId],
     mutationFn: async () => {
       await requestMoreRemoteReplies(token!, postId)
-      await refetch()
+      await qc.invalidateQueries({ queryKey: ['post', postId] })
     },
   })
 }

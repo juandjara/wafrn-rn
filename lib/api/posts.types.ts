@@ -61,6 +61,7 @@ export type Post = {
   userId: string
   hierarchyLevel: number
   parentId: string | null
+  rootId?: string | null
   notes: number
   bskyCid?: string
   bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>

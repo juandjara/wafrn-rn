@@ -91,6 +91,7 @@ type EnvironmenResponse = {
   enableOptInFederationToThreads?: boolean
   featureFlags?: {
     drafts?: boolean
+    paginatedThreads?: boolean
   }
 }
 export type Environment = {
@@ -101,6 +102,7 @@ export type Environment = {
   CACHE_HOST: string
   SERVER_VAPID_KEY: string
   ENABLE_DRAFTS?: boolean
+  ENABLE_PAGINATED_THREADS?: boolean
   ENABLE_THREADS_FEDERATION?: boolean
   REGISTER_HAS_REVIEW: boolean
   REGISTER_TYPE: RegisterType
@@ -135,6 +137,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const BASE_URL = new URL(env.baseUrl, instanceURL).origin
   const CACHE_HOST = new URL(env.externalCacheurl, instanceURL).host
   const ENABLE_DRAFTS = !!env.featureFlags?.drafts
+  const ENABLE_PAGINATED_THREADS = !!env.featureFlags?.paginatedThreads
   const ENABLE_THREADS_FEDERATION = !!env.enableOptInFederationToThreads
   const REGISTER_HAS_REVIEW = env.reviewRegistrations
   const REGISTER_TYPE = env.registrationLevel
@@ -147,6 +150,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
     CACHE_HOST,
     SERVER_VAPID_KEY,
     ENABLE_DRAFTS,
+    ENABLE_PAGINATED_THREADS,
     ENABLE_THREADS_FEDERATION,
     REGISTER_HAS_REVIEW,
     REGISTER_TYPE,
