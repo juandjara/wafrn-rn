@@ -90,6 +90,11 @@ export function useDashboard(mode: DashboardMode) {
         )
       const seenPostIds = dedupe ? new Set(pageParam.seenPostIds) : undefined
       const feed = await getFeedData(context, list.posts, settings, seenPostIds)
+      if (seenPostIds) {
+        for (const id of list.omittedIds ?? []) {
+          seenPostIds.add(id)
+        }
+      }
 
       const lastDate =
         list.scannedUntil === undefined

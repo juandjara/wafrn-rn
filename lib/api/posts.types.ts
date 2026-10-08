@@ -171,6 +171,7 @@ export type DashboardData = {
   likeCounts?: { postId: string; count: number }[] // real total of capped likes
   emojiReactionCounts?: { postId: string; content: string; count: number }[] // real total of capped reactions
   scannedUntil?: number | null // dashboard only: oldest post the server scanned
+  omittedIds?: string[] // ancestors cut from the threads of this page, all threads together
 }
 
 export type PostAsk = Timestamps & {
