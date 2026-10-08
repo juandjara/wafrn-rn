@@ -26,8 +26,8 @@ export default function SilenceButton({
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Silence',
-          style: 'destructive',
+          text: isSilenced ? 'Unsilence' : 'Silence',
+          style: isSilenced ? 'default' : 'destructive',
           onPress: () => silenceMutation.mutate(isSilenced),
         },
       ],

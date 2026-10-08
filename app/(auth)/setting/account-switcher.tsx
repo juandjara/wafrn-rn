@@ -122,7 +122,11 @@ export default function AccountSwitcherSettings() {
                     `Do you want to remove ${acc.fullUrl} from the account switcher?`,
                     [
                       { text: 'Cancel', style: 'cancel' },
-                      { text: 'Switch', onPress: () => removeAccount(acc.id) },
+                      {
+                        text: 'Remove',
+                        style: 'destructive',
+                        onPress: () => removeAccount(acc.id),
+                      },
                     ],
                   )
                 }}
