@@ -1,4 +1,4 @@
-import { useMutation, useMutationState } from '@tanstack/react-query'
+import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { getJSON } from '../http'
 import { PostUser } from './posts.types'
@@ -7,6 +7,7 @@ import { useToasts } from '../toasts'
 import { useDashboardContext } from '../contexts/DashboardContext'
 import { useMemo } from 'react'
 import { useDerivedPostState } from '../postStore'
+import { EmojiGroupConfig } from './settings'
 
 export type EmojiBase = {
   external: boolean
@@ -195,4 +196,30 @@ export function useExtendedReactions(postId: string) {
       ? [likesReaction, ...otherReactions]
       : otherReactions
   }, [me, isLiked, postId, postState?.reactions, emojiReactionState])
+}
+
+export type Language = {
+  code3: string
+  code2: string
+  name: string
+}
+
+export type InstanceOptions = {
+  emojis: EmojiGroupConfig[]
+  language: Language[]
+}
+
+async function getInstanceEmojis() {
+  const env = getEnvironmentStatic()
+  const data = await getJSON(`${env.API_URL}/v3/instance-options`)
+  return (data as InstanceOptions).emojis
+}
+
+export function useInstanceEmojis() {
+  const { instance } = useAuth()
+  return useQuery({
+    queryKey: ['instance-emojis', instance],
+    queryFn: () => getInstanceEmojis(),
+    staleTime: Infinity, // never mark stale, do not auto refresh
+  })
 }
