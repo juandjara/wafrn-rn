@@ -5,6 +5,7 @@ import Loading from '@/components/Loading'
 import RefreshButton from '@/components/RefreshButton'
 import InteractionRibbon from '@/components/posts/InteractionRibbon'
 import RewootRibbon from '@/components/ribbons/RewootRibbon'
+import LegacyPostDetail from '@/components/posts/LegacyPostDetail'
 import { useHiddenUserIds } from '@/lib/api/mutes-and-blocks'
 import { getUserEmojis, isEmptyRewoot, sortPosts } from '@/lib/api/content'
 import {
@@ -80,7 +81,13 @@ type PostDetailItemData =
       data: Error | null
     }
 
-export default function PostDetail() {
+// use the old full client-side pagination model for servers without paginated thread support
+export default function PostDetailScreen() {
+  const { env } = useAuth()
+  return env?.ENABLE_PAGINATED_THREADS ? <PostDetail /> : <LegacyPostDetail />
+}
+
+function PostDetail() {
   const headerInset = useHeaderInset(POST_HEADER_HEIGHT)
   const { env } = useAuth()
   const { postid, isArticle } = useLocalSearchParams()

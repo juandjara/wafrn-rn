@@ -26,7 +26,10 @@ import {
   useSettings,
 } from './settings'
 import { processPost } from '../feeds'
-import { getDashboardContextPage } from './dashboard'
+import {
+  combineDashboardContextPages,
+  getDashboardContextPage,
+} from './dashboard'
 
 export const MAINTAIN_VISIBLE_CONTENT_POSITION_CONFIG = {
   minIndexForVisible: 1,
@@ -84,7 +87,8 @@ export async function getPostDetail(
 ) {
   try {
     const env = getEnvironmentStatic()
-    const json = await getJSON(`${env?.API_URL}/v3/post/${id}`, {
+    const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
+    const json = await getJSON(`${env?.API_URL}/${version}/post/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -113,6 +117,47 @@ export function usePostDetail(id: string) {
       const context = getDashboardContextPage(data)
       await processPost(post, context, settings)
       return { post, context }
+    },
+    enabled: !!token && !!settings && !!id,
+  })
+}
+
+async function getLegacyPostReplies(
+  token: string,
+  signal: AbortSignal,
+  id: string,
+) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/forum/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  })
+  return json as DashboardData
+}
+
+export function useLegacyPostDetail(id: string) {
+  const { token } = useAuth()
+  const { data: settings } = useSettings()
+
+  return useQuery({
+    queryKey: ['post', id, 'legacyDetail'],
+    queryFn: async ({ signal }) => {
+      const [postData, repliesData] = await Promise.all([
+        getPostDetail(token!, signal, id),
+        getLegacyPostReplies(token!, signal, id),
+      ])
+      const post = postData.posts[0]
+      const replies = repliesData.posts
+      const repliesContext = getDashboardContextPage(repliesData)
+      const postContext = getDashboardContextPage(postData)
+      const context = combineDashboardContextPages([
+        repliesContext,
+        postContext,
+      ])
+      await processPost(post, context, settings)
+      return { post, replies, context }
     },
     enabled: !!token && !!settings && !!id,
   })

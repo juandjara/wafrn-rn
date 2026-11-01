@@ -43,8 +43,9 @@ export async function getDashboard({
   signal: AbortSignal
 }) {
   const env = getEnvironmentStatic()
+  const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
   const json = await getJSON(
-    `${env?.API_URL}/v3/dashboard?level=${mode}&startScroll=${startTime || Date.now()}`,
+    `${env?.API_URL}/${version}/dashboard?level=${mode}&startScroll=${startTime || Date.now()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -279,8 +280,9 @@ export async function getUserFeed({
   featured?: boolean
 }) {
   const env = getEnvironmentStatic()
+  const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
   const json = await getJSON(
-    `${env?.API_URL}/v3/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
+    `${env?.API_URL}/${version}/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
