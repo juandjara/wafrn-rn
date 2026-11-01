@@ -102,7 +102,7 @@ export function useSearch(query: string) {
         const data = list.posts
         const context = getDashboardContextPage(data)
         const feed = await getFeedData(context, data.posts, settings)
-        return { time, context, feed }
+        return { time, context, feed, isLastPage: data.posts.length === 0 }
       }
     },
     initialPageParam: {
@@ -113,7 +113,7 @@ export function useSearch(query: string) {
       if (type === SearchType.User && lastPage.users?.foundUsers.length === 0) {
         return undefined
       }
-      if (type !== SearchType.User && lastPage.feed?.length === 0) {
+      if (type !== SearchType.User && lastPage.isLastPage) {
         return undefined
       }
       return {

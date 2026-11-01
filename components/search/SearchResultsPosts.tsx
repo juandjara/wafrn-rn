@@ -2,7 +2,7 @@ import { combineDashboardContextPages } from '@/lib/api/dashboard'
 import { SearchType, useSearch } from '@/lib/api/search'
 import { useSettings } from '@/lib/api/settings'
 import { useLayoutData } from '@/lib/postStore'
-import { useRef, useTransition } from 'react'
+import { useEffect, useRef, useTransition } from 'react'
 import { type FlatList, Pressable, Text, View } from 'react-native'
 import { DashboardContextProvider } from '@/lib/contexts/DashboardContext'
 import Animated from 'react-native-reanimated'
@@ -71,6 +71,17 @@ export default function SearchResultsPosts({
       fetchNextPage()
     }
   }
+
+  const pages = data?.pages ?? []
+  const lastPageIsEmpty = pages[pages.length - 1]?.feed?.length === 0
+
+  // we might get an empty page if all the content in there is blocked, muted or filtered in other way
+  // and the FlatList onEndReached will not trigger so we check here
+  useEffect(() => {
+    if (lastPageIsEmpty && hasNextPage && !isFetching) {
+      fetchNextPage()
+    }
+  }, [lastPageIsEmpty, hasNextPage, isFetching, fetchNextPage])
 
   return (
     <>
