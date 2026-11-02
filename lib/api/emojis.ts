@@ -17,6 +17,9 @@ export type EmojiBase = {
   uuid: string
 }
 
+// as sent with posts, the collection is null for remote emoji
+export type PostEmoji = EmojiBase & { emojiCollectionId?: string | null }
+
 export type UserEmojiRelation = {
   emojiId: string
   userId: string

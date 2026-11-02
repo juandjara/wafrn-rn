@@ -1,4 +1,4 @@
-import { EmojiBase, PostEmojiRelation, UserEmojiRelation } from './emojis'
+import { PostEmoji, PostEmojiRelation, UserEmojiRelation } from './emojis'
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
 
@@ -85,7 +85,7 @@ export type PostUser = {
 }
 
 export type PostEmojiContext = {
-  emojis?: EmojiBase[]
+  emojis?: PostEmoji[]
   userEmojiRelation?: UserEmojiRelation[]
   postEmojiRelation?: PostEmojiRelation[]
   postEmojiReactions?: PostEmojiReaction[]

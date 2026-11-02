@@ -17,7 +17,7 @@ import {
   useSettings,
 } from './settings'
 import { getFeedData, getPinnedFeedData } from '../feeds'
-import { EmojiBase } from './emojis'
+import { PostEmoji } from './emojis'
 
 export enum DashboardMode {
   LOCAL = 2,
@@ -214,7 +214,7 @@ function combine<T>(
 export function combineDashboardContextPages(pages: DashboardContextData[]) {
   const combined: DashboardContextData = {
     users: combine<PostUser>(pages, 'users'),
-    emojis: combine<EmojiBase>(pages, 'emojis'),
+    emojis: combine<PostEmoji>(pages, 'emojis'),
     emojiRelations: {
       userEmojiRelation: pages.flatMap(
         (p) => p.emojiRelations.userEmojiRelation ?? [],
