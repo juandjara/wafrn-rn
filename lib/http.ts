@@ -27,6 +27,12 @@ export async function handleFetchError(url: string, res: Response) {
   let text = await res.text()
   const type = res.headers.get('Content-Type')
   const isHTML = type?.includes('text/html')
+  let body: Record<string, unknown> | undefined
+  if (type?.includes('application/json')) {
+    try {
+      body = JSON.parse(text)
+    } catch {}
+  }
   if (isHTML) {
     if (text.includes('</title>')) {
       text = text.slice(0, text.indexOf('</title>') + 8)
@@ -34,8 +40,9 @@ export async function handleFetchError(url: string, res: Response) {
       text = text.slice(0, 200)
     }
   }
-  throw statusError(
+  throw serverError(
     res.status,
+    body,
     `HTTP Error Code ${res.status} \n${text}\nURL: ${url}\n`,
   )
 }
@@ -56,12 +63,29 @@ export async function getJSON(...params: Parameters<typeof fetch>) {
   if (isErrorResponse(json)) {
     const msg = `API Error: ${json.message ? json.message : JSON.stringify(json)} \nURL: ${params[0]}`
     console.error(msg)
-    throw statusError(500, msg)
+    throw serverError(500, json, msg)
   }
   return json
 }
 
-export type StatusError = Error & { status: number }
+export type StatusError = Error & {
+  status: number
+  details?: Record<string, unknown>
+}
+
+function serverError(
+  status: number,
+  body: Record<string, unknown> | undefined,
+  fallbackMessage: string,
+) {
+  const { success, message, ...details } = body ?? {}
+  const error = statusError(
+    status,
+    typeof message === 'string' && message ? message : fallbackMessage,
+  )
+  error.details = details
+  return error
+}
 
 export function statusError(status: number, message: string) {
   const e = new Error(message)
