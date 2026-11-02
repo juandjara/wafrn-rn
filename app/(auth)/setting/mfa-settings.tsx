@@ -12,6 +12,7 @@ import { clsx } from 'clsx'
 import { useMemo, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   Pressable,
   StyleSheet,
@@ -142,7 +143,21 @@ export default function MfaSettings() {
               className={clsx('rounded-full p-2', {
                 'active:bg-white/10': !deleteMutation.isPending,
               })}
-              onPress={() => deleteMutation.mutate(mfa.id)}
+              onPress={() =>
+                Alert.alert(
+                  'Delete MFA method',
+                  `Are you sure you want to delete ${mfa.name}? Deleting all MFA methods will disable MFA on your account.`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: () => deleteMutation.mutate(mfa.id),
+                    },
+                  ],
+                  { cancelable: true },
+                )
+              }
             >
               {deleteMutation.isPending ? (
                 <ActivityIndicator size="small" color="white" />

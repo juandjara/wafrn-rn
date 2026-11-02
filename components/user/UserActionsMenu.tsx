@@ -10,7 +10,7 @@ import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { optionStyleBig } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useMemo, useState } from 'react'
-import { Share, TouchableOpacity } from 'react-native'
+import { Alert, Share, TouchableOpacity } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
 import MenuItem from '../MenuItem'
 import BottomSheet from '../BottomSheet'
@@ -85,19 +85,64 @@ export default function UserActionsMenu({ user }: { user: User }) {
           name: `${user.muted ? 'Unmute' : 'Mute'} user`,
           icon: 'account-off-outline' as const,
           disabled: isMe || muteMutation.isPending,
-          action: () => muteMutation.mutate(user.muted),
+          action: () =>
+            Alert.alert(
+              `${user.muted ? 'Unmute' : 'Mute'} user`,
+              user.muted
+                ? 'Posts and replies by this user will be shown again.'
+                : 'Hide posts and replies by this user. They will still be able to interact with your posts.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: user.muted ? 'Unmute' : 'Mute',
+                  style: user.muted ? 'default' : 'destructive',
+                  onPress: () => muteMutation.mutate(user.muted),
+                },
+              ],
+              { cancelable: true },
+            ),
         },
         {
           name: `${user.blocked ? 'Unblock' : 'Block'} user`,
           icon: 'account-off' as const,
           disabled: isMe || blockMutation.isPending,
-          action: () => blockMutation.mutate(user.blocked),
+          action: () =>
+            Alert.alert(
+              `${user.blocked ? 'Unblock' : 'Block'} user`,
+              user.blocked
+                ? 'Posts and replies by this user, and replies mentioning this user, will be shown again. They will be able to interact with your posts.'
+                : 'Hide posts and replies by this user, and posts and replies mentioning this user. They will not be able to interact with your posts.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: user.blocked ? 'Unblock' : 'Block',
+                  style: user.blocked ? 'default' : 'destructive',
+                  onPress: () => blockMutation.mutate(user.blocked),
+                },
+              ],
+              { cancelable: true },
+            ),
         },
         {
           name: `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
           icon: 'server-off' as const,
           disabled: isMe || user.isBskyPrimary || serverBlockMutation.isPending,
-          action: () => serverBlockMutation.mutate(user.serverBlocked),
+          action: () =>
+            Alert.alert(
+              `${user.serverBlocked ? 'Unblock' : 'Block'} server`,
+              user.serverBlocked
+                ? 'This will not restore the follows lost when the server was blocked, but users from this server will be able to interact with you again.'
+                : 'You will unfollow everyone on this server and all your followers from this server will stop following you. You will not see future posts from this server, and its users will not see your future posts.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: user.serverBlocked ? 'Unblock' : 'Block',
+                  style: user.serverBlocked ? 'default' : 'destructive',
+                  onPress: () => serverBlockMutation.mutate(user.serverBlocked),
+                },
+              ],
+              { cancelable: true },
+            ),
         },
         {
           name: 'Report user',

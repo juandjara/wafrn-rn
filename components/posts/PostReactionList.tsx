@@ -6,6 +6,7 @@ import {
   isSameEmojiReaction,
   useEmojiReactMutation,
   useExtendedReactions,
+  useInstanceEmojis,
 } from '@/lib/api/emojis'
 import { Post } from '@/lib/api/posts.types'
 import { useLikeMutation } from '@/lib/interaction'
@@ -18,6 +19,7 @@ export default function PostReactionList({ post }: { post: Post }) {
   const me = useParsedToken()
   const context = useDashboardContext()
 
+  const { data: emojis } = useInstanceEmojis()
   const emojiReactMutation = useEmojiReactMutation(post)
   const likeMutation = useLikeMutation(post)
   const { showToastError } = useToasts()
@@ -26,14 +28,23 @@ export default function PostReactionList({ post }: { post: Post }) {
     PrivateOptionNames.DisableReactCounts,
   )
 
+  const allEmojis = (emojis ?? []).flatMap((e) => e.emojis)
+  const emojiMap = Object.fromEntries(allEmojis.map((e) => [e.name, e]))
+
   function onToggleReaction(reaction: EmojiGroup) {
-    if (typeof reaction.emoji !== 'string' && reaction.emoji.external) {
-      showToastError('WAFRN does not have this emoji')
-      return // cannot react with external emojis
+    let emoji = reaction.emoji
+    if (typeof emoji !== 'string' && emoji.external) {
+      // before discarding, check: do we have an emoji with the same name?
+      const similarEmoji = emojiMap[emoji.name]
+      if (similarEmoji) {
+        emoji = similarEmoji
+      } else {
+        showToastError('WAFRN does not have this emoji')
+        return // cannot react with external emojis
+      }
     }
 
-    const emojiName =
-      typeof reaction.emoji === 'string' ? reaction.emoji : reaction.emoji.name
+    const emojiName = typeof emoji === 'string' ? emoji : emoji.name
 
     if (isUnicodeHeart(emojiName)) {
       const initialIsLiked = (context.likes[post.id] ?? []).includes(
@@ -47,12 +58,12 @@ export default function PostReactionList({ post }: { post: Post }) {
     } else {
       const haveIReacted = extendedReactions.some(
         (r) =>
-          isSameEmojiReaction(r.emoji, reaction.emoji) &&
+          isSameEmojiReaction(r.emoji, emoji) &&
           r.users.some((r) => r.id === me?.userId),
       )
       emojiReactMutation.mutate({
         postId: post.id,
-        nextEmoji: reaction.emoji,
+        nextEmoji: emoji,
         undo: haveIReacted,
       })
     }

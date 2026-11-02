@@ -8,6 +8,7 @@ import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   Text,
@@ -40,7 +41,20 @@ export default function BlockedServers() {
             </Text>
             <Pressable
               disabled={mutation.isPending}
-              onPress={() => mutation.mutate(item.server.id)}
+              onPress={() =>
+                Alert.alert(
+                  'Unblock server',
+                  `This will not restore the follows lost when ${item.server.displayName} was blocked, but users from this server will be able to interact with you again.`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Unblock',
+                      onPress: () => mutation.mutate(item.server.id),
+                    },
+                  ],
+                  { cancelable: true },
+                )
+              }
               className={clsx(
                 'px-4 py-2 my-2 rounded-lg flex-row items-center gap-2',
                 {
