@@ -191,7 +191,7 @@ async function getPostAncestors(
 }
 
 export function usePostAncestors(id: string, enabled: boolean) {
-  const { token, env } = useAuth()
+  const { token } = useAuth()
 
   return useInfiniteQuery({
     queryKey: ['post', id, 'ancestors'],
@@ -206,16 +206,15 @@ export function usePostAncestors(id: string, enabled: boolean) {
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) =>
       lastPage.hasMore ? lastPageParam + 1 : undefined,
-    enabled: enabled && !!env?.ENABLE_PAGINATED_THREADS && !!token && !!id,
+    enabled: enabled && !!token && !!id,
   })
 }
 
 type PostRepliesPage = DashboardData & {
   total: number
   hasMore: boolean
-  // only sent when asking with `rewoots=true`
-  totalRewoots?: number
-  rewootEntries?: { userId: string; createdAt: string }[]
+  totalRewoots: number
+  rewootEntries: { userId: string; createdAt: string }[]
 }
 
 export type PostRepliesEntry =
@@ -227,11 +226,10 @@ async function getPostReplies(
   signal: AbortSignal,
   id: string,
   page: number,
-  withRewoots: boolean,
 ) {
   const env = getEnvironmentStatic()
   const json = await getJSON(
-    `${env?.API_URL}/v3/forum/${id}?page=${page}${withRewoots ? '&rewoots=true' : ''}`,
+    `${env?.API_URL}/v3/forum/${id}?page=${page}&rewoots=true`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -243,23 +241,16 @@ async function getPostReplies(
 }
 
 export function usePostReplies(id: string) {
-  const { token, env } = useAuth()
-  const withRewoots = !!env?.ENABLE_PAGINATED_THREADS
+  const { token } = useAuth()
 
   return useInfiniteQuery({
     queryKey: ['post', id, 'replies'],
     queryFn: async ({ pageParam, signal }) => {
-      const data = await getPostReplies(
-        token!,
-        signal,
-        id,
-        pageParam,
-        withRewoots,
-      )
+      const data = await getPostReplies(token!, signal, id, pageParam)
       // the server sorts the whole list by date, so merging inside each page is enough
       const entries: PostRepliesEntry[] = [
         ...data.posts.map((post) => ({ type: 'reply' as const, ...post })),
-        ...(data.rewootEntries ?? []).map((r) => ({
+        ...data.rewootEntries.map((r) => ({
           type: 'rewoot' as const,
           ...r,
         })),

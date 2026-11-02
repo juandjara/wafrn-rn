@@ -89,7 +89,6 @@ export default function PostDetailScreen() {
 
 function PostDetail() {
   const headerInset = useHeaderInset(POST_HEADER_HEIGHT)
-  const { env } = useAuth()
   const { postid, isArticle } = useLocalSearchParams()
   const postId = postid as string
 
@@ -206,12 +205,8 @@ function PostDetail() {
       }
 
       const { total, totalRewoots } = repliesPages[0]
-      const numReplies = total - (totalRewoots ?? 0)
-      const rewootsText =
-        totalRewoots === undefined
-          ? ''
-          : `, ${totalRewoots} ${pluralize(totalRewoots, 'rewoot')}`
-      const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}${rewootsText}`
+      const numReplies = total - totalRewoots
+      const statsText = `${numReplies} ${pluralize(numReplies, 'reply', 'replies')}, ${totalRewoots} ${pluralize(totalRewoots, 'rewoot')}`
 
       const lastRepliesPage = repliesPages[repliesPages.length - 1]
       const lastRepliesPageIsEmpty = !lastRepliesPage.entries.some((entry) =>
@@ -236,11 +231,9 @@ function PostDetail() {
       }
     }, [detailData, repliesData, ancestorData, ancestorsShown, hiddenUserIds])
 
-  const hasMoreAncestors =
-    !!env?.ENABLE_PAGINATED_THREADS &&
-    (ancestorsShown
-      ? hasMoreAncestorPages || isFetchingAncestors
-      : !!mainPost?.ancestors.length)
+  const hasMoreAncestors = ancestorsShown
+    ? hasMoreAncestorPages || isFetchingAncestors
+    : !!mainPost?.ancestors.length
 
   const loadAncestorsIfNeeded = useCallback(() => {
     if (!needsAncestors.current || !hasMoreAncestors) {
