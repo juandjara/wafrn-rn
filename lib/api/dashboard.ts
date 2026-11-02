@@ -43,8 +43,9 @@ export async function getDashboard({
   signal: AbortSignal
 }) {
   const env = getEnvironmentStatic()
+  const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
   const json = await getJSON(
-    `${env?.API_URL}/v2/dashboard?level=${mode}&startScroll=${startTime || Date.now()}`,
+    `${env?.API_URL}/${version}/dashboard?level=${mode}&startScroll=${startTime || Date.now()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -90,7 +91,16 @@ export function useDashboard(mode: DashboardMode) {
         )
       const seenPostIds = dedupe ? new Set(pageParam.seenPostIds) : undefined
       const feed = await getFeedData(context, list.posts, settings, seenPostIds)
-      const lastDate = getLastDate(list.posts)
+      if (seenPostIds) {
+        for (const id of list.omittedIds ?? []) {
+          seenPostIds.add(id)
+        }
+      }
+
+      const lastDate =
+        list.scannedUntil === undefined
+          ? getLastDate(list.posts)
+          : (list.scannedUntil ?? undefined)
 
       await refetchBadge()
       return {
@@ -137,6 +147,15 @@ function groupLikes(data: DashboardData) {
   return likes
 }
 
+function groupReactionCounts(data: DashboardData) {
+  const counts = {} as Record<string, Record<string, number>>
+  for (const c of data.emojiReactionCounts ?? []) {
+    counts[c.postId] = counts[c.postId] ?? {}
+    counts[c.postId][c.content] = c.count
+  }
+  return counts
+}
+
 function groupPostReactions(data: DashboardData) {
   const source = data.emojiRelations.postEmojiReactions ?? []
   const reactions = {} as Record<string, PostEmojiReaction[]>
@@ -161,6 +180,10 @@ export function getDashboardContextPage(data: DashboardData) {
     },
     tags: groupTags(data),
     likes: groupLikes(data),
+    likeCounts: Object.fromEntries(
+      (data.likeCounts ?? []).map((c) => [c.postId, c.count]),
+    ),
+    reactionCounts: groupReactionCounts(data),
     rewootIds: Object.fromEntries(
       (data.rewootIds ?? []).map((id) => [id, true as const]),
     ),
@@ -206,6 +229,8 @@ export function combineDashboardContextPages(pages: DashboardContextData[]) {
     },
     tags: combine<string[]>(pages, 'tags'),
     likes: combine<string[]>(pages, 'likes'),
+    likeCounts: combine<number>(pages, 'likeCounts'),
+    reactionCounts: combine<Record<string, number>>(pages, 'reactionCounts'),
     medias: dedupeById(pages.flatMap((p) => p.medias)),
     mentions: pages.flatMap((p) => p.mentions),
     polls: pages.flatMap((p) => p.polls),
@@ -255,8 +280,9 @@ export async function getUserFeed({
   featured?: boolean
 }) {
   const env = getEnvironmentStatic()
+  const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
   const json = await getJSON(
-    `${env?.API_URL}/v2/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
+    `${env?.API_URL}/${version}/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

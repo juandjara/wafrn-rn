@@ -61,6 +61,7 @@ export type Post = {
   userId: string
   hierarchyLevel: number
   parentId: string | null
+  rootId?: string | null
   notes: number
   bskyCid?: string
   bskyUri?: string // uri in the format at://<did>/app.bsky.feed.post/<postId>
@@ -71,6 +72,7 @@ export type Post = {
 export type PostThread = Post & {
   ancestors: Post[]
   notes: number
+  omittedAncestors?: number // number of ancestors cut from the thread
 }
 
 export type PostUser = {
@@ -166,6 +168,10 @@ export type DashboardData = {
   asks?: PostAsk[]
   rewootIds?: string[] // ids of posts rewooted by me
   bookmarks?: PostUserRelation[] // posts bookmarked by me
+  likeCounts?: { postId: string; count: number }[] // real total of capped likes
+  emojiReactionCounts?: { postId: string; content: string; count: number }[] // real total of capped reactions
+  scannedUntil?: number | null // dashboard only: oldest post the server scanned
+  omittedIds?: string[] // ancestors cut from the threads of this page, all threads together
 }
 
 export type PostAsk = Timestamps & {

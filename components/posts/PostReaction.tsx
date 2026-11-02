@@ -12,8 +12,9 @@ export default function PostReaction({
 }) {
   return (
     <ReactionDetailsMenu
-      key={reaction.id}
+      key={reaction.key}
       users={reaction.users}
+      count={reaction.count}
       emoji={reaction.emoji}
       onToggleReaction={onToggleReaction}
       className={className}

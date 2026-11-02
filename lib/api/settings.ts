@@ -171,6 +171,7 @@ export const ALL_MUTE_SOURCES = [
 ]
 
 export const MINIMUM_THREAD_ANCESTOR_LIMIT = 1
+export const MAXIMUM_THREAD_ANCESTOR_LIMIT = 5
 
 export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.GifApiKey]: EXPO_PUBLIC_TENOR_KEY as string,
