@@ -11,6 +11,7 @@ import { getEnvironmentStatic } from './auth'
 import { Timestamps } from './types'
 import { useToasts } from '../toasts'
 import { PostUser } from './posts.types'
+import { getNamedUploadableFile, NamedUploadableFile } from '../files'
 
 export type UserForApproval = {
   id: string
@@ -499,10 +500,10 @@ export type EmojiPackUploadResult = {
   skipped: string[] // file names inside the zip that could not be converted
 }
 
-async function uploadEmojiPack(token: string, file: UploadableFile) {
+async function uploadEmojiPack(token: string, file: NamedUploadableFile) {
   const env = getEnvironmentStatic()
   const fd = new FormData()
-  fd.append('emoji', await getUploadableFile(file))
+  fd.append('emoji', await getNamedUploadableFile(file))
   const json = await getJSON(`${env?.API_URL}/admin/addEmoji`, {
     method: 'POST',
     body: fd,
@@ -517,7 +518,7 @@ async function uploadEmojiPack(token: string, file: UploadableFile) {
 export function useEmojiPackUploadMutation() {
   const { token } = useAuth()
   const queryClient = useQueryClient()
-  return useMutation<EmojiPackUploadResult, Error, UploadableFile>({
+  return useMutation<EmojiPackUploadResult, Error, NamedUploadableFile>({
     mutationFn: (file) => uploadEmojiPack(token!, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] })
