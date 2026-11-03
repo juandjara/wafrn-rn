@@ -95,14 +95,15 @@ export function processPostContent(
 
   content = collapseWhitespace(content)
 
+  return replaceEmojis(content, getPostEmojis(post, context))
+}
+
+export function getPostEmojis(post: Post, context: DashboardContextData) {
   const ids =
     (context.emojiRelations.postEmojiRelation ?? [])
       .filter((e) => e.postId === post.id)
       .map((e) => e.emojiId) ?? []
-
-  const emojis = ids.map((id) => context.emojis[id]).filter((e) => !!e)
-
-  return replaceEmojis(content, emojis)
+  return ids.map((id) => context.emojis[id]).filter((e) => !!e)
 }
 
 export function getUserEmojis(user: PostUser, context: DashboardContextData) {

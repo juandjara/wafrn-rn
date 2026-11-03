@@ -17,7 +17,11 @@ import PinButton from './PinButton'
 import BiteButton from './BiteButton'
 import CollapseButton from './ColllapseButton'
 import { getRemotePostUrl } from '@/lib/api/posts'
-import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
+import {
+  useAdminCheck,
+  useAuth,
+  useParsedToken,
+} from '@/lib/contexts/AuthContext'
 import { useToasts } from '@/lib/toasts'
 import * as Clipboard from 'expo-clipboard'
 import { DomUtils, parseDocument } from 'htmlparser2'
@@ -25,6 +29,7 @@ import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
 import SilenceButton from './SilenceButton'
 import ReportPostModal from '../posts/ReportPostModal'
 import { RefederateButton } from './RefederateButton'
+import DeletePersonalEmojiButtons from './DeletePersonalEmojiButtons'
 
 export default function InteractionMenu({ post }: { post: Post }) {
   const gray300 = useCSSString('--color-gray-300')
@@ -41,6 +46,7 @@ export default function InteractionMenu({ post }: { post: Post }) {
 
   const me = useParsedToken()
   const createdByMe = post.userId === me?.userId
+  const isAdmin = useAdminCheck()
 
   const showRefederate =
     post.privacy !== PrivacyLevel.DRAFT &&
@@ -261,6 +267,13 @@ export default function InteractionMenu({ post }: { post: Post }) {
           label="Report"
           style={optionStyleBig(1)}
         />
+        {isAdmin ? (
+          <DeletePersonalEmojiButtons
+            post={post}
+            style={optionStyleBig(1)}
+            onPress={() => setMenuOpen(false)}
+          />
+        ) : null}
         {createdByMe ? (
           <SilenceButton
             post={post}

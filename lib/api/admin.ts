@@ -526,3 +526,37 @@ export function useEmojiPackUploadMutation() {
     },
   })
 }
+
+async function deletePersonalEmoji(
+  token: string,
+  { collectionId, emojiId }: { collectionId: string; emojiId: string },
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(
+    `${env?.API_URL}/admin/emoji-collections/${collectionId}/emojis/${encodeURIComponent(emojiId)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
+}
+
+/** Only personal emoji can be deleted, the server answers 400 for an instance pack's emoji */
+export function useAdminDeletePersonalEmojiMutation(postId: string) {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
+  return useMutation<
+    void,
+    Error,
+    { collectionId: string; emojiId: string; name: string }
+  >({
+    mutationFn: (variables) => deletePersonalEmoji(token!, variables),
+    onError: (err) => showToastError(err.message),
+    onSuccess: (data, { name }) =>
+      showToastSuccess(`Personal emoji ${name} deleted`),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['post', postId] }),
+  })
+}
