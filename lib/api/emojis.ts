@@ -1,13 +1,19 @@
-import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
+import {
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useAuth, useParsedToken } from '../contexts/AuthContext'
 import { getJSON } from '../http'
+import { getNamedUploadableFile, NamedUploadableFile } from '../files'
 import { PostUser } from './posts.types'
 import { getEnvironmentStatic } from './auth'
 import { useToasts } from '../toasts'
 import { useDashboardContext } from '../contexts/DashboardContext'
 import { useMemo } from 'react'
 import { useDerivedPostState } from '../postStore'
-import { EmojiGroupConfig } from './settings'
+import { EmojiGroupConfig, useSettings } from './settings'
 
 export type EmojiBase = {
   external: boolean
@@ -240,5 +246,230 @@ export function useInstanceEmojis() {
     queryKey: ['instance-emojis', instance],
     queryFn: () => getInstanceEmojis(),
     staleTime: Infinity, // never mark stale, do not auto refresh
+  })
+}
+
+type PersonalEmojiGroup = Pick<EmojiGroupConfig, 'id' | 'name' | 'comment'> & {
+  emojis: EmojiBase[]
+}
+
+async function getMyEmojiCollections(token: string) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env.API_URL}/my-emoji-collections`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const data = json as PersonalEmojiGroup[]
+  return data.map(
+    (c) =>
+      ({
+        ...c,
+        createdAt: '',
+        updatedAt: '',
+        emojis: c.emojis.map((emoji) => ({
+          ...emoji,
+          emojiCollectionId: c.id,
+          createdAt: '',
+          updatedAt: '',
+        })),
+      }) satisfies EmojiGroupConfig,
+  )
+}
+
+export function useMyEmojiCollections() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['my-emoji-collections'],
+    queryFn: () => getMyEmojiCollections(token!),
+    enabled: !!token,
+  })
+}
+
+export function useEmojiGroups(includePersonal: boolean) {
+  const { data: settings } = useSettings()
+  const { data: personal } = useMyEmojiCollections()
+  return useMemo(() => {
+    if (!settings?.emojis) {
+      return undefined
+    }
+    return includePersonal && personal
+      ? personal.concat(settings.emojis)
+      : settings.emojis
+  }, [includePersonal, personal, settings?.emojis])
+}
+
+export function personalEmojiShortcode(emoji: EmojiBase, ownerUrl: string) {
+  const name = emoji.name.replaceAll(':', '')
+  const suffix = `_by_${ownerUrl.replaceAll('-', '_')}`
+  return name.endsWith(suffix) ? name.slice(0, -suffix.length) : name
+}
+
+function usePersonalEmojiMutation<T, R>(
+  request: (token: string, variables: T) => Promise<R>,
+  successMessage: (result: R, variables: T) => string,
+) {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
+  return useMutation<R, Error, T>({
+    mutationFn: (variables) => request(token!, variables),
+    onSuccess: (result, variables) =>
+      showToastSuccess(successMessage(result, variables)),
+    onError: (err) => showToastError(err.message),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ['my-emoji-collections'] }),
+  })
+}
+
+async function createEmojiCollection(token: string, name: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/my-emoji-collections`, {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+async function renameEmojiCollection(
+  token: string,
+  collectionId: string,
+  name: string,
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/my-emoji-collections/${collectionId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+async function deleteEmojiCollection(token: string, collectionId: string) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/my-emoji-collections/${collectionId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+async function renamePersonalEmoji(
+  token: string,
+  collectionId: string,
+  emojiId: string,
+  shortcode: string,
+) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(
+    `${env.API_URL}/my-emoji-collections/${collectionId}/emojis/${encodeURIComponent(emojiId)}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ shortcode }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
+  )
+  return json as EmojiBase
+}
+
+async function deletePersonalEmoji(
+  token: string,
+  collectionId: string,
+  emojiId: string,
+) {
+  const env = getEnvironmentStatic()
+  await getJSON(
+    `${env.API_URL}/my-emoji-collections/${collectionId}/emojis/${encodeURIComponent(emojiId)}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
+}
+
+async function uploadPersonalEmoji(
+  token: string,
+  collectionId: string,
+  file: NamedUploadableFile,
+) {
+  const env = getEnvironmentStatic()
+  const fd = new FormData()
+  fd.append('image', await getNamedUploadableFile(file))
+  const json = await getJSON(
+    `${env.API_URL}/my-emoji-collections/${collectionId}/emojis`,
+    {
+      method: 'POST',
+      body: fd,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
+  return json as EmojiBase
+}
+
+export function useCreateEmojiCollectionMutation() {
+  return usePersonalEmojiMutation(
+    createEmojiCollection,
+    (_, name) => `Collection ${name} created`,
+  )
+}
+
+export function useRenameEmojiCollectionMutation() {
+  return usePersonalEmojiMutation(
+    (token, v: { collectionId: string; name: string }) =>
+      renameEmojiCollection(token, v.collectionId, v.name),
+    (_, v) => `Collection renamed to ${v.name}`,
+  )
+}
+
+export function useDeleteEmojiCollectionMutation() {
+  return usePersonalEmojiMutation(
+    deleteEmojiCollection,
+    () => 'Collection deleted',
+  )
+}
+
+export function useRenamePersonalEmojiMutation() {
+  return usePersonalEmojiMutation(
+    (token, v: { collectionId: string; emojiId: string; shortcode: string }) =>
+      renamePersonalEmoji(token, v.collectionId, v.emojiId, v.shortcode),
+    (emoji) => `Renamed to ${emoji.name}`,
+  )
+}
+
+export function useDeletePersonalEmojiMutation() {
+  return usePersonalEmojiMutation(
+    (token, v: { collectionId: string; emojiId: string }) =>
+      deletePersonalEmoji(token, v.collectionId, v.emojiId),
+    () => 'Emoji deleted',
+  )
+}
+
+/**
+ * The server takes the shortcode from the file name and appends `_1`, `_2`, ...etc when duplicated.
+ * No error toast: the upload screen shows its own, naming the file that failed.
+ */
+export function useUploadPersonalEmojiMutation() {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation<
+    EmojiBase,
+    Error,
+    { collectionId: string; file: NamedUploadableFile }
+  >({
+    mutationFn: ({ collectionId, file }) =>
+      uploadPersonalEmoji(token!, collectionId, file),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ['my-emoji-collections'] }),
   })
 }
