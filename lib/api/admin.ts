@@ -493,3 +493,35 @@ export function useModerationLog(payload: ModerationLogPayload) {
     enabled: !!token,
   })
 }
+
+export type EmojiPackUploadResult = {
+  created: number
+  skipped: string[] // file names inside the zip that could not be converted
+}
+
+async function uploadEmojiPack(token: string, file: UploadableFile) {
+  const env = getEnvironmentStatic()
+  const fd = new FormData()
+  fd.append('emoji', await getUploadableFile(file))
+  const json = await getJSON(`${env?.API_URL}/admin/addEmoji`, {
+    method: 'POST',
+    body: fd,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return json as EmojiPackUploadResult
+}
+
+/** The pack is named after the zip file, uploading an existing pack's name adds the new emoji to it */
+export function useEmojiPackUploadMutation() {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation<EmojiPackUploadResult, Error, UploadableFile>({
+    mutationFn: (file) => uploadEmojiPack(token!, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] })
+      queryClient.invalidateQueries({ queryKey: ['instance-emojis'] })
+    },
+  })
+}
