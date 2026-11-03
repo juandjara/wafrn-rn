@@ -76,12 +76,18 @@ export default function AdminEmoji() {
         }}
         ListHeaderComponent={
           <View className="gap-4 pb-4">
-            <Text className="text-gray-300 text-base">
-              Upload a zip of JPG, PNG, GIF or WebP images. The pack is named
-              after the zip file and each emoji after its image file.{' '}
-              <Text className="bg-slate-800">blorgo-happy.png</Text> becomes{' '}
-              <Text className="bg-slate-800">:blorgo_happy:</Text>. Uploading a
-              zip with the name of an existing pack adds the new emojis to it.
+            <Text className="text-gray-300 text-sm">
+              Upload a <Text className="font-mono">.zip</Text> file containing
+              only JPG, PNG, GIF or WebP images.
+            </Text>
+            <Text className="text-gray-300 text-sm">
+              The pack is named after the zip file and each emoji after its
+              image file and <Text className="font-mono">blorgo-happy.png</Text>{' '}
+              becomes <Text className="font-mono">:blorgo_happy:</Text>.
+            </Text>
+            <Text className="text-gray-300 text-sm">
+              Uploading a zip with the name of an existing pack adds the new
+              emojis to it.
             </Text>
             <Pressable
               disabled={mutation.isPending}
