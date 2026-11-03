@@ -4,6 +4,8 @@ export type UploadableFile = {
   type?: string
 }
 
+export type NamedUploadableFile = UploadableFile & { name: string }
+
 function triggerBrowserDownload(objectUrl: string, filename: string) {
   const a = document.createElement('a')
   a.href = objectUrl
@@ -55,6 +57,12 @@ export async function getUploadableFile({
   const finalName = name ?? uri.split('/').pop() ?? 'file'
   const finalType = type ?? blob.type
   return new File([blob], finalName, { type: finalType })
+}
+
+export function getNamedUploadableFile(
+  file: NamedUploadableFile,
+): Promise<Blob> {
+  return getUploadableFile(file)
 }
 
 export async function writeBase64ToCache(

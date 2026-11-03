@@ -18,6 +18,8 @@ export type UploadableFile = {
   type?: string
 }
 
+export type NamedUploadableFile = UploadableFile & { name: string }
+
 function getCachePath() {
   return Paths.join(Paths.cache, CACHE_DIRNAME)
 }
@@ -86,6 +88,20 @@ export async function getUploadableFile({
 }: UploadableFile): Promise<Blob> {
   // expo-file-system's File implements Blob, so FormData accepts it directly.
   return new File(uri) as unknown as Blob
+}
+
+export async function getNamedUploadableFile({
+  uri,
+  name,
+}: NamedUploadableFile): Promise<Blob> {
+  const dir = new Directory(
+    getCachePath(),
+    `upload-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  )
+  dir.create({ intermediates: true })
+  const copy = new File(dir, name)
+  new File(uri).copy(copy)
+  return copy as unknown as Blob
 }
 
 export async function writeBase64ToCache(

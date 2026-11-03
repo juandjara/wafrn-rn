@@ -4,11 +4,22 @@ export type UploadableFile = {
   type?: string
 }
 
+export type NamedUploadableFile = UploadableFile & { name: string }
+
 /**
  * Convert an arbitrary URI (file://, content://, blob:) into a FormData-appendable Blob.
  * Always returns a fresh Blob/File and does not stream.
  */
 export declare function getUploadableFile(file: UploadableFile): Promise<Blob>
+
+/**
+ * Like `getUploadableFile`, for uploads where the server reads meaning from the file name.
+ * On native the picked file is a cache copy with a generated name, so it is copied again
+ * under `name`.
+ */
+export declare function getNamedUploadableFile(
+  file: NamedUploadableFile,
+): Promise<Blob>
 
 /**
  * Persist base64-encoded bytes to a URI suitable for later upload via `getUploadableFile`.
