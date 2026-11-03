@@ -7,8 +7,13 @@ import {
   Modal,
   StyleSheet,
 } from 'react-native'
-import { EmojiGroup, isSameEmojiReaction, type Emoji } from '@/lib/api/emojis'
-import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
+import {
+  EmojiGroup,
+  isSameEmojiReaction,
+  useEmojiGroups,
+  type Emoji,
+} from '@/lib/api/emojis'
+import { EmojiGroupConfig } from '@/lib/api/settings'
 import { useMemo, useRef, useState } from 'react'
 import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import { Image } from 'expo-image'
@@ -35,11 +40,14 @@ export default function EmojiPicker({
   onPick,
   onClose,
   reactions = EMPTY_ARRAY,
+  includePersonal,
 }: {
   title: string
   onPick: (emoji: Emoji) => void
   onClose: () => void
   reactions?: EmojiGroup[]
+  // personal emoji work in post text but the server refuses them as reactions
+  includePersonal: boolean
 }) {
   const width = Math.min(useContainerWidth(), SHEET_MAX_SIZE)
   const columns = Math.floor(width / 52)
@@ -55,31 +63,37 @@ export default function EmojiPicker({
     Emoji[]
   >('recentEmojis', [])
 
-  const { data: settings } = useSettings()
-
+  const emojiGroups = useEmojiGroups(includePersonal)
   const emojiList = useMemo(() => {
-    if (!settings?.emojis) {
+    if (!emojiGroups) {
       return []
     }
 
-    const list = settings.emojis
+    const emojis = emojiGroups
       .concat(ucGroups)
       .flatMap((g) => g.emojis as Emoji[])
-      .filter((e) => {
-        if (!debouncedSearch) {
-          return true
-        }
-        return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-      })
-    const recent = (recentEmojis || []).map((e) => ({
-      ...e,
-      id: e.id ? `${e.id}-recent` : e.id,
-    }))
+
+    const list = emojis.filter((e) => {
+      if (!debouncedSearch) {
+        return true
+      }
+      return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+    })
+
+    // use emoji groups (with or without personal ones) to filter recent emoji too
+    const emojiIdMap = new Set(emojis.map((e) => e.id))
+    const recent = (recentEmojis || [])
+      .filter((e) => emojiIdMap.has(e.id))
+      .map((e) => ({
+        ...e,
+        id: e.id ? `${e.id}-recent` : e.id,
+      }))
+
     return recent.concat(list)
-  }, [recentEmojis, settings, debouncedSearch])
+  }, [recentEmojis, emojiGroups, debouncedSearch])
 
   const headers = useMemo(() => {
-    if (!settings?.emojis) {
+    if (!emojiGroups) {
       return []
     }
 
@@ -104,7 +118,7 @@ export default function EmojiPicker({
           },
         ],
       } satisfies EmojiGroupConfig,
-      ...settings.emojis,
+      ...emojiGroups,
       ...ucGroups,
     ]
     return list.map((e) => {
@@ -124,7 +138,7 @@ export default function EmojiPicker({
             },
       }
     })
-  }, [settings, emojiList])
+  }, [emojiGroups, emojiList])
 
   function haveIReacted(emoji: Emoji) {
     const reaction = emoji.content ? emoji.content : emoji
@@ -240,6 +254,7 @@ export default function EmojiPicker({
                       <Image
                         contentFit="contain"
                         enforceEarlyResizing
+                        recyclingKey={item.uuid}
                         source={{ uri: formatEmojiUrl(item.uuid) }}
                         style={{ width: 32, height: 32 }}
                       />

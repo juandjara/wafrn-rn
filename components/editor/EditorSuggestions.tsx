@@ -1,5 +1,4 @@
 import { useUserSearch } from '@/lib/api/search'
-import { useSettings } from '@/lib/api/settings'
 import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import useDebounce from '@/lib/useDebounce'
 import { useMemo } from 'react'
@@ -12,7 +11,7 @@ import {
   formatAvatarUrl,
   formatEmojiUrl,
 } from '@/lib/formatters'
-import { EmojiBase } from '@/lib/api/emojis'
+import { EmojiBase, useEmojiGroups } from '@/lib/api/emojis'
 
 const SUGGESTION_DEBOUNCE_TIME = 300 // ms
 const ucGroups = getUnicodeEmojiGroups()
@@ -39,13 +38,13 @@ export default function EditorSuggestions({
 
 function EmojiSuggestions({ keyword, onSelect }: SuggestionsProvidedProps) {
   const debouncedKeyword = useDebounce(keyword, SUGGESTION_DEBOUNCE_TIME)
-  const { data: settings, isLoading } = useSettings()
+  const emojiGroups = useEmojiGroups(true)
   const emojis = useMemo(() => {
-    if (!settings?.emojis) {
+    if (!emojiGroups) {
       return []
     }
 
-    return settings.emojis
+    return emojiGroups
       .concat(ucGroups)
       .flatMap((g) => g.emojis)
       .filter((e) => {
@@ -55,9 +54,9 @@ function EmojiSuggestions({ keyword, onSelect }: SuggestionsProvidedProps) {
         return e.name.toLowerCase().includes(debouncedKeyword.toLowerCase())
       })
       .slice(0, 100)
-  }, [settings, debouncedKeyword])
+  }, [emojiGroups, debouncedKeyword])
 
-  if (isLoading) {
+  if (!emojiGroups) {
     return <Text className="text-white p-2">Loading...</Text>
   }
 

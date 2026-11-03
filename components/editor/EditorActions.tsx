@@ -91,6 +91,7 @@ export default function EditorActions({ actions, form }: EditorActionProps) {
       {showEmojiPicker && (
         <EmojiPicker
           title="Add an emoji"
+          includePersonal
           onClose={() => setShowEmojiPicker(false)}
           onPick={(emoji) => {
             actions.insertCharacter(emoji.content || emoji.name)

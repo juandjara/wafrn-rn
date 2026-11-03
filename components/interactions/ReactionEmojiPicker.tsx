@@ -44,6 +44,7 @@ export default function ReactionEmojiPicker({
       onClose={() => onClose(false)}
       onPick={onPickEmoji}
       reactions={extendedReactions}
+      includePersonal={false}
     />
   )
 }
