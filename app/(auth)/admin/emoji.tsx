@@ -2,6 +2,7 @@ import Header, { useHeaderInset } from '@/components/Header'
 import { useEmojiPackUploadMutation } from '@/lib/api/admin'
 import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
+import { NamedUploadableFile } from '@/lib/files'
 import { formatEmojiUrl } from '@/lib/formatters'
 import { StatusError } from '@/lib/http'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
@@ -52,9 +53,14 @@ export default function AdminEmoji() {
       copyToCacheDirectory: true,
       multiple: false,
     })
-    const file = result.assets?.[0]
-    if (!result.canceled && file) {
-      mutation.mutate({ uri: file.uri, name: file.name, type: file.mimeType })
+    const asset = result.assets?.[0]
+    if (!result.canceled && asset) {
+      const file: NamedUploadableFile = {
+        uri: asset.uri,
+        name: asset.name,
+        type: asset.mimeType,
+      }
+      mutation.mutate(file)
     }
   }
 
