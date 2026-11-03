@@ -72,6 +72,11 @@ export default function Settings() {
         link: '/setting/edit-profile',
       },
       {
+        icon: 'emoticon-outline' as const,
+        label: 'Personal emoji',
+        link: '/setting/personal-emoji',
+      },
+      {
         icon: 'account-plus-outline' as const,
         label: 'Account switcher',
         link: '/setting/account-switcher',
