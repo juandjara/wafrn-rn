@@ -17,6 +17,7 @@
  * which would cause clipping.
  */
 @theme {
+  --font-mono: 'monospace';
   --text-xs--line-height: calc(var(--leading-xs) * fontScale(1)); /* 16 / 12 */
   --text-sm--line-height: fontScale(1.4286); /* 20 / 14 */
   --text-base--line-height: calc(
