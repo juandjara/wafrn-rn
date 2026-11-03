@@ -3,6 +3,6 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 patchedDependencies:
+  '@native-html/render@1.0.4': patches/@native-html__render@1.0.4.patch
   '@react-native/gradle-plugin@0.83.4': patches/@react-native__gradle-plugin@0.83.4.patch
   expo-router@55.0.11: patches/expo-router@55.0.11.patch
-  react-native-html-engine@8.0.4: patches/react-native-html-engine@8.0.4.patch

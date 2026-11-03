@@ -1,0 +1,45 @@
+diff --git a/lib/commonjs/TNodeRenderer.js b/lib/commonjs/TNodeRenderer.js
+index b50f9e412c9a264381dca8beb86114c380c61840..086cb7dc364045411f33ae3b8705c0a53de88bca 100644
+--- a/lib/commonjs/TNodeRenderer.js
++++ b/lib/commonjs/TNodeRenderer.js
+@@ -21,7 +21,7 @@ TDefaultPhrasingRenderer.displayName = 'TDefaultPhrasingRenderer';
+ const TDefaultTextRenderer = exports.TDefaultTextRenderer = _renderTextualContent.default.bind(null);
+ TDefaultTextRenderer.displayName = 'TDefaultTextRenderer';
+ function isGhostTNode(tnode) {
+-  return tnode.type === 'text' && (tnode.data === '' || tnode.data === ' ') || tnode.type === 'empty';
++  return tnode.type === 'text' && tnode.tagName == null && (tnode.data === '' || tnode.data === ' ') || tnode.type === 'empty';
+ }
+ 
+ /**
+@@ -58,7 +58,7 @@ const TNodeRenderer = /*#__PURE__*/(0, _react.memo)(function MemoizedTNodeRender
+       // If ghost line prevention is enabled and the text data is empty, render
+       // nothing to avoid React Native painting a 20px height line.
+       // See also https://git.io/JErwX
+-      if (tnodeProps.tnode.data === '' && tnodeProps.sharedProps.enableExperimentalGhostLinesPrevention) {
++      if (tnodeProps.tnode.data === '' && tnodeProps.tnode.tagName == null && tnodeProps.sharedProps.enableExperimentalGhostLinesPrevention) {
+         return null;
+       }
+       break;
+diff --git a/src/TNodeRenderer.tsx b/src/TNodeRenderer.tsx
+index 1090988974ec961a36346e940a6288ce446e2022..40fa80558cf242a6ab09bb2c75a0a067eacb45ad 100644
+--- a/src/TNodeRenderer.tsx
++++ b/src/TNodeRenderer.tsx
+@@ -33,7 +33,9 @@ TDefaultTextRenderer.displayName = 'TDefaultTextRenderer';
+ 
+ function isGhostTNode(tnode: TNode) {
+   return (
+-    (tnode.type === 'text' && (tnode.data === '' || tnode.data === ' ')) ||
++    (tnode.type === 'text' &&
++      tnode.tagName == null &&
++      (tnode.data === '' || tnode.data === ' ')) ||
+     tnode.type === 'empty'
+   );
+ }
+@@ -83,6 +85,7 @@ const TNodeRenderer = memo(function MemoizedTNodeRenderer(
+       // See also https://git.io/JErwX
+       if (
+         tnodeProps.tnode.data === '' &&
++        tnodeProps.tnode.tagName == null &&
+         tnodeProps.sharedProps.enableExperimentalGhostLinesPrevention
+       ) {
+         return null;

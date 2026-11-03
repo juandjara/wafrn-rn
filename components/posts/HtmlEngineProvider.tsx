@@ -22,9 +22,9 @@ import {
   RenderersProps,
   useContentWidth,
   useIMGElementProps,
-} from 'react-native-html-engine'
+} from '@native-html/render'
 
-const customHTMLElementModels = {
+export const customHTMLElementModels = {
   img: defaultHTMLElementModels.img.extend({
     contentModel: HTMLContentModel.mixed,
   }),

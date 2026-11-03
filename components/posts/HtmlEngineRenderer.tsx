@@ -1,10 +1,24 @@
 import { parseDocument, DomUtils } from 'htmlparser2'
+import serializeDom from 'dom-serializer'
 import { memo, useMemo } from 'react'
 import { View } from 'react-native'
-import { Document, RenderHTMLSource } from 'react-native-html-engine'
+import {
+  defaultHTMLElementModels,
+  Document,
+  RenderHTMLSource,
+  Text,
+} from '@native-html/render'
 import LinkPreviewCard from './LinkPreviewCard'
+import { customHTMLElementModels } from './HtmlEngineProvider'
 import { useAuth } from '@/lib/contexts/AuthContext'
 import { PrivateOptionNames, usePrivateOptionValue } from '@/lib/api/settings'
+
+// Same lookup TRE's HTMLModelRegistry does.
+// used to detect things like "<placeholder>" that parse as tags
+// and render them as text instead so the engine does not panic
+function isRegisteredTag(name: string) {
+  return name in customHTMLElementModels || name in defaultHTMLElementModels
+}
 
 function HtmlEngineRendererInner({
   html,
@@ -24,6 +38,15 @@ function HtmlEngineRendererInner({
   const linkPreviewsDisabled = disableLinkCards || disableLinkPreviewsOption
   const { links, source } = useMemo(() => {
     const dom = parseDocument(html)
+    const unregistered = DomUtils.findAll(
+      (node) => !isRegisteredTag(node.name),
+      dom.children,
+    )
+    for (const node of unregistered) {
+      const text = serializeDom(node, { encodeEntities: false })
+      DomUtils.replaceElement(node, new Text(text))
+    }
+
     const anchors = DomUtils.findAll((node) => node.name === 'a', dom.children)
 
     for (const node of anchors) {
