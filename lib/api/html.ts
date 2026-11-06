@@ -181,6 +181,10 @@ export function handleLinkClick(href: string, attribs: Record<string, string>) {
   if (dataText && attribs.class?.includes('mention')) {
     // remove text after the second @ if exists
     const firstAtOnly = dataText.split('@').slice(0, 2).join('@')
+    // if original mention did not had two @, then is a local user, and it gets a local user path
+    if (dataText === firstAtOnly) {
+      return `/user/${dataText.replace('@', '')}`
+    }
     const fullHandle = `${firstAtOnly}@${url.hostname}`
     return `/user/${fullHandle}`
   }
