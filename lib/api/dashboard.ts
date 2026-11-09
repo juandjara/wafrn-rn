@@ -14,7 +14,7 @@ import { getEnvironmentStatic } from './auth'
 import {
   getPrivateOptionValue,
   PrivateOptionNames,
-  useSettings,
+  useFeedSettings,
 } from './settings'
 import { getFeedData, getPinnedFeedData } from '../feeds'
 import { PostEmoji } from './emojis'
@@ -71,7 +71,7 @@ const DEDUPED_MODES = [
 export function useDashboard(mode: DashboardMode) {
   const { token } = useAuth()
   const { refetch: refetchBadge } = useNotificationBadges()
-  const { data: settings } = useSettings()
+  const settings = useFeedSettings()
 
   return useInfiniteQuery({
     queryKey: dashboardQueryKey(mode),
@@ -296,7 +296,7 @@ export async function getUserFeed({
 
 export function useUserFeed(userId: string) {
   const { token } = useAuth()
-  const { data: settings } = useSettings()
+  const settings = useFeedSettings()
 
   return useInfiniteQuery({
     queryKey: ['dashboard', 'userFeed', userId],
@@ -345,7 +345,6 @@ export function useUserFeed(userId: string) {
 
 // pass showDetached true to ONLY show unauthorized notifications
 export function useNotifications(showDetached: boolean) {
-  const { data: settings } = useSettings()
   const { refetch: refetchBadge } = useNotificationBadges()
   const { token } = useAuth()
   return useInfiniteQuery({
@@ -379,7 +378,7 @@ export function useNotifications(showDetached: boolean) {
         page: lastPageParam.page + 1,
       }
     },
-    enabled: !!token && !!settings,
+    enabled: !!token,
     staleTime: Infinity, // prevent re-fetching old data
   })
 }

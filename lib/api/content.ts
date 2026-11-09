@@ -16,6 +16,7 @@ import {
   type PrivateOption,
   PrivateOptionNames,
   PublicOption,
+  type FeedSettings,
   type Settings,
 } from './settings'
 import { PrivacyLevel } from './privacy'
@@ -576,7 +577,9 @@ export function sortPosts(a: Timestamps, b: Timestamps) {
   return aTime - bTime
 }
 
-function getHiddenUserIds(settings?: Settings) {
+function getHiddenUserIds(
+  settings?: Pick<Settings, 'mutedUsers' | 'blockedUsers'>,
+) {
   const mutedIds = settings?.mutedUsers || []
   const blockedIds = settings?.blockedUsers || []
   return [...new Set([...mutedIds, ...blockedIds])]
@@ -587,7 +590,7 @@ export type DerivedPostData = ReturnType<typeof getDerivedPostState>
 export function getDerivedPostState(
   post: Post,
   context: DashboardContextData,
-  settings?: Settings,
+  settings?: Pick<Settings, 'options'>,
 ) {
   const options = settings?.options || []
   const user = context.users[post.userId]
@@ -686,7 +689,7 @@ export type DerivedThreadData = ReturnType<typeof getDerivedThreadState>
 export function getDerivedThreadState(
   thread: Post | PostThread,
   context: DashboardContextData,
-  settings?: Settings,
+  settings?: FeedSettings,
 ) {
   const isRewoot = isEmptyRewoot(thread, context)
   const isReply = !!thread.parentId && !isRewoot

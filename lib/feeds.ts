@@ -5,7 +5,7 @@ import {
   isEmptyRewoot,
 } from './api/content'
 import { Post, PostThread } from './api/posts.types'
-import { Settings } from './api/settings'
+import { FeedSettings, Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 import { setDerivedPostState } from './postStore'
 import { requestIdle } from '@/lib/requestIdle'
@@ -13,7 +13,7 @@ import { requestIdle } from '@/lib/requestIdle'
 export async function processPost(
   post: Post,
   context: DashboardContextData,
-  settings?: Settings,
+  settings?: Pick<Settings, 'options'>,
 ) {
   return new Promise<void>((resolve) => {
     requestIdle(() => {
@@ -27,7 +27,7 @@ export async function processPost(
 async function threadToListItems(
   thread: PostThread,
   context: DashboardContextData,
-  settings?: Settings,
+  settings?: FeedSettings,
 ) {
   const {
     isRewoot,
@@ -135,7 +135,7 @@ export type FeedItem = (ThreadListItem | PinRibbonItem) & { pinned?: boolean }
 export async function getPinnedFeedData(
   context: DashboardContextData,
   posts: PostThread[],
-  settings?: Settings,
+  settings?: FeedSettings,
 ) {
   const feed = [] as FeedItem[]
   const sortedPosts = [...posts].sort(
@@ -191,7 +191,7 @@ export function feedKeyExtractor(item: FeedItem) {
 export async function getFeedData(
   context: DashboardContextData,
   posts: PostThread[],
-  settings?: Settings,
+  settings?: FeedSettings,
   seenPostIds?: Set<string>,
 ) {
   const feed = [] as FeedItem[]

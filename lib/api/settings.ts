@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
 import { type Emoji } from './emojis'
@@ -324,10 +325,8 @@ type ServiceAnnouncement = {
 }
 
 export type Settings = {
-  myFollowers: string[] // ids of people who follow you
   // ids of people you've blocked, people who have blocked you, and people you've muted
   blockedUsers: string[]
-  followedUsers: string[] // ids of people you follow
   notAcceptedFollows: string[] // ids of people who you tried to follow but they didn't accept yet
   mutedUsers: string[] // ids of people you've muted
   mutedRewoots: string[] // ids of followed users whose rewoots you've hidden
@@ -341,7 +340,7 @@ export type Settings = {
 
 export async function getSettings(token: string, signal: AbortSignal) {
   const env = getEnvironmentStatic()
-  const url = `${env?.API_URL}/my-ui-options`
+  const url = `${env?.API_URL}/v3/my-ui-options`
   const json = await getJSON(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -349,6 +348,49 @@ export async function getSettings(token: string, signal: AbortSignal) {
     signal,
   })
   return json as Settings
+}
+
+async function getFollowedUsers(token: string, signal: AbortSignal) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/v3/my-followed-users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  })
+  return (json as { followedUsers: string[] }).followedUsers
+}
+
+/** Ids of people you follow */
+export function useFollowedUsers() {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: ['settings', 'followed-users'],
+    queryFn: ({ signal }) => getFollowedUsers(token!, signal),
+    enabled: !!token,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  })
+}
+
+export type FeedSettings = Pick<
+  Settings,
+  | 'options'
+  | 'followedHashtags'
+  | 'mutedUsers'
+  | 'blockedUsers'
+  | 'mutedRewoots'
+  | 'mutedQuotes'
+> & { followedUsers: string[] }
+
+/** settings + followed users on a single hook for easier checks on feed pipeline functions */
+export function useFeedSettings(): FeedSettings | undefined {
+  const { data: settings } = useSettings()
+  const { data: followedUsers } = useFollowedUsers()
+  return useMemo(
+    () =>
+      settings && followedUsers ? { ...settings, followedUsers } : undefined,
+    [settings, followedUsers],
+  )
 }
 
 function useSettingsQuery<T = Settings>(select?: (settings: Settings) => T) {

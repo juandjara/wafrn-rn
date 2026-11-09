@@ -4,7 +4,7 @@ import { EmojiBase, UserEmojiRelation } from './emojis'
 import { useAuth } from '../contexts/AuthContext'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { getEnvironmentStatic } from './auth'
-import { useSettings } from './settings'
+import { useFeedSettings } from './settings'
 import { getDashboardContextPage } from './dashboard'
 import { getFeedData } from '../feeds'
 
@@ -82,7 +82,7 @@ export async function search({
 export function useSearch(query: string) {
   const { token } = useAuth()
   const type = detectSearchType(query)
-  const { data: settings } = useSettings()
+  const settings = useFeedSettings()
 
   return useInfiniteQuery({
     queryKey: ['search', query],

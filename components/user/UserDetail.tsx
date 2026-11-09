@@ -5,6 +5,7 @@ import {
   User,
 } from '@/lib/api/user'
 import {
+  useFollowedUsers,
   useSettings,
   AskOptionValue,
   getPrivateOptionValue,
@@ -45,6 +46,7 @@ export default function UserDetail({ user }: { user: User }) {
   const width = useContainerWidth()
   const height = width / 2
   const { data: settings } = useSettings()
+  const { data: followedUsers } = useFollowedUsers()
   const { data: myFollowers } = useFollowers(me?.url)
   const { data: followers } = useFollowers(user.url)
   const followMutation = useFollowMutation(user)
@@ -61,10 +63,10 @@ export default function UserDetail({ user }: { user: User }) {
     repliesHidden,
     hasBlockedMe,
   } = useMemo(() => {
-    const amIFollowing = settings?.followedUsers.includes(user?.id!)
+    const amIFollowing = followedUsers?.includes(user?.id!)
     const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
     const isFollowingMe = myFollowers?.some((f) => f.id === user.id)
-    const followedSet = new Set(settings?.followedUsers)
+    const followedSet = new Set(followedUsers)
     const commonFollows = followers
       ? followers.filter((f) => f.id !== me?.userId && followedSet.has(f.id))
       : []
@@ -88,7 +90,7 @@ export default function UserDetail({ user }: { user: User }) {
       repliesHidden,
       hasBlockedMe,
     }
-  }, [user, me?.userId, settings, myFollowers, followers])
+  }, [user, me?.userId, settings, followedUsers, myFollowers, followers])
 
   const description = useMemo(() => {
     return collapseWhitespace(replaceEmojis(user.description, user.emojis))

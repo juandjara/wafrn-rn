@@ -1,6 +1,6 @@
 import { AVATAR_SIZE } from '@/lib/api/content'
 import { PostUser } from '@/lib/api/posts.types'
-import { useSettings } from '@/lib/api/settings'
+import { useFollowedUsers, useSettings } from '@/lib/api/settings'
 import { formatUserUrl, formatAvatarUrl } from '@/lib/formatters'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
@@ -21,7 +21,8 @@ export default function UserCard({
   showFollowButtons?: boolean
 }) {
   const { data: settings } = useSettings()
-  const amIFollowing = settings?.followedUsers.includes(user?.id!)
+  const { data: followedUsers } = useFollowedUsers()
+  const amIFollowing = followedUsers?.includes(user?.id!)
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
   const followMutation = useFollowMutation(user)
 

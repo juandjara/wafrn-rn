@@ -4,7 +4,7 @@ import {
   useMuteMutation,
   useServerBlockMutation,
 } from '@/lib/api/mutes-and-blocks'
-import { useSettings } from '@/lib/api/settings'
+import { useFollowedUsers, useSettings } from '@/lib/api/settings'
 import { User, useRefetchUserDataMutation } from '@/lib/api/user'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { optionStyleBig } from '@/lib/styles'
@@ -31,10 +31,10 @@ export default function UserActionsMenu({ user }: { user: User }) {
   const filterMutation = useFollowedUserFilterMutation(user)
 
   const { data: settings } = useSettings()
+  const { data: followedUsers } = useFollowedUsers()
   const isFollowed =
-    !!settings &&
-    (settings.followedUsers.includes(user.id) ||
-      settings.notAcceptedFollows.includes(user.id))
+    !!followedUsers?.includes(user.id) ||
+    !!settings?.notAcceptedFollows.includes(user.id)
 
   const rewootsHidden = !!settings?.mutedRewoots?.includes(user.id)
   const quotesHidden = !!settings?.mutedQuotes?.includes(user.id)

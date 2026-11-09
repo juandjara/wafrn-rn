@@ -1,5 +1,5 @@
 import { AVATAR_SIZE } from '@/lib/api/content'
-import { useSettings } from '@/lib/api/settings'
+import { useFollowedUsers, useSettings } from '@/lib/api/settings'
 import { Follow } from '@/lib/api/user'
 import { formatUserUrl, formatAvatarUrl } from '@/lib/formatters'
 import { useFollowMutation } from '@/lib/interaction'
@@ -10,7 +10,8 @@ import { useResolveClassNames } from 'uniwind'
 
 export default function FollowCard({ follow }: { follow: Follow }) {
   const { data: settings } = useSettings()
-  const amIFollowing = settings?.followedUsers.includes(follow.id)
+  const { data: followedUsers } = useFollowedUsers()
+  const amIFollowing = followedUsers?.includes(follow.id)
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(follow.id)
   const showFollowButton = !amIFollowing && !amIAwaitingApproval
   const followMutation = useFollowMutation(follow)
