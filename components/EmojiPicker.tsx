@@ -216,7 +216,7 @@ export default function EmojiPicker({
                     <Image
                       contentFit="contain"
                       enforceEarlyResizing
-                      loading="lazy"
+                      decodeFormat="rgb"
                       source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
                       style={{ width: 24, height: 24 }}
                     />
@@ -251,6 +251,7 @@ export default function EmojiPicker({
                         recyclingKey={item.uuid}
                         source={{ uri: formatEmojiUrl(item.uuid) }}
                         style={{ width: 32, height: 32 }}
+                        decodeFormat="rgb"
                       />
                     )}
                   </Pressable>

@@ -155,6 +155,7 @@ export default function AdminEmoji() {
               <Image
                 accessibilityLabel={item.emoji.name}
                 contentFit="contain"
+                decodeFormat="rgb"
                 recyclingKey={item.emoji.uuid}
                 source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
                 style={{ width: EMOJI_SIZE, height: EMOJI_SIZE }}
