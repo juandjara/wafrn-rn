@@ -334,7 +334,6 @@ export type Settings = {
   mutedQuotes: string[] // ids of followed users whose quotes you've hidden
   hiddenReplies: string[] // ids of followed users whose replies you've hidden
   silencedPosts: string[] // ids of posts you've silenced
-  emojis: EmojiGroupConfig[] // emoji groups saved in this instance
   options: (PrivateOption | PublicOption)[] // the actual values of the settings for the user
   followedHashtags: string[] // normalized hashtags you follow (without the #)
   serviceAnnouncements?: ServiceAnnouncement[]
@@ -349,11 +348,7 @@ export async function getSettings(token: string, signal: AbortSignal) {
     },
     signal,
   })
-  const data = json as Settings
-  data.emojis = data.emojis
-    .map((g) => ({ ...g, emojis: (g.emojis || []).filter((e) => !!e) }))
-    .filter((g) => g.emojis.length > 0)
-  return data
+  return json as Settings
 }
 
 function useSettingsQuery<T = Settings>(select?: (settings: Settings) => T) {
