@@ -1,7 +1,7 @@
 import { useAdminDeletePersonalEmojiMutation } from '@/lib/api/admin'
 import { getPostEmojis } from '@/lib/api/content'
 import { type Post } from '@/lib/api/posts.types'
-import { useSettings } from '@/lib/api/settings'
+import { useInstanceEmojis } from '@/lib/api/emojis'
 import { useDashboardContext } from '@/lib/contexts/DashboardContext'
 import { useMemo } from 'react'
 import { Alert, View, ViewStyle } from 'react-native'
@@ -18,18 +18,18 @@ export default function DeletePersonalEmojiButtons({
   onPress?: () => void
 }) {
   const context = useDashboardContext()
-  const { data: settings } = useSettings()
+  const { data: instanceEmojis } = useInstanceEmojis()
   const mutation = useAdminDeletePersonalEmojiMutation(post.id)
   const personalEmojis = useMemo(() => {
-    if (!settings) {
+    if (!instanceEmojis) {
       return []
     }
-    const packIds = new Set(settings.emojis.map((pack) => pack.id))
+    const packIds = new Set(instanceEmojis.map((pack) => pack.id))
     return getPostEmojis(post, context).filter(
       (emoji) =>
         emoji.emojiCollectionId && !packIds.has(emoji.emojiCollectionId),
     )
-  }, [post, context, settings])
+  }, [post, context, instanceEmojis])
 
   return (
     <View>

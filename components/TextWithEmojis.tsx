@@ -1,5 +1,4 @@
-import { EmojiBase } from '@/lib/api/emojis'
-import { useSettings } from '@/lib/api/settings'
+import { EmojiBase, useInstanceEmojis } from '@/lib/api/emojis'
 import { formatEmojiUrl } from '@/lib/formatters'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useMemo } from 'react'
@@ -22,7 +21,7 @@ export default function TextWithEmojis({
   emojis?: EmojiBase[]
   innerTextProps?: TextProps
 } & TextProps) {
-  const { data: settings } = useSettings()
+  const { data: instanceEmojis } = useInstanceEmojis()
 
   const fontScale = useFontScale()
   const { height: emojiSize, baselineOffset: emojiOffset } =
@@ -30,13 +29,13 @@ export default function TextWithEmojis({
 
   const emojiMap = useMemo(() => {
     const list =
-      emojis ?? settings?.emojis.flatMap((emoji) => emoji.emojis) ?? []
+      emojis ?? instanceEmojis?.flatMap((group) => group.emojis) ?? []
     const map = new Map<string, EmojiBase>()
     for (const emoji of list) {
       map.set(emoji.name.replaceAll(':', ''), emoji)
     }
     return map
-  }, [emojis, settings])
+  }, [emojis, instanceEmojis])
 
   const elements = useMemo(() => {
     const matches = Array.from(text.matchAll(EMOJI_REGEX))

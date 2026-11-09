@@ -1,6 +1,7 @@
 import Header, { useHeaderInset } from '@/components/Header'
 import { useEmojiPackUploadMutation } from '@/lib/api/admin'
-import { EmojiGroupConfig, useSettings } from '@/lib/api/settings'
+import { useInstanceEmojis } from '@/lib/api/emojis'
+import { EmojiGroupConfig } from '@/lib/api/settings'
 import { useContainerWidth } from '@/lib/contexts/ContainerWidthContext'
 import { NamedUploadableFile } from '@/lib/files'
 import { formatEmojiUrl } from '@/lib/formatters'
@@ -25,7 +26,7 @@ type ListItem =
 export default function AdminEmoji() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const { data: settings } = useSettings()
+  const { data: instanceEmojis } = useInstanceEmojis()
   const mutation = useEmojiPackUploadMutation()
   const width = useContainerWidth()
   const columns = Math.max(
@@ -35,11 +36,11 @@ export default function AdminEmoji() {
 
   const items = useMemo(
     () =>
-      (settings?.emojis ?? []).flatMap((pack): ListItem[] => [
+      (instanceEmojis ?? []).flatMap((pack): ListItem[] => [
         { type: 'pack', pack },
         ...pack.emojis.map((emoji) => ({ type: 'emoji' as const, emoji })),
       ]),
-    [settings?.emojis],
+    [instanceEmojis],
   )
 
   // a 409 lists the names that clash with personal emoji
