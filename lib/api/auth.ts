@@ -90,6 +90,7 @@ type EnvironmenResponse = {
   webpushPublicKey: string
   enableOptInFederationToThreads?: boolean
   featureFlags?: {
+    gifApiKey?: boolean
     drafts?: boolean
     paginatedThreads?: boolean
   }
@@ -104,6 +105,7 @@ export type Environment = {
   ENABLE_DRAFTS?: boolean
   ENABLE_PAGINATED_THREADS?: boolean
   ENABLE_THREADS_FEDERATION?: boolean
+  ENABLE_GIFS?: boolean
   REGISTER_HAS_REVIEW: boolean
   REGISTER_TYPE: RegisterType
 }
@@ -139,6 +141,7 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const ENABLE_DRAFTS = !!env.featureFlags?.drafts
   const ENABLE_PAGINATED_THREADS = !!env.featureFlags?.paginatedThreads
   const ENABLE_THREADS_FEDERATION = !!env.enableOptInFederationToThreads
+  const ENABLE_GIFS = !!env.featureFlags?.gifApiKey
   const REGISTER_HAS_REVIEW = env.reviewRegistrations
   const REGISTER_TYPE = env.registrationLevel
 
@@ -152,9 +155,10 @@ export async function getInstanceEnvironment(instanceURL: string) {
     ENABLE_DRAFTS,
     ENABLE_PAGINATED_THREADS,
     ENABLE_THREADS_FEDERATION,
+    ENABLE_GIFS,
     REGISTER_HAS_REVIEW,
     REGISTER_TYPE,
-  }
+  } satisfies Environment
 }
 
 export function useEnvironment(instance: string, enabled = true) {

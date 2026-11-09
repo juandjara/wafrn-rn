@@ -1,68 +1,13 @@
-import { MaterialIcons } from '@expo/vector-icons'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native'
-import Tenor from 'tenor-gif-api'
-import Loading from '../Loading'
-import { Image } from 'expo-image'
-import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { fetchToLocalUri } from '@/lib/files'
 import { EditorImage } from '@/lib/editor'
-import {
-  PrivateOptionNames,
-  getPrivateOptionValue,
-  useSettings,
-} from '@/lib/api/settings'
-import { Link } from 'expo-router'
-import { useCSSString } from '@/lib/cssVariables'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
-
-type GifMediaFormat = {
-  dims: number[]
-  duration: number
-  preview: string
-  size: number
-  url: string
-}
-
-type MediaFormatKey =
-  | 'gif'
-  | 'gifpreview'
-  | 'loopedmp4'
-  | 'mediumgif'
-  | 'mp4'
-  | 'nanogif'
-  | 'nanogifpreview'
-  | 'nanomp4'
-  | 'nanowebm'
-  | 'tinygif'
-  | 'tinygifpreview'
-  | 'tinymp4'
-  | 'tinywebm'
-  | 'webm'
-  | 'webp'
-
-type GifResponse = {
-  id: string
-  content_description: string
-  content_description_source: string
-  created: number
-  flags: string[]
-  hasaudio: boolean
-  itemurl: string
-  media_formats: Record<MediaFormatKey, GifMediaFormat>
-  tags: string[]
-  title: string
-  url: string
-}
+import { KlipyFormat, KlipyPicker } from '@beatsphere/expo-klipy'
+import { useHeaderInset } from '../Header'
+import { useAuth } from '@/lib/contexts/AuthContext'
+import { Pressable, Modal, StyleSheet, Text, View } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
+import { getGifApiKey } from '@/lib/api/user'
 
 export default function GifSearch({
   open,
@@ -73,146 +18,104 @@ export default function GifSearch({
   onClose: () => void
   onSelect: (gif: EditorImage) => void
 }) {
-  const gray500 = useCSSString('--color-gray-500')
-  const sx = useSafeAreaPadding()
-  const { data: settings } = useSettings()
-  const gifApiKey = getPrivateOptionValue(
-    settings?.options || [],
-    PrivateOptionNames.GifApiKey,
-  )
-
-  const [search, setSearch] = useState('')
-  const [query, setQuery] = useState('')
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['gifs', query],
-    queryFn: async () => {
-      const tenorClient = new Tenor(gifApiKey)
-      if (query) {
-        const data = await tenorClient.search.query({
-          q: query,
-          limit: 10,
-          contentfilter: 'off',
-          media_filter: 'webp',
-        })
-        return data.results as GifResponse[]
-      } else {
-        const data = await tenorClient.featured.getFeatured({
-          limit: 10,
-          contentfilter: 'off',
-          media_filter: 'webp',
-        })
-        return data.results as GifResponse[]
-      }
-    },
-    enabled: !!gifApiKey,
+  const { token, env, instance } = useAuth()
+  const { data: apiKey, isFetched } = useQuery({
+    queryKey: ['gif-api-key', instance],
+    queryFn: ({ signal }) => getGifApiKey(token!, signal),
+    enabled: env?.ENABLE_GIFS && !!token,
   })
 
   const downloadMutation = useMutation({
     mutationKey: ['download-gif'],
-    mutationFn: async (gif: GifResponse) => {
-      const filename = `gif-${gif.id}.webp`
-      const localUri = await fetchToLocalUri(
-        gif.media_formats.webp.url,
-        filename,
-      )
+    mutationFn: async (
+      gif: KlipyFormat & { id: number; description: string },
+    ) => {
+      const { id, description, height, width, url } = gif
+      const fileName = `gif-${id}.webp`
+      const localUri = await fetchToLocalUri(url, fileName)
       onSelect({
         uri: localUri,
-        width: gif.media_formats.webp.dims[0],
-        height: gif.media_formats.webp.dims[1],
+        width,
+        height,
         mimeType: 'image/webp',
-        description: gif.content_description,
-        fileName: filename,
+        description,
+        fileName,
       })
     },
   })
 
-  function handleSelect(gif: GifResponse) {
-    downloadMutation.mutate(gif)
+  const headerInset = useHeaderInset()
+  const sx = useSafeAreaPadding()
+
+  function getModalMessage() {
+    if (!env?.ENABLE_GIFS) {
+      return 'Your server does not have GIF support enabled. Contact your admin for more info.'
+    }
+    if (!isFetched) {
+      return 'Loading...'
+    }
+    if (isFetched && !apiKey) {
+      return 'Your server does not have a klipy api key configured. Contact your admin for more info.'
+    }
+    return ''
+  }
+
+  if (!env?.ENABLE_GIFS || !apiKey) {
+    return (
+      <Modal
+        transparent
+        animationType="slide"
+        visible={open}
+        onRequestClose={onClose}
+      >
+        <View className="flex-1 justify-end">
+          <Pressable
+            accessibilityLabel="Close"
+            className="bg-black/50"
+            style={StyleSheet.absoluteFill}
+            onPress={onClose}
+          />
+          <View
+            className="bg-indigo-950 relative"
+            style={{
+              paddingTop: 36,
+              paddingBottom: sx.paddingBottom + 8,
+            }}
+          >
+            <Pressable
+              className="absolute top-2 right-2 p-2 bg-white/10 rounded-full"
+              accessibilityLabel="Close"
+              onPress={onClose}
+            >
+              <MaterialCommunityIcons name="close" size={20} color={'white'} />
+            </Pressable>
+            <Text className="text-white text-center p-4">
+              {getModalMessage()}
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    )
   }
 
   return (
-    <Modal visible={open} onRequestClose={onClose}>
-      {downloadMutation.isPending && (
-        <View className="bg-black/50 absolute inset-0 items-center justify-center">
-          <Loading />
-        </View>
-      )}
-      <View style={sx} className="flex-1 p-2 bg-gray-800">
-        <View className="flex-row items-center px-2 gap-2 mb-2 m-1">
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search GIFs on Tenor..."
-            placeholderTextColor={gray500}
-            className="grow text-white bg-gray-700 p-2 rounded-md"
-            numberOfLines={1}
-            autoFocus
-            onSubmitEditing={() => setQuery(search)}
-            enterKeyHint="search"
-            readOnly={!gifApiKey}
-          />
-          <Pressable
-            accessibilityLabel="Close"
-            onPress={onClose}
-            className="p-2"
-          >
-            <MaterialIcons name="close" size={24} color="white" />
-          </Pressable>
-        </View>
-        {!gifApiKey && (
-          <View className="my-4">
-            <Text className="text-white text-center mb-4">
-              You need a Tenor API Key to use the GIF search.
-            </Text>
-            <Text className="text-white text-center leading-6">
-              You can get one{' '}
-              <Link
-                href="https://developers.google.com/tenor/guides/quickstart"
-                className="text-cyan-500 underline"
-              >
-                here
-              </Link>{' '}
-              or ask{' '}
-              <Link
-                href="wafrn://search/?q=@javascript@app.wafrn.net"
-                className="text-cyan-500 underline"
-              >
-                @javascript
-              </Link>{' '}
-              to give you one to write it in your{' '}
-              <Link
-                href="wafrn://setting/posting"
-                className="text-cyan-500 underline"
-              >
-                app settings
-              </Link>
-              .
-            </Text>
-          </View>
-        )}
-        {isLoading && <Loading />}
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          style={{ paddingHorizontal: 8 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              className="p-1 w-1/2 rounded-xl"
-              onPress={() => handleSelect(item)}
-            >
-              <Image
-                source={{ uri: item.media_formats.webp.url }}
-                style={{ width: '100%', aspectRatio: 1, borderRadius: 12 }}
-              />
-            </TouchableOpacity>
-          )}
-          renderScrollComponent={(props) => (
-            <KeyboardAwareScrollView {...props} />
-          )}
-        />
-      </View>
-    </Modal>
+    <KlipyPicker
+      contentType="gifs"
+      titleStyle={{ marginTop: headerInset }}
+      visible={open}
+      onClose={onClose}
+      apiKey={apiKey}
+      onSelect={(item) => {
+        const gif = item.file.md.webp!
+        if (!gif) {
+          console.error('missing webp format for gif object')
+        }
+        downloadMutation.mutate({
+          ...gif,
+          id: item.id,
+          description: item.title,
+        })
+      }}
+    />
   )
 }

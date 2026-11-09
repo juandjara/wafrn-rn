@@ -903,3 +903,15 @@ export function useDeleteAccountMutation() {
     },
   })
 }
+
+export async function getGifApiKey(token: string, signal: AbortSignal) {
+  const env = getEnvironmentStatic()
+  const json = await getJSON(`${env?.API_URL}/gifApiKey`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  })
+  const data = json as { apiKey: string | undefined }
+  return data.apiKey
+}
