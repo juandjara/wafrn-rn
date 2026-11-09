@@ -69,10 +69,7 @@ export default function EmojiPicker({
       return []
     }
 
-    const emojis = emojiGroups
-      .concat(ucGroups)
-      .flatMap((g) => g.emojis as Emoji[])
-
+    const emojis = emojiGroups.concat(ucGroups).flatMap((g) => g.emojis)
     const list = emojis.filter((e) => {
       if (!debouncedSearch) {
         return true
@@ -101,8 +98,6 @@ export default function EmojiPicker({
       {
         id: 'recent',
         name: 'Recent',
-        createdAt: '',
-        updatedAt: '',
         comment: null,
         emojis: [
           {
@@ -112,32 +107,31 @@ export default function EmojiPicker({
             url: '',
             external: false,
             content: '🕞',
-            createdAt: '',
-            updatedAt: '',
-            emojiCollectionId: 'recent',
           },
         ],
       } satisfies EmojiGroupConfig,
       ...emojiGroups,
       ...ucGroups,
     ]
-    return list.map((e) => {
-      const first = e.emojis[0] as Emoji
-      const index = emojiList.findIndex((emoji) => emoji.id === first?.id)
-      return {
-        id: e.id,
-        index,
-        name: e.name,
-        emoji: first.external
-          ? { content: e.id, name: e.name, url: null, uuid: first.uuid }
-          : {
-              content: first.content,
-              name: first.name,
-              url: first.url,
-              uuid: first.uuid,
-            },
-      }
-    })
+    return list
+      .filter((g) => g.emojis.length > 0)
+      .map((e) => {
+        const first = e.emojis[0]
+        const index = emojiList.findIndex((emoji) => emoji.id === first.id)
+        return {
+          id: e.id,
+          index,
+          name: e.name,
+          emoji: first.external
+            ? { content: e.id, name: e.name, url: null, uuid: first.uuid }
+            : {
+                content: first.content,
+                name: first.name,
+                url: first.url,
+                uuid: first.uuid,
+              },
+        }
+      })
   }, [emojiGroups, emojiList])
 
   function haveIReacted(emoji: Emoji) {

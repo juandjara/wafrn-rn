@@ -11,12 +11,10 @@ import {
   formatAvatarUrl,
   formatEmojiUrl,
 } from '@/lib/formatters'
-import { EmojiBase, useEmojiGroups } from '@/lib/api/emojis'
+import { type Emoji, useEmojiGroups } from '@/lib/api/emojis'
 
 const SUGGESTION_DEBOUNCE_TIME = 300 // ms
 const ucGroups = getUnicodeEmojiGroups()
-
-type Emoji = EmojiBase & { content?: string }
 
 export default function EditorSuggestions({
   onSelect,

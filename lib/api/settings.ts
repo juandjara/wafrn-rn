@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
-import { EmojiBase } from './emojis'
+import { type Emoji } from './emojis'
 import { Timestamps } from './types'
 import { PrivacyLevel } from './privacy'
 import { getEnvironmentStatic } from './auth'
@@ -9,15 +9,11 @@ import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
 import { BSKY_HOST } from './html'
 import { Exclusivity, InteractionControl } from './posts.types'
 
-export type EmojiGroupConfig = Timestamps & {
+export type EmojiGroupConfig = {
   id: string
   name: string
   comment: string | null
-  emojis: (EmojiBase &
-    Timestamps & {
-      content?: string
-      emojiCollectionId: string // refers to the `id` of the `EmojiGroupConfig` object
-    })[]
+  emojis: Emoji[]
 }
 
 export type SettingsOption = Timestamps & {

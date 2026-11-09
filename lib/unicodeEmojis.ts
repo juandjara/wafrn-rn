@@ -61,18 +61,13 @@ export function getUnicodeEmojiGroups() {
       id: category.symbol,
       comment: null,
       name: category.name,
-      createdAt: '',
-      updatedAt: '',
       emojis: emojis.map((e) => ({
-        emojiCollectionId: category.symbol,
         uuid: e.short_name,
         id: e.short_name,
         name: e.short_name,
         content: charFromEmojiObject(e),
         external: true,
         url: '',
-        createdAt: '',
-        updatedAt: '',
       })),
     } satisfies EmojiGroupConfig
   })

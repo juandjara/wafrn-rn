@@ -13,7 +13,7 @@ import { useToasts } from '../toasts'
 import { useDashboardContext } from '../contexts/DashboardContext'
 import { useMemo } from 'react'
 import { useDerivedPostState } from '../postStore'
-import { EmojiGroupConfig, useSettings } from './settings'
+import { EmojiGroupConfig } from './settings'
 
 export type EmojiBase = {
   external: boolean
@@ -35,10 +35,7 @@ export type PostEmojiRelation = {
   postId: string
 }
 
-export type Emoji = EmojiBase & {
-  content?: string
-  emojiCollectionId?: string
-}
+export type Emoji = EmojiBase & { content?: string }
 
 export type EmojiReaction = string | EmojiBase
 
@@ -231,13 +228,13 @@ export type Language = {
 
 export type InstanceOptions = {
   emojis: EmojiGroupConfig[]
-  language: Language[]
+  languages: Language[]
 }
 
 async function getInstanceEmojis() {
   const env = getEnvironmentStatic()
   const data = await getJSON(`${env.API_URL}/v3/instance-options`)
-  return (data as InstanceOptions).emojis
+  return (data as InstanceOptions).emojis.filter((c) => c.emojis.length > 0)
 }
 
 export function useInstanceEmojis() {
@@ -249,30 +246,12 @@ export function useInstanceEmojis() {
   })
 }
 
-type PersonalEmojiGroup = Pick<EmojiGroupConfig, 'id' | 'name' | 'comment'> & {
-  emojis: EmojiBase[]
-}
-
 async function getMyEmojiCollections(token: string) {
   const env = getEnvironmentStatic()
   const json = await getJSON(`${env.API_URL}/my-emoji-collections`, {
     headers: { Authorization: `Bearer ${token}` },
   })
-  const data = json as PersonalEmojiGroup[]
-  return data.map(
-    (c) =>
-      ({
-        ...c,
-        createdAt: '',
-        updatedAt: '',
-        emojis: c.emojis.map((emoji) => ({
-          ...emoji,
-          emojiCollectionId: c.id,
-          createdAt: '',
-          updatedAt: '',
-        })),
-      }) satisfies EmojiGroupConfig,
-  )
+  return json as EmojiGroupConfig[]
 }
 
 export function useMyEmojiCollections() {
@@ -285,16 +264,17 @@ export function useMyEmojiCollections() {
 }
 
 export function useEmojiGroups(includePersonal: boolean) {
-  const { data: settings } = useSettings()
-  const { data: personal } = useMyEmojiCollections()
+  const { data: instanceEmojis } = useInstanceEmojis()
+  const { data: personalEmojis } = useMyEmojiCollections()
   return useMemo(() => {
-    if (!settings?.emojis) {
+    if (!instanceEmojis) {
       return undefined
     }
-    return includePersonal && personal
-      ? personal.concat(settings.emojis)
-      : settings.emojis
-  }, [includePersonal, personal, settings?.emojis])
+    const filteredPersonal = personalEmojis?.filter((c) => c.emojis.length > 0)
+    return includePersonal && filteredPersonal
+      ? filteredPersonal.concat(instanceEmojis)
+      : instanceEmojis
+  }, [includePersonal, personalEmojis, instanceEmojis])
 }
 
 export function personalEmojiShortcode(emoji: EmojiBase, ownerUrl: string) {
