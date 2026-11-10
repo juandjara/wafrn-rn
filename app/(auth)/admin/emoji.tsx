@@ -12,7 +12,7 @@ import { FlashList } from '@shopify/flash-list'
 import { clsx } from 'clsx'
 import { getDocumentAsync } from 'expo-document-picker'
 import { Image } from 'expo-image'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
 const LIST_PADDING = 12
@@ -22,6 +22,40 @@ const EMOJI_CELL_SIZE = 48
 type ListItem =
   | { type: 'pack'; pack: EmojiGroupConfig }
   | { type: 'emoji'; emoji: EmojiGroupConfig['emojis'][number] }
+
+function EmojiItem_({ item }: { item: ListItem }) {
+  if (item.type === 'pack') {
+    return (
+      <Text className="text-white text-lg font-medium pt-4 pb-2">
+        {item.pack.name}{' '}
+        <Text className="text-gray-300 text-sm font-normal">
+          {item.pack.emojis.length} emoji
+        </Text>
+      </Text>
+    )
+  }
+  return (
+    <View
+      className="items-center justify-center"
+      style={{ height: EMOJI_CELL_SIZE }}
+    >
+      <Image
+        accessibilityLabel={item.emoji.name}
+        contentFit="contain"
+        decodeFormat="rgb"
+        cachePolicy="memory-disk"
+        recyclingKey={item.emoji.uuid}
+        source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
+        style={{ width: EMOJI_SIZE, height: EMOJI_SIZE }}
+      />
+    </View>
+  )
+}
+const EmojiItem = memo(EmojiItem_)
+
+function itemRenderer({ item }: { item: ListItem }) {
+  return <EmojiItem item={item} />
+}
 
 export default function AdminEmoji() {
   const sx = useSafeAreaPadding()
@@ -139,30 +173,7 @@ export default function AdminEmoji() {
             )}
           </View>
         }
-        renderItem={({ item }) =>
-          item.type === 'pack' ? (
-            <Text className="text-white text-lg font-medium pt-4 pb-2">
-              {item.pack.name}{' '}
-              <Text className="text-gray-300 text-sm font-normal">
-                {item.pack.emojis.length} emoji
-              </Text>
-            </Text>
-          ) : (
-            <View
-              className="items-center justify-center"
-              style={{ height: EMOJI_CELL_SIZE }}
-            >
-              <Image
-                accessibilityLabel={item.emoji.name}
-                contentFit="contain"
-                decodeFormat="rgb"
-                recyclingKey={item.emoji.uuid}
-                source={{ uri: formatEmojiUrl(item.emoji.uuid) }}
-                style={{ width: EMOJI_SIZE, height: EMOJI_SIZE }}
-              />
-            </View>
-          )
-        }
+        renderItem={itemRenderer}
       />
     </View>
   )

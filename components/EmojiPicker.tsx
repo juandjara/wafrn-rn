@@ -14,7 +14,7 @@ import {
   type Emoji,
 } from '@/lib/api/emojis'
 import { EmojiGroupConfig } from '@/lib/api/settings'
-import { useMemo, useRef, useState } from 'react'
+import { memo, useMemo, useRef, useState } from 'react'
 import { getUnicodeEmojiGroups } from '@/lib/unicodeEmojis'
 import { Image } from 'expo-image'
 import { formatEmojiUrl } from '@/lib/formatters'
@@ -35,6 +35,38 @@ const RECENT_EMOJI_LIMIT = 7
 
 const EMPTY_ARRAY = [] as never[]
 
+function EmojiItem_({
+  item,
+  handlePick,
+}: {
+  item: Emoji & { haveIReacted: boolean }
+  handlePick: (item: Emoji) => void
+}) {
+  return (
+    <Pressable
+      className={clsx('active:bg-indigo-900 rounded-lg py-2 px-4 h-12', {
+        'bg-indigo-800': item.haveIReacted,
+      })}
+      accessibilityLabel={item.name}
+      onPress={() => handlePick(item)}
+    >
+      {item.content ? (
+        <Text className="text-2xl">{item.content}</Text>
+      ) : (
+        <Image
+          contentFit="contain"
+          enforceEarlyResizing
+          recyclingKey={item.uuid}
+          source={{ uri: formatEmojiUrl(item.uuid) }}
+          style={{ width: 32, height: 32 }}
+          decodeFormat="rgb"
+        />
+      )}
+    </Pressable>
+  )
+}
+const EmojiItem = memo(EmojiItem_)
+
 export default function EmojiPicker({
   title,
   onPick,
@@ -53,7 +85,7 @@ export default function EmojiPicker({
   const columns = Math.floor(width / 52)
   const height = useWindowHeight() * 0.5
   const sx = useSafeAreaPadding()
-  const listRef = useRef<FlashListRef<Emoji>>(null)
+  const listRef = useRef<FlashListRef<Emoji & { haveIReacted: boolean }>>(null)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const me = useParsedToken()
@@ -69,13 +101,24 @@ export default function EmojiPicker({
       return []
     }
 
+    function haveIReacted(emoji: Emoji) {
+      const reaction = emoji.content ? emoji.content : emoji
+      return reactions.some(
+        (r) =>
+          isSameEmojiReaction(r.emoji, reaction) &&
+          r.users.some((r) => r.id === me?.userId),
+      )
+    }
+
     const emojis = emojiGroups.concat(ucGroups).flatMap((g) => g.emojis)
-    const list = emojis.filter((e) => {
-      if (!debouncedSearch) {
-        return true
-      }
-      return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-    })
+    const list = emojis
+      .filter((e) => {
+        if (!debouncedSearch) {
+          return true
+        }
+        return e.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+      })
+      .map((e) => ({ ...e, haveIReacted: haveIReacted(e) }))
 
     // use emoji groups (with or without personal ones) to filter recent emoji too
     const emojiIdMap = new Set(emojis.map((e) => e.id))
@@ -83,11 +126,12 @@ export default function EmojiPicker({
       .filter((e) => emojiIdMap.has(e.id))
       .map((e) => ({
         ...e,
+        haveIReacted: haveIReacted(e),
         id: e.id ? `${e.id}-recent` : e.id,
       }))
 
     return recent.concat(list)
-  }, [recentEmojis, emojiGroups, debouncedSearch])
+  }, [recentEmojis, me?.userId, reactions, emojiGroups, debouncedSearch])
 
   const headers = useMemo(() => {
     if (!emojiGroups) {
@@ -133,15 +177,6 @@ export default function EmojiPicker({
         }
       })
   }, [emojiGroups, emojiList])
-
-  function haveIReacted(emoji: Emoji) {
-    const reaction = emoji.content ? emoji.content : emoji
-    return reactions.some(
-      (r) =>
-        isSameEmojiReaction(r.emoji, reaction) &&
-        r.users.some((r) => r.id === me?.userId),
-    )
-  }
 
   function handlePick(emoji: Emoji) {
     if (emoji.id.endsWith('-recent')) {
@@ -230,33 +265,9 @@ export default function EmojiPicker({
               data={emojiList}
               keyExtractor={(item) => item.id}
               numColumns={columns}
-              renderItem={({ item }) => {
-                return (
-                  <Pressable
-                    className={clsx(
-                      'active:bg-indigo-900 rounded-lg py-2 px-4 h-12',
-                      {
-                        'bg-indigo-800': haveIReacted(item),
-                      },
-                    )}
-                    accessibilityLabel={item.name}
-                    onPress={() => handlePick(item)}
-                  >
-                    {item.content ? (
-                      <Text className="text-2xl">{item.content}</Text>
-                    ) : (
-                      <Image
-                        contentFit="contain"
-                        enforceEarlyResizing
-                        recyclingKey={item.uuid}
-                        source={{ uri: formatEmojiUrl(item.uuid) }}
-                        style={{ width: 32, height: 32 }}
-                        decodeFormat="rgb"
-                      />
-                    )}
-                  </Pressable>
-                )
-              }}
+              renderItem={({ item }) => (
+                <EmojiItem item={item} handlePick={handlePick} />
+              )}
             />
           </View>
         </KeyboardStickyView>
