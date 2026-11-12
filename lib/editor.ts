@@ -403,5 +403,6 @@ export function simpleEditorState(content: string) {
     privacy: PrivacyLevel.PUBLIC,
     canQuote: true,
     canReply: InteractionControl.Anyone,
-  }
+    postingAs: '',
+  } satisfies EditorFormState
 }

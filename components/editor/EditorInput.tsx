@@ -21,7 +21,7 @@ type MentionApi = ReturnType<typeof useMentions>
 
 type Selection = { start: number; end: number }
 type EditorProps = MentionApi & {
-  formState: Omit<EditorFormState, 'postingAs'>
+  formState: EditorFormState
   updateFormState: (
     key: keyof EditorFormState,
     value: EditorFormState[keyof EditorFormState],
