@@ -26,6 +26,7 @@ import {
   useSettings,
 } from './settings'
 import { processPost } from '../feeds'
+import { ensurePluraldawnSystem } from './pluraldawn'
 import {
   combineDashboardContextPages,
   getDashboardContextPage,
@@ -115,6 +116,7 @@ export function usePostDetail(id: string) {
       const data = await getPostDetail(token!, signal, id)
       const post = data.posts[0]
       const context = getDashboardContextPage(data)
+      await ensurePluraldawnSystem(post.userId, settings)
       await processPost(post, context, settings)
       return { post, context }
     },
@@ -156,6 +158,7 @@ export function useLegacyPostDetail(id: string) {
         repliesContext,
         postContext,
       ])
+      await ensurePluraldawnSystem(post.userId, settings)
       await processPost(post, context, settings)
       return { post, replies, context }
     },

@@ -1,7 +1,6 @@
 import { AVATAR_SIZE } from '@/lib/api/content'
 import { PostUser } from '@/lib/api/posts.types'
 import { useFollowedUsers, useSettings } from '@/lib/api/settings'
-import { formatUserUrl, formatAvatarUrl } from '@/lib/formatters'
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -10,6 +9,7 @@ import { clsx } from 'clsx'
 import TextWithEmojis from '../TextWithEmojis'
 import { EmojiBase } from '@/lib/api/emojis'
 import { useResolveClassNames } from 'uniwind'
+import { useDisplayUser } from '@/lib/api/pluraldawn'
 
 export default function UserCard({
   user,
@@ -25,6 +25,7 @@ export default function UserCard({
   const amIFollowing = followedUsers?.includes(user?.id!)
   const amIAwaitingApproval = settings?.notAcceptedFollows.includes(user?.id!)
   const followMutation = useFollowMutation(user)
+  const display = useDisplayUser(user)
 
   function toggleFollow() {
     if (!followMutation.isPending) {
@@ -45,15 +46,15 @@ export default function UserCard({
       }}
     >
       <Image
-        source={{ uri: formatAvatarUrl(user.id) }}
+        source={{ uri: display.avatarUrl }}
         style={[cn, { width: AVATAR_SIZE, height: AVATAR_SIZE }]}
       />
       <View id="user-name-and-url" className="flex-1">
         <View className="flex-row gap-1 items-center mt-1.5 mr-7">
-          {user.name && (
+          {display.name && (
             <View className="overflow-hidden shrink">
               <TextWithEmojis
-                text={user.name}
+                text={display.name}
                 emojis={emojis}
                 className="text-white"
                 numberOfLines={1}
@@ -83,7 +84,7 @@ export default function UserCard({
           )}
         </View>
         <Text numberOfLines={1} className="shrink-0 text-sm text-cyan-400">
-          {formatUserUrl(user.url)}
+          {display.handle}
           {user.pronouns ? (
             <Text numberOfLines={1} className="text-xs text-cyan-500">
               {' ~'}

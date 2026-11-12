@@ -13,7 +13,6 @@ import {
   HTMLContentModel,
   IMGElement,
   InternalRendererProps,
-  MixedStyleDeclaration,
   RenderHTMLConfigProvider,
   TBlock,
   TRenderEngineProvider,
@@ -146,13 +145,14 @@ const ignoredDomTags = ['input', 'textarea', 'select']
 const defaultTextProps = { maxFontSizeMultiplier: MAX_FONT_SCALE }
 
 export default function HtmlEngineProvider({ children }: PropsWithChildren) {
-  const { textStyle, tagStyles } = useHTMLStyles()
+  const { textStyle, tagStyles, classesStyles } = useHTMLStyles()
   return (
     <TRenderEngineProvider
       customHTMLElementModels={customHTMLElementModels}
-      baseStyle={textStyle as MixedStyleDeclaration}
+      baseStyle={textStyle}
       allowedStyles={allowedStyles}
       tagsStyles={tagStyles}
+      classesStyles={classesStyles}
       enableCSSInlineProcessing
       dangerouslyDisableWhitespaceCollapsing
       ignoredDomTags={ignoredDomTags}

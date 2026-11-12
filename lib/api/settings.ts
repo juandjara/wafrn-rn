@@ -84,6 +84,9 @@ export enum PrivateOptionNames {
   DisplayMentionsOfBlockedUsers = 'wafrn.displayMentionsOfBlockedUsersFromOtherUsers',
   DedupePostsInFeed = 'wafrn.dedupePostsInFeed',
   DefaultExclusivity = 'wafrn.defaultExclusivity',
+  EnablePluraldawn = 'wafrn.enablePluraldawn',
+  PluraldawnRemoveIndicators = 'wafrn.pluraldawnRemoveIndicators',
+  PluraldawnCustomFonts = 'wafrn.pluraldawnCustomFonts',
 }
 
 export enum RssOptions {
@@ -144,6 +147,9 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: boolean
   [PrivateOptionNames.DedupePostsInFeed]: boolean
   [PrivateOptionNames.DefaultExclusivity]: Exclusivity
+  [PrivateOptionNames.EnablePluraldawn]: boolean
+  [PrivateOptionNames.PluraldawnRemoveIndicators]: boolean
+  [PrivateOptionNames.PluraldawnCustomFonts]: boolean
 }
 
 export enum MuteSource {
@@ -216,6 +222,9 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.DisplayMentionsOfBlockedUsers]: false,
   [PrivateOptionNames.DedupePostsInFeed]: false,
   [PrivateOptionNames.DefaultExclusivity]: Exclusivity.None,
+  [PrivateOptionNames.EnablePluraldawn]: true,
+  [PrivateOptionNames.PluraldawnRemoveIndicators]: true,
+  [PrivateOptionNames.PluraldawnCustomFonts]: true,
 }
 
 export type PrivateOption = SettingsOption & {

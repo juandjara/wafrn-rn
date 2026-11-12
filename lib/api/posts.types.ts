@@ -82,6 +82,7 @@ export type PostUser = {
   name: string
   remoteId: string | null // full url
   pronouns?: string
+  memberId?: string
 }
 
 export type PostEmojiContext = {

@@ -1,5 +1,5 @@
 import { PostUser } from '@/lib/api/posts.types'
-import { formatAvatarUrl } from '@/lib/formatters'
+import { useDisplayUser } from '@/lib/api/pluraldawn'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { EmojiBase } from '@/lib/api/emojis'
 import BaseRibbon from './BaseRibbon'
@@ -17,6 +17,7 @@ export default function ReplyRibbon({
   className?: string
   isReply?: boolean
 }) {
+  const display = useDisplayUser(user)
   const label = isReply ? 'replied' : 'mentioned you'
   const icon = (
     <MaterialCommunityIcons
@@ -29,8 +30,8 @@ export default function ReplyRibbon({
 
   return (
     <BaseRibbon
-      avatar={formatAvatarUrl(user.id)}
-      name={user.name}
+      avatar={display.avatarUrl}
+      name={display.name}
       emojis={emojis}
       icon={icon}
       label={label}

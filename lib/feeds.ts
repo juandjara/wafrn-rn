@@ -1,4 +1,5 @@
 import {
+  DerivedPostData,
   getDerivedPostState,
   getDerivedThreadState,
   getUserEmojis,
@@ -9,17 +10,19 @@ import { FeedSettings, Settings } from './api/settings'
 import { DashboardContextData } from './contexts/DashboardContext'
 import { setDerivedPostState } from './postStore'
 import { requestIdle } from '@/lib/requestIdle'
+import { ensurePluraldawnSystem, withMember } from './api/pluraldawn'
+import type { FullNotification } from './notifications'
 
-export async function processPost(
+export function processPost(
   post: Post,
   context: DashboardContextData,
   settings?: Pick<Settings, 'options'>,
 ) {
-  return new Promise<void>((resolve) => {
+  return new Promise<DerivedPostData>((resolve) => {
     requestIdle(() => {
       const state = getDerivedPostState(post, context, settings)
       setDerivedPostState(post.id, state)
-      resolve()
+      resolve(state)
     })
   })
 }
@@ -46,6 +49,16 @@ async function threadToListItems(
     return []
   }
 
+  let replyUser = user
+  for (const post of [firstPost, ...threadPosts]) {
+    if (post) {
+      const state = await processPost(post, context, settings)
+      if (state.user && post === interactionPost) {
+        replyUser = state.user
+      }
+    }
+  }
+
   const elements = []
   if (user) {
     const tags = context.tags[interactionPost.id]
@@ -57,9 +70,6 @@ async function threadToListItems(
           threadId: thread.id,
           tag: followedTag,
           type: 'tag-ribbon' as const,
-          postId: interactionPost.id,
-          user,
-          emojis: userEmojis,
         })
       }
     }
@@ -77,13 +87,13 @@ async function threadToListItems(
         threadId: thread.id,
         type: 'reply-ribbon' as const,
         postId: interactionPost.id,
-        user,
+        // show in the reply ribbon the member that wrote it
+        user: replyUser!,
         emojis: userEmojis,
       })
     }
   }
   if (firstPost) {
-    await processPost(firstPost, context, settings)
     elements.push({
       threadId: thread.id,
       type: 'post' as const,
@@ -101,7 +111,6 @@ async function threadToListItems(
     })
   }
   for (const post of threadPosts) {
-    await processPost(post, context, settings)
     elements.push({
       threadId: thread.id,
       type: 'post' as const,
@@ -118,6 +127,59 @@ async function threadToListItems(
   })
 
   return elements
+}
+
+/**
+ * Loads the member lists of every post author in a page, ancestors and quoted posts included, in parallel,
+ * so other functions called in batch later can find them in the cache without introducing a network call each one
+ */
+async function preloadPluraldawnSystems(
+  posts: (Post & { ancestors?: Post[] })[],
+  context: DashboardContextData,
+  settings?: Pick<Settings, 'options'>,
+) {
+  const authorIds = new Set([
+    ...posts.flatMap((post) => [
+      post.userId,
+      ...(post.ancestors ?? []).map((ancestor) => ancestor.userId),
+    ]),
+    ...context.quotedPosts.map((post) => post.userId),
+  ])
+  await Promise.all(
+    Array.from(authorIds, (id) => ensurePluraldawnSystem(id, settings)),
+  )
+}
+
+export async function getNotificationsFeedData(
+  context: DashboardContextData,
+  notifications: FullNotification[],
+  settings?: FeedSettings,
+) {
+  const postMap = new Map<string, Post>()
+  for (const n of notifications) {
+    if (n.post) {
+      postMap.set(n.post.id, n.post)
+    }
+  }
+
+  const posts = Array.from(postMap.values())
+  await preloadPluraldawnSystems(posts, context, settings)
+  const states = new Map<string, DerivedPostData>()
+
+  for (const post of posts) {
+    states.set(post.id, await processPost(post, context, settings))
+  }
+
+  return notifications.map((n) => {
+    if (n.notificationType === 'MENTION' || n.notificationType === 'QUOTE') {
+      const memberId = states.get(n.post!.id)?.user?.memberId
+      if (memberId) {
+        return { ...n, user: withMember(n.user, memberId) }
+      }
+      return n
+    }
+    return n
+  })
 }
 
 type ThreadListItem = Awaited<ReturnType<typeof threadToListItems>>[number]
@@ -137,6 +199,7 @@ export async function getPinnedFeedData(
   posts: PostThread[],
   settings?: FeedSettings,
 ) {
+  await preloadPluraldawnSystems(posts, context, settings)
   const feed = [] as FeedItem[]
   const sortedPosts = [...posts].sort(
     (a, b) =>
@@ -194,6 +257,7 @@ export async function getFeedData(
   settings?: FeedSettings,
   seenPostIds?: Set<string>,
 ) {
+  await preloadPluraldawnSystems(posts, context, settings)
   const feed = [] as FeedItem[]
   const sortedPosts = posts.sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),

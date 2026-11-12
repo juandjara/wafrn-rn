@@ -3,6 +3,7 @@ import { formatMediaIdUrl, formatUserUrl } from '../formatters'
 import { PostMedia } from './posts.types'
 import parseIncomingPath from '../parseIncomingPath'
 import { crush } from 'html-crush'
+import type { MixedStyleRecord } from '@native-html/render'
 
 export const BSKY_HOST = 'bsky.app'
 export const BSKY_URL = `https://${BSKY_HOST}`
@@ -68,13 +69,17 @@ export const htmlBlockStyles = ({
       padding: 8,
       backgroundColor: blue950,
     },
-  }) as const // satisfies Record<string, ViewStyle> as Record<string, ViewStyle>
+  }) as MixedStyleRecord
 
 const boldStyle = { fontWeight: 'bold' as const }
 const italicStyle = { fontStyle: 'italic' as const }
 const underlineStyle = { textDecorationLine: 'underline' as const }
 const strikethroughStyle = { textDecorationLine: 'line-through' as const }
 const codeStyle = { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' }
+
+function smallStyle(leading: number, fontScale: number) {
+  return { fontSize: 12, lineHeight: 12 * leading * fontScale }
+}
 
 export const htmlInlineStyles = ({
   cyan400,
@@ -102,13 +107,26 @@ export const htmlInlineStyles = ({
       color: cyan400,
       textDecorationLine: 'none',
     },
-    small: { fontSize: 12, lineHeight: 12 * leadingXs * fontScale },
+    small: smallStyle(leadingXs, fontScale),
     text: {
       color: 'white',
       fontSize: 16,
       lineHeight: 16 * leadingBase * fontScale,
     },
-  }) as const
+  }) as MixedStyleRecord
+
+export const pluraldawnClassStyles = ({
+  fontScale,
+  leadingXs,
+}: {
+  fontScale: number
+  leadingXs: number
+}) =>
+  ({
+    'pluraldawn-font-smallcaps': { fontVariant: ['small-caps'] },
+    'pluraldawn-font-small': smallStyle(leadingXs, fontScale),
+    'pluraldawn-font-monospace': codeStyle,
+  }) as MixedStyleRecord
 
 export function normalizeTagName(tagName: string) {
   return tagName

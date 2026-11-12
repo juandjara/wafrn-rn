@@ -22,6 +22,12 @@ import {
 import { PrivacyLevel } from './privacy'
 import { Timestamps } from './types'
 import { collapseWhitespace, replaceInlineImages } from './html'
+import {
+  getCachedPluraldawnSystem,
+  PluraldawnMember,
+  withMember,
+} from './pluraldawn'
+import { matchPluraldawnMember } from '../pluraldawn'
 
 const LAYOUT_MARGIN = 24
 export const AVATAR_SIZE = 42
@@ -67,16 +73,10 @@ export function replaceEmojis(text: string, emojis: EmojiBase[]) {
   return text
 }
 
-export function processPostContent(
-  post: Post,
-  context: DashboardContextData,
+function applyAIWordReplacement(
+  content: string,
   options: (PublicOption | PrivateOption)[],
 ) {
-  if (post.content === '<p></p>') {
-    return ''
-  }
-
-  let content = (post.content ?? '').replace(WAFRNMEDIA_REGEX, '')
   const enableReplaceAIWord = getPrivateOptionValue(
     options,
     PrivateOptionNames.EnableReplaceAIWord,
@@ -86,17 +86,73 @@ export function processPostContent(
     PrivateOptionNames.ReplaceAIWord,
   )
   if (enableReplaceAIWord && replaceAIWord) {
-    content = content.replace(AI_REPLACE_REGEX, (match, g1, g2) => {
+    return content.replace(AI_REPLACE_REGEX, (match, g1, g2) => {
       if (g1 && !g2) {
         return `<em>${replaceAIWord}</em>`
       }
       return match
     })
   }
+  return content
+}
 
+function extractPluraldawnInfo(
+  post: Post,
+  options: (PublicOption | PrivateOption)[],
+) {
+  const enabled = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.EnablePluraldawn,
+  )
+  if (!enabled) {
+    return null
+  }
+
+  const system = getCachedPluraldawnSystem(post.userId)
+  if (!system) {
+    return null
+  }
+
+  const removeIndicators = getPrivateOptionValue(
+    options,
+    PrivateOptionNames.PluraldawnRemoveIndicators,
+  )
+  return matchPluraldawnMember(post.content ?? '', system, removeIndicators)
+}
+
+function applyPluraldawnFont(
+  content: string,
+  member: PluraldawnMember | undefined,
+  options: (PublicOption | PrivateOption)[],
+) {
+  if (
+    member &&
+    member.font !== 'normal' &&
+    getPrivateOptionValue(options, PrivateOptionNames.PluraldawnCustomFonts)
+  ) {
+    content = `<div class="pluraldawn-font-${member.font}">${content}</div>`
+  }
+  return content
+}
+
+function processPostContent(
+  post: Post,
+  context: DashboardContextData,
+  options: (PublicOption | PrivateOption)[],
+) {
+  if (post.content === '<p></p>') {
+    return { content: '', member: undefined }
+  }
+
+  const match = extractPluraldawnInfo(post, options)
+  let content = match ? match.html : (post.content ?? '')
+  content = content.replace(WAFRNMEDIA_REGEX, '')
+  content = applyAIWordReplacement(content, options)
   content = collapseWhitespace(content)
+  content = replaceEmojis(content, getPostEmojis(post, context))
+  content = applyPluraldawnFont(content, match?.member, options)
 
-  return replaceEmojis(content, getPostEmojis(post, context))
+  return { content, member: match?.member }
 }
 
 export function getPostEmojis(post: Post, context: DashboardContextData) {
@@ -593,9 +649,13 @@ export function getDerivedPostState(
   settings?: Pick<Settings, 'options'>,
 ) {
   const options = settings?.options || []
-  const user = context.users[post.userId]
+  const { content, member } = processPostContent(post, context, options)
+  const contextUser = context.users[post.userId]
+  const user =
+    contextUser && member ? withMember(contextUser, member.id) : contextUser
   const userEmojis = user ? getUserEmojis(user, context) : []
-  let postContent = processPostContent(post, context, options)
+
+  let postContent = content
   const tags = context.tags[post.id] ?? []
 
   // this processes the option "wafrn.disableNSFWCloak"

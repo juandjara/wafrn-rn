@@ -16,7 +16,11 @@ import {
   PrivateOptionNames,
   useFeedSettings,
 } from './settings'
-import { getFeedData, getPinnedFeedData } from '../feeds'
+import {
+  getFeedData,
+  getNotificationsFeedData,
+  getPinnedFeedData,
+} from '../feeds'
 import { PostEmoji } from './emojis'
 
 export enum DashboardMode {
@@ -347,6 +351,7 @@ export function useUserFeed(userId: string) {
 export function useNotifications(showDetached: boolean) {
   const { refetch: refetchBadge } = useNotificationBadges()
   const { token } = useAuth()
+  const settings = useFeedSettings()
   return useInfiniteQuery({
     queryKey: ['notifications', showDetached],
     queryFn: async ({ pageParam, signal }) => {
@@ -359,7 +364,11 @@ export function useNotifications(showDetached: boolean) {
       })
       const dashboardData = notificationPageToDashboardPage(list)
       const context = getDashboardContextPage(dashboardData)
-      const feed = parseNotificationPage(list)
+      const feed = await getNotificationsFeedData(
+        context,
+        parseNotificationPage(list),
+        settings,
+      )
       const endDate = getLastDate(list.notifications)
 
       await refetchBadge()
@@ -378,7 +387,7 @@ export function useNotifications(showDetached: boolean) {
         page: lastPageParam.page + 1,
       }
     },
-    enabled: !!token,
+    enabled: !!token && !!settings,
     staleTime: Infinity, // prevent re-fetching old data
   })
 }

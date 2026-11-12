@@ -1,5 +1,9 @@
 import { useCSSNumber, useCSSString } from '@/lib/cssVariables'
-import { htmlBlockStyles, htmlInlineStyles } from './api/html'
+import {
+  htmlBlockStyles,
+  pluraldawnClassStyles,
+  htmlInlineStyles,
+} from './api/html'
 import { useMemo } from 'react'
 import { useFontScale } from './styles'
 
@@ -29,6 +33,7 @@ export default function useHTMLStyles() {
     })
     return {
       textStyle: text,
+      classesStyles: pluraldawnClassStyles({ fontScale, leadingXs }),
       tagStyles: {
         ...blockStyles,
         ...inlineStyles,

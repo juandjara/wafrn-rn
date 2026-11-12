@@ -1,6 +1,6 @@
 import { EmojiBase } from '@/lib/api/emojis'
 import BaseRibbon from './BaseRibbon'
-import { formatAvatarUrl } from '@/lib/formatters'
+import { useDisplayUser } from '@/lib/api/pluraldawn'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { PostUser } from '@/lib/api/posts.types'
 
@@ -11,10 +11,11 @@ export default function QuoteRibbon({
   user: PostUser
   emojis: EmojiBase[]
 }) {
+  const display = useDisplayUser(user)
   return (
     <BaseRibbon
-      avatar={formatAvatarUrl(user.id)}
-      name={user.name}
+      avatar={display.avatarUrl}
+      name={display.name}
       emojis={emojis}
       link={`/user/${user.url}`}
       label="qouted your post"
