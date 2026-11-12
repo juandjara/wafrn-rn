@@ -17,6 +17,13 @@ import {
 import { useAsks } from './asks'
 import { Exclusivity, InteractionControl, PostUser } from './api/posts.types'
 import { useShareIntentContext } from 'expo-share-intent'
+import {
+  generateValueFromMentionStateAndChangedText,
+  parseValue,
+} from 'react-native-controlled-mentions'
+import { EDITOR_TRIGGERS_CONFIG } from './api/content'
+import type { PluraldawnSystem } from './api/pluraldawn'
+import { matchPluraldawnText } from './pluraldawn'
 
 export type EditorSearchParams = {
   text?: string
@@ -67,6 +74,7 @@ export type EditorFormState = {
   privacy: PrivacyLevel
   medias: EditorImage[]
   postingAs: string // user id
+  postingAsMember?: string // pluraldawn member id, only shown in the editor and never published
   canQuote: boolean
   canReply: InteractionControl
   exclusivity?: Exclusivity
@@ -405,4 +413,31 @@ export function simpleEditorState(content: string) {
     canReply: InteractionControl.Anyone,
     postingAs: '',
   } satisfies EditorFormState
+}
+
+/**
+ * Finds pluraldawn indicators in the editor `value` and swaps the indicator for the member's avatar emoji
+ * to help other servers who only know of the emoji avatar indicator recognize this post properly
+ */
+export function swapPluraldawnIndicator(
+  value: string,
+  system: PluraldawnSystem,
+) {
+  const mentionState = parseValue(value, Object.values(EDITOR_TRIGGERS_CONFIG))
+  const text = mentionState.plainText
+  const match = matchPluraldawnText(text, system)
+  const avatar = match?.member.avatarShortcode
+  const memberId = match?.member.id
+
+  if (avatar) {
+    const textBefore = text.slice(0, match.start)
+    const matchText = text.slice(match.start, match.end)
+    const textAfter = text.slice(match.end)
+    if (matchText !== avatar) {
+      const newText = `${textBefore}${avatar}${textAfter}`
+      value = generateValueFromMentionStateAndChangedText(mentionState, newText)
+    }
+  }
+
+  return { value, memberId }
 }

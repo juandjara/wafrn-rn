@@ -1,5 +1,6 @@
 import { useAccounts } from '@/lib/api/user'
-import { formatUserUrl } from '@/lib/formatters'
+import { formatEmojiUrl, formatUserUrl } from '@/lib/formatters'
+import { usePluraldawnSystem } from '@/lib/api/pluraldawn'
 import { Image } from 'expo-image'
 import { useMemo, useState } from 'react'
 import { Keyboard, Pressable, Text, View } from 'react-native'
@@ -7,9 +8,11 @@ import BottomSheet from '../BottomSheet'
 
 export default function PostingAsSelector({
   selectedUserId,
+  selectedMemberId,
   setSelectedUserId,
 }: {
   selectedUserId: string
+  selectedMemberId?: string
   setSelectedUserId: (userId: string) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -18,17 +21,25 @@ export default function PostingAsSelector({
     return accounts.find((a) => a.id === selectedUserId)
   }, [accounts, selectedUserId])
 
+  const { data: system } = usePluraldawnSystem(selectedUserId)
+  const member = system?.members.find((m) => m.id === selectedMemberId)
+  const label = member ? member.name : formatUserUrl(selectedAccount?.url)
+
   return (
     <>
       <Pressable
-        accessibilityLabel={`Wooting as ${formatUserUrl(selectedAccount?.url)}`}
+        accessibilityLabel={`Wooting as ${label}`}
         onPress={() => {
           Keyboard.dismiss()
           setOpen(true)
         }}
       >
         <Image
-          source={selectedAccount?.avatar}
+          source={
+            member?.avatarEmojiUuid
+              ? formatEmojiUrl(member.avatarEmojiUuid)
+              : selectedAccount?.avatar
+          }
           style={{ width: 40, height: 40, borderRadius: 100 }}
         />
       </Pressable>
@@ -60,12 +71,7 @@ export default function PostingAsSelector({
                 </Text>
               )}
             </View>
-            <Text className="font-medium flex-1">
-              {formatUserUrl(acc.url)}
-              {/* {acc.main ? (
-                <Text className="italic text-sm text-gray-500"> Main</Text>
-              ) : null} */}
-            </Text>
+            <Text className="font-medium flex-1">{formatUserUrl(acc.url)}</Text>
           </Pressable>
         ))}
       </BottomSheet>

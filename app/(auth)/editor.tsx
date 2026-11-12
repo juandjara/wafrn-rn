@@ -3,7 +3,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Keyboard,
@@ -39,6 +39,7 @@ import {
   EditorFormState,
   EditorImage,
   slugify,
+  swapPluraldawnIndicator,
   useEditorData,
 } from '@/lib/editor'
 import Loading from '@/components/Loading'
@@ -53,6 +54,7 @@ import { Link } from 'expo-router'
 import { clsx } from 'clsx'
 import EditorCornerMenu from '@/components/editor/EditorCornerMenu'
 import PostingAsSelector from '@/components/editor/PostingAsSelector'
+import { usePluraldawnSystem } from '@/lib/api/pluraldawn'
 import BottomSheet from '@/components/BottomSheet'
 import InteractionControlPicker from '@/components/InteractionControlPicker'
 import RadioGroup from '@/components/RadioGroup'
@@ -86,6 +88,9 @@ export default function EditorView() {
   const mentions = _mentions ? _mentions : mentionedUsers
   const form = _form || formState
 
+  const { data: pluraldawnSystem } = usePluraldawnSystem(form.postingAs)
+  const swapTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+
   function update<T extends keyof EditorFormState>(
     key: T,
     value: (typeof form)[T] | ((prev: (typeof form)[T]) => (typeof form)[T]),
@@ -97,7 +102,32 @@ export default function EditorView() {
         const prev = _prev || formState
         return { ...prev, [key]: newValue }
       })
+      if (key === 'content') {
+        clearTimeout(swapTimer.current)
+        swapTimer.current = setTimeout(
+          () => swapIndicator(newValue as string),
+          300,
+        )
+      }
     }
+  }
+
+  // runs once typing pauses, on the content written last
+  function swapIndicator(value: string) {
+    if (!pluraldawnSystem) {
+      return
+    }
+    const swap = swapPluraldawnIndicator(value, pluraldawnSystem)
+    setForm((_prev) => {
+      const prev = _prev || formState
+      if (
+        prev.content !== value ||
+        (prev.content === swap.value && prev.postingAsMember === swap.memberId)
+      ) {
+        return prev
+      }
+      return { ...prev, content: swap.value, postingAsMember: swap.memberId }
+    })
   }
 
   function deleteMention(id: string) {
@@ -424,6 +454,7 @@ export default function EditorView() {
             <View className="flex-row items-center px-3 py-2 gap-2">
               <PostingAsSelector
                 selectedUserId={form.postingAs}
+                selectedMemberId={form.postingAsMember}
                 setSelectedUserId={(userId) => update('postingAs', userId)}
               />
               <Text className="text-white text-sm">is {replyLabel}</Text>
