@@ -4,7 +4,12 @@ import { getJSON, StatusError } from '../http'
 import { formatAvatarUrl, formatEmojiUrl, formatUserUrl } from '../formatters'
 import { getEnvironmentStatic } from './auth'
 import { PostUser } from './posts.types'
-import { getPrivateOptionValue, PrivateOptionNames, Settings } from './settings'
+import {
+  getPrivateOptionValue,
+  PrivateOptionNames,
+  Settings,
+  useSettings,
+} from './settings'
 
 export type PluraldawnFont = 'normal' | 'smallcaps' | 'small' | 'monospace'
 
@@ -87,6 +92,19 @@ function formatMemberHandle(userUrl: string, memberId: string) {
     return `@${url}/${memberId}`
   }
   return `@${url.substring(0, at)}/${memberId}${url.substring(at)}`
+}
+
+export function usePluraldawnSystem(userId: string) {
+  const { data: settings } = useSettings()
+  const options = settings?.options ?? []
+  const enabled =
+    userId && settings
+      ? getPrivateOptionValue(options, PrivateOptionNames.EnablePluraldawn)
+      : false
+  return useQuery({
+    ...pluraldawnSystemQuery(userId),
+    enabled,
+  })
 }
 
 /** the name, avatar and handle to show for a user, replaced by its member's when `user.memberId` is set */
