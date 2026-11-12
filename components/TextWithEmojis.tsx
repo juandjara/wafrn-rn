@@ -21,6 +21,10 @@ export default function TextWithEmojis({
   emojis?: EmojiBase[]
   innerTextProps?: TextProps
 } & TextProps) {
+  if (!text) {
+    text = ''
+  }
+
   const { data: instanceEmojis } = useInstanceEmojis()
 
   const fontScale = useFontScale()
