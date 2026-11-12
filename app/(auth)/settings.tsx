@@ -77,6 +77,11 @@ export default function Settings() {
         link: '/setting/personal-emoji',
       },
       {
+        icon: 'account-multiple-outline' as const,
+        label: 'Per-woot profiles',
+        link: '/setting/per-woot-profiles',
+      },
+      {
         icon: 'account-plus-outline' as const,
         label: 'Account switcher',
         link: '/setting/account-switcher',
