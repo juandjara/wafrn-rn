@@ -24,7 +24,7 @@ type PluraldawnMatch = {
   html: string
 }
 
-type Indication = {
+type IndicatorMatch = {
   member: PluraldawnMember
   text: DomText
   start: number
@@ -33,8 +33,34 @@ type Indication = {
 
 // an emoji can be followed by the unicode characters U+FE0F (emoji style) or U+FE0E (text style)
 // those characters create emoji forms that differiante between ❤️ and ❤
+const variationSelectors = ['\uFE0F', '\uFE0E']
+
 function normalizeEmoji(emoji: string): string {
-  return emoji.replace(/[\uFE0E\uFE0F]/g, '')
+  return [...emoji].filter((c) => !variationSelectors.includes(c)).join('')
+}
+
+/** check for an indicator at the start of a text and return the index where the indicator ends (including unicode suffix) */
+function checkIndicatorAtStart(text: string, indicator: string, start: number) {
+  if (!text.startsWith(indicator, start)) {
+    return null
+  }
+
+  let end = start + indicator.length
+  // an indicator at start can be compared without the suffix but we want to remove the suffix too in case it's there
+  while (variationSelectors.includes(text[end])) {
+    end++
+  }
+  return end
+}
+
+/** check for an indicator at end of text and return the index where the indicator starts */
+function checkIndicatorAtEnd(text: string, indicator: string) {
+  for (const suffix of ['', ...variationSelectors]) {
+    if (text.endsWith(indicator + suffix)) {
+      return text.length - indicator.length - suffix.length
+    }
+  }
+  return null
 }
 
 function isTagNamed(node: DomParent | DomNode, name: string) {
@@ -75,8 +101,8 @@ function mentionWrapper(mention: DomNode, root: DomDocument): DomNode {
   return node
 }
 
-function findIndications(root: DomDocument, system: PluraldawnSystem) {
-  const indications: Indication[] = []
+function findIndicatorMatches(root: DomDocument, system: PluraldawnSystem) {
+  const matches: IndicatorMatch[] = []
 
   const mentions = DomUtils.findAll(
     (el) =>
@@ -96,18 +122,14 @@ function findIndications(root: DomDocument, system: PluraldawnSystem) {
     paragraphs = [root]
   }
 
-  const addText = (
+  const addMatch = (
     member: PluraldawnMember,
     text: DomText,
     start: number,
     end: number,
   ) => {
-    // indicators are compared without selectors, but the one in the post goes with its emoji
-    while (/[\uFE0E\uFE0F]/.test(text.data[end] ?? '')) {
-      end++
-    }
-    if (!indications.some((i) => i.text === text && i.start === start)) {
-      indications.push({ member, text, start, end })
+    if (!matches.some((m) => m.text === text && m.start === start)) {
+      matches.push({ member, text, start, end })
     }
   }
 
@@ -115,46 +137,37 @@ function findIndications(root: DomDocument, system: PluraldawnSystem) {
     for (const emoji of member.indicators.map(normalizeEmoji)) {
       for (const paragraph of paragraphs) {
         const firstNode = paragraph.children[0]
-        if (
-          firstNode &&
-          isTextNode(firstNode) &&
-          firstNode.data.startsWith(emoji)
-        ) {
-          addText(member, firstNode, 0, emoji.length)
+        if (firstNode && isTextNode(firstNode)) {
+          const end = checkIndicatorAtStart(firstNode.data, emoji, 0)
+          if (end !== null) {
+            // explicit null checks to avoid not matching on `end = 0`
+            addMatch(member, firstNode, 0, end)
+          }
         }
 
         const lastNode = paragraph.children[paragraph.children.length - 1]
         if (lastNode && isTextNode(lastNode)) {
-          const text = lastNode.data
-          for (const suffix of ['', '\uFE0F', '\uFE0E']) {
-            if (text.endsWith(emoji + suffix)) {
-              addText(
-                member,
-                lastNode,
-                text.length - emoji.length - suffix.length,
-                text.length,
-              )
-              break
-            }
+          const start = checkIndicatorAtEnd(lastNode.data, emoji)
+          if (start !== null) {
+            addMatch(member, lastNode, start, lastNode.data.length)
           }
         }
       }
       for (const next of afterMentions) {
         if (isTextNode(next)) {
-          const text = next.data
-          const trimmed = text.trimStart()
-          if (trimmed.startsWith(emoji)) {
-            const start = text.length - trimmed.length
-            addText(member, next, start, start + emoji.length)
+          const start = next.data.length - next.data.trimStart().length
+          const end = checkIndicatorAtStart(next.data, emoji, start)
+          if (end !== null) {
+            addMatch(member, next, start, end)
           }
         }
       }
     }
   }
-  return indications
+  return matches
 }
 
-function removeIndicator({ text, start, end }: Indication) {
+function removeIndicator({ text, start, end }: IndicatorMatch) {
   let before = text.data.substring(0, start)
   const after = text.data.substring(end).replace(/^\s*(:\s+)?/, '')
   if (!before && isTagNamed(text.prev, 'br')) {
@@ -184,19 +197,53 @@ export function matchPluraldawnMember(
   removeIndicators: boolean,
 ): PluraldawnMatch | null {
   const dom = parseDocument(html)
-  const indications = findIndications(dom, system)
-  if (indications.length !== 1) {
+  const matches = findIndicatorMatches(dom, system)
+  if (matches.length !== 1) {
     return null
   }
-  const indication = indications[0]
+  const match = matches[0]
   if (removeIndicators) {
-    removeIndicator(indication)
+    removeIndicator(match)
   }
 
   return {
-    member: indication.member,
+    member: match.member,
     html: removeIndicators
       ? serializeDom(dom, { encodeEntities: 'utf8' })
       : html,
   }
+}
+
+// leading mentions as the editor shows them (`@user@host`)
+const editorMentionsRegex = /^\s*(?:@[A-Za-z0-9_.@-]+\s+)*/
+
+/**
+ * Finds the one member whose indicator opens (after leading mentions)
+ * or closes the plain text of a woot being written.
+ * Text with indicators of more than one member, or none, produces no match.
+ */
+export function matchPluraldawnText(text: string, system: PluraldawnSystem) {
+  const mentionStart = text.match(editorMentionsRegex)?.[0].length ?? 0
+  const trimmed = text.trimEnd()
+  const matches: { member: PluraldawnMember; start: number; end: number }[] = []
+  const addMatch = (member: PluraldawnMember, start: number, end: number) => {
+    if (!matches.some((m) => m.start === start)) {
+      matches.push({ member, start, end })
+    }
+  }
+
+  for (const member of system.members) {
+    for (const indicator of member.indicators.map(normalizeEmoji)) {
+      const end = checkIndicatorAtStart(trimmed, indicator, mentionStart)
+      if (end !== null) {
+        addMatch(member, mentionStart, end)
+      }
+      const start = checkIndicatorAtEnd(trimmed, indicator)
+      // a text that is only the indicator already matched at the start
+      if (start !== null && start > mentionStart) {
+        addMatch(member, start, trimmed.length)
+      }
+    }
+  }
+  return matches.length === 1 ? matches[0] : null
 }
