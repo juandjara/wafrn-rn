@@ -37,7 +37,10 @@ function pluraldawnSystemQuery(userId: string) {
       } catch (e) {
         // 404 is also answered while the server is still decoding the avatar
         if ((e as StatusError).status !== 404) {
-          console.error('pluraldawn data not found for user with id', userId)
+          console.error(
+            'error finding pluraldawn data for user with id',
+            userId,
+          )
         }
         // a missing list only means the posts show as the account
         return null
