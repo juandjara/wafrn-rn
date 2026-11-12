@@ -27,28 +27,29 @@ import Animated, {
 import PagerView, { type PagerViewRef } from '@/components/PagerView'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller'
 import { InstanceListItem, useInstanceList } from '@/lib/api/instances'
-import { DEFAULT_INSTANCE } from '@/lib/api/auth'
 import { isValidURL } from '@/lib/api/content'
 import Button from './Button'
 import { useCSSString } from '@/lib/cssVariables'
+import instances from '@/instances.json'
 
-const DEFAULT_LIST = [
-  {
-    name: 'Wafrn',
-    description: '',
-    url: DEFAULT_INSTANCE,
-    activeUsers: 0,
-    totalUsers: 0,
-    totalWoots: 0,
-    bskyEnabled: true,
-    icon: 'https://app.wafrn.net/favicon.ico',
-    instanceAdmins: [],
-    registrationCondition: '',
-    registrationType: 'ADMIN_APPROVAL',
-    registrationUrl: '',
-    version: '',
-  } satisfies InstanceListItem,
-]
+const DEFAULT_LIST = instances.map(
+  (i) =>
+    ({
+      name: i,
+      description: '',
+      url: `https://${i}`,
+      activeUsers: 0,
+      totalUsers: 0,
+      totalWoots: 0,
+      bskyEnabled: false,
+      icon: `https://${i}/favicon.ico`,
+      instanceAdmins: [],
+      registrationCondition: '',
+      registrationType: '',
+      registrationUrl: '',
+      version: '',
+    }) satisfies InstanceListItem,
+)
 
 export default function InstancePicker({
   open,
@@ -62,7 +63,7 @@ export default function InstancePicker({
   onSelect: (url: string) => void
 }) {
   const sx = useSafeAreaPadding()
-  const { data, isFetching, refetch } = useInstanceList()
+  const { data, isFetching, refetch, isError } = useInstanceList()
   const instances = data ?? DEFAULT_LIST
 
   const [mode, setMode] = useState<'list' | 'write'>('list')
@@ -170,6 +171,7 @@ export default function InstancePicker({
               selected={selected}
               onSelect={onSelect}
               isLoading={isFetching}
+              isError={isError}
               onRefresh={refetch}
             />
             <InstanceInput onSelect={onSelect} />
@@ -185,6 +187,7 @@ type InstanceListProps = {
   selected: string | null
   onSelect: (url: string) => void
   isLoading: boolean
+  isError: boolean
   onRefresh: () => void
 }
 
@@ -193,6 +196,7 @@ function InstanceList({
   selected,
   onSelect,
   isLoading,
+  isError,
   onRefresh,
 }: InstanceListProps) {
   const [search, setSearch] = useState('')
@@ -214,107 +218,118 @@ function InstanceList({
   }
 
   return (
-    <KeyboardAwareScrollView
-      refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-      }
-    >
-      <View className="px-3">
-        <View className="relative">
-          <MaterialCommunityIcons
-            className="absolute top-6 left-3"
-            name="magnify"
-            color={gray400}
-            size={24}
-          />
-          <TextInput
-            placeholder="Search by url, name or description"
-            placeholderTextColorClassName="accent-gray-500"
-            className="p-3 pl-10 my-3 rounded-xl border border-gray-500 text-white"
-            value={search}
-            onChangeText={setSearch}
-            autoCapitalize="none"
-            inputMode="search"
-            onSubmitEditing={(e) => setSearch(e.nativeEvent.text)}
-          />
-        </View>
-        {filteredInstances.map((instance) => (
-          <Pressable
-            key={instance.url}
-            onPress={() => onSelect(instance.url)}
-            className={clsx(
-              'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
-              { 'bg-slate-700': isSelected(instance) },
-            )}
-          >
-            <View className="bg-blue-900 mr-3 rounded p-1">
-              <Image
-                source={{ uri: instance.icon }}
-                style={{ width: 42, height: 42 }}
-              />
-            </View>
-            <View className="flex-1 relative">
-              {isSelected(instance) ? (
-                <View className="absolute z-10 -top-1 -right-1">
-                  <Ionicons name="checkmark" color="white" size={24} />
-                </View>
-              ) : null}
-              {instance.name ? (
-                <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
-                  {instance.name}
-                </Text>
-              ) : null}
-              {instance.name.toLowerCase() !== new URL(instance.url).host ? (
-                <Text className="text-white mb-4 text-sm">
-                  {new URL(instance.url).host}
-                </Text>
-              ) : null}
-              {instance.description ? (
-                <Text className="text-white mb-2 text-sm">
-                  {instance.description}
-                </Text>
-              ) : null}
-              <Text className="text-white text-xs mb-2">
-                Registrations:{' '}
-                {instance.registrationUrl ? (
-                  <Link
-                    target="_blank"
-                    className="text-blue-500"
-                    href={instance.registrationUrl}
-                  >
-                    {instance.registrationType}
-                  </Link>
-                ) : (
-                  instance.registrationType
-                )}
-              </Text>
-              {instance.registrationCondition ? (
-                <Text className="text-white text-xs mb-2">
-                  {instance.registrationCondition}
-                </Text>
-              ) : null}
-              {instance.version ? (
-                <Text className="text-gray-400 mb-2 text-xs">
-                  v{instance.version}
-                </Text>
-              ) : null}
-              {instance.bskyEnabled ? (
-                <Text className="text-gray-400 text-xs">
-                  <FontAwesome6 name="bluesky" />
-                  {' Bluesky enabled'}
-                </Text>
-              ) : null}
-            </View>
-          </Pressable>
-        ))}
-        {instances.length <= 1 && (
-          <Text className="text-gray-300 text-center my-3">
-            No known servers found other than the default. You can still add one
-            manually.
-          </Text>
-        )}
+    <>
+      {isError && (
+        <Text className="text-red-100 text-sm text-center p-2">
+          Cannot get the list of known servers from join.wafrn.net. Showing the
+          basic version instead.
+        </Text>
+      )}
+      <View className="relative mx-3">
+        <MaterialCommunityIcons
+          className="absolute top-6 left-3"
+          name="magnify"
+          color={gray400}
+          size={24}
+        />
+        <TextInput
+          placeholder="Search by url, name or description"
+          placeholderTextColorClassName="accent-gray-500"
+          className="p-3 pl-10 my-3 rounded-xl border border-gray-500 text-white"
+          value={search}
+          onChangeText={setSearch}
+          autoCapitalize="none"
+          inputMode="search"
+          onSubmitEditing={(e) => setSearch(e.nativeEvent.text)}
+        />
       </View>
-    </KeyboardAwareScrollView>
+
+      <KeyboardAwareScrollView
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+        }
+      >
+        <View className="px-3">
+          {filteredInstances.map((instance) => (
+            <Pressable
+              key={instance.url}
+              onPress={() => onSelect(instance.url)}
+              className={clsx(
+                'transition-colors duration-500 flex-row items-start justify-start bg-slate-900 p-3 mb-3 rounded-lg',
+                { 'bg-slate-700': isSelected(instance) },
+              )}
+            >
+              <View className="bg-blue-900 mr-3 rounded p-1">
+                <Image
+                  source={{ uri: instance.icon }}
+                  style={{ width: 42, height: 42 }}
+                />
+              </View>
+              <View className="flex-1 relative">
+                {isSelected(instance) ? (
+                  <View className="absolute z-10 -top-1 -right-1">
+                    <Ionicons name="checkmark" color="white" size={24} />
+                  </View>
+                ) : null}
+                {instance.name ? (
+                  <Text className="text-slate-300 font-semibold mb-1 text-lg pr-12">
+                    {instance.name}
+                  </Text>
+                ) : null}
+                {instance.name.toLowerCase() !== new URL(instance.url).host ? (
+                  <Text className="text-white mb-4 text-sm">
+                    {new URL(instance.url).host}
+                  </Text>
+                ) : null}
+                {instance.description ? (
+                  <Text className="text-white mb-2 text-sm">
+                    {instance.description}
+                  </Text>
+                ) : null}
+                {instance.registrationType ? (
+                  <Text className="text-white text-xs mb-2">
+                    Registrations:{' '}
+                    {instance.registrationUrl ? (
+                      <Link
+                        target="_blank"
+                        className="text-blue-500"
+                        href={instance.registrationUrl}
+                      >
+                        {instance.registrationType}
+                      </Link>
+                    ) : (
+                      instance.registrationType
+                    )}
+                  </Text>
+                ) : null}
+                {instance.registrationCondition ? (
+                  <Text className="text-white text-xs mb-2">
+                    {instance.registrationCondition}
+                  </Text>
+                ) : null}
+                {instance.version ? (
+                  <Text className="text-gray-400 mb-2 text-xs">
+                    v{instance.version}
+                  </Text>
+                ) : null}
+                {instance.bskyEnabled ? (
+                  <Text className="text-gray-400 text-xs">
+                    <FontAwesome6 name="bluesky" />
+                    {' Bluesky enabled'}
+                  </Text>
+                ) : null}
+              </View>
+            </Pressable>
+          ))}
+          {instances.length <= 1 && (
+            <Text className="text-gray-300 text-center my-3">
+              No known servers found other than the default. You can still add
+              one manually.
+            </Text>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
+    </>
   )
 }
 
@@ -334,7 +349,8 @@ function InstanceInput({ onSelect }: { onSelect: (url: string) => void }) {
           />
           <TextInput
             autoCapitalize="none"
-            placeholder="Your server domain (e.g. app.wafrn.net)"
+            numberOfLines={1}
+            placeholder="Your server domain"
             placeholderTextColorClassName="accent-gray-500"
             className="p-3 pl-10 my-3 rounded-xl border border-gray-500 text-white"
             value={url}
