@@ -29,7 +29,7 @@ import SaveButton from '@/components/settings/SaveButton'
 export default function MutedWords() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const indigo400 = useCSSString('--color-indigo-400')
+  const indigo300 = useCSSString('--color-indigo-300')
   const { data: settings } = useSettings()
   const blocks = useMemo(() => {
     const opts = settings?.options || []
@@ -123,13 +123,13 @@ export default function MutedWords() {
             </Text>
             <Pressable
               onPress={handleDeleteAll}
-              className="flex-row items-center gap-2 active:bg-white/10 rounded-lg p-2"
+              className="flex-row items-center gap-1 active:bg-white/10 rounded-lg pl-3 p-2"
             >
               <Text className="text-indigo-300 text-sm">Delete all</Text>
               <MaterialCommunityIcons
                 name="delete-outline"
                 size={20}
-                color={indigo400}
+                color={indigo300}
               />
             </Pressable>
           </View>

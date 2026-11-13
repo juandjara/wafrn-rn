@@ -82,7 +82,7 @@ export default function MutedWordForm() {
   }
 
   function onSubmit() {
-    let newBlocks = [...blocks]
+    const newBlocks = [...blocks]
     if (isNew) {
       newBlocks.push(form)
     } else {
@@ -96,7 +96,7 @@ export default function MutedWordForm() {
         options: [
           {
             name: PrivateOptionNames.AdvancedMutedWords,
-            value: JSON.stringify(blocks),
+            value: JSON.stringify(newBlocks),
           },
         ],
       },
