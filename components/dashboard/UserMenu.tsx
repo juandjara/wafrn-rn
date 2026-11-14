@@ -25,10 +25,10 @@ export default function UserMenu({ size }: { size?: number }) {
   const { data: badges } = useNotificationBadges()
   const isSmallScreen = useSmallScreenCheck()
   const isAdmin = useAdminCheck()
-  const { env, instance } = useAuth()
+  const { env } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const avatar = formatAvatarUrl(me?.id ?? '', instance)
+  const avatar = formatAvatarUrl(me?.id ?? '')
   const { accounts, loading, selectAccount } = useAccounts()
 
   const gray600 = useCSSString('--color-gray-600')
@@ -149,6 +149,8 @@ export default function UserMenu({ size }: { size?: number }) {
             <View className="my-1.5 rounded-xl bg-gray-100 shrink-0">
               <Image
                 key={me?.id}
+                cachePolicy={'memory-disk'}
+                loading="lazy"
                 source={{ uri: avatar }}
                 style={{
                   width: 48,
@@ -178,6 +180,8 @@ export default function UserMenu({ size }: { size?: number }) {
                   >
                     <Image
                       source={{ uri: acc?.avatar }}
+                      cachePolicy={'memory-disk'}
+                      loading="lazy"
                       style={{ width: 44, height: 44, borderRadius: 8 }}
                     />
                     {acc?.avatar ? null : (
