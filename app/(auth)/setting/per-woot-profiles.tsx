@@ -38,9 +38,15 @@ export default function PerWootProfilesSettings() {
           paddingBottom: sx.paddingBottom + 20,
         }}
       >
+        <Text className="text-gray-300 text-sm px-4 pb-2">
+          Per-woot profiles let one account woot under several names and
+          avatars. A woot that starts or ends with one of a profile’s
+          indicators, such as an emoji, is shown with that profile’s name and
+          avatar. This uses the Pluraldawn format, created by Exa Skye.
+        </Text>
         <SettingRow
           label="Enable per-woot profiles"
-          description="Per-woot profiles let one account woot under several names and avatars. A woot that starts or ends with one of a profile's indicators, such as an emoji, is shown with that profile's name and avatar. Turning this off hides profiles for you only; other people still see woots written by your profiles. This uses the Pluraldawn format, created by Exa Skye."
+          description="Turning this off hides profiles for you only; other people still see woots written by your profiles."
           value={enabled}
           onChange={(flag) => update(PrivateOptionNames.EnablePluraldawn, flag)}
         />
