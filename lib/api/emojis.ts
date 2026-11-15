@@ -1,4 +1,5 @@
 import {
+  queryOptions,
   useMutation,
   useMutationState,
   useQuery,
@@ -254,11 +255,17 @@ async function getMyEmojiCollections(token: string) {
   return json as EmojiGroupConfig[]
 }
 
+export function myEmojiCollectionsQuery(token: string) {
+  return queryOptions({
+    queryKey: ['my-emoji-collections'],
+    queryFn: () => getMyEmojiCollections(token),
+  })
+}
+
 export function useMyEmojiCollections() {
   const { token } = useAuth()
   return useQuery({
-    queryKey: ['my-emoji-collections'],
-    queryFn: () => getMyEmojiCollections(token!),
+    ...myEmojiCollectionsQuery(token!),
     enabled: !!token,
   })
 }
@@ -300,9 +307,9 @@ function usePersonalEmojiMutation<T, R>(
   })
 }
 
-async function createEmojiCollection(token: string, name: string) {
+export async function createEmojiCollection(token: string, name: string) {
   const env = getEnvironmentStatic()
-  await getJSON(`${env.API_URL}/my-emoji-collections`, {
+  const json = await getJSON(`${env.API_URL}/my-emoji-collections`, {
     method: 'POST',
     body: JSON.stringify({ name }),
     headers: {
@@ -310,6 +317,7 @@ async function createEmojiCollection(token: string, name: string) {
       'Content-Type': 'application/json',
     },
   })
+  return json as EmojiGroupConfig
 }
 
 async function renameEmojiCollection(
@@ -376,7 +384,7 @@ async function deletePersonalEmoji(
   )
 }
 
-async function uploadPersonalEmoji(
+export async function uploadPersonalEmoji(
   token: string,
   collectionId: string,
   file: NamedUploadableFile,

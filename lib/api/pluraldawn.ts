@@ -1,8 +1,21 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { queryClient } from '../queryClient'
 import { getJSON, StatusError } from '../http'
 import { formatAvatarUrl, formatEmojiUrl, formatUserUrl } from '../formatters'
 import { getEnvironmentStatic } from './auth'
+import { useAuth, useParsedToken } from '../contexts/AuthContext'
+import { useToasts } from '../toasts'
+import {
+  createEmojiCollection,
+  EmojiBase,
+  myEmojiCollectionsQuery,
+  uploadPersonalEmoji,
+} from './emojis'
 import { PostUser } from './posts.types'
 import {
   getPrivateOptionValue,
@@ -11,7 +24,13 @@ import {
   useSettings,
 } from './settings'
 
-export type PluraldawnFont = 'normal' | 'smallcaps' | 'small' | 'monospace'
+export const PLURALDAWN_FONTS = [
+  'normal',
+  'smallcaps',
+  'small',
+  'monospace',
+] as const
+export type PluraldawnFont = (typeof PLURALDAWN_FONTS)[number]
 
 // as served by `/api/v2/cache/pluraldawnMembers/:id` (`ResolvedMember` in the backend)
 export type PluraldawnMember = {
@@ -25,6 +44,21 @@ export type PluraldawnMember = {
 
 export type PluraldawnSystem = {
   members: PluraldawnMember[]
+}
+
+export type StoredIndicator = string | { emojiUuid: string }
+export type StoredMember = {
+  id: string
+  name: string
+  font: PluraldawnFont
+  indicators: StoredIndicator[]
+  avatarEmojiUuid?: string
+}
+
+// 'avatar' when the server decoded the list from the user's avatar, 'native' once saved from an editor
+export type StoredSystem = {
+  source: 'avatar' | 'native'
+  members: StoredMember[]
 }
 
 function pluraldawnSystemQuery(userId: string) {
@@ -85,7 +119,7 @@ export function withMember<T extends Pick<PostUser, 'id'>>(
 }
 
 /** `@user/<memberId>@host`, or `@user/<memberId>` for local users */
-function formatMemberHandle(userUrl: string, memberId: string) {
+export function formatMemberHandle(userUrl: string, memberId: string) {
   const url = userUrl.startsWith('@') ? userUrl.substring(1) : userUrl
   const at = url.indexOf('@')
   if (at === -1) {
@@ -130,4 +164,78 @@ export function useDisplayUser(
       : formatAvatarUrl(user.id),
     handle: formatMemberHandle(user.url, member.id),
   }
+}
+
+async function saveSystem(token: string, members: StoredMember[]) {
+  const env = getEnvironmentStatic()
+  await getJSON(`${env.API_URL}/pluraldawn/system`, {
+    method: 'POST',
+    body: JSON.stringify({ members }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+export function useSaveSystemMutation() {
+  const { token } = useAuth()
+  const me = useParsedToken()
+  const qc = useQueryClient()
+  const { showToastError, showToastSuccess } = useToasts()
+  return useMutation({
+    mutationFn: (members: StoredMember[]) => saveSystem(token!, members),
+    onSuccess: () => showToastSuccess('Profiles saved'),
+    onError: (err) => showToastError(err.message),
+    onSettled: () =>
+      qc.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === 'settings' ||
+          (query.queryKey[0] === 'pluraldawn' &&
+            query.queryKey[1] === me?.userId),
+      }),
+  })
+}
+
+const UPLOAD_COLLECTION_NAME = 'profiles'
+
+/** the server takes the shortcode from the file name and accepts only letters, numbers and underscores */
+function memberAvatarShortcode(memberName: string) {
+  const shortcode = memberName
+    .trim()
+    .replaceAll(/[^a-zA-Z0-9]+/g, '_')
+    .replaceAll(/^_+|_+$/g, '')
+  return shortcode.length >= 2 ? shortcode : 'profile'
+}
+
+/** uploads a member picture as a personal emoji, into a collection of its own */
+export function useUploadMemberAvatarMutation() {
+  const { token } = useAuth()
+  const qc = useQueryClient()
+  const { showToastError } = useToasts()
+  return useMutation<
+    EmojiBase,
+    Error,
+    {
+      memberName: string
+      file: { uri: string; type?: string; extension: string }
+    }
+  >({
+    mutationFn: async ({ memberName, file }) => {
+      const collections = await qc.ensureQueryData(
+        myEmojiCollectionsQuery(token!),
+      )
+      const collection =
+        collections.find((c) => c.name === UPLOAD_COLLECTION_NAME) ??
+        (await createEmojiCollection(token!, UPLOAD_COLLECTION_NAME))
+      return uploadPersonalEmoji(token!, collection.id, {
+        uri: file.uri,
+        type: file.type,
+        name: `${memberAvatarShortcode(memberName)}.${file.extension}`,
+      })
+    },
+    onError: (err) => showToastError(err.message),
+    onSettled: () =>
+      qc.invalidateQueries({ queryKey: ['my-emoji-collections'] }),
+  })
 }

@@ -3,7 +3,15 @@
 
 import { DomUtils, ElementType, parseDocument } from 'htmlparser2'
 import serializeDom from 'dom-serializer'
-import type { PluraldawnMember, PluraldawnSystem } from './api/pluraldawn'
+import {
+  PLURALDAWN_FONTS,
+  type PluraldawnFont,
+  type PluraldawnMember,
+  type PluraldawnSystem,
+  type StoredMember,
+  type StoredSystem,
+} from './api/pluraldawn'
+import type { EmojiBase } from './api/emojis'
 
 type DomDocument = ReturnType<typeof parseDocument>
 type DomNode = DomDocument['children'][number]
@@ -246,4 +254,148 @@ export function matchPluraldawnText(text: string, system: PluraldawnSystem) {
     }
   }
   return matches.length === 1 ? matches[0] : null
+}
+
+export type EditableIndicator = {
+  key: number
+  text: string
+  // set while the text names one of the user's personal emoji
+  emojiUuid: string
+}
+
+export type EditableMember = {
+  key: number
+  name: string
+  urlFragment: string
+  font: PluraldawnFont
+  indicators: EditableIndicator[]
+  avatarEmojiUuid: string
+}
+
+let lastKey = 0
+function nextKey() {
+  return ++lastKey
+}
+
+/** the member id, shown in posts as `@user/<id>@host` */
+export function memberSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replaceAll(/[^\p{L}\p{N}]+/gu, '-')
+    .replaceAll(/^-+|-+$/g, '')
+}
+
+/** one id per member, with a number suffix where two would be repeated */
+export function memberIds(
+  members: Pick<EditableMember, 'name' | 'urlFragment'>[],
+) {
+  const used = new Set<string>()
+  return members.map((member) => {
+    const base =
+      memberSlug(member.urlFragment) || memberSlug(member.name) || 'profile'
+    let id = base
+    for (let n = 2; used.has(id); n++) {
+      id = `${base}-${n}`
+    }
+    used.add(id)
+    return id
+  })
+}
+
+export function editableIndicator(
+  text: string,
+  personalEmojis: EmojiBase[],
+  key = nextKey(),
+): EditableIndicator {
+  const emojiUuid =
+    personalEmojis.find((emoji) => emoji.name === text.trim())?.uuid ?? ''
+  return { key, text, emojiUuid }
+}
+
+export function newEditableMember(): EditableMember {
+  return {
+    key: nextKey(),
+    name: '',
+    urlFragment: '',
+    font: 'normal',
+    indicators: [],
+    avatarEmojiUuid: '',
+  }
+}
+
+export function toEditableMembers(
+  system: StoredSystem | null,
+  personalEmojis: EmojiBase[],
+): EditableMember[] {
+  return (system?.members ?? []).map((member) => ({
+    key: nextKey(),
+    name: member.name,
+    urlFragment: member.id === memberSlug(member.name) ? '' : member.id,
+    font: PLURALDAWN_FONTS.includes(member.font) ? member.font : 'normal',
+    indicators: (member.indicators ?? []).map((indicator) => {
+      if (typeof indicator === 'string') {
+        return editableIndicator(indicator, personalEmojis)
+      }
+      const emoji = personalEmojis.find((e) => e.uuid === indicator.emojiUuid)
+      return {
+        key: nextKey(),
+        text: emoji?.name ?? '',
+        emojiUuid: indicator.emojiUuid,
+      }
+    }),
+    avatarEmojiUuid: member.avatarEmojiUuid ?? '',
+  }))
+}
+
+export function toStoredMembers(members: EditableMember[]): StoredMember[] {
+  const ids = memberIds(members)
+  return members.map((member, i) => ({
+    id: ids[i],
+    name: member.name.trim(),
+    font: member.font,
+    // the avatar emoji already counts as an indicator
+    indicators: member.indicators
+      .filter(
+        (indicator) =>
+          !indicator.emojiUuid ||
+          indicator.emojiUuid !== member.avatarEmojiUuid,
+      )
+      .map((indicator) =>
+        indicator.emojiUuid
+          ? { emojiUuid: indicator.emojiUuid }
+          : indicator.text.trim(),
+      ),
+    ...(member.avatarEmojiUuid
+      ? { avatarEmojiUuid: member.avatarEmojiUuid }
+      : {}),
+  }))
+}
+
+export function findSystemProblem(
+  members: EditableMember[],
+  personalEmojis: EmojiBase[],
+) {
+  const used = new Set<string>()
+  for (const member of members) {
+    const keys = member.indicators.map(
+      (indicator) => indicator.emojiUuid || indicator.text.trim(),
+    )
+    if (personalEmojis.some((emoji) => emoji.uuid === member.avatarEmojiUuid)) {
+      keys.push(member.avatarEmojiUuid)
+    }
+    if (!member.name.trim() || keys.length === 0) {
+      return 'Every profile needs a name and an avatar emoji or profile indicator.'
+    }
+    if (keys.some((key) => !key)) {
+      return "Indicators can't be empty."
+    }
+    for (const key of new Set(keys)) {
+      if (used.has(key)) {
+        return "Two profiles can't share an indicator."
+      }
+      used.add(key)
+    }
+  }
+  return null
 }
