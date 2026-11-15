@@ -9,6 +9,7 @@ import { getEnvironmentStatic } from './auth'
 import { EXPO_PUBLIC_TENOR_KEY } from '../envVars'
 import { BSKY_HOST } from './html'
 import { Exclusivity, InteractionControl } from './posts.types'
+import type { StoredSystem } from './pluraldawn'
 
 export type EmojiGroupConfig = {
   id: string
@@ -87,6 +88,7 @@ export enum PrivateOptionNames {
   EnablePluraldawn = 'wafrn.enablePluraldawn',
   PluraldawnRemoveIndicators = 'wafrn.pluraldawnRemoveIndicators',
   PluraldawnCustomFonts = 'wafrn.pluraldawnCustomFonts',
+  PluraldawnSystem = 'wafrn.pluraldawnSystem',
 }
 
 export enum RssOptions {
@@ -150,6 +152,7 @@ export type PrivateOptionTypeMap = {
   [PrivateOptionNames.EnablePluraldawn]: boolean
   [PrivateOptionNames.PluraldawnRemoveIndicators]: boolean
   [PrivateOptionNames.PluraldawnCustomFonts]: boolean
+  [PrivateOptionNames.PluraldawnSystem]: StoredSystem | null
 }
 
 export enum MuteSource {
@@ -225,6 +228,7 @@ export const DEFAULT_PRIVATE_OPTIONS = {
   [PrivateOptionNames.EnablePluraldawn]: true,
   [PrivateOptionNames.PluraldawnRemoveIndicators]: true,
   [PrivateOptionNames.PluraldawnCustomFonts]: true,
+  [PrivateOptionNames.PluraldawnSystem]: null,
 }
 
 export type PrivateOption = SettingsOption & {
