@@ -10,6 +10,7 @@ export default function Button({
   text,
   textProps,
   disabled,
+  className,
   ...viewProps
 }: {
   text: React.ReactNode
@@ -20,6 +21,7 @@ export default function Button({
       disabled={disabled}
       className={clsx(
         'p-2 rounded shadow',
+        className,
         disabled ? 'bg-gray-500' : 'bg-sky-600',
       )}
       {...viewProps}
