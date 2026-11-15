@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getJSON } from '../http'
@@ -402,19 +402,20 @@ export function useFeedSettings(): FeedSettings | undefined {
   )
 }
 
-function useSettingsQuery<T = Settings>(select?: (settings: Settings) => T) {
+export function useSettings<T = Settings>(
+  opts?: Omit<
+    UseQueryOptions<Settings, Error, T>,
+    'queryKey' | 'queryFn' | 'enabled' | 'staleTime'
+  >,
+) {
   const { token } = useAuth()
   return useQuery({
     queryKey: ['settings'],
     queryFn: ({ signal }) => getSettings(token!, signal),
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
-    select,
+    ...opts,
   })
-}
-
-export function useSettings() {
-  return useSettingsQuery()
 }
 
 /**
@@ -424,7 +425,7 @@ export function useSettings() {
  * Selectors must be fast: they run on every render or invalidation
  */
 export function useSettingsValue<T>(select: (settings: Settings) => T) {
-  return useSettingsQuery(select).data
+  return useSettings({ select }).data
 }
 
 export function usePrivateOptionValue<T extends PrivateOptionNames>(key: T) {
