@@ -51,7 +51,7 @@ export function formatTimeAgo(date: string) {
 
 function formatCacheHost(host?: string) {
   if (!host) {
-    return getEnvironmentStatic().CACHE_HOST
+    host = getEnvironmentStatic().CACHE_HOST
   }
   return host.startsWith('http') ? host : `https://${host}`
 }
