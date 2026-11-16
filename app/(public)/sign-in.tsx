@@ -3,7 +3,7 @@ import {
   useLoginMfaMutation,
   parseToken,
 } from '@/lib/api/auth'
-import { useAuth } from '@/lib/contexts/AuthContext'
+import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
 import { Link, Redirect, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import {
@@ -12,6 +12,7 @@ import {
   Text,
   Platform,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from 'react-native'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useCSSString } from '@/lib/cssVariables'
@@ -22,6 +23,8 @@ import InstanceProvider from '@/components/InstanceProvider'
 import { useToasts } from '@/lib/toasts'
 import Button from '@/components/Button'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useAccounts } from '@/lib/api/user'
+import { formatUserUrl } from '@/lib/formatters'
 
 /**
  * Sanitize `next` param coming from url search params.
@@ -52,6 +55,9 @@ export default function SignIn() {
   const placeholderColor = useCSSString('--color-gray-400')
   const loginMfaMutation = useLoginMfaMutation(env!)
   const loginMutation = useLoginMutation(env!)
+  const { accounts, selectAccount } = useAccounts()
+  const me = useParsedToken()
+  const filteredAccounts = accounts.filter((acc) => acc.id !== me?.userId)
 
   function login() {
     if (loginMutation.isPending || !env || !email || !password) {
@@ -225,6 +231,35 @@ export default function SignIn() {
               )}
             </>
           </InstanceProvider>
+          {filteredAccounts.length > 0 ? (
+            <View className="py-6 gap-3">
+              <Text className="text-white">Sign in to another account:</Text>
+              {filteredAccounts.map((acc) => (
+                <TouchableOpacity
+                  key={acc?.id}
+                  className="flex-row items-center gap-2"
+                  accessibilityLabel={`Switch to ${formatUserUrl(acc.url)}`}
+                  onPress={() => selectAccount(acc.id)}
+                  activeOpacity={0.5}
+                >
+                  <View className="relative rounded-xl border-2 border-gray-600">
+                    <Image
+                      source={{ uri: acc?.avatar }}
+                      cachePolicy={'memory-disk'}
+                      loading="lazy"
+                      style={{ width: 44, height: 44, borderRadius: 8 }}
+                    />
+                    {acc?.avatar ? null : (
+                      <Text className="absolute inset-0 font-medium text-center uppercase z-10 text-2xl p-2">
+                        {acc.url.substring(0, 1)}
+                      </Text>
+                    )}
+                  </View>
+                  <Text className="text-white">{formatUserUrl(acc.url)}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
