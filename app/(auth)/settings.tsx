@@ -172,7 +172,7 @@ export default function Settings() {
       return true
     })
     return filteredOptions
-  }, [isAdmin, gray200, red400, instanceHost])
+  }, [isAdmin, red400, instanceHost])
 
   return (
     <View
@@ -207,7 +207,10 @@ export default function Settings() {
               ) : (
                 option.icon
               )}
-              <Text style={{ color: option.color ?? 'white' }}>
+              <Text
+                numberOfLines={1}
+                style={{ color: option.color ?? 'white' }}
+              >
                 {option.label}
               </Text>
             </Pressable>
