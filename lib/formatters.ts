@@ -49,34 +49,36 @@ export function formatTimeAgo(date: string) {
   return formatTimeAgo
 }
 
-export function formatHeaderUrl(userId: string, instanceUrl?: string) {
+function formatCacheHost(host?: string) {
+  if (!host) {
+    return getEnvironmentStatic().CACHE_HOST
+  }
+  return host.startsWith('http') ? host : `https://${host}`
+}
+
+export function formatHeaderUrl(userId: string, cacheHost?: string) {
   if (!userId) {
     return ''
   }
-  const env = getEnvironmentStatic()
-  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
-  return `${baseUrl}/api/v2/cache/header/${userId}`
+  const host = formatCacheHost(cacheHost)
+  return `${host}/api/v2/cache/header/${userId}`
 }
-export function formatAvatarUrl(userId: string, instanceUrl?: string) {
+export function formatAvatarUrl(userId: string, cacheHost?: string) {
   if (!userId) {
     return ''
   }
-  const env = getEnvironmentStatic()
-  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
-  return `${baseUrl}/api/v2/cache/avatar/${userId}`
+  const host = formatCacheHost(cacheHost)
+  return `${host}/api/v2/cache/avatar/${userId}`
 }
-export function formatMediaIdUrl(mediaId: string, instanceUrl?: string) {
-  const env = getEnvironmentStatic()
-  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
-  return `${baseUrl}/api/v2/cache/media/${mediaId}`
+export function formatMediaIdUrl(mediaId: string, cacheHost?: string) {
+  const host = formatCacheHost(cacheHost)
+  return `${host}/api/v2/cache/media/${mediaId}`
 }
-export function formatEmojiUrl(emojiId: string, instanceUrl?: string) {
-  const env = getEnvironmentStatic()
-  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
-  return `${baseUrl}/api/v2/cache/emoji/${emojiId}`
+export function formatEmojiUrl(emojiId: string, cacheHost?: string) {
+  const host = formatCacheHost(cacheHost)
+  return `${host}/api/v2/cache/emoji/${emojiId}`
 }
-export function formatFaviconUrl(pageUrl: string, instanceUrl?: string) {
-  const env = getEnvironmentStatic()
-  const baseUrl = instanceUrl || `https://${env?.CACHE_HOST}`
-  return `${baseUrl}/api/v2/cache/favicon/${encodeURIComponent(pageUrl)}`
+export function formatFaviconUrl(pageUrl: string, cacheHost?: string) {
+  const host = formatCacheHost(cacheHost)
+  return `${host}/api/v2/cache/favicon/${encodeURIComponent(pageUrl)}`
 }
