@@ -19,7 +19,7 @@ import useAsyncStorage from '../useLocalStorage'
 import { useToasts } from '../toasts'
 import { getUploadableFile } from '@/lib/files'
 import { router } from 'expo-router'
-import { startTransition } from 'react'
+import { useTransition } from 'react'
 import { isValidURL } from './content'
 
 export type User = {
@@ -155,24 +155,27 @@ export function useRefetchUserDataMutation(user: User) {
 
 const ACCOUNT_SWITCHER_KEY = 'wafrn_account_switcher_data'
 
-export type SavedAccount = {
+type SavedAccount = {
   token: string
   instance: string
+  cacheHost?: string
 }
 
 export function useAccounts() {
   const qc = useQueryClient()
-  const { token, setToken, instance, setInstance } = useAuth()
+  const { env, token, setToken, instance, setInstance } = useAuth()
   const {
-    loading,
+    loading: _loading,
     value: _accountsData,
     setValue: setAccountsData,
   } = useAsyncStorage<SavedAccount[]>(ACCOUNT_SWITCHER_KEY, [])
   const { showToastSuccess } = useToasts()
+  const [loadingTransition, startTransition] = useTransition()
+  const loading = _loading || loadingTransition
 
   const accountsData = _accountsData?.length
     ? _accountsData
-    : [{ token: token!, instance }]
+    : [{ token: token!, instance, cacheHost: env?.CACHE_HOST }]
 
   const accounts = accountsData
     .map((a) => {
@@ -181,7 +184,7 @@ export function useAccounts() {
         return null
       }
       // avatars must be fetched from the home server because current server may not have them cached
-      const avatar = formatAvatarUrl(user.userId, a.instance)
+      const avatar = formatAvatarUrl(user.userId, a.cacheHost || a.instance)
       const instanceHost = isValidURL(a.instance)
         ? new URL(a.instance).host
         : a.instance
@@ -201,8 +204,8 @@ export function useAccounts() {
     .filter((a) => !!a)
     .sort((a, b) => a.fullUrl.localeCompare(b.fullUrl))
 
-  function addAccount(token: string, instance: string) {
-    setAccountsData([...accountsData, { token, instance }])
+  function addAccount(token: string, instance: string, cacheHost: string) {
+    setAccountsData([...accountsData, { token, instance, cacheHost }])
   }
   function removeAccount(userId: string) {
     setAccountsData(
@@ -221,6 +224,16 @@ export function useAccounts() {
       const parsed = parseToken(a.token, true)
       return parsed && parsed.userId === userId
     })
+  }
+  function updateCacheHost(token: string, cacheHost: string) {
+    setAccountsData(
+      accountsData.map((a) => {
+        if (a.token === token) {
+          return { ...a, cacheHost }
+        }
+        return a
+      }),
+    )
   }
 
   function nextTick() {
@@ -241,6 +254,7 @@ export function useAccounts() {
       setToken(token)
       const env = await getInstanceEnvironment(instance)
       envAtom.set(env)
+      updateCacheHost(token, env.CACHE_HOST)
       const url = parseToken(token)?.url ?? ''
       showToastSuccess(`You are now waffing as ${url}`)
       await nextTick()

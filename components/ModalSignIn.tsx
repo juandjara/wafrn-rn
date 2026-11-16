@@ -18,7 +18,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 export default function ModalSignIn({
   onLoginComplete,
 }: {
-  onLoginComplete: (token: string, instance: string) => void
+  onLoginComplete: (token: string, instance: string, cacheHost: string) => void
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,7 +39,7 @@ export default function ModalSignIn({
   const loginMutation = useLoginMutation(env)
 
   async function completeLogin(token: string) {
-    onLoginComplete(token, instance)
+    onLoginComplete(token, instance, env!.CACHE_HOST)
   }
 
   function login() {

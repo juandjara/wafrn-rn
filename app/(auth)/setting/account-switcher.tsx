@@ -1,8 +1,7 @@
 import Button from '@/components/Button'
 import Header, { useHeaderInset } from '@/components/Header'
-import Loading from '@/components/Loading'
 import ModalSignIn from '@/components/ModalSignIn'
-import { useAccounts, useCurrentUser } from '@/lib/api/user'
+import { useAccounts } from '@/lib/api/user'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { CONTENT_MAX_WIDTH } from '@/lib/styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -10,6 +9,7 @@ import { clsx } from 'clsx'
 import { Image } from 'expo-image'
 import { useState } from 'react'
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   Pressable,
@@ -19,11 +19,12 @@ import {
   View,
 } from 'react-native'
 import { useCSSString } from '@/lib/cssVariables'
+import { useParsedToken } from '@/lib/contexts/AuthContext'
 
 export default function AccountSwitcherSettings() {
   const sx = useSafeAreaPadding()
   const headerInset = useHeaderInset()
-  const { data: me } = useCurrentUser()
+  const me = useParsedToken()
   const {
     accounts,
     loading,
@@ -37,9 +38,9 @@ export default function AccountSwitcherSettings() {
   const gray200 = useCSSString('--color-gray-200')
   const indigo400 = useCSSString('--color-indigo-400')
 
-  function onLoginComplete(token: string, instance: string) {
+  function onLoginComplete(token: string, instance: string, cacheHost: string) {
     setShowLogin(false)
-    addAccount(token, instance)
+    addAccount(token, instance, cacheHost)
   }
 
   function confirmRemoveAll() {
@@ -62,12 +63,16 @@ export default function AccountSwitcherSettings() {
         paddingTop: headerInset,
       }}
     >
-      <Header title="Account Switcher" />
-      {loading && (
-        <View className="absolute top-0 left-0 right-0">
-          <Loading />
-        </View>
-      )}
+      <Header
+        title="Account Switcher"
+        right={
+          loading && (
+            <View className="p-2">
+              <ActivityIndicator size="large" color="white" />
+            </View>
+          )
+        }
+      />
       <View className="flex-row gap-2 items-center mb-2">
         <Text className="text-white px-4 text-sm grow">
           Click an account to switch
@@ -92,8 +97,8 @@ export default function AccountSwitcherSettings() {
         {accounts.map((acc, index) => (
           <View key={acc.id}>
             <Pressable
-              className="flex-row px-2 mb-3 gap-3 items-center bg-blue-950/50 rounded-2xl"
-              disabled={acc.id === me?.id}
+              className="active:opacity-50 flex-row px-2 mb-3 gap-3 items-center bg-blue-950/50 rounded-2xl"
+              disabled={acc.id === me?.userId}
               onPress={() => selectAccount(acc.id)}
             >
               <View className="relative my-1.5 rounded-xl bg-gray-100 shrink-0">
@@ -114,7 +119,7 @@ export default function AccountSwitcherSettings() {
               <Text className="text-white text-base flex-1">{acc.fullUrl}</Text>
               <TouchableOpacity
                 className="p-2 rounded-full"
-                disabled={acc.id === me?.id}
+                disabled={acc.id === me?.userId}
                 accessibilityLabel="Delete account"
                 onPress={() => {
                   Alert.alert(
@@ -132,7 +137,7 @@ export default function AccountSwitcherSettings() {
                 }}
               >
                 <MaterialCommunityIcons
-                  name={acc.id === me?.id ? 'check' : 'trash-can-outline'}
+                  name={acc.id === me?.userId ? 'check' : 'trash-can-outline'}
                   size={24}
                   color={gray200}
                 />
