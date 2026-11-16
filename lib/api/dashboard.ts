@@ -10,7 +10,7 @@ import {
   parseNotificationPage,
   useNotificationBadges,
 } from '../notifications'
-import { getEnvironmentStatic } from './auth'
+import { getEnvironmentStatic, instanceAtom } from './auth'
 import {
   getPrivateOptionValue,
   PrivateOptionNames,
@@ -270,23 +270,28 @@ export function dedupePosts(pages: DashboardData[]) {
   return deduped
 }
 
-export async function getUserFeed({
+async function getUserFeed({
   startTime,
-  userId,
+  handle,
   token,
   signal,
   featured = false,
 }: {
   startTime: number
-  userId: string
+  handle: string
   token: string
   signal: AbortSignal
   featured?: boolean
 }) {
+  const instanceHost = new URL(instanceAtom.get()).host
+  if (handle.endsWith(instanceHost)) {
+    handle = handle.replace(instanceHost, '').replaceAll('@', '')
+  }
+
   const env = getEnvironmentStatic()
   const version = env.ENABLE_PAGINATED_THREADS ? 'v3' : 'v2'
   const json = await getJSON(
-    `${env?.API_URL}/${version}/blog?page=0&id=${userId}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
+    `${env?.API_URL}/${version}/blog?page=0&id=${handle}&startScroll=${startTime || Date.now()}${featured ? '&featured=true' : ''}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -298,24 +303,24 @@ export async function getUserFeed({
   return data
 }
 
-export function useUserFeed(userId: string) {
+export function useUserFeed(handle: string) {
   const { token } = useAuth()
   const settings = useFeedSettings()
 
   return useInfiniteQuery({
-    queryKey: ['dashboard', 'userFeed', userId],
+    queryKey: ['dashboard', 'userFeed', handle],
     queryFn: async ({ pageParam, signal }) => {
       const isFirstPage = pageParam === 0
       const [list, pinnedList] = await Promise.all([
         getUserFeed({
-          userId,
+          handle,
           startTime: pageParam,
           token: token!,
           signal,
         }),
         isFirstPage
           ? getUserFeed({
-              userId,
+              handle,
               startTime: 0,
               token: token!,
               signal,

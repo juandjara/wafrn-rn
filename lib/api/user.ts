@@ -4,6 +4,7 @@ import {
   envAtom,
   getEnvironmentStatic,
   getInstanceEnvironment,
+  instanceAtom,
   parseToken,
 } from './auth'
 import { EmojiBase, UserEmojiRelation } from './emojis'
@@ -83,6 +84,11 @@ export async function getUser(
     const parsed = parseToken(token)!
     handle = parsed.url
   }
+  const instanceHost = new URL(instanceAtom.get()).host
+  if (handle.endsWith(instanceHost)) {
+    handle = handle.replace(instanceHost, '').replaceAll('@', '')
+  }
+
   try {
     const env = getEnvironmentStatic()
     const json = await getJSON(`${env?.API_URL}/user?id=${handle}`, {
