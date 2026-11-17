@@ -457,9 +457,13 @@ export default function EditorView() {
                 selectedMemberId={form.postingAsMember}
                 setSelectedUserId={(userId) => update('postingAs', userId)}
               />
-              <Text className="text-white text-sm">is {replyLabel}</Text>
+              <Text numberOfLines={1} className="text-white text-sm">
+                is {replyLabel}
+              </Text>
               <View className="grow" />
-              <Text className="text-white text-sm">in</Text>
+              <Text numberOfLines={1} className="text-white text-sm">
+                in
+              </Text>
               <View className="shrink">
                 <PrivacySelect
                   title={

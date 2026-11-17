@@ -65,7 +65,7 @@ export default function Header({
         )}
         <View className="grow shrink flex-row items-center">
           {typeof title === 'string' ? (
-            <Text numberOfLines={1} className="text-white text-lg">
+            <Text numberOfLines={1} className="w-full text-white text-lg">
               {title}
             </Text>
           ) : (

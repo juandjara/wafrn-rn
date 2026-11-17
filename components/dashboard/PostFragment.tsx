@@ -200,20 +200,19 @@ function PostFragmentInner({
         </View>
       )}
       {user && <UserCard user={user} emojis={userEmojis} />}
-      <View id="date-line" className="flex-row gap-1 items-center">
+      <View id="date-line" className="w-full flex-row gap-1 items-center">
         {isEdited && (
           <MaterialCommunityIcons name="pencil" color="white" size={16} />
         )}
-        <Text className="text-xs text-gray-200">
+        <Text numberOfLines={1} className="text-xs text-gray-200">
           {formatDate(post.updatedAt)}
         </Text>
         <MaterialCommunityIcons
-          className="ml-0.5"
           name={PRIVACY_ICONS[post.privacy]}
           color="white"
           size={16}
         />
-        <Text className="text-xs text-gray-400">
+        <Text numberOfLines={1} className="grow text-xs text-gray-300">
           {PRIVACY_LABELS[post.privacy]}
         </Text>
       </View>

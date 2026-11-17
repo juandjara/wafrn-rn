@@ -85,7 +85,9 @@ export default function InteractionControlPicker({
             color={isSelected('anyone') ? cyan600 : gray300}
             size={24}
           />
-          <Text className="text-white">{INTERACTION_OPTION_LABELS.anyone}</Text>
+          <Text className="grow text-white">
+            {INTERACTION_OPTION_LABELS.anyone}
+          </Text>
         </Pressable>
         <Pressable
           onPress={() => handleInteractionOption('none')}
@@ -96,7 +98,9 @@ export default function InteractionControlPicker({
             color={isSelected('none') ? cyan600 : gray300}
             size={24}
           />
-          <Text className="text-white">{INTERACTION_OPTION_LABELS.none}</Text>
+          <Text className="grow text-white">
+            {INTERACTION_OPTION_LABELS.none}
+          </Text>
         </Pressable>
       </View>
       <View className="py-3 gap-3">
@@ -113,7 +117,7 @@ export default function InteractionControlPicker({
             size={24}
             color={isSelected('followers') ? cyan600 : gray300}
           />
-          <Text className="text-white">
+          <Text className="w-full text-white">
             {INTERACTION_OPTION_LABELS.followers}
           </Text>
         </Pressable>
@@ -130,7 +134,7 @@ export default function InteractionControlPicker({
             color={isSelected('following') ? cyan600 : gray300}
             size={24}
           />
-          <Text className="text-white">
+          <Text className="w-full text-white">
             {INTERACTION_OPTION_LABELS.following}
           </Text>
         </Pressable>
@@ -147,7 +151,9 @@ export default function InteractionControlPicker({
             color={isSelected('mentioned') ? cyan600 : gray300}
             size={24}
           />
-          <Text className="text-white">People mentioned in this post</Text>
+          <Text className="w-full text-white">
+            People mentioned in this post
+          </Text>
         </Pressable>
       </View>
       <Pressable

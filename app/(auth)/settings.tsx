@@ -117,9 +117,8 @@ export default function Settings() {
       {
         icon: 'information-outline' as const,
         label: (
-          <Text>
-            About{' '}
-            <Text className="text-cyan-300 font-semibold">{instanceHost}</Text>
+          <Text className="text-white w-full">
+            About <Text className="text-cyan-300">{instanceHost}</Text>
           </Text>
         ),
         link: '/article/system.about',
@@ -127,9 +126,9 @@ export default function Settings() {
       {
         icon: 'eye-off-outline' as const,
         label: (
-          <Text>
+          <Text className="text-white w-full">
             Privacy policy for{' '}
-            <Text className="text-cyan-300 font-semibold">{instanceHost}</Text>
+            <Text className="text-cyan-300">{instanceHost}</Text>
           </Text>
         ),
         link: '/article/system.privacy-policy',
@@ -207,12 +206,17 @@ export default function Settings() {
               ) : (
                 option.icon
               )}
-              <Text
-                numberOfLines={1}
-                style={{ color: option.color ?? 'white' }}
-              >
-                {option.label}
-              </Text>
+              {typeof option.label === 'string' ? (
+                <Text
+                  numberOfLines={1}
+                  className="w-full"
+                  style={{ color: option.color ?? 'white' }}
+                >
+                  {option.label}
+                </Text>
+              ) : (
+                option.label
+              )}
             </Pressable>
           ),
         )}

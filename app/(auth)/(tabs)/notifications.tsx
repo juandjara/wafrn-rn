@@ -20,7 +20,7 @@ import { useLayoutData } from '@/lib/postStore'
 import useSafeAreaPadding from '@/lib/useSafeAreaPadding'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
-import { useRef, useState, useTransition } from 'react'
+import { memo, useRef, useState, useTransition } from 'react'
 import { Text, View, FlatList, Pressable } from 'react-native'
 import QuoteRibbon from '@/components/ribbons/QuoteRibbon'
 import LikeRibbon from '@/components/ribbons/LikeRibbon'
@@ -123,7 +123,7 @@ export default function NotificationList() {
   )
 }
 
-function NotificationItem({
+function NotificationItem_({
   notification,
 }: {
   notification: FullNotification
@@ -226,11 +226,9 @@ function NotificationItem({
     >
       <View className="border-b border-slate-600">{ribbon}</View>
       {notification.notificationType !== 'MENTION' && (
-        <View className="flex-row justify-end gap-1 px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
-          <Text className="text-gray-300 text-xs font-bold">
-            {verbs[notification.notificationType]}
-          </Text>
-          <Text className="text-gray-300 text-xs">
+        <View className="px-1.5 py-0.5 absolute bg-blue-950 top-2 right-2 rounded-md border border-slate-600">
+          <Text numberOfLines={1} className="text-gray-300 text-xs">
+            {verbs[notification.notificationType]}{' '}
             {formatTimeAgo(notification.createdAt)}
           </Text>
         </View>
@@ -247,3 +245,4 @@ function NotificationItem({
     </View>
   )
 }
+const NotificationItem = memo(NotificationItem_)
