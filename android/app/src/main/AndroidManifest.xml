@@ -45,235 +45,397 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="app.wafrn.net"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="app.wafrn.net" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="bark.wolp.chat"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="bark.wolp.chat" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="meowing.men"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="fedisky.it" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="fedisky.it"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="social.cybernetica.cc" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.vaguely.art"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.vaguely.art" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waffles.baeddel.social"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="problemeowtic.net" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="homestuck.fr"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="homestuck.fr" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="social.cybernetica.cc"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="vifrn.vilant.org" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="vifrn.vilant.org"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="waf.gaycatgirl.sex" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="problemeowtic.net"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="waf.c00lest-kats-on.ovh" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="resenha.top"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="sleepy.girlkissing.club" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="sleepy.girlkissing.club"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="dragonite.blog" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.gaycatgirl.sex"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="neo.tokyonight.city" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="dragonite.blog"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.is.sillyand.gay" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.meowing.zip"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.is.sillyand.gay"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="neo.tokyonight.city"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.jcm.re" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="gabboman.xyz"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.k1ba.eu" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="rotkap.net"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="puppygirl.fail" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.k1ba.eu"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="puppygirl.fail"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="irminsul.cc" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.isquite.gay"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="club.endormis.cat" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="irminsul.cc"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wf.jbc.lol" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.jcm.re"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="plaza.minkalia.city" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wicwafren.com"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.nikes.website" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="club.endormis.cat"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.bunnynabbit.com" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="plaza.minkalia.city"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.nikes.website"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="killevery.one" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.bunnynabbit.com"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="social.sztupy.hu" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.mec-v02.dev"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="blog.goodanser.com" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="blog.goodanser.com"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.catgirlpatchouli.online"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="social.sztupy.hu"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.00ffff.eu"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="social.stg.sztupy.hu"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="wafrn.is-hardly.online"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="social.raven.scot"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="fright.tomb.download"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="social.raven.scot" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
