@@ -63,11 +63,33 @@ try {
 
 const ATPROTO_INTENT_LINKS = ['bsky.app', 'witchsky.app', 'deer.social']
 
-function intentLink(host: string, autoVerify: boolean) {
+// only open links for these paths
+// this way we can avoid opening links the app does not have like /dashboard or /api/oidc
+const WAFRN_LINK_PATHS = [
+  '/post/',
+  '/fediverse/',
+  '/blog/',
+  '/article/',
+  '/dashboard/search/',
+  '/activate/',
+  '/resetPassword/',
+]
+
+function intentLink(
+  host: string,
+  autoVerify: boolean,
+  pathPrefixes?: string[],
+) {
   return {
     action: 'VIEW',
     autoVerify,
-    data: [{ scheme: 'https', host }],
+    data: pathPrefixes
+      ? pathPrefixes.map((pathPrefix) => ({
+          scheme: 'https',
+          host,
+          pathPrefix,
+        }))
+      : [{ scheme: 'https', host }],
     category: ['BROWSABLE', 'DEFAULT'],
   }
 }
@@ -110,7 +132,7 @@ export default {
       permissions: [],
       package: appId,
       intentFilters: [
-        ...instances.map((host) => intentLink(host, true)),
+        ...instances.map((host) => intentLink(host, true, WAFRN_LINK_PATHS)),
         ...ATPROTO_INTENT_LINKS.map((host) => intentLink(host, false)),
       ],
     },
