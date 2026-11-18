@@ -11,7 +11,7 @@ export const BR = '\n'
 
 /**
  * Compute styles for content headings.
- * Leading sizes come from CSS variables at `@theme static` in styles.css.
+ * Leading sizes come from CSS variables at `@theme static` in styles/global.css.
  * `fontScale` multiplier is used to keep line height growing the same as font size with accesibility settings.
  */
 const heading = (fontSize: number, leading: number, fontScale: number) => ({

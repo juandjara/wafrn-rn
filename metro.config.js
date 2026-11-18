@@ -12,6 +12,9 @@ config.resolver.platforms = ['ios', 'android', 'web']
 
 module.exports = wrapWithReanimatedMetroConfig(
   withUniwindConfig(config, {
-    cssEntryFile: './styles.css',
+    // it is important that the .css file is not at the root directory level
+    // because if it is every file in the folder will be scanned for classNames
+    // which might affect reproducibility at build time
+    cssEntryFile: './styles/global.css',
   }),
 )

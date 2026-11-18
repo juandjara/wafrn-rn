@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source '../**/*.{ts,tsx}';
 @import 'uniwind';
 
 /* Unscaled ratios to be used in runtime TS compute */
