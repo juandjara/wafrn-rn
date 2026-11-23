@@ -20,11 +20,12 @@
       <string>applinks:dragonite.blog</string>
       <string>applinks:neo.tokyonight.city</string>
       <string>applinks:wafrn.is.sillyand.gay</string>
-      <string>applinks:rotkap.net</string>
+      <string>applinks:gabboman.xyz</string>
       <string>applinks:wafrn.jcm.re</string>
       <string>applinks:wafrn.k1ba.eu</string>
       <string>applinks:puppygirl.fail</string>
       <string>applinks:wafrn.isquite.gay</string>
+      <string>applinks:rotkap.net</string>
       <string>applinks:irminsul.cc</string>
       <string>applinks:club.endormis.cat</string>
       <string>applinks:wf.jbc.lol</string>
@@ -36,7 +37,6 @@
       <string>applinks:social.sztupy.hu</string>
       <string>applinks:blog.goodanser.com</string>
       <string>applinks:social.stg.sztupy.hu</string>
-      <string>applinks:waf.dragon-vi.be</string>
       <string>applinks:social.raven.scot</string>
     </array>
     <key>com.apple.security.application-groups</key>

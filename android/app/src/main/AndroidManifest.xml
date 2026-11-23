@@ -213,13 +213,13 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/post/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/fediverse/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/blog/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/article/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/dashboard/search/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/activate/"/>
-        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/resetPassword/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="gabboman.xyz" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
@@ -268,6 +268,18 @@
         <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/dashboard/search/"/>
         <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/activate/"/>
         <data android:scheme="https" android:host="wafrn.isquite.gay" android:pathPrefix="/resetPassword/"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+      <intent-filter android:autoVerify="true" data-generated="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/post/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/fediverse/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/blog/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/article/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/dashboard/search/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/activate/"/>
+        <data android:scheme="https" android:host="rotkap.net" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
@@ -400,18 +412,6 @@
         <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/dashboard/search/"/>
         <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/activate/"/>
         <data android:scheme="https" android:host="social.stg.sztupy.hu" android:pathPrefix="/resetPassword/"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-      <intent-filter android:autoVerify="true" data-generated="true">
-        <action android:name="android.intent.action.VIEW"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/post/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/fediverse/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/blog/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/article/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/dashboard/search/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/activate/"/>
-        <data android:scheme="https" android:host="waf.dragon-vi.be" android:pathPrefix="/resetPassword/"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
