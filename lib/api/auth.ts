@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
 import { getJSON } from '../http'
 import { createAtom } from '@xstate/store'
 import { getItem } from '@/lib/storage'
+import * as WebBrowser from 'expo-web-browser'
 
 export const AUTH_TOKEN_KEY = 'wafrn_token'
 export const SAVED_INSTANCE_KEY = 'wafrn_instance_url'
@@ -89,10 +90,13 @@ type EnvironmenResponse = {
   maintenanceMessage: string
   webpushPublicKey: string
   enableOptInFederationToThreads?: boolean
+  oidcEnabled?: boolean
+  oidcAuthName?: string
   featureFlags?: {
     gifApiKey?: boolean
     drafts?: boolean
     paginatedThreads?: boolean
+    oidcAppRedirect?: boolean
   }
 }
 export type Environment = {
@@ -108,6 +112,8 @@ export type Environment = {
   ENABLE_GIFS?: boolean
   REGISTER_HAS_REVIEW: boolean
   REGISTER_TYPE: RegisterType
+  ENABLE_OIDC_LOGIN: boolean
+  OIDC_AUTH_NAME: string
 }
 
 export async function getInstanceEnvironment(instanceURL: string) {
@@ -144,6 +150,10 @@ export async function getInstanceEnvironment(instanceURL: string) {
   const ENABLE_GIFS = !!env.featureFlags?.gifApiKey
   const REGISTER_HAS_REVIEW = env.reviewRegistrations
   const REGISTER_TYPE = env.registrationLevel
+  // without oidcAppRedirect the server would finish the login on its web client
+  const ENABLE_OIDC_LOGIN =
+    !!env.oidcEnabled && !!env.featureFlags?.oidcAppRedirect
+  const OIDC_AUTH_NAME = env.oidcAuthName || 'OpenID'
 
   return {
     API_URL,
@@ -158,7 +168,59 @@ export async function getInstanceEnvironment(instanceURL: string) {
     ENABLE_GIFS,
     REGISTER_HAS_REVIEW,
     REGISTER_TYPE,
+    ENABLE_OIDC_LOGIN,
+    OIDC_AUTH_NAME,
   } satisfies Environment
+}
+
+// The server ends the OIDC flow by redirecting here, followed by the path and
+// query it would send its web client to (wafrn: backend/routes/auth.ts)
+export const OIDC_REDIRECT_URL = 'wafrn://oidc-callback'
+
+export type OidcLoginResult =
+  | { type: 'token'; token: string; mfaRequired: boolean }
+  | { type: 'register'; email: string; username: string }
+  | { type: 'error'; error: string }
+  | { type: 'cancel' }
+
+/**
+ * Runs the instance's OIDC login in an auth session. The token is only
+ * trusted from this result, never from an incoming link
+ */
+export async function loginWithOidc(
+  env: Environment,
+): Promise<OidcLoginResult> {
+  let result: WebBrowser.WebBrowserAuthSessionResult
+  try {
+    result = await WebBrowser.openAuthSessionAsync(
+      `${env.API_URL}/login/oidc?useAppScheme=true`,
+      OIDC_REDIRECT_URL,
+    )
+  } catch (error) {
+    console.error(error)
+    return { type: 'error', error: 'could not open the browser' }
+  }
+  if (result.type !== 'success') {
+    return { type: 'cancel' }
+  }
+  const url = new URL(result.url)
+  const params = url.searchParams
+  if (url.pathname === '/register') {
+    return {
+      type: 'register',
+      email: params.get('email') ?? '',
+      username: params.get('username') ?? '',
+    }
+  }
+  const token = params.get('openid_token')
+  if (token) {
+    return {
+      type: 'token',
+      token,
+      mfaRequired: params.get('mfa_required') === 'true',
+    }
+  }
+  return { type: 'error', error: params.get('error') ?? 'unknown error' }
 }
 
 export function useEnvironment(instance: string, enabled = true) {

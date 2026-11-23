@@ -160,6 +160,9 @@ importers:
       expo-video:
         specifier: ^55.0.14
         version: 55.0.14(expo@55.0.12)(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
+      expo-web-browser:
+        specifier: ~55.0.20
+        version: 55.0.20(expo@55.0.12)(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))
       houseform:
         specifier: ^1.13.0
         version: 1.13.0(react@19.2.0)(zod@3.25.76)
@@ -3193,6 +3196,12 @@ packages:
     peerDependencies:
       expo: '*'
       react: '*'
+      react-native: '*'
+
+  expo-web-browser@55.0.20:
+    resolution: {integrity: sha512-masGrfbi/jqMezm/8cHHZ8chW+ifxumzt7QOCPiL+9aix0BSwuwDIBryEm2QPVmqJX51jckS0n245vWhwheQuQ==}
+    peerDependencies:
+      expo: '*'
       react-native: '*'
 
   expo@55.0.12:
@@ -9175,6 +9184,11 @@ snapshots:
     dependencies:
       expo: 55.0.12(@babel/core@7.28.5)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.11)(expo-router@55.0.11)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       react: 19.2.0
+      react-native: 0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0)
+
+  expo-web-browser@55.0.20(expo@55.0.12)(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0)):
+    dependencies:
+      expo: 55.0.12(@babel/core@7.28.5)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.11)(expo-router@55.0.11)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       react-native: 0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0)
 
   expo@55.0.12(@babel/core@7.28.5)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.11)(expo-router@55.0.11)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.4(@babel/core@7.28.5)(@react-native-community/cli@20.0.2(typescript@5.9.3))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3):

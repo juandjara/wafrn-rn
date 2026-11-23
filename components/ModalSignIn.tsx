@@ -2,8 +2,9 @@ import {
   useLoginMutation,
   useLoginMfaMutation,
   useEnvironment,
+  loginWithOidc,
 } from '@/lib/api/auth'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import { TextInput, View, Text } from 'react-native'
 import { Colors } from '@/constants/Colors'
@@ -80,6 +81,25 @@ export default function ModalSignIn({
     }
   }
 
+  async function loginOidc() {
+    if (!env) {
+      return
+    }
+    const result = await loginWithOidc(env)
+    if (result.type === 'register') {
+      const { email, username } = result
+      router.push({ pathname: '/register', params: { email, username } })
+    } else if (result.type === 'token' && result.mfaRequired) {
+      setFirstPassToken(result.token)
+    } else if (result.type === 'token') {
+      await completeLogin(result.token)
+    } else if (result.type === 'error') {
+      showToastError(
+        `Could not sign in with ${env.OIDC_AUTH_NAME} (${result.error})`,
+      )
+    }
+  }
+
   const iconCN = 'absolute top-7 left-4'
 
   return (
@@ -146,6 +166,14 @@ export default function ModalSignIn({
                   onPress={login}
                 />
               </View>
+              {env?.ENABLE_OIDC_LOGIN ? (
+                <View className="py-3">
+                  <Button
+                    onPress={loginOidc}
+                    text={`Sign in with ${env.OIDC_AUTH_NAME}`}
+                  />
+                </View>
+              ) : null}
               <Text className="py-3 text-white">
                 {"Don't"} have an account?{' '}
                 <Link href="/register" className="text-blue-500">

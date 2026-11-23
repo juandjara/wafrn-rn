@@ -2,9 +2,10 @@ import {
   useLoginMutation,
   useLoginMfaMutation,
   parseToken,
+  loginWithOidc,
 } from '@/lib/api/auth'
 import { useAuth, useParsedToken } from '@/lib/contexts/AuthContext'
-import { Link, Redirect, useLocalSearchParams } from 'expo-router'
+import { Link, Redirect, router, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import {
   TextInput,
@@ -99,6 +100,25 @@ export default function SignIn() {
     )
   }
 
+  async function loginOidc() {
+    if (!env) {
+      return
+    }
+    const result = await loginWithOidc(env)
+    if (result.type === 'register') {
+      const { email, username } = result
+      router.push({ pathname: '/register', params: { email, username } })
+    } else if (result.type === 'token' && result.mfaRequired) {
+      setFirstPassToken(result.token)
+    } else if (result.type === 'token') {
+      setToken(result.token)
+    } else if (result.type === 'error') {
+      showToastError(
+        `Could not sign in with ${env.OIDC_AUTH_NAME} (${result.error})`,
+      )
+    }
+  }
+
   const iconCN = 'absolute top-7 left-4'
 
   if (env && parseToken(token)) {
@@ -189,6 +209,14 @@ export default function SignIn() {
                       }
                     />
                   </View>
+                  {env?.ENABLE_OIDC_LOGIN ? (
+                    <View className="py-3">
+                      <Button
+                        onPress={loginOidc}
+                        text={`Sign in with ${env.OIDC_AUTH_NAME}`}
+                      />
+                    </View>
+                  ) : null}
                   <Text className="py-3 text-white">
                     {"Don't"} have an account?{' '}
                     <Link href="/register" className="text-blue-500">

@@ -22,7 +22,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { GENDERS } from '@/lib/genders'
 import { MediaUploadPayload, pickEditableImage } from '@/lib/api/media'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { useRegisterMutation } from '@/lib/api/user'
 import { useCSSString } from '@/lib/cssVariables'
 import { useToasts } from '@/lib/toasts'
@@ -63,6 +63,8 @@ export default function Register() {
   const { showToastSuccess } = useToasts()
   const gray500 = useCSSString('--color-gray-500')
   const { env } = useAuth()
+  // prefilled when an OIDC login finds no account for the provider's email
+  const prefill = useLocalSearchParams<{ email?: string; username?: string }>()
 
   function onSubmit(values: RegisterFormState) {
     mutation.mutate(
@@ -143,6 +145,7 @@ export default function Register() {
                     <View className="mb-6">
                       <Field
                         name="email"
+                        initialValue={prefill.email}
                         onBlurValidate={z
                           .string()
                           .email({ message: 'Invalid email address' })}
@@ -256,6 +259,7 @@ export default function Register() {
                       ) : null}
                       <Field
                         name="username"
+                        initialValue={prefill.username}
                         onChangeValidate={z
                           .string()
                           .regex(
