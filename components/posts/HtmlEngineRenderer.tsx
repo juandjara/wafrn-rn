@@ -38,16 +38,17 @@ function HtmlEngineRendererInner({
   const linkPreviewsDisabled = disableLinkCards || disableLinkPreviewsOption
   const { links, source } = useMemo(() => {
     const dom = parseDocument(html)
+    const root = DomUtils.findOne((e) => e.name === 'body', dom.children) ?? dom
     const unregistered = DomUtils.findAll(
       (node) => !isRegisteredTag(node.name),
-      dom.children,
+      root.children,
     )
     for (const node of unregistered) {
       const text = serializeDom(node, { encodeEntities: false })
       DomUtils.replaceElement(node, new Text(text))
     }
 
-    const anchors = DomUtils.findAll((node) => node.name === 'a', dom.children)
+    const anchors = DomUtils.findAll((node) => node.name === 'a', root.children)
 
     for (const node of anchors) {
       node.attribs['data-text'] = DomUtils.textContent(node)
@@ -66,12 +67,10 @@ function HtmlEngineRendererInner({
     const uniqueLinks = Array.from(
       new Set(links.map((node) => node.attribs.href)),
     )
-    const body = DomUtils.findOne((e) => e.name === 'body', dom.children) ?? dom
-
     return {
       links: uniqueLinks,
       source: {
-        dom: body as Document,
+        dom: root as Document,
         baseUrl: env?.BASE_URL,
       },
     }
